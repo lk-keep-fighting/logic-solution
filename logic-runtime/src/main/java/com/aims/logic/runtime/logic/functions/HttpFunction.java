@@ -5,7 +5,6 @@ import com.aims.logic.runtime.logic.FunctionContext;
 import com.aims.logic.runtime.logic.Functions;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
-import kotlin.jvm.functions.Function2;
 import okhttp3.*;
 
 import java.io.IOException;
@@ -13,7 +12,7 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
-public class HttpFunction implements Function2<FunctionContext, Object, Object> {
+public class HttpFunction implements IFunction<Object> {
 
     @Override
     public Object invoke(FunctionContext ctx, Object item) {
@@ -42,7 +41,7 @@ public class HttpFunction implements Function2<FunctionContext, Object, Object> 
                     .method(method, body).build();
         }
         System.out.println("-----http fn-----");
-        System.out.printf("%s:%s%n",method, url);
+        System.out.printf("%s:%s%n", method, url);
         System.out.println(jsonData);
         System.out.println(headers);
         try {

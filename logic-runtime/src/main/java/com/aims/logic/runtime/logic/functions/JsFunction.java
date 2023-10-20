@@ -1,15 +1,12 @@
 package com.aims.logic.runtime.logic.functions;
 
 import com.aims.logic.runtime.logic.FunctionContext;
-import kotlin.jvm.functions.Function2;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-public class JsFunction implements Function2<FunctionContext, Object, Object> {
+public class JsFunction implements IFunction<Object> {
     @Override
     public Object invoke(FunctionContext ctx, Object script) {
         if (script == null) return null;

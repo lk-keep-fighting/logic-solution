@@ -1,26 +1,19 @@
 package com.aims.logic.runtime.logic;
 
-import com.aims.logic.contract.dsl.LogicItemTreeNode;
 import com.aims.logic.runtime.logic.functions.HttpFunction;
+import com.aims.logic.runtime.logic.functions.IFunction;
 import com.aims.logic.runtime.logic.functions.JsFunction;
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONObject;
-import kotlin.Function;
-import kotlin.jvm.functions.Function2;
-import okhttp3.*;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Functions {
-    static Map<String, Function2<FunctionContext, Object, Object>> functions = new HashMap<>();
-//    static Map<String, Function<Object>> functions = new HashMap<>();
+    static Map<String, IFunction<Object>> functions = new HashMap<>();
+    // static Map<String, Function<Object>> functions = new HashMap<>();
 
 
     static {
-        functions.put("js",new JsFunction());
+        functions.put("js", new JsFunction());
 //        functions.put("js", (ctx, script) -> {
 //            ScriptEngineManager manager = new ScriptEngineManager();
 //            ScriptEngine engine = manager.getEngineByName("js");
@@ -165,7 +158,7 @@ public class Functions {
 //        });
     }
 
-    public static Function2<FunctionContext, Object, Object> get(String name) {
+    public static IFunction<Object> get(String name) {
         return functions.get(name);
     }
 }
