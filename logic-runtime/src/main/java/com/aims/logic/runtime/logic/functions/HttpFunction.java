@@ -12,7 +12,7 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
-public class HttpFunction implements IFunction<Object> {
+public class HttpFunction implements IFunction {
 
     @Override
     public Object invoke(FunctionContext ctx, Object item) {

@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Functions {
-    static Map<String, IFunction<Object>> functions = new HashMap<>();
+    static Map<String, IFunction> functions = new HashMap<>();
 
 
     static {
@@ -19,7 +19,7 @@ public class Functions {
     public Functions() {
     }
 
-    public static IFunction<Object> get(String name) {
+    public static IFunction get(String name) {
         return functions.get(name);
     }
 }

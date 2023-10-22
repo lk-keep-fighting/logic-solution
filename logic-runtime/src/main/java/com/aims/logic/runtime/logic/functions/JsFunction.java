@@ -6,7 +6,7 @@ import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 
-public class JsFunction implements IFunction<Object> {
+public class JsFunction implements IFunction {
     @Override
     public Object invoke(FunctionContext ctx, Object script) {
         if (script == null) return null;
