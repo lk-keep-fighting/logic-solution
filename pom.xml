@@ -19,8 +19,8 @@
     </properties>
     <modules>
         <module>logic-runtime</module>
-        <module>logic-runtime-service</module>
         <module>logic-sdk</module>
+        <module>logic-runtime-service</module>
         <module>logic-ide</module>
     </modules>
     <dependencies>
