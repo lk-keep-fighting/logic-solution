@@ -88,6 +88,8 @@ public class LogicRunner {
         var res = this.runItem(startNode, fnCtx);
         logicLog.setVarsJson_end(fnCtx.get_var());
         res.setLogicLog(logicLog);
+        res.setLogicId(logic.getId());
+        res.setVersion(logic.getVersion());
         return res;
     }
 
@@ -101,6 +103,8 @@ public class LogicRunner {
         var res = this.runItem(startNode, fnCtx);
         logicLog.setVarsJson_end(fnCtx.get_var());
         res.setLogicLog(logicLog);
+        res.setLogicId(logic.getId());
+        res.setVersion(logic.getVersion());
         return res;
     }
 

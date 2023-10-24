@@ -11,7 +11,7 @@ public class RuntimeEnvs {
     /**
      * 当前环境标识
      */
-    private EnvEnum ENV;
+    private EnvEnum NODE_ENV;
     /**
      * 逻辑配置模式
      * online在线模式，通过IDE_HOST获取

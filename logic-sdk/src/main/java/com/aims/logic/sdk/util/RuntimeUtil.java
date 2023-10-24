@@ -2,7 +2,6 @@ package com.aims.logic.sdk.util;
 
 import com.aims.logic.runtime.contract.enums.LogicConfigModelEnum;
 import com.aims.logic.sdk.RuntimeEnvs;
-import com.aims.logic.util.JsonUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import okhttp3.OkHttpClient;
@@ -46,7 +45,7 @@ public class RuntimeUtil {
             }
         } else {
             String path = String.format("/static/logics/%s.json", logicId);
-            return JsonUtil.readJsonFile(path);
+            return FileUtil.readJsonFile(path);
         }
         return null;
     }
@@ -58,9 +57,9 @@ public class RuntimeUtil {
      */
     public static JSONObject readEnv() {
         String envIdxPath = "/static/envs/index.json";
-        JSONObject envIdx = JsonUtil.readJsonFile(envIdxPath);
+        JSONObject envIdx = FileUtil.readJsonFile(envIdxPath);
         String _env = envIdx.get("env").toString();
         String envPath = String.format("/static/envs/env.%s.json", _env);
-        return JsonUtil.readJsonFile(envPath);
+        return FileUtil.readJsonFile(envPath);
     }
 }

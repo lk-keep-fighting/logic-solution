@@ -18,6 +18,7 @@ public class LogicTreeNode extends BaseLASL {
     public LogicTreeNode() {
         concept= ConceptEnum.Logic;
     }
+    String id;
 
     String name;
     /*
