@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.aims.xuanwu</groupId>
-    <artifactId>logic</artifactId>
+    <artifactId>logic-solution</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>logic</name>
-    <description>logic</description>
+    <name>logic-solution</name>
+    <description>logic-solution</description>
     <packaging>pom</packaging>
     <properties>
         <java.version>17</java.version>
