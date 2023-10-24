@@ -1,6 +1,6 @@
 package com.aims.logic.runtime.logic.functions;
 
-import com.aims.logic.contract.dsl.LogicItemTreeNode;
+import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
 import com.aims.logic.runtime.logic.FunctionContext;
 import com.aims.logic.runtime.logic.Functions;
 import com.alibaba.fastjson2.JSON;

@@ -1,6 +1,5 @@
 package com.aims.logic.service.exception;
 
-import com.aims.logic.contract.dto.LogicRunResult;
 import com.aims.logic.service.dto.ApiError;
 import com.aims.logic.service.dto.ApiResult;
 import jakarta.servlet.http.HttpServletRequest;

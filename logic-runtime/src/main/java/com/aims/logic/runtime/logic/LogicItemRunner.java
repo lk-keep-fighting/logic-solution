@@ -1,7 +1,7 @@
 package com.aims.logic.runtime.logic;
 
-import com.aims.logic.contract.dsl.LogicItemTreeNode;
-import com.aims.logic.contract.dto.LogicRunResult;
+import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
+import com.aims.logic.runtime.contract.dto.LogicRunResult;
 import com.alibaba.fastjson2.JSONObject;
 
 public class LogicItemRunner {

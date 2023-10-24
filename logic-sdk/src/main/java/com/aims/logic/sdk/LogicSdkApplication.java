@@ -1,12 +1,13 @@
-package com.aims.xuanwu.logic;
+package com.aims.logic.sdk;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class LogicApplication {
+public class LogicSdkApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(LogicApplication.class, args);
+        SpringApplication.run(LogicSdkApplication.class, args);
     }
+
 }

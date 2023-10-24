@@ -1,14 +1,12 @@
 package com.aims.logic.runtime.logic;
 
-import com.aims.logic.contract.dsl.LogicItemTreeNode;
-import com.aims.logic.contract.dsl.LogicTreeNode;
-import com.aims.logic.contract.log.LogicItemLog;
-import com.aims.logic.contract.log.LogicLog;
-import com.aims.logic.contract.parser.TypeAnnotationParser;
-import com.aims.logic.contract.dto.LogicRunResult;
-import com.aims.logic.runtime.RuntimeEnvs;
+import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
+import com.aims.logic.runtime.contract.dsl.LogicTreeNode;
+import com.aims.logic.runtime.contract.dto.LogicRunResult;
+import com.aims.logic.runtime.contract.log.LogicItemLog;
+import com.aims.logic.runtime.contract.log.LogicLog;
+import com.aims.logic.runtime.contract.parser.TypeAnnotationParser;
 import com.aims.logic.util.JsonUtil;
-import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import lombok.Getter;
 import lombok.Setter;
@@ -56,8 +54,6 @@ public class LogicRunner {
             this.startNode = startNode.get();
             this.startId = this.startNode.getId();
         }
-        RuntimeEnvs envs = envJson.toJavaObject(RuntimeEnvs.class);
-
         System.out.println("初始化成功");
         System.out.printf("默认参数，_par:%s%n", this.fnCtx.get_par());
         System.out.printf("默认局部变量，_var:%s%n", this.fnCtx.get_var());
