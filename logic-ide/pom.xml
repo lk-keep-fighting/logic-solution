@@ -3,19 +3,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.2</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <groupId>com.aims.xuanwu</groupId>
+        <artifactId>logic-solution</artifactId>
+        <version>${revision}</version>
     </parent>
     <groupId>com.aims</groupId>
     <artifactId>logic-ide</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>logic-ide</name>
     <description>logic-ide</description>
-    <properties>
-        <java.version>17</java.version>
-    </properties>
     <repositories>
         <repository>
             <id>kdznwl</id>
