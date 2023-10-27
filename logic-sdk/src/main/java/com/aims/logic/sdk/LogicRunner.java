@@ -92,13 +92,17 @@ public class LogicRunner {
         config.put("id", logicId);//自动修复文件名编号与内部配置编号不同的问题
         JSONObject env = RuntimeUtil.getEnvJson();
         env = JsonUtil.jsonMerge(customEnv, env);
-        QueryWrapper<LogicInstanceEntity> q = new QueryWrapper<>();
-        q.allEq(Map.of("logicId", logicId, "bizId", bizId));
-        LogicInstanceEntity insEntity = insService.getOne(q);
-        var cacheVarsJson = insEntity == null ? null : insEntity.getVarsJsonEnd();
-        var startId = insEntity == null ? null : insEntity.getNextId();
-        if (insEntity != null && insEntity.isOver()) {
-            return new LogicRunResult().setSuccess(false).setMsg(String.format("指定的bizId:%s已完成执行，无法重复执行。", bizId));
+        String startId = null;
+        String cacheVarsJson = null;
+        if (bizId != null && !bizId.isBlank()) {
+            QueryWrapper<LogicInstanceEntity> q = new QueryWrapper<>();
+            q.allEq(Map.of("logicId", logicId, "bizId", bizId));
+            LogicInstanceEntity insEntity = insService.getOne(q);
+            cacheVarsJson = insEntity == null ? null : insEntity.getVarsJsonEnd();
+            startId = insEntity == null ? null : insEntity.getNextId();
+            if (insEntity != null && insEntity.isOver()) {
+                return new LogicRunResult().setSuccess(false).setMsg(String.format("指定的bizId:%s已完成执行，无法重复执行。", bizId));
+            }
         }
         var res = new com.aims.logic.runtime.logic.LogicRunner(config, env)
                 .run(startId, pars, JSON.isValid(cacheVarsJson) ? JSON.parseObject(cacheVarsJson) : null);
