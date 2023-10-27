@@ -23,6 +23,14 @@
         <module>logic-runtime-service</module>
         <module>logic-ide</module>
     </modules>
+    <!-- 镜像仓库 -->
+    <repositories>
+        <repository>
+            <id>kdznwl</id>
+            <name>公司镜像仓库</name>
+            <url>https://nexus.kdznwl.cn/repository/maven-public</url>
+        </repository>
+    </repositories>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
