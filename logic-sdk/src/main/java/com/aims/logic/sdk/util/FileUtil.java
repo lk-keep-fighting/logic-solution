@@ -20,6 +20,7 @@ public class FileUtil {
     public static JSONObject readJsonFile(String dir, String fileName) {
         JSONObject json;
         String path = buildPath(buildPath(getRuntimePath(), dir), fileName);
+        System.out.printf("read json file path:%s", path);
         String jsonStr = null;
         try {
             jsonStr = Files.readString(Path.of(path));
@@ -52,7 +53,7 @@ public class FileUtil {
     public static void writeFile(String dir, String filename, String content) throws Exception {
         var dirPath = System.getProperty("user.dir");
         var filePath = buildPath(buildPath(dirPath, dir), filename);
-        System.out.printf("save file:%s", filePath);
+        System.out.printf("save file path:%s", filePath);
         File file = new File(filePath);
         if (!file.exists()) {
             file.createNewFile();
