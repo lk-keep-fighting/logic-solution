@@ -1,14 +1,10 @@
 package com.aims.logic.runtime.contract.dto;
 
-import com.aims.logic.runtime.contract.log.LogicItemLog;
-import com.aims.logic.runtime.contract.log.LogicLog;
+import com.aims.logic.runtime.contract.logger.LogicLog;
 import com.alibaba.fastjson2.JSONObject;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Setter

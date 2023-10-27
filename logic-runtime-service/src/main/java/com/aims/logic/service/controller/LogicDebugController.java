@@ -1,6 +1,5 @@
 package com.aims.logic.service.controller;
 
-import com.aims.logic.runtime.contract.log.LogicLog;
 import com.aims.logic.sdk.entity.LogicLogEntity;
 import com.aims.logic.sdk.mapper.LogicLogMapper;
 import com.aims.logic.service.dto.ApiResult;

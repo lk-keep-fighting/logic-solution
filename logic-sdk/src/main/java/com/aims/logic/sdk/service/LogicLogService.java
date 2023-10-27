@@ -24,7 +24,7 @@ public class LogicLogService {
     public void addLog(LogicRunResult res) {
         try {
             EnvEnum env = RuntimeUtil.getEnv().getNODE_ENV();
-            com.aims.logic.runtime.contract.log.LogicLog logicLog = res.getLogicLog();
+            com.aims.logic.runtime.contract.logger.LogicLog logicLog = res.getLogicLog();
             var nextId = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getId();
             var nextName = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getName();
             LogicLogEntity logEntity = new LogicLogEntity()
