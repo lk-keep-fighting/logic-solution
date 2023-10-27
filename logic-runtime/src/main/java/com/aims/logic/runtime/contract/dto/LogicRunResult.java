@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Setter
 @Accessors(chain = true)
@@ -15,21 +18,6 @@ public class LogicRunResult {
     }
 
     boolean success = true;
-
-    String logicId;
-    String version;
-    /**
-     * 业务标识
-     */
-    String bizId;
-
-    public LogicItemLog getErrorItem() {
-        var size = logicLog.getItemLogs().size();
-        if (!success && size > 0) {
-            return logicLog.getItemLogs().get(size - 1);
-        } else return null;
-    }
-
     /**
      * 消息
      */
@@ -43,6 +31,7 @@ public class LogicRunResult {
      * 获取data数据的字符串表示，
      * 如果是json则转换为json字符串，
      * 通常用于获取值进行存储或判断
+     *
      * @return
      */
     public String getDataString() {
@@ -54,7 +43,7 @@ public class LogicRunResult {
     }
 
     /**
-     * 逻辑执行日志
+     * 执行日志
      */
     LogicLog logicLog;
 }

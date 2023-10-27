@@ -1,5 +1,7 @@
 package com.aims.logic.sdk;
 
+import com.aims.logic.sdk.util.FileUtil;
+import net.sf.jsqlparser.expression.DateTimeLiteralExpression;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,9 +15,19 @@ public class LogicSdkApplicationTests {
 
     @Test
     void contextLoads() {
-        var res = runner.run("test", null);
-        System.out.println(res);
+//        var res = runner.run("test", null);
+//        var res = runner.runBiz("test", "222", null);
+//        System.out.printf("user.dir:%s",System.getProperty("user.dir"));
 //        mapper.insert(new LogicRuntimeLog().setEnv("java"));
+        testSaveFile();
+    }
+
+    void testSaveFile() {
+        try {
+            FileUtil.writeFile("logic-configs/logics", "t.json", "{\"d:\":1}");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

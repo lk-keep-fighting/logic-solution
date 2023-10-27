@@ -1,6 +1,7 @@
+server:
+  port: 4052
 spring:
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://192.168.154.31:30010/logic_runtime_demo?useUnicode=true&characterEncoding=gbk&autoReconnect=true&failOverReadOnly=false
     username: dbx
     password: 1234@qwer

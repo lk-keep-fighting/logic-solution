@@ -30,7 +30,7 @@
             <groupId>com.aims.logic</groupId>
             <artifactId>logic-sdk</artifactId>
             <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
+<!--            <scope>compile</scope>-->
         </dependency>
         <dependency>
             <groupId>com.baomidou</groupId>

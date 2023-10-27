@@ -7,12 +7,15 @@ import com.aims.logic.runtime.contract.log.LogicItemLog;
 import com.aims.logic.runtime.contract.log.LogicLog;
 import com.aims.logic.runtime.contract.parser.TypeAnnotationParser;
 import com.aims.logic.util.JsonUtil;
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import okhttp3.OkHttpClient;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -46,18 +49,39 @@ public class LogicRunner {
         JSONObject varsJson = TypeAnnotationParser.ParamsToJson(logic.getVariables());
         JSONObject envJson = TypeAnnotationParser.ParamsToJson(logic.getEnvs());
         envJson = JsonUtil.jsonMerge(_env, envJson);
+        autoAnalyzeAndAppendEnv(envJson);
         this.fnCtx.set_par(paramsJson);
         this.fnCtx.set_var(varsJson);
         this.fnCtx.set_env(envJson);
-        var startNode = logic.getItems().stream().filter(i -> Objects.equals(i.getType(), "start")).findFirst();
-        if (startNode.isPresent()) {
-            this.startNode = startNode.get();
-            this.startId = this.startNode.getId();
-        }
+
         System.out.println("初始化成功");
         System.out.printf("默认参数，_par:%s%n", this.fnCtx.get_par());
         System.out.printf("默认局部变量，_var:%s%n", this.fnCtx.get_var());
         System.out.printf("环境变量，_env:%s%n", this.fnCtx.get_env());
+    }
+
+    /**
+     * 自动分析环境变量需解析的值，并追加解析后的值到环境变量中，如token解析
+     * @param envJson
+     * @return
+     */
+    private JSONObject autoAnalyzeAndAppendEnv(JSONObject envJson) {
+        var headers = envJson.getJSONObject("HEADERS");
+        if (headers != null) {
+            var jwtToken = headers.getString("authorization");
+            if (jwtToken != null) {
+                String[] strings = jwtToken.split("\\.");
+                if (strings.length > 1) {
+                    JSONObject beforeJwtInfo = envJson.getJSONObject("JWT");
+                    JSONObject tokenJwtInfo = JSON.parseObject(
+                            new String(Base64.getDecoder().decode(strings[1]), StandardCharsets.UTF_8),
+                            JSONObject.class
+                    );
+                    envJson.put("JWT", JsonUtil.jsonMerge(beforeJwtInfo, tokenJwtInfo));
+                }
+            }
+        }
+        return envJson;
     }
 
     private LogicItemTreeNode findItem(String itemId) {
@@ -68,43 +92,73 @@ public class LogicRunner {
     /**
      * 继续执行，可传入上一次执行后缓存的局部变量varsJson，
      * 借用局部变量实现状态恢复继续执行
-     * @param runItemId 指定执行节点
+     *
+     * @param runItemId  指定执行节点
      * @param paramsJson 本次传入的参数
-     * @param varsJson 局部变量
+     * @param varsJson   局部变量
      * @return 返回结果
      */
-    public LogicRunResult continueRun(String runItemId, JSONObject paramsJson, JSONObject varsJson) {
-        if (varsJson != null) {
-            fnCtx.set_var(varsJson);
-        }
-        var runtime = findItem(runItemId);
-        if (runtime == null)
-            throw new RuntimeException(String.format("未发现执行节点：%s", runItemId));
-        this.startNode = runtime;
-        this.startId = runItemId;
-        fnCtx.set_par(JsonUtil.jsonMerge(paramsJson, fnCtx.get_par()));
-        logicLog.setParamsJson(fnCtx.get_par());
-        logicLog.setVarsJson(fnCtx.get_var().clone());
-        var res = this.runItem(startNode, fnCtx);
-        logicLog.setVarsJson_end(fnCtx.get_var());
-        res.setLogicLog(logicLog);
-        res.setLogicId(logic.getId());
-        res.setVersion(logic.getVersion());
-        return res;
+//    public LogicRunResult continueRun(String runItemId, JSONObject paramsJson, JSONObject varsJson) {
+//        if (varsJson != null) {
+//            fnCtx.set_var(varsJson);
+//        }
+//        var runtime = findItem(runItemId);
+//        if (runtime == null)
+//            throw new RuntimeException(String.format("未发现执行节点：%s", runItemId));
+//        this.startNode = runtime;
+//        this.startId = runItemId;
+//        fnCtx.set_par(JsonUtil.jsonMerge(paramsJson, fnCtx.get_par()));
+//        logicLog.setParamsJson(fnCtx.get_par());
+//        logicLog.setVarsJson(fnCtx.get_var().clone());
+//        var res = this.runItem(startNode, fnCtx);
+//        logicLog.setVarsJson_end(fnCtx.get_var());
+//        logicLog.setLogicId(logic.getId());
+//        logicLog.setVersion(logic.getVersion());
+//        res.setLogicLog(logicLog);
+//        return res;
+//    }
+
+    /**
+     * 从start执行逻辑
+     *
+     * @param paramsJson 入参json对象，传入后与配置中的入参json合并
+     * @return 返回，通过success判断是否执行成功，data为最后一个节点返回的数据
+     */
+    public LogicRunResult run(JSONObject paramsJson) {
+        return run(null, paramsJson, null);
     }
 
-    public LogicRunResult run(JSONObject paramsJson) {
-        if (this.startId.isEmpty()) {
-            throw new RuntimeException("未发现开始节点");
+    /**
+     * 执行逻辑，可指定节点编号执行
+     *
+     * @param runItemId  指定编号执行，null则从start开始执行
+     * @param paramsJson 入参json对象，传入后与配置中的入参json合并
+     * @param varsJson   局部变量对象，null则从配置中读取，传入则与配置中json合并
+     * @return 返回，通过success判断是否执行成功，data为最后一个节点返回的数据
+     */
+    public LogicRunResult run(String runItemId, JSONObject paramsJson, JSONObject varsJson) {
+        if (runItemId != null) {//指定了执行节点
+            this.startNode = findItem(runItemId);
+            if (this.startNode == null) throw new RuntimeException(String.format("未发现执行节点：%s", runItemId));
+        } else {//未指定执行节点，从start开始执行
+            var defStartNode = logic.getItems().stream().filter(i -> Objects.equals(i.getType(), "start")).findFirst();
+            if (defStartNode.isPresent()) {
+                this.startNode = defStartNode.get();
+                this.startId = this.startNode.getId();
+            } else throw new RuntimeException("未发现开始节点");
         }
         fnCtx.set_par(JsonUtil.jsonMerge(paramsJson, fnCtx.get_par()));
-        logicLog.setParamsJson(fnCtx.get_par());
-        logicLog.setVarsJson(fnCtx.get_var().clone());
+        fnCtx.set_var(JsonUtil.jsonMerge(varsJson, fnCtx.get_var()));
+
+        logicLog.setParamsJson(fnCtx.get_par() == null ? null : fnCtx.get_par().clone())
+                .setVarsJson(fnCtx.get_var() == null ? null : fnCtx.get_var().clone());
         var res = this.runItem(startNode, fnCtx);
-        logicLog.setVarsJson_end(fnCtx.get_var());
+        logicLog.setVarsJson_end(fnCtx.get_var())
+                .setLogicId(logic.getId())
+                .setVersion(logic.getVersion())
+                .setMsg(res.getMsg())
+                .setSuccess(res.isSuccess());
         res.setLogicLog(logicLog);
-        res.setLogicId(logic.getId());
-        res.setVersion(logic.getVersion());
         return res;
     }
 
@@ -126,13 +180,15 @@ public class LogicRunner {
         }
         var nextItem = findNextItem(item, fnCtx);
         if (nextItem != null && !nextItem.getId().isBlank()) {
-            if (Objects.equals(nextItem.getType(), "wait-for-continue")) {
+            if (Objects.equals(nextItem.getType(), "wait-for-continue")) {//发现下一个交互节点，本次执行结束
+                logicLog.setNextItem(nextItem);
                 return itemRes;
             } else {
                 itemRes = this.runItem(nextItem, fnCtx);
             }
         } else {
             System.out.println("无下级节点！");
+            logicLog.setOver(true);
         }
         return itemRes;
     }

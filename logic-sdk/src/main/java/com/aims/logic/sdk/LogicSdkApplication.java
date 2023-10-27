@@ -5,7 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "com.aims")
 @SpringBootConfiguration
 @MapperScan("com.aims.logic.sdk.mapper")
 public class LogicSdkApplication {

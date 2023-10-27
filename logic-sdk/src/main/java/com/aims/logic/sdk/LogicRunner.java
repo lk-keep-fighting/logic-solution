@@ -1,19 +1,20 @@
 package com.aims.logic.sdk;
 
 import com.aims.logic.runtime.contract.dto.LogicRunResult;
-import com.aims.logic.sdk.service.LogService;
+import com.aims.logic.sdk.service.LogicLogService;
 import com.aims.logic.sdk.util.RuntimeUtil;
 import com.aims.logic.util.JsonUtil;
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class LogicRunner {
-    private final LogService logService;
+    private final LogicLogService logService;
 
     @Autowired
-    public LogicRunner(LogService _logService) {
+    public LogicRunner(LogicLogService _logService) {
         this.logService = _logService;
     }
 
@@ -72,13 +73,26 @@ public class LogicRunner {
         return res;
     }
 
-    public LogicRunResult continueRun(String logicId, String startId, JSONObject pars, JSONObject varsCache, JSONObject customEnv) {
+    public LogicRunResult runBiz(String logicId, String bizId, JSONObject pars) {
+        return runBiz(logicId, bizId, pars, null);
+    }
+
+    public LogicRunResult runBiz(String logicId, String bizId, JSONObject pars, JSONObject customEnv) {
         JSONObject config = RuntimeUtil.readLogicConfig(logicId);
-        JSONObject env = RuntimeUtil.readEnv();
+        if (config == null) throw new RuntimeException("未发现指定的逻辑：" + logicId);
+        config.put("id", logicId);//自动修复文件名编号与内部配置编号不同的问题
+        JSONObject env = RuntimeUtil.getEnvJson();
         env = JsonUtil.jsonMerge(customEnv, env);
-        var res = new com.aims.logic.runtime.logic.LogicRunner(config, env).continueRun(startId, pars, varsCache);
+        var lastedLog = logService.findLastBizLog(logicId, bizId);
+        var cacheVarsJson = lastedLog == null ? null : lastedLog.getVarsJsonEnd();
+        var startId = lastedLog == null ? null : lastedLog.getNextId();
+        if (lastedLog != null && lastedLog.isOver()) {
+            return new LogicRunResult().setSuccess(false).setMsg(String.format("指定的bizId:%s已完成执行，无法重复执行。", bizId));
+        }
+        var res = new com.aims.logic.runtime.logic.LogicRunner(config, env)
+                .run(startId, pars, JSON.isValid(cacheVarsJson) ? JSON.parseObject(cacheVarsJson) : null);
+        res.getLogicLog().setBizId(bizId);
         logService.addLog(res);
         return res;
     }
-
 }
