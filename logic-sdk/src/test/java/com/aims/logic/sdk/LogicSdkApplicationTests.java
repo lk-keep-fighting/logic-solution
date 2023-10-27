@@ -23,7 +23,7 @@ public class LogicSdkApplicationTests {
 
     void testSaveFile() {
         try {
-            FileUtil.writeFile("logic-configs/logics", "t.json", "{\"d:\":1}");
+            FileUtil.writeFile("logics", "t.json", "{\"d:\":2}");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

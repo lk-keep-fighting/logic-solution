@@ -12,9 +12,8 @@ import java.time.Duration;
 
 public class RuntimeUtil {
     private static JSONObject ENVs;
-    public static final String CONFIG_FILE_ROOT_DIR = "logic-configs";
-    public static final String ENV_DIR = "logic-configs/envs";
-    public static final String LOGIC_DIR = "logic-configs/logics";
+    public static final String ENV_DIR = "envs";
+    public static final String LOGIC_DIR = "logics";
 
     /**
      * 获取强类型的环境变量，主要用于系统变量的方便读取

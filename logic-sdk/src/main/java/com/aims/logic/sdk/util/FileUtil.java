@@ -2,14 +2,34 @@ package com.aims.logic.sdk.util;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
-import lombok.SneakyThrows;
+import org.apache.ibatis.mapping.Environment;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 
 public class FileUtil {
+    /**
+     * 配置文件根目录
+     */
+    private static String configDir = "";
+
+    public static String getConfigDir() {
+        if (Objects.equals(configDir, "")) {
+            configDir = SpringContextUtil.getApplicationContext().getEnvironment().getProperty("logic.config-dir");
+        }
+        if (configDir != null && !configDir.isBlank()) {
+            return configDir;
+        } else {
+            return buildPath(System.getProperty("user.dir"), "logic-configs");
+        }
+    }
+
     /**
      * 读取json配置文件为JSONObject
      *
@@ -19,8 +39,8 @@ public class FileUtil {
      */
     public static JSONObject readJsonFile(String dir, String fileName) {
         JSONObject json;
-        String path = buildPath(buildPath(getRuntimePath(), dir), fileName);
-        System.out.printf("read json file path:%s", path);
+        String path = buildPath(buildPath(getConfigDir(), dir), fileName);
+        System.out.printf("read json file:%s%n", path);
         String jsonStr = null;
         try {
             jsonStr = Files.readString(Path.of(path));
@@ -51,9 +71,8 @@ public class FileUtil {
      * @throws Exception 异常
      */
     public static void writeFile(String dir, String filename, String content) throws Exception {
-        var dirPath = System.getProperty("user.dir");
-        var filePath = buildPath(buildPath(dirPath, dir), filename);
-        System.out.printf("save file path:%s", filePath);
+        var filePath = buildPath(buildPath(getConfigDir(), dir), filename);
+        System.out.printf("save file:%s%n", filePath);
         File file = new File(filePath);
         if (!file.exists()) {
             file.createNewFile();
@@ -64,7 +83,6 @@ public class FileUtil {
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
-
     }
 
     /**
@@ -84,7 +102,7 @@ public class FileUtil {
      *
      * @return 返回路径
      */
-    public static String getRuntimePath() {
+    public static String getBasePath() {
         String path = System.getProperty("user.dir");
         return path;
     }

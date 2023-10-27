@@ -4,3 +4,5 @@ spring:
     url: jdbc:mysql://192.168.154.31:30010/logic_runtime_demo?useUnicode=true&characterEncoding=gbk&autoReconnect=true&failOverReadOnly=false
     username: dbx
     password: 1234@qwer
+#logic:
+#    config-dir: /Users/liukun/Documents/Dev/aims/xuanwu-logic/logic-configs
