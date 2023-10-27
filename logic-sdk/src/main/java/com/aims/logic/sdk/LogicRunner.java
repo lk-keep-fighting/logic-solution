@@ -1,21 +1,30 @@
 package com.aims.logic.sdk;
 
 import com.aims.logic.runtime.contract.dto.LogicRunResult;
-import com.aims.logic.sdk.service.LogicLogService;
+import com.aims.logic.sdk.entity.LogicInstanceEntity;
+import com.aims.logic.sdk.service.LoggerService;
+import com.aims.logic.sdk.service.LogicInstanceService;
 import com.aims.logic.sdk.util.RuntimeUtil;
 import com.aims.logic.util.JsonUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Service
 public class LogicRunner {
-    private final LogicLogService logService;
+    private final LoggerService logService;
+    private final LogicInstanceService insService;
 
     @Autowired
-    public LogicRunner(LogicLogService _logService) {
+    public LogicRunner(LoggerService _logService,
+                       LogicInstanceService _insService) {
         this.logService = _logService;
+        this.insService = _insService;
     }
 
     /**
@@ -83,10 +92,12 @@ public class LogicRunner {
         config.put("id", logicId);//自动修复文件名编号与内部配置编号不同的问题
         JSONObject env = RuntimeUtil.getEnvJson();
         env = JsonUtil.jsonMerge(customEnv, env);
-        var lastedLog = logService.findLastBizLog(logicId, bizId);
-        var cacheVarsJson = lastedLog == null ? null : lastedLog.getVarsJsonEnd();
-        var startId = lastedLog == null ? null : lastedLog.getNextId();
-        if (lastedLog != null && lastedLog.isOver()) {
+        QueryWrapper<LogicInstanceEntity> q = new QueryWrapper<>();
+        q.allEq(Map.of("logicId", logicId, "bizId", bizId));
+        LogicInstanceEntity insEntity = insService.getOne(q);
+        var cacheVarsJson = insEntity == null ? null : insEntity.getVarsJsonEnd();
+        var startId = insEntity == null ? null : insEntity.getNextId();
+        if (insEntity != null && insEntity.isOver()) {
             return new LogicRunResult().setSuccess(false).setMsg(String.format("指定的bizId:%s已完成执行，无法重复执行。", bizId));
         }
         var res = new com.aims.logic.runtime.logic.LogicRunner(config, env)

@@ -21,9 +21,15 @@ public class LogicSdkApplicationTests {
         testSaveFile();
     }
 
+    @Test
+    void testRun() {
+        var res = runner.runBiz("test", "223", null);
+        System.out.println(res.getMsg());
+    }
+
     void testSaveFile() {
         try {
-            FileUtil.writeFile("logics", "t.json", "{\"d:\":2}");
+            FileUtil.writeFile("logics", "t.json", "{\"d:\":3}");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
