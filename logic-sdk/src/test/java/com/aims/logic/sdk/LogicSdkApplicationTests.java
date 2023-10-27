@@ -1,7 +1,6 @@
 package com.aims.logic.sdk;
 
 import com.aims.logic.sdk.util.FileUtil;
-import net.sf.jsqlparser.expression.DateTimeLiteralExpression;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

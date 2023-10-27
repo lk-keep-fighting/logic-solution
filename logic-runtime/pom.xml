@@ -46,7 +46,13 @@
             <version>15.4</version>
         </dependency>
     </dependencies>
-
+    <repositories>
+        <repository>
+            <id>kdznwl</id>
+            <name>公司镜像仓库</name>
+            <url>https://nexus.kdznwl.cn/repository/maven-public</url>
+        </repository>
+    </repositories>
 <!--    <build>-->
 <!--        <plugins>-->
 <!--            <plugin>-->
