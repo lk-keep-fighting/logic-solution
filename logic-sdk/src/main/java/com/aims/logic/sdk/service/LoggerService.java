@@ -33,7 +33,7 @@ public class LoggerService {
 
     public void addLog(LogicRunResult res) {
         try {
-            EnvEnum env = RuntimeUtil.getEnv().getNODE_ENV();
+            String env = RuntimeUtil.getEnv().getNODE_ENV();
             com.aims.logic.runtime.contract.logger.LogicLog logicLog = res.getLogicLog();
             var nextId = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getId();
             var nextName = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getName();
@@ -50,7 +50,7 @@ public class LoggerService {
                     .setNextId(nextId)
                     .setNextName(nextName)
                     .setOver(logicLog.isOver())
-                    .setEnv(env == null ? "未知" : env.getValue());
+                    .setEnv(env);
             QueryWrapper<LogicInstanceEntity> q = new QueryWrapper<>();
             Map<String, String> m = new HashMap<>();
             m.put("logicId", logicLog.getLogicId());
@@ -72,7 +72,7 @@ public class LoggerService {
                     .setNextId(nextId)
                     .setNextName(nextName)
                     .setOver(logicLog.isOver())
-                    .setEnv(env == null ? "未知" : env.getValue());
+                    .setEnv(env);
             logMapper.insert(logEntity);
         } catch (Exception ex) {
             System.err.println("添加日志异常");

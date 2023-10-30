@@ -11,7 +11,15 @@ public class RuntimeEnvs {
     /**
      * 当前环境标识
      */
-    private EnvEnum NODE_ENV;
+    private String NODE_ENV;
+
+    /**
+     * 获取当前环境标识的枚举类型
+     */
+    public EnvEnum getNodeEnvEnum() {
+        return EnvEnum.valueOf(NODE_ENV);
+    }
+
     /**
      * 逻辑配置模式
      * online在线模式，通过IDE_HOST获取
