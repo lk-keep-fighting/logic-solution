@@ -9,21 +9,23 @@ import org.springframework.boot.test.context.SpringBootTest;
 public class LogicSdkApplicationTests {
     @Autowired
     private LogicRunner runner;
+    @Autowired
+    private BizLogicRunner bizLogicRunner;
 //    @Autowired
 //    LogicRuntimeLogMapper mapper;
 
     @Test
     void contextLoads() {
-//        var res = runner.run("test", null);
+        var res = runner.run("test", null);
 //        var res = runner.runBiz("test", "222", null);
 //        System.out.printf("user.dir:%s",System.getProperty("user.dir"));
 //        mapper.insert(new LogicRuntimeLog().setEnv("java"));
-        testSaveFile();
+//        testSaveFile();
     }
 
     @Test
     void testRun() {
-        var res = runner.runBiz("test", "223", null);
+        var res = bizLogicRunner.runBiz("test", "224", null);
         System.out.println(res.getMsg());
     }
 

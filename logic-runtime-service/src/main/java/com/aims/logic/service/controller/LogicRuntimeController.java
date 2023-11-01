@@ -1,5 +1,6 @@
 package com.aims.logic.service.controller;
 
+import com.aims.logic.sdk.BizLogicRunner;
 import com.aims.logic.sdk.LogicRunner;
 import com.aims.logic.sdk.util.FileUtil;
 import com.aims.logic.sdk.util.RuntimeUtil;
@@ -12,9 +13,13 @@ import java.util.Map;
 @RestController
 public class LogicRuntimeController {
     private final LogicRunner runner;
+    private final BizLogicRunner bizRunner;
 
-    public LogicRuntimeController(LogicRunner _runner) {
+    public LogicRuntimeController(LogicRunner _runner,
+                                  BizLogicRunner _bizRunner
+    ) {
         this.runner = _runner;
+        this.bizRunner = _bizRunner;
     }
 
 
@@ -34,7 +39,7 @@ public class LogicRuntimeController {
     public ApiResult runBiz(@RequestHeader Map<String, String> headers, @RequestBody(required = false) JSONObject body, @PathVariable String id, @PathVariable String bizId, @RequestParam(value = "debug", required = false, defaultValue = "false") boolean debug) {
         JSONObject customEnv = new JSONObject();
         customEnv.put("HEADERS", headers);
-        var rep = runner.runBiz(id, bizId, body, customEnv);
+        var rep = bizRunner.runBiz(id, bizId, body, customEnv);
         var res = ApiResult.fromLogicRunResult(rep);
         if (debug) {
             res.setDebug(rep.getLogicLog());

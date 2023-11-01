@@ -1,27 +1,21 @@
 package com.aims.logic.sdk;
 
 import com.aims.logic.runtime.contract.dto.LogicRunResult;
-import com.aims.logic.sdk.entity.LogicInstanceEntity;
-import com.aims.logic.sdk.service.LoggerService;
+import com.aims.logic.sdk.service.impl.LoggerServiceImpl;
 import com.aims.logic.sdk.service.LogicInstanceService;
 import com.aims.logic.sdk.util.RuntimeUtil;
 import com.aims.logic.util.JsonUtil;
-import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
-
 @Service
 public class LogicRunner {
-    private final LoggerService logService;
+    private final LoggerServiceImpl logService;
     private final LogicInstanceService insService;
 
     @Autowired
-    public LogicRunner(LoggerService _logService,
+    public LogicRunner(LoggerServiceImpl _logService,
                        LogicInstanceService _insService) {
         this.logService = _logService;
         this.insService = _insService;

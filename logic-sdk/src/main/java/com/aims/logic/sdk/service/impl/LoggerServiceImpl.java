@@ -1,11 +1,11 @@
-package com.aims.logic.sdk.service;
+package com.aims.logic.sdk.service.impl;
 
 import com.aims.logic.runtime.contract.dto.LogicRunResult;
-import com.aims.logic.runtime.contract.enums.EnvEnum;
 import com.aims.logic.sdk.entity.LogicInstanceEntity;
 import com.aims.logic.sdk.entity.LogicLogEntity;
 import com.aims.logic.sdk.mapper.LogicInstanceMapper;
 import com.aims.logic.sdk.mapper.LogicLogMapper;
+import com.aims.logic.sdk.service.LogicInstanceService;
 import com.aims.logic.sdk.util.RuntimeUtil;
 import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -17,15 +17,15 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class LoggerService {
+public class LoggerServiceImpl {
     private final LogicLogMapper logMapper;
     private final LogicInstanceMapper instanceMapper;
     private final LogicInstanceService instanceService;
 
     @Autowired
-    public LoggerService(LogicLogMapper _logMapper,
-                         LogicInstanceMapper _instanceMapper,
-                         LogicInstanceService _instanceService) {
+    public LoggerServiceImpl(LogicLogMapper _logMapper,
+                             LogicInstanceMapper _instanceMapper,
+                             LogicInstanceService _instanceService) {
         this.logMapper = _logMapper;
         this.instanceMapper = _instanceMapper;
         instanceService = _instanceService;

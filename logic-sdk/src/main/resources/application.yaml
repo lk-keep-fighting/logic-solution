@@ -5,5 +5,8 @@ spring:
     url: jdbc:mysql://192.168.154.31:30010/biz_asset_center?useUnicode=true&characterEncoding=gbk&autoReconnect=true&failOverReadOnly=false
     username: dbx
     password: 1234@qwer
+#    url: jdbc:mysql://localhost:3306/biz_asset_center?useUnicode=true&characterEncoding=gbk&autoReconnect=true&failOverReadOnly=false
+#    username: root
+#    password: 12#$qwER
 #logic:
 #    config-dir: /Users/liukun/Documents/Dev/aims/xuanwu-logic/logic-configs

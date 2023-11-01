@@ -1,0 +1,23 @@
+{
+  "type": "object",
+  "properties": {
+    "name": {
+      "title": "名称",
+      "type": "string",
+      "widget": "textArea",
+      "props": {
+        "rows": 1
+      }
+    },
+    "script": {
+      "title": "返回值处理脚本 ",
+      "type": "string",
+      "widget": "js",
+      "props": {
+        "height": 500
+      },
+      "extra": "可return新的结构体，覆盖声明的返回参数格式"
+    }
+  },
+  "column": 1
+}

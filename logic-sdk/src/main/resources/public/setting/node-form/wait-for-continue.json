@@ -1,0 +1,14 @@
+{
+    "type": "object",
+    "properties": {
+        "name": {
+            "title": "名称",
+            "type": "string",
+            "widget": "textArea",
+            "props": {
+                "rows": 1
+            }
+        }
+    },
+    "column": 1
+}

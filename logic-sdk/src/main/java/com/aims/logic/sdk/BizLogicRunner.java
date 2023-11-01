@@ -2,7 +2,7 @@ package com.aims.logic.sdk;
 
 import com.aims.logic.runtime.contract.dto.LogicRunResult;
 import com.aims.logic.sdk.entity.LogicInstanceEntity;
-import com.aims.logic.sdk.service.LoggerService;
+import com.aims.logic.sdk.service.impl.LoggerServiceImpl;
 import com.aims.logic.sdk.service.LogicInstanceService;
 import com.aims.logic.sdk.util.RuntimeUtil;
 import com.aims.logic.util.JsonUtil;
@@ -16,11 +16,11 @@ import java.util.Map;
 
 @Service
 public class BizLogicRunner {
-    private final LoggerService logService;
+    private final LoggerServiceImpl logService;
     private final LogicInstanceService insService;
 
     @Autowired
-    public BizLogicRunner(LoggerService _logService,
+    public BizLogicRunner(LoggerServiceImpl _logService,
                           LogicInstanceService _insService) {
         this.logService = _logService;
         this.insService = _insService;
