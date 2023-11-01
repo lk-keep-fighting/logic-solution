@@ -70,7 +70,7 @@ public class FileUtil {
      * @param content  文件内容
      * @throws Exception 异常
      */
-    public static void writeFile(String dir, String filename, String content) throws Exception {
+    public static String writeFile(String dir, String filename, String content) throws Exception {
         var filePath = buildPath(buildPath(getConfigDir(), dir), filename);
         System.out.printf("save file:%s%n", filePath);
         File file = new File(filePath);
@@ -83,6 +83,7 @@ public class FileUtil {
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
+        return filePath;
     }
 
     /**

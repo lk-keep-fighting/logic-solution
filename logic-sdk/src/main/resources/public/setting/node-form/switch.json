@@ -1,0 +1,23 @@
+{
+    "type": "object",
+    "properties": {
+      "name": {
+        "title": "名称",
+        "type": "string",
+        "widget": "textArea",
+        "props": {
+          "rows": 1
+        }
+      },
+      "condition": {
+        "title": "条件表达式 ",
+        "type": "string",
+        "widget": "js",
+        "props": {
+          "height": 100
+        },
+        "extra": "直接填写表达式或变量名，如_par.outType"
+      }
+    },
+    "column": 1
+  }

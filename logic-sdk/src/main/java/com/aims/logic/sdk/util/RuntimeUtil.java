@@ -6,7 +6,10 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.time.Duration;
 
@@ -36,6 +39,18 @@ public class RuntimeUtil {
         return ENVs;
     }
 
+    /**
+     * 获取当前启动项目的url
+     *
+     * @return http://ip:port
+     */
+    public static String getUrl() {
+        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        HttpServletRequest request = requestAttributes.getRequest();
+        String localAddr = request.getLocalAddr();
+        int serverPort = request.getServerPort();
+        return "http://" + localAddr + ":" + serverPort;
+    }
 
     /**
      * 根据逻辑编号读取逻辑配置
@@ -46,7 +61,7 @@ public class RuntimeUtil {
     public static JSONObject readLogicConfig(String logicId) {
         if (getEnv().getLOGIC_CONFIG_MODEL() == LogicConfigModelEnum.online) {
             OkHttpClient client = new OkHttpClient().newBuilder().callTimeout(Duration.ofSeconds(10)).build();
-            String url = String.format("%s/api/ide/logic/json/%s", getEnv().getIDE_HOST(), logicId);
+            String url = String.format("%s/api/ide/logic/%s/config", getEnv().getIDE_HOST().isBlank() ? getUrl() : getEnv().getIDE_HOST(), logicId);
             Request request = new Request.Builder()
                     .url(url)
                     .build();
@@ -55,7 +70,8 @@ public class RuntimeUtil {
                     if (rep.body() != null) {
                         var res = rep.body().string();
                         if (JSON.isValid(res)) {
-                            return JSON.parseObject(res);
+                            var json = JSON.parseObject(res);
+                            return json.getJSONObject("data");
                         }
                     }
                 } else {
@@ -76,9 +92,9 @@ public class RuntimeUtil {
      * @param logicId    逻辑编号
      * @param configJson 逻辑配置json字符串
      */
-    public static void saveLogicConfigToFile(String logicId, String configJson) {
+    public static String saveLogicConfigToFile(String logicId, String configJson) {
         try {
-            FileUtil.writeFile(LOGIC_DIR, logicId + ".json", configJson);
+            return FileUtil.writeFile(LOGIC_DIR, logicId + ".json", configJson);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

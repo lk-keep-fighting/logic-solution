@@ -1,37 +1,25 @@
 package com.aims.logic.ide.service.controller;
 
-import com.aims.logic.ide.service.util.FormSvcUtil;
-import com.aims.logic.ide.service.util.dto.FormQueryInput;
-import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
 import com.aims.logic.runtime.contract.dsl.LogicTreeNode;
 import com.aims.logic.sdk.entity.LogicEntity;
-import com.aims.logic.sdk.entity.LogicLogEntity;
 import com.aims.logic.sdk.mapper.LogicMapper;
-import com.aims.logic.sdk.service.LogicService;
 import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.plugins.pagination.PageDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController()
 public class LogicController {
-    private LogicService logicService;
     private LogicMapper logicMapper;
 
     @Autowired
     public LogicController(
-            LogicService _logicService,
             LogicMapper _logicMapper) {
-        this.logicService = _logicService;
         this.logicMapper = _logicMapper;
     }
 

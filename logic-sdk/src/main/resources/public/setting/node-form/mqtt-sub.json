@@ -1,0 +1,30 @@
+{
+    "type": "object",
+    "properties": {
+        "name": {
+            "title": "名称",
+            "type": "string",
+            "widget": "textArea",
+            "props": {
+                "rows": 1
+            }
+        },
+        "clientId": {
+            "title": "客户端编号",
+            "type": "string",
+            "widget": "input"
+        },
+        "topic": {
+            "title": "订阅Topic",
+            "type": "string",
+            "widget": "input"
+        },
+        "return": {
+            "title": "返回值接收参数",
+            "type": "string",
+            "widget": "input"
+        }
+    },
+    "displayType": "column",
+    "column": 1
+}

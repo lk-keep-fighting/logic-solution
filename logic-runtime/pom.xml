@@ -3,18 +3,18 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.aims.xuanwu</groupId>
-        <artifactId>logic-solution</artifactId>
-        <version>${revision}</version>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.7.2</version>
     </parent>
     <groupId>com.aims.logic</groupId>
     <artifactId>logic-runtime</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>logic-runtime</name>
     <description>logic-runtime</description>
-<!--    <properties>-->
-    <!--        <java.version>17</java.version>-->
-    <!--    </properties>-->
+    <properties>
+        <java.version>17</java.version>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -45,9 +45,21 @@
             <version>15.4</version>
         </dependency>
     </dependencies>
+    <distributionManagement>
+        <repository>
+            <!--稳定版本不会频繁修改的jar的存储位置-->
+            <id>nexus-releases</id>
+            <url>https://nexus.kdznwl.cn/repository/maven-releases/</url>
+        </repository>
+        <snapshotRepository>
+            <!--快照版本-->
+            <id>nexus-snapshots</id>
+            <url>https://nexus.kdznwl.cn/repository/maven-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
     <repositories>
         <repository>
-            <id>kdznwl</id>
+            <id>nexus</id>
             <name>公司镜像仓库</name>
             <url>https://nexus.kdznwl.cn/repository/maven-public</url>
         </repository>
