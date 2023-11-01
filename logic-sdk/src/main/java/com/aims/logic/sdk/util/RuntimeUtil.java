@@ -47,9 +47,9 @@ public class RuntimeUtil {
     public static String getUrl() {
         ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = requestAttributes.getRequest();
-        String localAddr = request.getLocalAddr();
-        int serverPort = request.getServerPort();
-        return "http://" + localAddr + ":" + serverPort;
+        String url = String.format("http://%s:%s", request.getServerName(), request.getServerPort());
+        System.out.println("读取本机Host:" + url);
+        return url;
     }
 
     /**
