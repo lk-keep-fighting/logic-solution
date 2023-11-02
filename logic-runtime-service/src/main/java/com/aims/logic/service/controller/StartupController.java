@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 //@RestController
 public class StartupController {
 
-    @GetMapping("/")
+    @GetMapping("/api")
     public String hello() {
         return "逻辑编排 java-runtime";
     }
