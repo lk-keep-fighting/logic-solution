@@ -1,0 +1,22 @@
+{
+    "type": "object",
+    "properties": {
+        "requestOption": {
+            "title": "请求配置",
+            "type": "string",
+            "widget": "textArea",
+            "props": {
+                "rows": 1
+            }
+        },
+        "paramsJson": {
+            "title": "入参数据",
+            "type": "string",
+            "widget": "textArea",
+            "props": {
+                "rows": 1
+            }
+        }
+    },
+    "column": 1
+}

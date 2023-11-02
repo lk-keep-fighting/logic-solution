@@ -1,0 +1,39 @@
+{
+    "type": "object",
+    "properties": {
+        "name": {
+            "title": "名称",
+            "type": "string",
+            "widget": "textArea",
+            "props": {
+                "rows": 1
+            }
+        },
+        "clientId": {
+            "title": "客户端编号",
+            "type": "string",
+            "widget": "input",
+            "props": {
+                "placeholder": "默认上下文中第一个客户端"
+            }
+        },
+        "topic": {
+            "title": "发布Topic",
+            "type": "string",
+            "widget": "input"
+        },
+        "msg": {
+            "title": "发布消息",
+            "type": "string",
+            "widget": "input"
+        },
+        "return": {
+            "title": "返回值接收参数",
+            "type": "string",
+            "widget": "input"
+        }
+    },
+    "displayType": "column",
+    "column": 1,
+    "layout": "vertical"
+}

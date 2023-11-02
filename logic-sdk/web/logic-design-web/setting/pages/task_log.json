@@ -1,0 +1,31 @@
+{
+  "type": "button",
+  "label": "按钮2",
+  "onEvent": {
+    "click": {
+      "actions": [
+        {
+          "actionType": "drawer",
+          "drawer": {
+            "type": "drawer",
+            "title": "日志分析",
+            "body": [
+              {
+                "type": "tpl",
+                "tpl": "日志分析",
+                "wrapperComponent": "",
+                "inline": false,
+                "id": "u:1aea12e4ec6d"
+              }
+            ],
+            "id": "u:a9890bd514d7",
+            "position": "bottom",
+            "overlay": false,
+            "resizable": true
+          }
+        }
+      ]
+    }
+  },
+  "id": "u:1b1aa99fd171"
+}
