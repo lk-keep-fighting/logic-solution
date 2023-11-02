@@ -47,7 +47,7 @@ public class LogicRuntimeController {
         return res;
     }
 
-    @PutMapping("/api/runtime/logic/v1/updateFile/{id}")
+    @PutMapping("/api/runtime/logic/v1/update-file/{id}")
     public ApiResult updateFile(@RequestBody(required = false) String body, @PathVariable String id) {
         RuntimeUtil.saveLogicConfigToFile(id, body);
         return new ApiResult();
