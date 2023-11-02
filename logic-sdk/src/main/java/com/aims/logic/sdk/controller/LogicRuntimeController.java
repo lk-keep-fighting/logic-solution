@@ -34,7 +34,7 @@ public class LogicRuntimeController {
         return res;
     }
 
-    @PostMapping("/api/runtime/logic/v1/runBiz/{id}/{bizId}")
+    @PostMapping("/api/runtime/logic/v1/run-biz/{id}/{bizId}")
     public ApiResult runBiz(@RequestHeader Map<String, String> headers, @RequestBody(required = false) JSONObject body, @PathVariable String id, @PathVariable String bizId, @RequestParam(value = "debug", required = false, defaultValue = "false") boolean debug) {
         JSONObject customEnv = new JSONObject();
         customEnv.put("HEADERS", headers);
@@ -46,7 +46,7 @@ public class LogicRuntimeController {
         return res;
     }
 
-    @PutMapping("/api/runtime/logic/v1/updateFile/{id}")
+    @PutMapping("/api/runtime/logic/v1/update-file/{id}")
     public ApiResult updateFile(@RequestBody(required = false) String body, @PathVariable String id) {
         RuntimeUtil.saveLogicConfigToFile(id, body);
         return new ApiResult();
