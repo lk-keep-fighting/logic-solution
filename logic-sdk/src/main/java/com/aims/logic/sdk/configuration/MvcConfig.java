@@ -7,15 +7,15 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class MvcConfig implements WebMvcConfigurer {
-    private String staticPath = "/Users/liukun/Documents/Dev/aims/xuanwu-logic/logic-solution/logic-sdk/web";
-
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/**/*.*").addResourceLocations("file:" + staticPath);
-    }
-
-    @Override
-    public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addViewController("/").setViewName("/index.html");
-    }
+//    private String staticPath = "/Users/liukun/Documents/Dev/aims/xuanwu-logic/logic-solution/logic-sdk/web";
+//
+//    @Override
+//    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+//        registry.addResourceHandler("/**/*.*").addResourceLocations("file:" + staticPath);
+//    }
+//
+//    @Override
+//    public void addViewControllers(ViewControllerRegistry registry) {
+//        registry.addViewController("/web").setViewName("/design-index.html");
+//    }
 }
