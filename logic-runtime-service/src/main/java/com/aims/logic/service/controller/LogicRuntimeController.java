@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-@RestController
+//@RestController
 public class LogicRuntimeController {
     private final LogicRunner runner;
     private final BizLogicRunner bizRunner;
