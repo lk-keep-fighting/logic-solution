@@ -1,0 +1,19 @@
+{
+    "type": "object",
+    "properties": {
+      "name": {
+        "title": "名称",
+        "type": "string",
+        "widget": "textArea",
+        "props": {
+          "rows": 1
+        }
+      },
+      "timeout": {
+        "title": "延时设置(ms)",
+        "defaultValue": 2000,
+        "type": "number"
+      }
+    },
+    "column": 1
+  }

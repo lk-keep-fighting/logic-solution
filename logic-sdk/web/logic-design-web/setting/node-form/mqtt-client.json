@@ -1,0 +1,40 @@
+{
+    "type": "object",
+    "properties": {
+        "name": {
+            "title": "名称",
+            "type": "string",
+            "widget": "textArea",
+            "props": {
+                "rows": 1
+            }
+        },
+        "clientId": {
+            "title": "客户端编号",
+            "type": "string",
+            "widget": "input"
+        },
+        "host": {
+            "title": "Host",
+            "type": "string",
+            "widget": "input"
+        },
+        "port": {
+            "title": "Port",
+            "type": "number",
+            "widget": "inputNumber"
+        },
+        "username": {
+            "title": "用户名",
+            "type": "string",
+            "widget": "input"
+        },
+        "password": {
+            "title": "密码",
+            "type": "string",
+            "widget": "input"
+        }
+    },
+    "displayType": "column",
+    "column": 1
+}

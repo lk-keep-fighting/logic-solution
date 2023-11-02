@@ -2,10 +2,17 @@ package com.aims.logic.sdk;
 
 import com.aims.logic.sdk.util.FileUtil;
 import org.junit.jupiter.api.Test;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Scope;
 
-@SpringBootTest
+@SpringBootTest()
+@SpringBootApplication(scanBasePackages = "com.aims")
+@SpringBootConfiguration
+@MapperScan("com.aims.logic.sdk.mapper")
 public class LogicSdkApplicationTests {
     @Autowired
     private LogicRunner runner;

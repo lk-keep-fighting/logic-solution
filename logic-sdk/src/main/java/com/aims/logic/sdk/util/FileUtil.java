@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.naming.directory.DirContext;
 import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
@@ -39,7 +40,8 @@ public class FileUtil {
      */
     public static JSONObject readJsonFile(String dir, String fileName) {
         JSONObject json;
-        String path = buildPath(buildPath(getConfigDir(), dir), fileName);
+        String fullDir = buildPath(getConfigDir(), dir);
+        String path = buildPath(fullDir, fileName);
         System.out.printf("read json file:%s%n", path);
         String jsonStr = null;
         try {
@@ -47,6 +49,29 @@ public class FileUtil {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        json = JSON.parseObject(jsonStr, JSONObject.class);
+        return json;
+    }
+
+    public static JSONObject readOrCreateFile(String dir, String fileName, String defContent) {
+        JSONObject json;
+        String fullDir = buildPath(getConfigDir(), dir);
+        String path = buildPath(fullDir, fileName);
+        System.out.printf("read json file:%s%n", path);
+        String jsonStr = null;
+        createDirIfNotExist(fullDir);
+        try {
+            File file = new File(path);
+            if (file.exists()) jsonStr = Files.readString(Path.of(path));
+            else {
+                writeFile(dir, fileName, defContent);
+                jsonStr = defContent;
+            }
+        } catch (
+                Exception e) {
+            throw new RuntimeException(e);
+        }
+
         json = JSON.parseObject(jsonStr, JSONObject.class);
         return json;
     }
@@ -62,6 +87,11 @@ public class FileUtil {
         return dir + File.separator + subFilePath;
     }
 
+    public static void createDirIfNotExist(String dir) {
+        File dirObj = new File(dir);
+        if (!dirObj.exists()) dirObj.mkdirs();
+    }
+
     /**
      * 写文件，会根据调试环境和jar包运行环境自动切换
      *
@@ -73,6 +103,7 @@ public class FileUtil {
     public static String writeFile(String dir, String filename, String content) throws Exception {
         var filePath = buildPath(buildPath(getConfigDir(), dir), filename);
         System.out.printf("save file:%s%n", filePath);
+        createDirIfNotExist(dir);
         File file = new File(filePath);
         if (!file.exists()) {
             file.createNewFile();

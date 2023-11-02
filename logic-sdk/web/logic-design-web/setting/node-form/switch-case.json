@@ -1,0 +1,19 @@
+{
+    "type": "object",
+    "properties": {
+      "name": {
+        "title": "名称",
+        "type": "string",
+        "widget": "textArea",
+        "props": {
+          "rows": 1
+        }
+      },
+      "case": {
+        "title": "case值 ",
+        "type": "string",
+        "extra": "值会转换为字符串进行匹配"
+      }
+    },
+    "column": 1
+  }
