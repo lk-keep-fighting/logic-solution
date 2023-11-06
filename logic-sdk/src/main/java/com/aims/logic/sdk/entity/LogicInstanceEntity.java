@@ -34,9 +34,9 @@ public class LogicInstanceEntity extends Model<LogicInstanceEntity> {
     private String varsJsonEnd;
     @TableField("returnData")
     private String returnData;
-    private boolean success;
+    private Boolean success;
     @TableField("isOver")
-    private boolean isOver;
+    private Boolean isOver;
     private String message;
     @TableField("messageId")
     private String messageId;

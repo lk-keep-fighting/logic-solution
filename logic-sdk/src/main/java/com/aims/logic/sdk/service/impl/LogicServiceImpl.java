@@ -18,6 +18,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
+/**
+ * @author liukun
+ */
 @Service
 public class LogicServiceImpl extends BaseServiceImpl<LogicMapper, LogicEntity> implements LogicService {
     @Autowired
@@ -39,10 +42,18 @@ public class LogicServiceImpl extends BaseServiceImpl<LogicMapper, LogicEntity> 
         UpdateWrapper<LogicEntity> wrapper = new UpdateWrapper<LogicEntity>()
                 .eq("id", id)
                 .set("updateTime", input.getUpdateTime() == null ? LocalDateTime.now() : input.getUpdateTime());
-        if (input.getName() != null) wrapper.set("name", input.getName());
-        if (input.getModule() != null) wrapper.set("module", input.getModule());
-        if (input.getVersion() != null) wrapper.set("version", input.getVersion());
-        if (input.getConfigJson() != null) wrapper.set("configJson", input.getConfigJson());
+        if (input.getName() != null) {
+            wrapper.set("name", input.getName());
+        }
+        if (input.getModule() != null) {
+            wrapper.set("module", input.getModule());
+        }
+        if (input.getVersion() != null) {
+            wrapper.set("version", input.getVersion());
+        }
+        if (input.getConfigJson() != null) {
+            wrapper.set("configJson", input.getConfigJson());
+        }
         var uptRows = logicMapper.update(null, wrapper);
         if (uptRows > 0) {
             var fullLogicEntity = logicMapper.selectById(id);

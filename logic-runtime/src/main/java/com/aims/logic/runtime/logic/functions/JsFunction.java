@@ -9,7 +9,9 @@ import javax.script.ScriptEngineManager;
 public class JsFunction implements IFunction {
     @Override
     public Object invoke(FunctionContext ctx, Object script) {
-        if (script == null) return null;
+        if (script == null) {
+            return null;
+        }
         ScriptEngineManager manager = new ScriptEngineManager();
         ScriptEngine engine = manager.getEngineByName("js");
         engine.put("_var", ctx.get_var());

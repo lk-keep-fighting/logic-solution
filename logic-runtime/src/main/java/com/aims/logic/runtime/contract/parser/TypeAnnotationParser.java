@@ -9,7 +9,9 @@ import java.util.List;
 public class TypeAnnotationParser {
     public static <T extends ParamTreeNode> JSONObject ParamsToJson(List<T> params) {
         JSONObject json = new JSONObject();
-        if (params == null) return null;
+        if (params == null) {
+            return null;
+        }
         params.forEach(v -> {
             if (!v.getDefaultValue().isBlank()) {
                 System.out.println(v.getDefaultValue());

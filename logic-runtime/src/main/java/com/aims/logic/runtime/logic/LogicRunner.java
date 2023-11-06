@@ -62,10 +62,8 @@ public class LogicRunner {
 
     /**
      * 自动分析环境变量需解析的值，并追加解析后的值到环境变量中，如token解析
-     * @param envJson
-     * @return
      */
-    private JSONObject autoAnalyzeAndAppendEnv(JSONObject envJson) {
+    private void autoAnalyzeAndAppendEnv(JSONObject envJson) {
         var headers = envJson.getJSONObject("HEADERS");
         if (headers != null) {
             var jwtToken = headers.getString("authorization");
@@ -81,7 +79,6 @@ public class LogicRunner {
                 }
             }
         }
-        return envJson;
     }
 
     private LogicItemTreeNode findItem(String itemId) {
@@ -139,13 +136,17 @@ public class LogicRunner {
     public LogicRunResult run(String runItemId, JSONObject paramsJson, JSONObject varsJson) {
         if (runItemId != null) {//指定了执行节点
             this.startNode = findItem(runItemId);
-            if (this.startNode == null) throw new RuntimeException(String.format("未发现执行节点：%s", runItemId));
+            if (this.startNode == null) {
+                throw new RuntimeException(String.format("未发现执行节点：%s", runItemId));
+            }
         } else {//未指定执行节点，从start开始执行
             var defStartNode = logic.getItems().stream().filter(i -> Objects.equals(i.getType(), "start")).findFirst();
             if (defStartNode.isPresent()) {
                 this.startNode = defStartNode.get();
                 this.startId = this.startNode.getId();
-            } else throw new RuntimeException("未发现开始节点");
+            } else {
+                throw new RuntimeException("未发现开始节点");
+            }
         }
         fnCtx.set_par(JsonUtil.jsonMerge(paramsJson, fnCtx.get_par()));
         fnCtx.set_var(JsonUtil.jsonMerge(varsJson, fnCtx.get_var()));
@@ -217,7 +218,9 @@ public class LogicRunner {
                         defNextId.set(b.getNextId());
                     }
                 });
-                if (nextId.get().isBlank()) nextId.set(defNextId.get());//when条件未匹配成功，分配默认节点
+                if (nextId.get().isBlank()) {
+                    nextId.set(defNextId.get());//when条件未匹配成功，分配默认节点
+                }
                 break;
             default:
                 nextId.set(curItem.getNextId());

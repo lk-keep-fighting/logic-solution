@@ -48,7 +48,9 @@ public class BizLogicRunner {
      */
     public LogicRunResult runBiz(String logicId, String bizId, JSONObject pars, JSONObject customEnv) {
         JSONObject config = RuntimeUtil.readLogicConfig(logicId);
-        if (config == null) throw new RuntimeException("未发现指定的逻辑：" + logicId);
+        if (config == null) {
+            throw new RuntimeException("未发现指定的逻辑：" + logicId);
+        }
         config.put("id", logicId);//自动修复文件名编号与内部配置编号不同的问题
         JSONObject env = RuntimeUtil.getEnvJson();
         env = JsonUtil.jsonMerge(customEnv, env);
@@ -60,7 +62,7 @@ public class BizLogicRunner {
             LogicInstanceEntity insEntity = insService.getOne(q);
             cacheVarsJson = insEntity == null ? null : insEntity.getVarsJsonEnd();
             startId = insEntity == null ? null : insEntity.getNextId();
-            if (insEntity != null && insEntity.isOver()) {
+            if (insEntity != null && insEntity.getIsOver()) {
                 return new LogicRunResult().setSuccess(false).setMsg(String.format("指定的bizId:%s已完成执行，无法重复执行。", bizId));
             }
         }

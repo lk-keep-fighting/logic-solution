@@ -49,7 +49,7 @@ public class LoggerServiceImpl {
                     .setVarsJsonEnd(logicLog.getVarsJson_end() == null ? null : logicLog.getVarsJson_end().toJSONString())
                     .setNextId(nextId)
                     .setNextName(nextName)
-                    .setOver(logicLog.isOver())
+                    .setIsOver(logicLog.isOver())
                     .setEnv(env);
             QueryWrapper<LogicInstanceEntity> q = new QueryWrapper<>();
             Map<String, String> m = new HashMap<>();
@@ -71,7 +71,7 @@ public class LoggerServiceImpl {
                     .setVarsJsonEnd(logicLog.getVarsJson_end() == null ? null : logicLog.getVarsJson_end().toJSONString())
                     .setNextId(nextId)
                     .setNextName(nextName)
-                    .setOver(logicLog.isOver())
+                    .setIsOver(logicLog.isOver())
                     .setEnv(env);
             logMapper.insert(logEntity);
         } catch (Exception ex) {

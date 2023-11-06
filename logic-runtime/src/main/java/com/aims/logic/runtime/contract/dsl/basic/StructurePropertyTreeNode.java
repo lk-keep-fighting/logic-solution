@@ -1,9 +1,11 @@
 package com.aims.logic.runtime.contract.dsl.basic;
 
 import com.aims.logic.runtime.contract.enums.ConceptEnum;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class StructurePropertyTreeNode extends BaseLASL {
     ConceptEnum concept; // 产品概念
     String name; // 数据结构属性名称

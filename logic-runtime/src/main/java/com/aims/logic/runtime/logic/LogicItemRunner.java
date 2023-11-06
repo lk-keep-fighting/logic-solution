@@ -5,8 +5,8 @@ import com.aims.logic.runtime.contract.dto.LogicRunResult;
 import com.alibaba.fastjson2.JSONObject;
 
 public class LogicItemRunner {
-    LogicItemTreeNode dsl;
-    LogicRunner logicRunner;
+    final LogicItemTreeNode dsl;
+    final LogicRunner logicRunner;
 
     public LogicItemRunner(LogicItemTreeNode _dsl, LogicRunner _logicRunner) {
         dsl = _dsl;
@@ -29,8 +29,9 @@ public class LogicItemRunner {
                 if (this.dsl.getTimeout() != null) {
                     try {
                         var timeout = Long.parseLong(this.dsl.getTimeout());
-                        if (timeout > 0)
+                        if (timeout > 0) {
                             this.wait(timeout);
+                        }
                     } catch (InterruptedException exception) {
                         System.out.println(exception.toString());
                     }

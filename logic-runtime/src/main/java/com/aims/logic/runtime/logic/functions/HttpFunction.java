@@ -12,6 +12,9 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author liukun
+ */
 public class HttpFunction implements IFunction {
 
     @Override
@@ -25,15 +28,13 @@ public class HttpFunction implements IFunction {
         Map<String, String> headerMap = new HashMap<>();
         JSONObject cusHeadersJson = (JSONObject) JSON.toJSON(customHeaders);
         if (cusHeadersJson != null) {
-            cusHeadersJson.forEach((k, v) -> {
-                headerMap.put(k, (String) v);
-            });
+            cusHeadersJson.forEach((k, v) -> headerMap.put(k, (String) v));
         }
         String jsonData = data == null ? "{}" : JSON.toJSONString(data);
         Headers headers = Headers.of(headerMap);
         Request req;
         var reqBuilder = new Request.Builder().url((String) url).headers(headers);
-        if (method.equalsIgnoreCase("get")) {
+        if ("get".equalsIgnoreCase(method)) {
             req = reqBuilder.get().build();
         } else {
             RequestBody body = RequestBody.create(jsonData, MediaType.parse("application/json; charset=utf-8"));
@@ -53,9 +54,11 @@ public class HttpFunction implements IFunction {
                 }
                 if (rep.body() != null) {
                     String repBody = rep.body().string();
-                    if (JSON.isValid(repBody))
+                    if (JSON.isValid(repBody)) {
                         repData = JSON.parseObject(repBody);
-                    else repData = repBody;
+                    } else {
+                        repData = repBody;
+                    }
                 }
             }
             System.out.println(repData);

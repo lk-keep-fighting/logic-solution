@@ -2,18 +2,18 @@ package com.aims.logic.sdk.util;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
-import org.apache.ibatis.mapping.Environment;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
-import javax.naming.directory.DirContext;
-import java.io.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 
+/**
+ * @author liukun
+ */
 public class FileUtil {
     /**
      * 配置文件根目录
@@ -43,7 +43,7 @@ public class FileUtil {
         String fullDir = buildPath(getConfigDir(), dir);
         String path = buildPath(fullDir, fileName);
         System.out.printf("read json file:%s%n", path);
-        String jsonStr = null;
+        String jsonStr;
         try {
             jsonStr = Files.readString(Path.of(path));
         } catch (IOException e) {
@@ -58,12 +58,13 @@ public class FileUtil {
         String fullDir = buildPath(getConfigDir(), dir);
         String path = buildPath(fullDir, fileName);
         System.out.printf("read json file:%s%n", path);
-        String jsonStr = null;
+        String jsonStr;
         createDirIfNotExist(fullDir);
         try {
             File file = new File(path);
-            if (file.exists()) jsonStr = Files.readString(Path.of(path));
-            else {
+            if (file.exists()) {
+                jsonStr = Files.readString(Path.of(path));
+            } else {
                 writeFile(dir, fileName, defContent);
                 jsonStr = defContent;
             }
@@ -89,7 +90,12 @@ public class FileUtil {
 
     public static void createDirIfNotExist(String dir) {
         File dirObj = new File(dir);
-        if (!dirObj.exists()) dirObj.mkdirs();
+        if (!dirObj.exists()) {
+            var res = dirObj.mkdirs();
+            if (!res) {
+                throw new RuntimeException("创建文件夹失败!" + dir);
+            }
+        }
     }
 
     /**
@@ -106,7 +112,10 @@ public class FileUtil {
         createDirIfNotExist(dir);
         File file = new File(filePath);
         if (!file.exists()) {
-            file.createNewFile();
+            var res = file.createNewFile();
+            if (!res) {
+                throw new RuntimeException("创建文件失败！" + filePath);
+            }
         }
         try (FileWriter fileWriter = new FileWriter(file)) {
             fileWriter.write(content);
@@ -124,7 +133,10 @@ public class FileUtil {
      */
     public static boolean isJar() {
         URL url = FileUtil.class.getResource("");
-        String protocol = url.getProtocol();
+        String protocol = null;
+        if (url != null) {
+            protocol = url.getProtocol();
+        }
         return "jar".equals(protocol);
     }
 
@@ -135,7 +147,6 @@ public class FileUtil {
      * @return 返回路径
      */
     public static String getBasePath() {
-        String path = System.getProperty("user.dir");
-        return path;
+        return System.getProperty("user.dir");
     }
 }

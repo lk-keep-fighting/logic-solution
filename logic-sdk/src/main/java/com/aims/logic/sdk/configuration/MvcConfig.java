@@ -13,9 +13,9 @@ public class MvcConfig implements WebMvcConfigurer {
 //    public void addResourceHandlers(ResourceHandlerRegistry registry) {
 //        registry.addResourceHandler("/**/*.*").addResourceLocations("file:" + staticPath);
 //    }
-//
-//    @Override
-//    public void addViewControllers(ViewControllerRegistry registry) {
-//        registry.addViewController("/web").setViewName("/design-index.html");
-//    }
+
+    @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+        registry.addViewController("/logic").setViewName("/index.html");
+    }
 }

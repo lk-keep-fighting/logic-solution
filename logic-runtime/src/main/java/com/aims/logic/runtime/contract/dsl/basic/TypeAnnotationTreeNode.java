@@ -3,9 +3,12 @@ package com.aims.logic.runtime.contract.dsl.basic;
 import com.aims.logic.runtime.contract.enums.ConceptEnum;
 import com.aims.logic.runtime.contract.enums.TypeKindEnum;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
-@Data
+@Getter
+@Setter
 public class TypeAnnotationTreeNode extends BaseLASL {
     public TypeAnnotationTreeNode() {
         concept = ConceptEnum.TypeAnnotation;
