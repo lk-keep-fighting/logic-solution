@@ -3,10 +3,14 @@ package com.aims.logic.runtime.contract.dsl;
 import com.aims.logic.runtime.contract.dsl.basic.BaseLASL;
 import com.aims.logic.runtime.contract.dsl.basic.TypeAnnotationTreeNode;
 import com.aims.logic.runtime.contract.enums.ConceptEnum;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-//import org.json.JSONObject;
-@Data
+/**
+ * @author liukun
+ */
+@Getter
+@Setter
 public class ParamTreeNode extends BaseLASL {
     public ParamTreeNode(String name) {
         this.concept = ConceptEnum.Param;

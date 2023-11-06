@@ -7,6 +7,6 @@ public class TypeParamTreeNode {
         this.name=name;
         this.concept= ConceptEnum.TypeParam;
     }
-    ConceptEnum concept; // 产品概念
-    String name; // 类型名称
+    final ConceptEnum concept; // 产品概念
+    final String name; // 类型名称
 }

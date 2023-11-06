@@ -28,7 +28,6 @@ public class LogicRunResult {
      * 如果是json则转换为json字符串，
      * 通常用于获取值进行存储或判断
      *
-     * @return
      */
     public String getDataString() {
         try {
