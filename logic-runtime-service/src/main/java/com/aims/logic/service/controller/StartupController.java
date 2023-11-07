@@ -1,9 +1,8 @@
 package com.aims.logic.service.controller;
 
-import com.aims.logic.sdk.util.RuntimeUtil;
+import com.aims.logic.util.RuntimeUtil;
 import com.alibaba.fastjson2.JSONObject;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 //@RestController
 public class StartupController {

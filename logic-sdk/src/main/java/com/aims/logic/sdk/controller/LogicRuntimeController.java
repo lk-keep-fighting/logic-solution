@@ -3,12 +3,15 @@ package com.aims.logic.sdk.controller;
 import com.aims.logic.sdk.BizLogicRunner;
 import com.aims.logic.sdk.LogicRunner;
 import com.aims.logic.sdk.dto.ApiResult;
-import com.aims.logic.sdk.util.RuntimeUtil;
+import com.aims.logic.util.RuntimeUtil;
 import com.alibaba.fastjson2.JSONObject;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+/**
+ * @author liukun
+ */
 @RestController
 public class LogicRuntimeController {
     private final LogicRunner runner;
@@ -50,5 +53,15 @@ public class LogicRuntimeController {
     public ApiResult updateFile(@RequestBody(required = false) String body, @PathVariable String id) {
         RuntimeUtil.saveLogicConfigToFile(id, body);
         return new ApiResult();
+    }
+
+    /**
+     * 查看环境变量配置
+     *
+     * @return 环境变量json
+     */
+    @GetMapping("/api/runtime/env")
+    public JSONObject env() {
+        return RuntimeUtil.getEnvJson();
     }
 }

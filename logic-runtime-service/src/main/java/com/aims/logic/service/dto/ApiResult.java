@@ -1,6 +1,6 @@
 package com.aims.logic.service.dto;
 
-import com.aims.logic.runtime.contract.dto.LogicRunResult;
+import com.aims.logic.contract.dto.LogicRunResult;
 import lombok.Data;
 import lombok.experimental.Accessors;
 

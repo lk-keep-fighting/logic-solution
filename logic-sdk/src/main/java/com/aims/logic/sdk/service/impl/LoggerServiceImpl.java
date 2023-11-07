@@ -1,12 +1,12 @@
 package com.aims.logic.sdk.service.impl;
 
-import com.aims.logic.runtime.contract.dto.LogicRunResult;
+import com.aims.logic.contract.logger.LogicLog;
+import com.aims.logic.contract.dto.LogicRunResult;
 import com.aims.logic.sdk.entity.LogicInstanceEntity;
 import com.aims.logic.sdk.entity.LogicLogEntity;
-import com.aims.logic.sdk.mapper.LogicInstanceMapper;
 import com.aims.logic.sdk.mapper.LogicLogMapper;
 import com.aims.logic.sdk.service.LogicInstanceService;
-import com.aims.logic.sdk.util.RuntimeUtil;
+import com.aims.logic.util.RuntimeUtil;
 import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,22 +19,19 @@ import java.util.Map;
 @Service
 public class LoggerServiceImpl {
     private final LogicLogMapper logMapper;
-    private final LogicInstanceMapper instanceMapper;
     private final LogicInstanceService instanceService;
 
     @Autowired
     public LoggerServiceImpl(LogicLogMapper _logMapper,
-                             LogicInstanceMapper _instanceMapper,
                              LogicInstanceService _instanceService) {
         this.logMapper = _logMapper;
-        this.instanceMapper = _instanceMapper;
         instanceService = _instanceService;
     }
 
     public void addLog(LogicRunResult res) {
         try {
             String env = RuntimeUtil.getEnv().getNODE_ENV();
-            com.aims.logic.runtime.contract.logger.LogicLog logicLog = res.getLogicLog();
+            LogicLog logicLog = res.getLogicLog();
             var nextId = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getId();
             var nextName = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getName();
             LogicInstanceEntity instanceEntity = new LogicInstanceEntity()

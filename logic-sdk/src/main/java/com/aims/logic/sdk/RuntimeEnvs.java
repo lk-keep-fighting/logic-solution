@@ -1,7 +1,7 @@
 package com.aims.logic.sdk;
 
-import com.aims.logic.runtime.contract.enums.EnvEnum;
-import com.aims.logic.runtime.contract.enums.LogicConfigModelEnum;
+import com.aims.logic.contract.enums.EnvEnum;
+import com.aims.logic.contract.enums.LogicConfigModelEnum;
 import lombok.Getter;
 import lombok.Setter;
 
