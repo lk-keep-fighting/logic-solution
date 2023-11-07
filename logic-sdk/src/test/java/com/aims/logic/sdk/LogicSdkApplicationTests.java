@@ -1,15 +1,15 @@
 package com.aims.logic.sdk;
 
-import com.aims.logic.sdk.util.FileUtil;
+import com.aims.logic.util.FileUtil;
+import com.alibaba.fastjson2.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Scope;
 
-@SpringBootTest()
+@SpringBootTest(classes = LogicSdkApplicationTests.class)
 @SpringBootApplication(scanBasePackages = "com.aims")
 @SpringBootConfiguration
 @MapperScan("com.aims.logic.sdk.mapper")
@@ -18,12 +18,15 @@ public class LogicSdkApplicationTests {
     private LogicRunner runner;
     @Autowired
     private BizLogicRunner bizLogicRunner;
-//    @Autowired
-//    LogicRuntimeLogMapper mapper;
 
     @Test
     void contextLoads() {
-        var res = runner.run("test", null);
+        JSONObject cusEnv = new JSONObject();
+        JSONObject headers = new JSONObject();
+        headers.put("CUSTOME", "SOME VALUE");
+        headers.put("wms", "wms config");
+        cusEnv.put("HEADERS", headers);
+        var res = runner.run("test", null, cusEnv);
 //        var res = runner.runBiz("test", "222", null);
 //        System.out.printf("user.dir:%s",System.getProperty("user.dir"));
 //        mapper.insert(new LogicRuntimeLog().setEnv("java"));
@@ -36,12 +39,7 @@ public class LogicSdkApplicationTests {
         System.out.println(res.getMsg());
     }
 
-    void testSaveFile() {
-        try {
-            FileUtil.writeFile("logics", "t.json", "{\"d:\":3}");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+    void testHeaderFilters() {
 
+    }
 }

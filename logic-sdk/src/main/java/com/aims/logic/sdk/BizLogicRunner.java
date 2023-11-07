@@ -1,11 +1,11 @@
 package com.aims.logic.sdk;
 
-import com.aims.logic.runtime.contract.dto.LogicRunResult;
+import com.aims.logic.contract.dto.LogicRunResult;
 import com.aims.logic.sdk.entity.LogicInstanceEntity;
 import com.aims.logic.sdk.service.impl.LoggerServiceImpl;
 import com.aims.logic.sdk.service.LogicInstanceService;
-import com.aims.logic.sdk.util.RuntimeUtil;
 import com.aims.logic.util.JsonUtil;
+import com.aims.logic.util.RuntimeUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -66,7 +66,7 @@ public class BizLogicRunner {
                 return new LogicRunResult().setSuccess(false).setMsg(String.format("指定的bizId:%s已完成执行，无法重复执行。", bizId));
             }
         }
-        var res = new com.aims.logic.runtime.logic.LogicRunner(config, env)
+        var res = new com.aims.logic.runtime.runner.LogicRunner(config, env)
                 .run(startId, pars, JSON.isValid(cacheVarsJson) ? JSON.parseObject(cacheVarsJson) : null);
         res.getLogicLog().setBizId(bizId);
         logService.addLog(res);

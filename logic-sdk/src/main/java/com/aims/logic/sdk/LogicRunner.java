@@ -1,24 +1,23 @@
 package com.aims.logic.sdk;
 
-import com.aims.logic.runtime.contract.dto.LogicRunResult;
+import com.aims.logic.contract.dto.LogicRunResult;
 import com.aims.logic.sdk.service.impl.LoggerServiceImpl;
-import com.aims.logic.sdk.service.LogicInstanceService;
-import com.aims.logic.sdk.util.RuntimeUtil;
 import com.aims.logic.util.JsonUtil;
+import com.aims.logic.util.RuntimeUtil;
 import com.alibaba.fastjson2.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ * @author liukun
+ */
 @Service
 public class LogicRunner {
     private final LoggerServiceImpl logService;
-    private final LogicInstanceService insService;
 
     @Autowired
-    public LogicRunner(LoggerServiceImpl _logService,
-                       LogicInstanceService _insService) {
-        this.logService = _logService;
-        this.insService = _insService;
+    public LogicRunner(LoggerServiceImpl logService) {
+        this.logService = logService;
     }
 
     public LogicRunResult run(String logicId, String parsJsonString) {
@@ -38,7 +37,7 @@ public class LogicRunner {
         JSONObject config = RuntimeUtil.readLogicConfig(logicId);
         JSONObject env = RuntimeUtil.readEnv();
         env = JsonUtil.jsonMerge(customEnv, env);
-        var res = new com.aims.logic.runtime.logic.LogicRunner(config, env).run(pars);
+        var res = new com.aims.logic.runtime.runner.LogicRunner(config, env).run(pars);
         logService.addLog(res);
         return res;
     }

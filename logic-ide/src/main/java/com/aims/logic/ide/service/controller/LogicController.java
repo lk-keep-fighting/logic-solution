@@ -1,6 +1,6 @@
 package com.aims.logic.ide.service.controller;
 
-import com.aims.logic.runtime.contract.dsl.LogicTreeNode;
+import com.aims.logic.contract.dsl.LogicTreeNode;
 import com.aims.logic.sdk.entity.LogicEntity;
 import com.aims.logic.sdk.mapper.LogicMapper;
 import com.alibaba.fastjson2.JSON;
