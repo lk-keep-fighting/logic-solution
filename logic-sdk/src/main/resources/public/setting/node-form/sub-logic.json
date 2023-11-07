@@ -1,0 +1,36 @@
+{
+    "type": "object",
+    "properties": {
+      "name": {
+        "title": "名称",
+        "type": "string",
+        "widget": "textArea",
+        "props": {
+          "rows": 1
+        }
+      },
+      "url": {
+        "title": "调用的逻辑编号",
+        "type": "string"
+      },
+      "body": {
+        "title": "入参声明",
+        "type": "string",
+        "widget": "js",
+        "props": {
+          "height": 200
+        },
+        "extra": "js代码块，返回子流程的入参对象，作为子流程的_par传入"
+      },
+      "returnAccept": {
+        "title": "返回值赋值给哪个参数？",
+        "type": "string",
+        "widget": "js",
+        "props": {
+          "height": 100
+        },
+        "extra": "输入局部变量的完整引用，如_var.repData"
+      }
+    },
+    "column": 1
+  }
