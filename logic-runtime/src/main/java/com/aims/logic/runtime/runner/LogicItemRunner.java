@@ -28,7 +28,7 @@ public class LogicItemRunner {
                     try {
                         var timeout = Long.parseLong(this.dsl.getTimeout());
                         if (timeout > 0) {
-                            this.wait(timeout);
+                            Thread.sleep(timeout);
                         }
                     } catch (InterruptedException exception) {
                         System.out.println(exception.toString());
