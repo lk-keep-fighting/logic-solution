@@ -38,6 +38,9 @@ public class HttpFunction implements HttpFunctionService {
             cusHeadersJson.forEach((k, v) -> headerMap.put(k, (String) v));
         }
         String jsonData = data == null ? "{}" : JSON.toJSONString(data);
+        if (headerMap.containsKey("content-type")) {
+            headerMap.put("content-type", "application/json");
+        }
         Headers headers = Headers.of(headerMap);
         Request req;
         var reqBuilder = new Request.Builder().url((String) url).headers(headers);
@@ -45,13 +48,13 @@ public class HttpFunction implements HttpFunctionService {
             req = reqBuilder.get().build();
         } else {
             RequestBody body = RequestBody.create(jsonData, MediaType.parse("application/json; charset=utf-8"));
-            req = reqBuilder.header("content-type", "application/json")
+            req = reqBuilder
                     .method(method, body).build();
         }
         System.out.println("-----http fn-----");
         System.out.printf("%s:%s%n", method, url);
-        System.out.println(jsonData);
-        System.out.println(headers);
+        System.out.printf("data:%s%n", jsonData);
+        System.out.printf("headers:%s%n", headers);
         try {
             Object repData = null;
             try (var rep = client.newCall(req).execute()) {
