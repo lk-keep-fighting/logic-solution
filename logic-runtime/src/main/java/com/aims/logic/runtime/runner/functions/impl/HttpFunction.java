@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author liukun
@@ -22,7 +23,7 @@ public class HttpFunction implements HttpFunctionService {
     public HttpFunction() {
     }
 
-    OkHttpClient client = new OkHttpClient();
+    OkHttpClient httpClient = new OkHttpClient();
 
     @Override
     public Object invoke(FunctionContext ctx, Object item) {
@@ -31,7 +32,11 @@ public class HttpFunction implements HttpFunctionService {
         var customHeaders = Functions.get("js").invoke(ctx, itemDsl.getHeaders());
         var method = itemDsl.getMethod().isEmpty() ? "post" : itemDsl.getMethod();
         var url = Functions.get("js").invoke(ctx, itemDsl.getUrl());
-        client.newBuilder().connectTimeout(Duration.ofMillis(Long.parseLong(itemDsl.getTimeout()))).build();
+        OkHttpClient client = httpClient.newBuilder()
+                .connectTimeout(Integer.parseInt(itemDsl.getTimeout()), TimeUnit.MILLISECONDS)
+                .readTimeout(Integer.parseInt(itemDsl.getTimeout()), TimeUnit.MILLISECONDS)
+                .writeTimeout(Integer.parseInt(itemDsl.getTimeout()), TimeUnit.MILLISECONDS)
+                .build();
         Map<String, String> headerMap = new HashMap<>();
         JSONObject cusHeadersJson = (JSONObject) JSON.toJSON(customHeaders);
         if (cusHeadersJson != null) {
