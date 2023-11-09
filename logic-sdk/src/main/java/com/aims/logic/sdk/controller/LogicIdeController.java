@@ -3,27 +3,36 @@ package com.aims.logic.sdk.controller;
 import com.aims.logic.contract.dsl.LogicTreeNode;
 import com.aims.logic.sdk.dto.ApiResult;
 import com.aims.logic.sdk.dto.FormQueryInput;
+import com.aims.logic.sdk.entity.LogicBakEntity;
 import com.aims.logic.sdk.entity.LogicEntity;
 import com.aims.logic.sdk.mapper.LogicMapper;
+import com.aims.logic.sdk.service.LogicBakService;
 import com.aims.logic.sdk.service.LogicService;
 import com.aims.logic.util.RuntimeUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 public class LogicIdeController {
     private final LogicMapper logicMapper;
     private final LogicService logicService;
+    private final LogicBakService logicBakService;
 
     @Autowired
     public LogicIdeController(
-            LogicMapper _logicMapper,
-            LogicService _logicService) {
-        this.logicMapper = _logicMapper;
-        this.logicService = _logicService;
+            LogicMapper logicMapper,
+            LogicService logicService,
+            LogicBakService logicBakService) {
+        this.logicMapper = logicMapper;
+        this.logicService = logicService;
+        this.logicBakService = logicBakService;
     }
 
 
@@ -66,6 +75,22 @@ public class LogicIdeController {
             return new ApiResult<LogicTreeNode>().setData(res);
         }
         return new ApiResult<LogicTreeNode>();
+    }
+
+    @GetMapping("/api/ide/logic/{id}/config/{version}")
+    public ApiResult<LogicTreeNode> getLogicConfigByVersion(@PathVariable String id, @PathVariable String version) {
+        QueryWrapper<LogicBakEntity> queryWrapper = new QueryWrapper<>();
+        Map<String, String> map = new HashMap<>();
+        map.put("id", id);
+        map.put("version", version);
+        queryWrapper.allEq(map);
+        var logicBakEntityEntity = logicBakService.getOne(queryWrapper);
+        if (logicBakEntityEntity != null) {
+            var config = logicBakEntityEntity.getConfigJson();
+            var res = JSON.isValid(config) ? JSON.parseObject(config, LogicTreeNode.class) : null;
+            return new ApiResult<LogicTreeNode>().setData(res);
+        }
+        return new ApiResult<>();
     }
 
 }

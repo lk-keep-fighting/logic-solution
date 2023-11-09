@@ -10,9 +10,10 @@
         }
       },
       "timeout": {
-        "title": "延时设置(ms)",
+        "title": "等待时长(ms)",
         "defaultValue": 2000,
-        "type": "number"
+        "type": "number",
+        "extra": "Thread.sleep()阻塞等待"
       }
     },
     "column": 1

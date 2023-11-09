@@ -34,27 +34,41 @@ public class LoggerServiceImpl {
             LogicLog logicLog = res.getLogicLog();
             var nextId = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getId();
             var nextName = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getName();
-            LogicInstanceEntity instanceEntity = new LogicInstanceEntity()
-                    .setSuccess(res.isSuccess())
-                    .setMessage(res.getMsg())
-                    .setBizId(logicLog.getBizId())
-                    .setVersion(logicLog.getVersion())
-                    .setReturnData(res.getDataString())
-                    .setLogicId(logicLog.getLogicId())
-                    .setParamsJson(logicLog.getParamsJson() == null ? null : logicLog.getParamsJson().toJSONString())
-                    .setVarsJson(logicLog.getVarsJson() == null ? null : logicLog.getVarsJson().toJSONString())
-                    .setVarsJsonEnd(logicLog.getVarsJson_end() == null ? null : logicLog.getVarsJson_end().toJSONString())
-                    .setNextId(nextId)
-                    .setNextName(nextName)
-                    .setIsOver(logicLog.isOver())
-                    .setEnv(env);
             QueryWrapper<LogicInstanceEntity> q = new QueryWrapper<>();
             Map<String, String> m = new HashMap<>();
             m.put("logicId", logicLog.getLogicId());
             m.put("bizId", logicLog.getBizId());
             q.allEq(m);
-            instanceService.saveOrUpdate(instanceEntity, q);
-
+            var ins = instanceService.getOne(q);
+            if (ins != null) {
+                ins.setSuccess(res.isSuccess())
+                        .setMessage(res.getMsg())
+                        .setReturnData(res.getDataString())
+                        .setParamsJson(logicLog.getParamsJson() == null ? null : logicLog.getParamsJson().toJSONString())
+                        .setVarsJson(logicLog.getVarsJson() == null ? null : logicLog.getVarsJson().toJSONString())
+                        .setVarsJsonEnd(logicLog.getVarsJson_end() == null ? null : logicLog.getVarsJson_end().toJSONString())
+                        .setNextId(nextId)
+                        .setNextName(nextName)
+                        .setIsOver(logicLog.isOver())
+                        .setEnv(env);
+                ins.update(q);
+            } else {
+                ins = new LogicInstanceEntity()
+                        .setSuccess(res.isSuccess())
+                        .setMessage(res.getMsg())
+                        .setBizId(logicLog.getBizId())
+                        .setVersion(logicLog.getVersion())
+                        .setReturnData(res.getDataString())
+                        .setLogicId(logicLog.getLogicId())
+                        .setParamsJson(logicLog.getParamsJson() == null ? null : logicLog.getParamsJson().toJSONString())
+                        .setVarsJson(logicLog.getVarsJson() == null ? null : logicLog.getVarsJson().toJSONString())
+                        .setVarsJsonEnd(logicLog.getVarsJson_end() == null ? null : logicLog.getVarsJson_end().toJSONString())
+                        .setNextId(nextId)
+                        .setNextName(nextName)
+                        .setIsOver(logicLog.isOver())
+                        .setEnv(env);
+                ins.insert();
+            }
             LogicLogEntity logEntity = new LogicLogEntity()
                     .setSuccess(res.isSuccess())
                     .setMessage(res.getMsg())
