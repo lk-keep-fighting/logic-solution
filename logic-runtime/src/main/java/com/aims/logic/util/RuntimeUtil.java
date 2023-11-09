@@ -60,8 +60,20 @@ public class RuntimeUtil {
      * @return 逻辑配置
      */
     public static JSONObject readLogicConfig(String logicId) {
-        return logicConfigStoreService.readLogicConfig(logicId);
+        return logicConfigStoreService.readLogicConfig(logicId, null);
     }
+
+    /**
+     * 读取指定版本逻辑，若版本号不为null，则从表logic_bak读取
+     *
+     * @param logicId 逻辑编号
+     * @param version 版本号
+     * @return 指定版本的逻辑配置
+     */
+    public static JSONObject readLogicConfig(String logicId, String version) {
+        return logicConfigStoreService.readLogicConfig(logicId, version);
+    }
+
 
     /**
      * 保存配置到本地

@@ -85,9 +85,10 @@
       "extra": "js代码块，需返回对象，会转换为键值对追加在url中"
     },
     "timeout": {
-      "title": "执行超时时长(ms)",
+      "title": "执行超时设置(ms)",
       "defaultValue": 5000,
-      "type": "number"
+      "type": "number",
+      "extra": "超时则中断请求"
     }
   },
   "column": 2

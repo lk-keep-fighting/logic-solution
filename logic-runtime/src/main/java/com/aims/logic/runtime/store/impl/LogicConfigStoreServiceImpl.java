@@ -18,11 +18,20 @@ import java.util.Objects;
  * @author liukun
  */
 public class LogicConfigStoreServiceImpl implements LogicConfigStoreService {
+    OkHttpClient httpClient = new OkHttpClient();
+
     @Override
-    public JSONObject readLogicConfig(String logicId) {
-        if (RuntimeUtil.getEnv().getLOGIC_CONFIG_MODEL() == LogicConfigModelEnum.online) {
-            OkHttpClient client = new OkHttpClient().newBuilder().callTimeout(Duration.ofSeconds(10)).build();
-            String url = String.format("%s/api/ide/logic/%s/config", RuntimeUtil.getEnv().getIDE_HOST().isBlank() ? RuntimeUtil.getUrl() : RuntimeUtil.getEnv().getIDE_HOST(), logicId);
+    public JSONObject readLogicConfig(String logicId, String version) {
+        JSONObject logicConfig = null;
+        if (version != null || RuntimeUtil.getEnv().getLOGIC_CONFIG_MODEL() == LogicConfigModelEnum.online) {
+            OkHttpClient client = httpClient.newBuilder().callTimeout(Duration.ofSeconds(10)).build();
+            String onlineHost = RuntimeUtil.getEnv().getIDE_HOST().isBlank() ? RuntimeUtil.getUrl() : RuntimeUtil.getEnv().getIDE_HOST();
+            String url;
+            if (version == null) {//读取最新配置
+                url = String.format("%s/api/ide/logic/%s/config", onlineHost, logicId);
+            } else {
+                url = String.format("%s/api/ide/logic/%s/config/%s", onlineHost, logicId, version);
+            }
             Request request = new Request.Builder()
                     .url(url)
                     .build();
@@ -32,7 +41,7 @@ public class LogicConfigStoreServiceImpl implements LogicConfigStoreService {
                         var res = rep.body().string();
                         if (JSON.isValid(res)) {
                             var json = JSON.parseObject(res);
-                            return json.getJSONObject("data");
+                            logicConfig = json.getJSONObject("data");
                         }
                     }
                 } else {
@@ -42,9 +51,12 @@ public class LogicConfigStoreServiceImpl implements LogicConfigStoreService {
                 throw new RuntimeException(String.format("online获取配置失败，逻辑编号:%s,错误：%s", logicId, e.getLocalizedMessage()));
             }
         } else {
-            return FileUtil.readJsonFile(FileUtil.LOGIC_DIR, logicId + ".json");
+            logicConfig = FileUtil.readJsonFile(FileUtil.LOGIC_DIR, logicId + ".json");
         }
-        return null;
+        if (logicConfig != null) {
+            logicConfig.put("id", logicId);//自动修复文件名编号与内部配置编号不同的问题
+        }
+        return logicConfig;
     }
 
     @Override

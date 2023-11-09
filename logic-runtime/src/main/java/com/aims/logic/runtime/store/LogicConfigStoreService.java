@@ -23,7 +23,7 @@ public interface LogicConfigStoreService {
      * @param logicId 逻辑编号
      * @return 逻辑配置
      */
-    JSONObject readLogicConfig(String logicId);
+    JSONObject readLogicConfig(String logicId, String version);
 
     /**
      * 保存配置到本地
