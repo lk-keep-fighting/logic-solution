@@ -22,7 +22,6 @@
         <module>logic-runtime</module>
         <module>logic-sdk</module>
         <module>logic-runtime-service</module>
-        <module>logic-ide</module>
     </modules>
     <!-- 镜像仓库 -->
     <distributionManagement>
