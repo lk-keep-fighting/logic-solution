@@ -6,7 +6,6 @@
         <groupId>com.aims.xuanwu</groupId>
         <artifactId>logic-solution</artifactId>
         <version>${revision}</version>
-        <relativePath/>
     </parent>
     <groupId>com.aims.logic</groupId>
     <artifactId>logic-runtime-service</artifactId>
