@@ -16,6 +16,7 @@ public class LogicItemTreeNode extends BaseLASL {
 
     String id;
     String name;
+    String code;
     String type;
     String script;
     String url;

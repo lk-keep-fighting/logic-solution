@@ -19,6 +19,10 @@ public class LogicLogEntity extends Model<LogicLogEntity> {
     private String id;
     @TableField("logicId")
     private String logicId;
+    @TableField("clientId")
+    private String clientId;
+    @TableField("host")
+    private String host;
     private String version;
     @TableField("bizId")
     private String bizId;

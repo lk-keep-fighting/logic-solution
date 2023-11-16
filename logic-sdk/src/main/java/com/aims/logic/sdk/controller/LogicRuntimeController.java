@@ -1,5 +1,6 @@
 package com.aims.logic.sdk.controller;
 
+import com.aims.logic.runtime.service.LogicRunnerService;
 import com.aims.logic.sdk.BizLogicRunner;
 import com.aims.logic.sdk.LogicRunner;
 import com.aims.logic.sdk.dto.ApiResult;
@@ -14,21 +15,19 @@ import java.util.Map;
  */
 @RestController
 public class LogicRuntimeController {
-    private final LogicRunner runner;
-    private final BizLogicRunner bizRunner;
+    private final LogicRunnerService runner;
 
-    public LogicRuntimeController(LogicRunner _runner,
-                                  BizLogicRunner _bizRunner
+    public LogicRuntimeController(LogicRunnerService _runner
     ) {
         this.runner = _runner;
-        this.bizRunner = _bizRunner;
     }
 
 
     @PostMapping("/api/runtime/logic/v1/run-api/{id}")
     public ApiResult run(@RequestHeader Map<String, String> headers, @RequestBody(required = false) JSONObject body, @PathVariable String id, @RequestParam(value = "debug", required = false, defaultValue = "false") boolean debug) {
+        JSONObject headerJson = JSONObject.from(headers);
         JSONObject customEnv = new JSONObject();
-        customEnv.put("HEADERS", headers);
+        customEnv.put("HEADERS", headerJson);
         var rep = runner.run(id, body, customEnv);
         var res = ApiResult.fromLogicRunResult(rep);
         if (debug) {
@@ -39,9 +38,23 @@ public class LogicRuntimeController {
 
     @PostMapping("/api/runtime/logic/v1/run-biz/{id}/{bizId}")
     public ApiResult runBiz(@RequestHeader Map<String, String> headers, @RequestBody(required = false) JSONObject body, @PathVariable String id, @PathVariable String bizId, @RequestParam(value = "debug", required = false, defaultValue = "false") boolean debug) {
+        JSONObject headerJson = JSONObject.from(headers);
         JSONObject customEnv = new JSONObject();
-        customEnv.put("HEADERS", headers);
-        var rep = bizRunner.runBiz(id, bizId, body, customEnv);
+        customEnv.put("HEADERS", headerJson);
+        var rep = runner.runBiz(id, bizId, body, customEnv);
+        var res = ApiResult.fromLogicRunResult(rep);
+        if (debug) {
+            res.setDebug(rep.getLogicLog());
+        }
+        return res;
+    }
+
+    @PostMapping("/api/runtime/logic/v1/biz/{id}/{startCode}/{bizId}")
+    public ApiResult runBizByStartCode(@RequestHeader Map<String, String> headers, @RequestBody(required = false) JSONObject body, @PathVariable String id, @PathVariable String bizId, @PathVariable String startCode, @RequestParam(value = "debug", required = false, defaultValue = "false") boolean debug) {
+        JSONObject headerJson = JSONObject.from(headers);
+        JSONObject customEnv = new JSONObject();
+        customEnv.put("HEADERS", headerJson);
+        var rep = runner.runBizByCode(id, bizId, startCode, body, customEnv);
         var res = ApiResult.fromLogicRunResult(rep);
         if (debug) {
             res.setDebug(rep.getLogicLog());

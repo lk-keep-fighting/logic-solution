@@ -15,6 +15,7 @@ public class FunctionContext {
     private LogicRunner _logicRunner;
     private boolean hasErr = false;
     private String errMsg = null;
+    private String bizId = null;
 
     public FunctionContext() {
 

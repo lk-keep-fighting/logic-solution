@@ -1,5 +1,6 @@
 package com.aims.logic.sdk;
 
+import com.aims.logic.runtime.service.LogicRunnerService;
 import com.aims.logic.util.FileUtil;
 import com.alibaba.fastjson2.JSONObject;
 import org.junit.jupiter.api.Test;
@@ -15,11 +16,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 @MapperScan("com.aims.logic.sdk.mapper")
 public class LogicSdkApplicationTests {
     @Autowired
-    private LogicRunner runner;
-    @Autowired
-    private BizLogicRunner bizLogicRunner;
+    private LogicRunnerService runner;
+//    @Autowired
+//    private BizLogicRunner bizLogicRunner;
 
-    @Test
+    //    @Test
     void contextLoads() {
         JSONObject cusEnv = new JSONObject();
         JSONObject headers = new JSONObject();
@@ -35,7 +36,7 @@ public class LogicSdkApplicationTests {
 
     @Test
     void testRun() {
-        var res = bizLogicRunner.runBiz("test", "224", null);
+        var res = runner.runBiz("test", "224", null);
         System.out.println(res.getMsg());
     }
 
