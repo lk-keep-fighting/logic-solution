@@ -8,6 +8,10 @@
             "props": {
                 "rows": 1
             }
+        },
+        "code": {
+            "title": "交互编码",
+            "type": "string"
         }
     },
     "column": 1
