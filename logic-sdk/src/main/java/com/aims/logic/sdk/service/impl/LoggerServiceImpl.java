@@ -8,6 +8,7 @@ import com.aims.logic.sdk.mapper.LogicLogMapper;
 import com.aims.logic.sdk.service.LogicInstanceService;
 import com.aims.logic.util.RuntimeUtil;
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -69,6 +70,15 @@ public class LoggerServiceImpl {
                         .setEnv(env);
                 ins.insert();
             }
+            JSONObject envJson = logicLog.getEnvsJson();
+            JSONObject headers = envJson.getJSONObject("HEADERS");
+            String requestHost = null;
+            String requestClientId = null;
+            String REQUEST_CLIENT_FLAG = envJson.getString("REQUEST_CLIENT_FLAG");
+            if (headers != null) {
+                requestHost = headers.getString("host");
+                requestClientId = headers.getString(REQUEST_CLIENT_FLAG);
+            }
             LogicLogEntity logEntity = new LogicLogEntity()
                     .setSuccess(res.isSuccess())
                     .setMessage(res.getMsg())
@@ -83,7 +93,9 @@ public class LoggerServiceImpl {
                     .setNextId(nextId)
                     .setNextName(nextName)
                     .setIsOver(logicLog.isOver())
-                    .setEnv(env);
+                    .setEnv(env)
+                    .setHost(requestHost)
+                    .setClientId(requestClientId);
             logMapper.insert(logEntity);
         } catch (Exception ex) {
             System.err.println("添加日志异常");

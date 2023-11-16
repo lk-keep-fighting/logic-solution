@@ -9,7 +9,7 @@ spring:
     username: root
     password: 12#$qwER
 #logic:
-#    config-dir: /Users/liukun/Documents/Dev/aims/xuanwu-logic/logic-configs
+#    config-dir: /Users/lk/Documents/Dev/aims/xuanwu-logic/logic-configs
 #  web:
 #    resources:
 #      static-locations: classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/,classpath:/public/,classpath:/public/web

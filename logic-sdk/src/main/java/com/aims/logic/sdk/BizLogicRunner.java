@@ -51,8 +51,8 @@ public class BizLogicRunner {
     public LogicRunResult runBiz(String logicId, String bizId, JSONObject pars, JSONObject customEnv) {
         JSONObject env = RuntimeUtil.getEnvJson();
         env = JsonUtil.jsonMerge(customEnv, env);
-        String startId = null;
         String cacheVarsJson = null;
+        String startId = null;
         String logicVersion = null;
         if (bizId != null && !bizId.isBlank()) {
             QueryWrapper<LogicInstanceEntity> q = new QueryWrapper<>();

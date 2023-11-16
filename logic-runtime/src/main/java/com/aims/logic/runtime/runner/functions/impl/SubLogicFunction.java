@@ -5,6 +5,7 @@ import com.aims.logic.runtime.runner.FunctionContext;
 import com.aims.logic.runtime.runner.Functions;
 import com.aims.logic.runtime.runner.LogicRunner;
 import com.aims.logic.runtime.runner.functions.SubLogicFunctionService;
+import com.aims.logic.runtime.service.LogicRunnerService;
 import com.aims.logic.util.FileUtil;
 import com.aims.logic.util.RuntimeUtil;
 import com.alibaba.fastjson2.JSON;
@@ -16,7 +17,10 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class SubLogicFunction implements SubLogicFunctionService {
-    public SubLogicFunction() {
+    LogicRunnerService runnerService;
+
+    public SubLogicFunction(LogicRunnerService runnerService) {
+        this.runnerService = runnerService;
     }
 
     @Override
@@ -24,10 +28,11 @@ public class SubLogicFunction implements SubLogicFunctionService {
         try {
             var itemDsl = ((LogicItemTreeNode) item);
             Object data = Functions.get("js").invoke(ctx, itemDsl.getBody());
-            String subLogicId = itemDsl.getUrl();// (String) Functions.get("js").invoke(ctx, itemDsl.getUrl());
+            String subLogicId = itemDsl.getUrl();
             JSONObject jsonData = data == null ? null : JSONObject.from(data);
-            var config = RuntimeUtil.readLogicConfig(subLogicId);
-            var res = new LogicRunner(config).run(jsonData);
+//            var config = RuntimeUtil.readLogicConfig(subLogicId);
+//            var res = new LogicRunner(config, ctx.get_env()).run(jsonData);
+            var res = runnerService.runBiz(subLogicId, ctx.getBizId(), jsonData, ctx.get_env());
             return res.getData();
         } catch (Exception e) {
             ctx.setHasErr(true);

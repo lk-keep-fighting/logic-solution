@@ -7,7 +7,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class MvcConfig implements WebMvcConfigurer {
-//    private String staticPath = "/Users/liukun/Documents/Dev/aims/xuanwu-logic/logic-solution/logic-sdk/web";
+//    private String staticPath = "/Users/lk/Documents/Dev/aims/xuanwu-logic/logic-solution/logic-sdk/web";
 //
 //    @Override
 //    public void addResourceHandlers(ResourceHandlerRegistry registry) {

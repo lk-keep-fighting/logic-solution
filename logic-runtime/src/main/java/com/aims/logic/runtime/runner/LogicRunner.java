@@ -8,11 +8,11 @@ import com.aims.logic.contract.logger.LogicLog;
 import com.aims.logic.contract.parser.TypeAnnotationParser;
 import com.aims.logic.util.JsonUtil;
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import okhttp3.OkHttpClient;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -29,13 +29,20 @@ public class LogicRunner {
     private LogicTreeNode logic;
     private FunctionContext fnCtx = new FunctionContext();
 
-    public LogicRunner(JSONObject _config) {
-        init(_config, null);
+    public void setStartNode(LogicItemTreeNode startNode) {
+        this.startNode = startNode;
+        if (startNode != null)
+            this.startId = startNode.getId();
     }
 
     public LogicRunner(JSONObject _config, JSONObject _env) {
-        init(_config, _env);
+        init(_config, _env, null);
     }
+
+    public LogicRunner(JSONObject _config, JSONObject _env, String bizId) {
+        init(_config, _env, bizId);
+    }
+
 
     /**
      * 初始化
@@ -43,7 +50,7 @@ public class LogicRunner {
      * @param _config 逻辑配置
      * @param _env    环境变量
      */
-    private void init(JSONObject _config, JSONObject _env) {
+    private void init(JSONObject _config, JSONObject _env, String bizId) {
         logic = _config.toJavaObject(LogicTreeNode.class);
         JSONObject paramsJson = TypeAnnotationParser.ParamsToJson(logic.getParams());
         JSONObject varsJson = TypeAnnotationParser.ParamsToJson(logic.getVariables());
@@ -53,7 +60,7 @@ public class LogicRunner {
         this.fnCtx.set_par(paramsJson);
         this.fnCtx.set_var(varsJson);
         this.fnCtx.set_env(envJson);
-
+        this.fnCtx.setBizId(bizId);
         System.out.println("初始化成功");
         System.out.printf("默认参数，_par:%s%n", this.fnCtx.get_par());
         System.out.printf("默认局部变量，_var:%s%n", this.fnCtx.get_var());
@@ -78,12 +85,13 @@ public class LogicRunner {
                     envJson.put("JWT", JsonUtil.jsonMerge(beforeJwtInfo, tokenJwtInfo));
                 }
             }
-            var headerFilters = envJson.getJSONArray("HEADER_FILTERS");
+            JSONArray headerFilters = envJson.getJSONArray("HEADER_FILTERS");
             if (headerFilters != null) {
                 JSONObject newHeaders = new JSONObject();
                 headerFilters.forEach(f -> {
-                    var key = f.toString();
-                    newHeaders.put(key, headers.get(key));
+                    var fObj = (JSONObject) f;
+                    var filterKey = fObj.getString("key");
+                    newHeaders.put(filterKey, headers.get(filterKey));
                 });
                 envJson.put("HEADERS", newHeaders);
             }
@@ -91,9 +99,38 @@ public class LogicRunner {
 
     }
 
-    private LogicItemTreeNode findItem(String itemId) {
+    public LogicItemTreeNode findItemById(String itemId) {
         var itemNode = logic.getItems().stream().filter(i -> Objects.equals(i.getId(), itemId)).findFirst();
         return itemNode.orElse(null);
+    }
+
+    public LogicItemTreeNode findItemByCode(String itemCode) {
+        var itemNode = logic.getItems().stream().filter(i -> Objects.equals(i.getCode(), itemCode)).findFirst();
+        return itemNode.orElse(null);
+    }
+
+    /**
+     * 获取开始节点，若传入节点编号为null则默认为初始节点
+     *
+     * @param runItemId
+     * @return
+     */
+    public LogicItemTreeNode getStartItem(String runItemId) {
+        LogicItemTreeNode itemNode = null;
+        if (runItemId != null) {//指定了执行节点
+            itemNode = findItemById(runItemId);
+            if (itemNode == null) {
+                throw new RuntimeException(String.format("未发现执行节点：%s", runItemId));
+            }
+        } else {//未指定执行节点，从start开始执行
+            var defStartNode = logic.getItems().stream().filter(i -> Objects.equals(i.getType(), "start")).findFirst();
+            if (defStartNode.isPresent()) {
+                itemNode = defStartNode.get();
+            } else {
+                throw new RuntimeException("未发现开始节点");
+            }
+        }
+        return itemNode;
     }
 
     /**
@@ -144,23 +181,9 @@ public class LogicRunner {
      * @return 返回，通过success判断是否执行成功，data为最后一个节点返回的数据
      */
     public LogicRunResult run(String runItemId, JSONObject paramsJson, JSONObject varsJson) {
-        if (runItemId != null) {//指定了执行节点
-            this.startNode = findItem(runItemId);
-            if (this.startNode == null) {
-                throw new RuntimeException(String.format("未发现执行节点：%s", runItemId));
-            }
-        } else {//未指定执行节点，从start开始执行
-            var defStartNode = logic.getItems().stream().filter(i -> Objects.equals(i.getType(), "start")).findFirst();
-            if (defStartNode.isPresent()) {
-                this.startNode = defStartNode.get();
-                this.startId = this.startNode.getId();
-            } else {
-                throw new RuntimeException("未发现开始节点");
-            }
-        }
+        this.setStartNode(getStartItem(runItemId));
         fnCtx.set_par(JsonUtil.jsonMerge(paramsJson, fnCtx.get_par()));
         fnCtx.set_var(JsonUtil.jsonMerge(varsJson, fnCtx.get_var()));
-
         logicLog.setParamsJson(fnCtx.get_par() == null ? null : fnCtx.get_par().clone())
                 .setVarsJson(fnCtx.get_var() == null ? null : fnCtx.get_var().clone())
                 .setEnvsJson(fnCtx.get_env());
@@ -203,13 +226,6 @@ public class LogicRunner {
             logicLog.setOver(true);
         }
         return itemRes;
-    }
-
-
-    public String runWithJsonString(String paramsJson) {
-        JSONObject j = JSONObject.parse(paramsJson);
-        var client = new OkHttpClient();
-        return j.getString("params");
     }
 
     public LogicItemTreeNode findNextItem(LogicItemTreeNode curItem, FunctionContext fnCtx) {
