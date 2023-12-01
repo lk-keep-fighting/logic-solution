@@ -34,9 +34,9 @@ public class LogicSdkApplicationTests {
 //        testSaveFile();
     }
 
-//    @Test
+    @Test
     void testRun() {
-        var res = runner.runBiz("test", "224", null);
+        var res = runner.runBiz("test", null, null);
         System.out.println(res.getMsg());
     }
 

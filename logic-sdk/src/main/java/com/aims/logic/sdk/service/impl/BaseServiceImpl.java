@@ -19,8 +19,12 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T> extends ServiceImpl<M, 
         QueryWrapper queryWrapper = new QueryWrapper();
         if (input.getFilters() != null)
             input.getFilters().forEach(v -> {
-                if (!v.getValues().isEmpty())
-                    queryWrapper.like(v.getDataIndex(), v.getValues().get(0));
+                if (!v.getValues().isEmpty()) {
+                    if (v.getType().equals("="))
+                        queryWrapper.eq(v.getDataIndex(), v.getValues().get(0));
+                    else
+                        queryWrapper.like(v.getDataIndex(), v.getValues().get(0));
+                }
             });
         if (input.getOrderBy() != null && !input.getOrderBy().isEmpty()) {
             input.getOrderBy().forEach(o -> {

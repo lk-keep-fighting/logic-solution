@@ -14,11 +14,15 @@ public class LogicItemLog {
         success = true;
     }
 
-   private String name;
+    private String name;
     /*
     节点配置
      */
     private LogicItemTreeNode config;
+    /**
+     * 节点转换后的实例
+     */
+    private LogicItemTreeNode configInstance;
     /**
      * 当前item的入参json
      */

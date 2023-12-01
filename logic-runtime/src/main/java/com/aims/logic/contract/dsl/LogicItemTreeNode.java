@@ -2,6 +2,7 @@ package com.aims.logic.contract.dsl;
 
 import com.aims.logic.contract.enums.ConceptEnum;
 import com.aims.logic.contract.dsl.basic.BaseLASL;
+import com.alibaba.fastjson2.JSONObject;
 import lombok.Getter;
 import lombok.Setter;
 
