@@ -1,5 +1,6 @@
 package com.aims.logic.contract.dto;
 
+import com.aims.logic.contract.dsl.LogicItemTreeNode;
 import com.aims.logic.contract.logger.LogicLog;
 import com.alibaba.fastjson2.JSONObject;
 import lombok.Getter;
@@ -9,8 +10,8 @@ import lombok.experimental.Accessors;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class LogicRunResult {
-    public LogicRunResult() {
+public class LogicItemRunResult {
+    public LogicItemRunResult() {
     }
 
     boolean success = true;
@@ -36,15 +37,9 @@ public class LogicRunResult {
         }
     }
 
-    public static LogicRunResult fromItemResult(LogicItemRunResult itemRunResult) {
-        return new LogicRunResult()
-                .setData(itemRunResult.getData())
-                .setMsg(itemRunResult.getMsg())
-                .setSuccess(itemRunResult.isSuccess());
-    }
-
     /**
-     * 执行日志
+     * 逻辑项实例，配置解析后的数据实例
      */
-    LogicLog logicLog;
+    LogicItemTreeNode itemInstance;
+
 }

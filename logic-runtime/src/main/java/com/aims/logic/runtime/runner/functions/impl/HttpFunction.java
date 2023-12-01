@@ -1,6 +1,7 @@
 package com.aims.logic.runtime.runner.functions.impl;
 
 import com.aims.logic.contract.dsl.LogicItemTreeNode;
+import com.aims.logic.contract.dto.LogicItemRunResult;
 import com.aims.logic.runtime.runner.FunctionContext;
 import com.aims.logic.runtime.runner.Functions;
 import com.aims.logic.runtime.runner.functions.HttpFunctionService;
@@ -26,12 +27,13 @@ public class HttpFunction implements HttpFunctionService {
     OkHttpClient httpClient = new OkHttpClient();
 
     @Override
-    public Object invoke(FunctionContext ctx, Object item) {
+    public LogicItemRunResult invoke(FunctionContext ctx, Object item) {
         var itemDsl = ((LogicItemTreeNode) item);
-        Object data = Functions.get("js").invoke(ctx, itemDsl.getBody());
-        var customHeaders = Functions.get("js").invoke(ctx, itemDsl.getHeaders());
+        var itemInstance = new LogicItemTreeNode();
+        Object data = Functions.get("js").invoke(ctx, itemDsl.getBody()).getData();
+        var customHeaders = Functions.get("js").invoke(ctx, itemDsl.getHeaders()).getData();
         var method = itemDsl.getMethod().isEmpty() ? "post" : itemDsl.getMethod();
-        var url = Functions.get("js").invoke(ctx, itemDsl.getUrl());
+        var url = Functions.get("js").invoke(ctx, itemDsl.getUrl()).getData();
         OkHttpClient client = httpClient.newBuilder()
                 .connectTimeout(Integer.parseInt(itemDsl.getTimeout()), TimeUnit.MILLISECONDS)
                 .readTimeout(Integer.parseInt(itemDsl.getTimeout()), TimeUnit.MILLISECONDS)
@@ -43,10 +45,15 @@ public class HttpFunction implements HttpFunctionService {
             cusHeadersJson.forEach((k, v) -> headerMap.put(k, (String) v));
         }
         String jsonData = data == null ? "{}" : JSON.toJSONString(data);
-        if (headerMap.containsKey("content-type")) {
+        if (!headerMap.containsKey("content-type")) {
             headerMap.put("content-type", "application/json");
         }
         Headers headers = Headers.of(headerMap);
+        itemInstance.setMethod(method);
+        itemInstance.setHeaders(JSONObject.from(headerMap).toJSONString());
+        itemInstance.setBody(jsonData);
+        itemInstance.setUrl(url == null ? null : url.toString());
+        itemInstance.setTimeout(itemDsl.getTimeout());
         Request req;
         var reqBuilder = new Request.Builder().url((String) url).headers(headers);
         if ("get".equalsIgnoreCase(method)) {
@@ -77,11 +84,14 @@ public class HttpFunction implements HttpFunctionService {
                 }
             }
             System.out.println(repData);
-            return repData;
+            return new LogicItemRunResult()
+                    .setItemInstance(itemInstance).setData(repData);
         } catch (IOException e) {
             ctx.setHasErr(true);
             ctx.setErrMsg(e.getLocalizedMessage());
-            return e.toString();
+            return new LogicItemRunResult()
+                    .setItemInstance(itemInstance)
+                    .setData(e.toString()).setMsg(e.toString());
         }
     }
 

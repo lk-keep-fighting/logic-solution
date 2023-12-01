@@ -2,6 +2,7 @@ package com.aims.logic.runtime.runner;
 
 import com.aims.logic.contract.dsl.LogicItemTreeNode;
 import com.aims.logic.contract.dsl.LogicTreeNode;
+import com.aims.logic.contract.dto.LogicItemRunResult;
 import com.aims.logic.contract.dto.LogicRunResult;
 import com.aims.logic.contract.logger.LogicItemLog;
 import com.aims.logic.contract.logger.LogicLog;
@@ -187,7 +188,8 @@ public class LogicRunner {
         logicLog.setParamsJson(fnCtx.get_par() == null ? null : fnCtx.get_par().clone())
                 .setVarsJson(fnCtx.get_var() == null ? null : fnCtx.get_var().clone())
                 .setEnvsJson(fnCtx.get_env());
-        var res = this.runItem(startNode, fnCtx);
+        var itemRes = this.runItem(startNode, fnCtx);
+        var res = LogicRunResult.fromItemResult(itemRes);
         logicLog.setVarsJson_end(fnCtx.get_var())
                 .setLogicId(logic.getId())
                 .setVersion(logic.getVersion())
@@ -197,10 +199,11 @@ public class LogicRunner {
         return res;
     }
 
-    private LogicRunResult runItem(LogicItemTreeNode item, FunctionContext fnCtx) {
-        LogicRunResult itemRes = new LogicItemRunner(item).run(fnCtx);
+    private LogicItemRunResult runItem(LogicItemTreeNode item, FunctionContext fnCtx) {
+        LogicItemRunResult itemRes = new LogicItemRunner(item).run(fnCtx);
         var itemLog = new LogicItemLog()
                 .setName(item.getName())
+                .setConfigInstance(itemRes.getItemInstance())
                 .setConfig(item)
                 .setParamsJson(fnCtx.get_par())
                 .setReturnData(itemRes.getData())

@@ -1,5 +1,6 @@
 package com.aims.logic.runtime.runner.functions.impl;
 
+import com.aims.logic.contract.dto.LogicItemRunResult;
 import com.aims.logic.runtime.runner.FunctionContext;
 import com.aims.logic.runtime.runner.functions.JSFunctionService;
 import org.springframework.stereotype.Service;
@@ -14,9 +15,9 @@ import javax.script.ScriptEngineManager;
 @Service
 public class JsFunction implements JSFunctionService {
     @Override
-    public Object invoke(FunctionContext ctx, Object script) {
+    public LogicItemRunResult invoke(FunctionContext ctx, Object script) {
         if (script == null) {
-            return null;
+            return new LogicItemRunResult();
         }
         ScriptEngineManager manager = new ScriptEngineManager();
         ScriptEngine engine = manager.getEngineByName("js");
@@ -33,12 +34,13 @@ public class JsFunction implements JSFunctionService {
 //            processedCode = matcher.replaceAll("");
             engine.eval(String.format("function fn(){ %s }", processedCode));
             Invocable inv = (Invocable) engine;
-            return inv.invokeFunction("fn");
+            Object res = inv.invokeFunction("fn");
+            return new LogicItemRunResult().setData(res);
         } catch (Exception exception) {
             ctx.setHasErr(true);
             ctx.setErrMsg(exception.toString());
             System.err.println(exception.toString());
-            return null;
+            return new LogicItemRunResult().setData(exception.toString());
         }
     }
 

@@ -1,6 +1,7 @@
 package com.aims.logic.runtime.runner;
 
 import com.aims.logic.contract.dsl.LogicItemTreeNode;
+import com.aims.logic.contract.dto.LogicItemRunResult;
 import com.aims.logic.contract.dto.LogicRunResult;
 import com.alibaba.fastjson2.JSONObject;
 
@@ -11,9 +12,9 @@ public class LogicItemRunner {
         dsl = _dsl;
     }
 
-    public LogicRunResult run(FunctionContext ctx) {
-        LogicRunResult result = new LogicRunResult();
-        Object ret = null;
+    public LogicItemRunResult run(FunctionContext ctx) {
+        LogicItemRunResult ret = new LogicItemRunResult();
+//        Object ret = null;
         System.out.println("执行节点 " + this.dsl.getName());
         System.out.println("上下文 " + JSONObject.toJSONString(ctx));
         switch (this.dsl.getType()) {
@@ -48,10 +49,10 @@ public class LogicItemRunner {
                 break;
         }
         if (ctx.isHasErr()) {
-            result.setSuccess(false).setMsg(ctx.getErrMsg());
+            ret.setSuccess(false).setMsg(ctx.getErrMsg());
         }
-        result.setData(ret);
-        return result;
+//        result.setData(ret);
+        return ret;
     }
 
 }
