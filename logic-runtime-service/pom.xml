@@ -17,9 +17,9 @@
     </properties>
     <repositories>
         <repository>
-            <id>kdznwl</id>
+            <id>aimstek</id>
             <name>公司镜像仓库</name>
-            <url>https://nexus.kdznwl.cn/repository/maven-public</url>
+            <url>https://nexus.aimstek.cn/repository/maven-public</url>
         </repository>
     </repositories>
     <dependencies>
@@ -40,7 +40,7 @@
         <dependency>
             <groupId>com.aims.logic</groupId>
             <artifactId>logic-sdk</artifactId>
-            <version>0.0.5-SNAPSHOT</version>
+            <version>0.0.6-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

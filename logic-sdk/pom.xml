@@ -9,7 +9,7 @@
     </parent>
     <groupId>com.aims.logic</groupId>
     <artifactId>logic-sdk</artifactId>
-    <version>0.0.5-SNAPSHOT</version>
+    <version>0.0.6-SNAPSHOT</version>
     <name>logic-sdk</name>
     <description>logic-sdk</description>
     <properties>
@@ -49,12 +49,12 @@
         <repository>
             <!--稳定版本不会频繁修改的jar的存储位置-->
             <id>nexus-releases</id>
-            <url>https://nexus.kdznwl.cn/repository/maven-releases/</url>
+            <url>https://nexus.aimstek.cn/repository/maven-releases/</url>
         </repository>
         <snapshotRepository>
             <!--快照版本-->
             <id>nexus-snapshots</id>
-            <url>https://nexus.kdznwl.cn/repository/maven-snapshots/</url>
+            <url>https://nexus.aimstek.cn/repository/maven-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 <!--    <build>-->
