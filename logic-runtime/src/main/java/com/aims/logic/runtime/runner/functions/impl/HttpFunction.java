@@ -45,13 +45,9 @@ public class HttpFunction implements HttpFunctionService {
                 .build();
         Map<String, String> headerMap = new HashMap<>();
         if (customHeaders != null) {
-            if (JSON.isValidObject(customHeaders.toString())) {
-                JSONObject cusHeadersJson = (JSONObject) JSON.toJSON(customHeaders);
-                if (cusHeadersJson != null) {
-                    cusHeadersJson.forEach((k, v) -> headerMap.put(k, (String) v));
-                }
-            } else {
-                throw new RuntimeException("headers格式错误，应为json对象：" + customHeaders);
+            JSONObject cusHeadersJson = (JSONObject) JSON.toJSON(customHeaders);
+            if (cusHeadersJson != null) {
+                cusHeadersJson.forEach((k, v) -> headerMap.put(k, (String) v));
             }
         }
 
