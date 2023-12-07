@@ -29,7 +29,12 @@ public class LoggerServiceImpl {
         instanceService = _instanceService;
     }
 
-    public void addLog(LogicRunResult res) {
+    /**
+     * 新增或更新运行实例日志与logic_log日志
+     *
+     * @param res
+     */
+    public void addOrUpdateInstanceLog(LogicRunResult res) {
         try {
             String env = RuntimeUtil.getEnv().getNODE_ENV();
             LogicLog logicLog = res.getLogicLog();
@@ -48,9 +53,9 @@ public class LoggerServiceImpl {
                         .setParamsJson(logicLog.getParamsJson() == null ? null : logicLog.getParamsJson().toJSONString())
                         .setVarsJson(logicLog.getVarsJson() == null ? null : logicLog.getVarsJson().toJSONString())
                         .setVarsJsonEnd(logicLog.getVarsJson_end() == null ? null : logicLog.getVarsJson_end().toJSONString())
+                        .setIsOver(logicLog.isOver())
                         .setNextId(nextId)
                         .setNextName(nextName)
-                        .setIsOver(logicLog.isOver())
                         .setEnv(env);
                 ins.update(q);
             } else {
@@ -64,9 +69,9 @@ public class LoggerServiceImpl {
                         .setParamsJson(logicLog.getParamsJson() == null ? null : logicLog.getParamsJson().toJSONString())
                         .setVarsJson(logicLog.getVarsJson() == null ? null : logicLog.getVarsJson().toJSONString())
                         .setVarsJsonEnd(logicLog.getVarsJson_end() == null ? null : logicLog.getVarsJson_end().toJSONString())
+                        .setIsOver(logicLog.isOver())
                         .setNextId(nextId)
                         .setNextName(nextName)
-                        .setIsOver(logicLog.isOver())
                         .setEnv(env);
                 ins.insert();
             }
@@ -97,7 +102,8 @@ public class LoggerServiceImpl {
                     .setHost(requestHost)
                     .setClientId(requestClientId);
             logMapper.insert(logEntity);
-        } catch (Exception ex) {
+        } catch (
+                Exception ex) {
             System.err.println("添加日志异常");
             System.err.println(ex);
         }
