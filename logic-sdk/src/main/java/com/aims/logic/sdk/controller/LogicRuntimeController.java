@@ -52,7 +52,20 @@ public class LogicRuntimeController {
         JSONObject headerJson = JSONObject.from(headers);
         JSONObject customEnv = new JSONObject();
         customEnv.put("HEADERS", headerJson);
-        var rep = runner.runBizByCode(id, bizId, startCode, body, customEnv);
+        var rep = runner.runBizByVerifyCode(id, bizId, startCode, body, customEnv);
+        var res = ApiResult.fromLogicRunResult(rep);
+        if (debug) {
+            res.setDebug(rep.getLogicLog());
+        }
+        return res;
+    }
+
+    @PostMapping("/api/runtime/logic/v1/step-by-step/{id}/{bizId}")
+    public ApiResult runBizStepByStep(@RequestHeader Map<String, String> headers, @RequestBody(required = false) JSONObject body, @PathVariable String id, @PathVariable String bizId, @RequestParam(value = "debug", required = false, defaultValue = "false") boolean debug) {
+        JSONObject headerJson = JSONObject.from(headers);
+        JSONObject customEnv = new JSONObject();
+        customEnv.put("HEADERS", headerJson);
+        var rep = runner.runBizStepByStep(id, bizId, body, customEnv);
         var res = ApiResult.fromLogicRunResult(rep);
         if (debug) {
             res.setDebug(rep.getLogicLog());

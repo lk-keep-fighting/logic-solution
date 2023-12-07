@@ -10,9 +10,39 @@ public interface LogicRunnerService {
 
     LogicRunResult runBiz(String logicId, String bizId, String parsJsonString);
 
+    /**
+     * 根据bizId保持交互点状态，每次请求继续往下执行
+     * 失败则下次请求开始的交互点不变
+     *
+     * @param logicId
+     * @param bizId
+     * @param pars
+     * @param customEnv
+     * @return
+     */
+
     LogicRunResult runBiz(String logicId, String bizId, JSONObject pars, JSONObject customEnv);
 
-    LogicRunResult runBizByCode(String logicId, String bizId, String itemCode, String parsJsonString);
+    /** 与runBiz的区别是，当节点报错时，会将当前报错节点记录为下一次请求的执行节点
+     * @param logicId
+     * @param bizId
+     * @param pars
+     * @param customEnv
+     * @return
+     */
+    LogicRunResult runBizStepByStep(String logicId, String bizId, JSONObject pars, JSONObject customEnv);
 
-    LogicRunResult runBizByCode(String logicId, String bizId, String itemCode, JSONObject pars, JSONObject customEnv);
+    LogicRunResult runBizByVerifyCode(String logicId, String bizId, String verifyCode, String parsJsonString);
+
+    /**
+     * 根据verifyCode判断是否与当前等待的交互点相同，不一致则报错
+     * @param logicId
+     * @param bizId
+     * @param verifyCode
+     * @param pars
+     * @param customEnv
+     * @return
+     */
+    LogicRunResult runBizByVerifyCode(String logicId, String bizId, String verifyCode, JSONObject pars, JSONObject customEnv);
+
 }
