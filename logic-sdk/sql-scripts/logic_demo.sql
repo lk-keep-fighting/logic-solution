@@ -92,7 +92,7 @@ CREATE TABLE `logic_log` (
   `varsJsonEnd` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '执行完成后的局部变量，用于下一个交互的执行',
   `returnData` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '返回数据',
   `isOver` tinyint(1) DEFAULT '0' COMMENT '是否已经执行到最后一个节点',
-  `itemLogs` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '执行过程日志',
+  `itemLogs` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '执行过程日志',
   `messageId` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '消息唯一标识',
   PRIMARY KEY (`id`,`version`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
