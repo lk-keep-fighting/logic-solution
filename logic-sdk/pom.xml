@@ -45,6 +45,13 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
     </dependencies>
+    <repositories>
+        <repository>
+            <id>nexus</id>
+            <name>公司镜像仓库</name>
+            <url>https://nexus.aimstek.cn/repository/maven-public</url>
+        </repository>
+    </repositories>
     <distributionManagement>
         <repository>
             <!--稳定版本不会频繁修改的jar的存储位置-->
@@ -57,12 +64,12 @@
             <url>https://nexus.aimstek.cn/repository/maven-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
-<!--    <build>-->
-<!--        <plugins>-->
-<!--            <plugin>-->
-<!--                <groupId>org.springframework.boot</groupId>-->
-<!--                <artifactId>spring-boot-maven-plugin</artifactId>-->
-<!--            </plugin>-->
-<!--        </plugins>-->
-<!--    </build>-->
+    <!--    <build>-->
+    <!--        <plugins>-->
+    <!--            <plugin>-->
+    <!--                <groupId>org.springframework.boot</groupId>-->
+    <!--                <artifactId>spring-boot-maven-plugin</artifactId>-->
+    <!--            </plugin>-->
+    <!--        </plugins>-->
+    <!--    </build>-->
 </project>
