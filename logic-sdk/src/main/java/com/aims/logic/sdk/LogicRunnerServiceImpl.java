@@ -87,9 +87,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         String startId = null;
         String logicVersion = null;
         if (bizId != null && !bizId.isBlank()) {
-            QueryWrapper<LogicInstanceEntity> q = new QueryWrapper<>();
-            q.allEq(Map.of("logicId", logicId, "bizId", bizId));
-            LogicInstanceEntity insEntity = insService.getOne(q);
+            LogicInstanceEntity insEntity = insService.getInstance(logicId, bizId);
             if (insEntity != null) {
                 cacheVarsJson = insEntity.getVarsJsonEnd();
                 startId = insEntity.getNextId();
@@ -121,9 +119,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         if (bizId == null || bizId.isBlank()) throw new RuntimeException("未指定业务标识！");
         if (verifyCode == null || verifyCode.isBlank())
             throw new RuntimeException("未指定期望执行节点！");
-        QueryWrapper<LogicInstanceEntity> q = new QueryWrapper<>();
-        q.allEq(Map.of("logicId", logicId, "bizId", bizId));
-        LogicInstanceEntity insEntity = insService.getOne(q);
+        LogicInstanceEntity insEntity = insService.getInstance(logicId, bizId);
         if (insEntity != null && insEntity.getIsOver()) {
             return new LogicRunResult().setSuccess(false).setMsg(String.format("指定的bizId:%s已完成执行，无法重复执行。", bizId));
         }
@@ -163,9 +159,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         String startId = null;
         String logicVersion = null;
         if (bizId != null && !bizId.isBlank()) {
-            QueryWrapper<LogicInstanceEntity> q = new QueryWrapper<>();
-            q.allEq(Map.of("logicId", logicId, "bizId", bizId));
-            LogicInstanceEntity insEntity = insService.getOne(q);
+            LogicInstanceEntity insEntity = insService.getInstance(logicId, bizId);
             if (insEntity != null) {
                 cacheVarsJson = insEntity.getVarsJsonEnd();
                 startId = insEntity.getNextId();
@@ -191,4 +185,5 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         logService.addOrUpdateInstanceLog(res);
         return res;
     }
+
 }

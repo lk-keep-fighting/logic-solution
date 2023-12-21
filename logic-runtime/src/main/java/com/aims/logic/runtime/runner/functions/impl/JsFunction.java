@@ -40,7 +40,7 @@ public class JsFunction implements JSFunctionService {
             ctx.setHasErr(true);
             ctx.setErrMsg(exception.toString());
             System.err.println(exception.toString());
-            return new LogicItemRunResult().setData(exception.toString());
+            return new LogicItemRunResult().setData(exception);
         }
     }
 

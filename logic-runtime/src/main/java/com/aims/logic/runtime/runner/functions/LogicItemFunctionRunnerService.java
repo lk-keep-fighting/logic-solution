@@ -11,6 +11,7 @@ public interface LogicItemFunctionRunnerService {
 
     /**
      * 返回实现的节点类型
+     *
      * @return
      */
     String getItemType();

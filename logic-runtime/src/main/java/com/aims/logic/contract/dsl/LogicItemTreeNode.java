@@ -1,5 +1,7 @@
 package com.aims.logic.contract.dsl;
 
+import com.aims.logic.contract.dsl.basic.TypeAnnotationTreeNode;
+import com.aims.logic.contract.dsl.basic.TypeParamTreeNode;
 import com.aims.logic.contract.enums.ConceptEnum;
 import com.aims.logic.contract.dsl.basic.BaseLASL;
 import com.alibaba.fastjson2.JSONObject;
@@ -23,7 +25,14 @@ public class LogicItemTreeNode extends BaseLASL {
     String url;
     String method;
     String headers;
+    /**
+     * http请求body
+     */
     String body;
+    /**
+     * java等强类型参数声明
+     */
+    List<ParamTreeNode> params;
     String timeout;
     String nextId;
     /*
