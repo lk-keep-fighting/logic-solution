@@ -34,10 +34,15 @@ public class LogicSdkApplicationTests {
 //        testSaveFile();
     }
 
-    @Test
+//    @Test
     void testRun() {
         var res = runner.runBiz("test", null, null);
         System.out.println(res.getMsg());
+    }
+//    @Test
+    void testJava() {
+        var res = runner.runBiz("test.java", null, null);
+        System.out.println(res.getData());
     }
 
     void testHeaderFilters() {

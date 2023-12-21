@@ -4,10 +4,12 @@ import com.aims.logic.contract.enums.ConceptEnum;
 import com.aims.logic.contract.enums.TypeKindEnum;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 import java.util.List;
 @Getter
 @Setter
+@Accessors(chain = true)
 public class TypeAnnotationTreeNode extends BaseLASL {
     public TypeAnnotationTreeNode() {
         concept = ConceptEnum.TypeAnnotation;

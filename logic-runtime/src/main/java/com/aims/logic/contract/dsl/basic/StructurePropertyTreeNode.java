@@ -3,9 +3,11 @@ package com.aims.logic.contract.dsl.basic;
 import com.aims.logic.contract.enums.ConceptEnum;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 @Getter
 @Setter
+@Accessors(chain = true)
 public class StructurePropertyTreeNode extends BaseLASL {
     ConceptEnum concept; // 产品概念
     String name; // 数据结构属性名称

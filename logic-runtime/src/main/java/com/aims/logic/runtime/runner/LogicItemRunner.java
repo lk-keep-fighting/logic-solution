@@ -17,13 +17,14 @@ public class LogicItemRunner {
 //        Object ret = null;
         System.out.println("执行节点 " + this.dsl.getName());
         System.out.println("上下文 " + JSONObject.toJSONString(ctx));
-        switch (this.dsl.getType()) {
+        var itemType = this.dsl.getType();
+        switch (itemType) {
             case "end":
-                ret = Functions.get("js").invoke(ctx, this.dsl.getScript() != null ? this.dsl.getScript() : "return _ret");
+                ret = Functions.get(itemType).invoke(ctx, this.dsl.getScript() != null ? this.dsl.getScript() : "return _ret");
                 break;
-            case "http":
-                ret = Functions.get("http").invoke(ctx, this.dsl);
-                break;
+//            case "http":
+//                ret = Functions.get(itemType).invoke(ctx, this.dsl);
+//                break;
             case "wait":
                 if (this.dsl.getTimeout() != null) {
                     try {
@@ -37,11 +38,11 @@ public class LogicItemRunner {
                 }
                 break;
             case "js":
-                ret = Functions.get("js").invoke(ctx, this.dsl.getScript() != null ? this.dsl.getScript() : "");
+                ret = Functions.get(itemType).invoke(ctx, this.dsl.getScript() != null ? this.dsl.getScript() : "");
                 break;
             case "start":
             default:
-                var func = Functions.get(dsl.getType());
+                var func = Functions.get(itemType);
                 if (func != null)
                     ret = func.invoke(ctx, this.dsl);
                 else

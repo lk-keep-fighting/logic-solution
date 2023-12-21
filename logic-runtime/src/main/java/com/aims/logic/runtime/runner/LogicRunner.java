@@ -235,22 +235,22 @@ public class LogicRunner {
         AtomicReference<String> nextId = new AtomicReference<>("");
         AtomicReference<String> defNextId = new AtomicReference<>("");
         AtomicReference<LogicItemTreeNode> nextItem = new AtomicReference<>(null);
-        ;
         switch (curItem.getType()) {
             case "switch":
-                String res = Functions.get("js").invoke(fnCtx, "return  " + curItem.getCondition()).toString();
-                curItem.getBranches().forEach(b -> {
-                    if (b.getWhen() != null) {
-                        if (b.getWhen().equals(res)) {
-                            nextId.set(b.getNextId());
-                        }
-                    } else {//default节点没有when属性
-                        defNextId.set(b.getNextId());
-                    }
-                });
-                if (nextId.get().isBlank()) {
-                    nextId.set(defNextId.get());//when条件未匹配成功，分配默认节点
-                }
+                nextId.set(fnCtx.get_lastRet().toString());
+//                String res = Functions.get("js").invoke(fnCtx, "return  " + curItem.getCondition()).toString();
+//                curItem.getBranches().forEach(b -> {
+//                    if (b.getWhen() != null) {
+//                        if (b.getWhen().equals(res)) {
+//                            nextId.set(b.getNextId());
+//                        }
+//                    } else {//default节点没有when属性
+//                        defNextId.set(b.getNextId());
+//                    }
+//                });
+//                if (nextId.get().isBlank()) {
+//                    nextId.set(defNextId.get());//when条件未匹配成功，分配默认节点
+//                }
                 break;
             default:
                 nextId.set(curItem.getNextId());
