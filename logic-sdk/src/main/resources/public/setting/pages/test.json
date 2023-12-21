@@ -1,0 +1,887 @@
+{
+    "type": "page",
+    "id": "u:23afc0021f73",
+    "body": [
+      {
+        "id": "u:a14192b58fa1",
+        "api": {
+          "url": "/api/web/org/sensitive/createTemplate",
+          "method": "post",
+          "adaptor": "",
+          "messages": {
+          },
+          "requestAdaptor": "console.log(\"context\",context)\r\n\r\napi.data['sensitiveWordsDtoList'] = context.__super.diff.sensitiveWordsDtoList\r\ndelete api.data.items;\r\nreturn api;"
+        },
+        "body": [
+          {
+            "id": "u:c4a2bc17a3e1",
+            "type": "flex",
+            "items": [
+              {
+                "id": "u:68e2eafceb51",
+                "body": [
+                  {
+                    "id": "u:9fd0bfb7580c",
+                    "type": "button",
+                    "label": "提交",
+                    "level": "primary",
+                    "onEvent": {
+                      "click": {
+                        "actions": [
+                          {
+                            "actionType": "custom",
+                            "ignoreError": false,
+                            "script": "/* 自定义JS使用说明：\n  * 1.动作执行函数doAction，可以执行所有类型的动作\n  * 2.通过上下文对象context可以获取当前组件实例，例如context.props可以获取该组件相关属性\n  * 3.事件对象event，在doAction之后执行event.stopPropagation();可以阻止后续动作执行\n*/\nconsole.log(event.data, context.props,\"context\")\n"
+                          },
+                          {
+                            "actionType": "submit",
+                            "componentId": "u:a14192b58fa1"
+                          }
+                        ]
+                      }
+                    },
+                    "themeCss": {
+                      "className": {
+                        "padding-and-margin:default": {
+                          "marginRight": "10px"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "id": "u:673008ccf593",
+                    "type": "button",
+                    "label": "返回",
+                    "onEvent": {
+                      "click": {
+                        "actions": [
+                          {
+                            "args": {
+                              "url": "/system/sensitive_template_management",
+                              "blank": false
+                            },
+                            "actionType": "url",
+                            "ignoreError": false
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "size": "xs",
+                "type": "container",
+                "style": {
+                  "flex": "1 1 auto",
+                  "display": "flex",
+                  "flexGrow": 1,
+                  "flexWrap": "nowrap",
+                  "position": "static",
+                  "flexBasis": "auto",
+                  "justifyContent": "flex-end"
+                },
+                "wrapperBody": false,
+                "isFixedWidth": false,
+                "isFixedHeight": false
+              }
+            ],
+            "style": {
+              "position": "relative"
+            },
+            "className": "p-1"
+          },
+          {
+            "id": "u:1498f78279fa",
+            "type": "flex",
+            "items": [
+              {
+                "id": "u:708e54ea745b",
+                "body": [
+                  {
+                    "id": "u:46c4597754ae",
+                    "type": "divider"
+                  }
+                ],
+                "size": "xs",
+                "type": "container",
+                "style": {
+                  "flex": "1 1 auto",
+                  "display": "block",
+                  "flexGrow": 1,
+                  "position": "static",
+                  "flexBasis": "auto"
+                },
+                "wrapperBody": false,
+                "isFixedWidth": false,
+                "isFixedHeight": false
+              }
+            ],
+            "style": {
+              "position": "relative"
+            },
+            "className": "p-1"
+          },
+          {
+            "id": "u:406053286be3",
+            "body": [
+              {
+                "id": "u:3bba01aaa733",
+                "type": "flex",
+                "items": [
+                  {
+                    "id": "u:1abf000b2c5c",
+                    "body": [
+                      {
+                        "id": "u:0a8663a29d12",
+                        "tpl": "基本信息",
+                        "type": "tpl",
+                        "inline": true,
+                        "wrapperComponent": ""
+                      }
+                    ],
+                    "size": "xs",
+                    "type": "container",
+                    "style": {
+                      "flex": "1 1 auto",
+                      "display": "block",
+                      "flexGrow": 1,
+                      "position": "static",
+                      "flexBasis": "auto"
+                    },
+                    "wrapperBody": false,
+                    "isFixedWidth": false,
+                    "isFixedHeight": false
+                  },
+                  {
+                    "id": "u:154ee97d15be",
+                    "body": [
+                      {
+                        "id": "u:e0817bc43da2",
+                        "type": "button",
+                        "label": "展开",
+                        "level": "primary",
+                        "hidden": true,
+                        "onEvent": {
+                          "click": {
+                            "actions": [
+                              {
+                                "groupType": "component",
+                                "actionType": "expand",
+                                "componentId": "u:fb3f826aacee"
+                              },
+                              {
+                                "actionType": "hidden",
+                                "componentId": "u:e0817bc43da2",
+                                "ignoreError": false
+                              },
+                              {
+                                "actionType": "show",
+                                "componentId": "u:c397354e2924",
+                                "ignoreError": false
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "id": "u:c397354e2924",
+                        "type": "button",
+                        "label": "收起",
+                        "level": "primary",
+                        "onEvent": {
+                          "click": {
+                            "actions": [
+                              {
+                                "groupType": "component",
+                                "actionType": "collapse",
+                                "componentId": "u:fb3f826aacee"
+                              },
+                              {
+                                "actionType": "hidden",
+                                "componentId": "u:c397354e2924",
+                                "ignoreError": false
+                              },
+                              {
+                                "actionType": "show",
+                                "componentId": "u:e0817bc43da2",
+                                "ignoreError": false
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "size": "xs",
+                    "type": "container",
+                    "style": {
+                      "flex": "1 1 auto",
+                      "display": "flex",
+                      "flexGrow": 1,
+                      "flexWrap": "nowrap",
+                      "position": "static",
+                      "flexBasis": "auto",
+                      "justifyContent": "flex-end"
+                    },
+                    "wrapperBody": false,
+                    "isFixedWidth": false,
+                    "isFixedHeight": false
+                  }
+                ],
+                "style": {
+                  "position": "relative"
+                },
+                "className": "p-1"
+              },
+              {
+                "id": "u:fb3f826aacee",
+                "body": [
+                  {
+                    "id": "u:80d1cfe7d44e",
+                    "body": [
+                      {
+                        "id": "u:29e6f792857a",
+                        "name": "code",
+                        "type": "input-text",
+                        "label": "模板编码",
+                        "hidden": false,
+                        "required": true
+                      },
+                      {
+                        "id": "u:0dae4613b173",
+                        "name": "name",
+                        "type": "input-text",
+                        "label": "模板名称",
+                        "required": true
+                      },
+                      {
+                        "id": "u:8b6bc9d161c1",
+                        "name": "status",
+                        "type": "radios",
+                        "label": "状态",
+                        "value": "",
+                        "options": [
+                          {
+                            "label": "启用",
+                            "value": 1
+                          },
+                          {
+                            "label": "禁用",
+                            "value": 0
+                          }
+                        ],
+                        "required": true
+                      }
+                    ],
+                    "size": "xs",
+                    "type": "container",
+                    "style": {
+                      "flex": "1 1 auto",
+                      "display": "flex",
+                      "flexGrow": 1,
+                      "flexWrap": "nowrap",
+                      "position": "static",
+                      "flexBasis": "auto"
+                    },
+                    "wrapperBody": false,
+                    "isFixedWidth": false,
+                    "isFixedHeight": false
+                  },
+                  {
+                    "id": "u:5c6111143032",
+                    "body": [
+                      {
+                        "id": "u:35da0d04e54b",
+                        "name": "remark",
+                        "type": "textarea",
+                        "label": "描述",
+                        "maxRows": 20,
+                        "minRows": 3
+                      }
+                    ],
+                    "size": "xs",
+                    "type": "container",
+                    "style": {
+                      "flex": "1 1 auto",
+                      "display": "block",
+                      "flexGrow": 1,
+                      "position": "static",
+                      "flexBasis": "auto"
+                    },
+                    "wrapperBody": false,
+                    "isFixedWidth": false,
+                    "isFixedHeight": false
+                  }
+                ],
+                "type": "collapse",
+                "header": "",
+                "showArrow": false
+              }
+            ],
+            "size": "none",
+            "type": "container",
+            "style": {
+              "display": "block",
+              "position": "static"
+            },
+            "wrapperBody": false
+          },
+          {
+            "id": "u:74b0b39eda0b",
+            "body": [
+              {
+                "id": "u:d41235631b6d",
+                "body": [
+                  {
+                    "id": "u:60c62cf8e287",
+                    "type": "flex",
+                    "items": [
+                      {
+                        "id": "u:cedcea19d784",
+                        "body": [
+                          {
+                            "id": "u:516c551cfb92",
+                            "tpl": "敏感字段模板",
+                            "type": "tpl",
+                            "inline": true,
+                            "wrapperComponent": ""
+                          }
+                        ],
+                        "size": "xs",
+                        "type": "container",
+                        "style": {
+                          "flex": "1 1 auto",
+                          "display": "block",
+                          "flexGrow": 1,
+                          "position": "static",
+                          "flexBasis": "auto"
+                        },
+                        "wrapperBody": false,
+                        "isFixedWidth": false,
+                        "isFixedHeight": false
+                      },
+                      {
+                        "id": "u:36686a5577ad",
+                        "body": [
+                          {
+                            "id": "u:1bb4f34d951e",
+                            "type": "button",
+                            "label": "展开",
+                            "level": "primary",
+                            "hidden": true,
+                            "onEvent": {
+                              "click": {
+                                "actions": [
+                                  {
+                                    "groupType": "component",
+                                    "actionType": "expand",
+                                    "componentId": "u:0cce5189a847"
+                                  },
+                                  {
+                                    "actionType": "hidden",
+                                    "componentId": "u:17c11bd90d5e",
+                                    "ignoreError": false
+                                  },
+                                  {
+                                    "actionType": "show",
+                                    "componentId": "u:a8045eeb949b",
+                                    "ignoreError": false
+                                  }
+                                ]
+                              }
+                            }
+                          },
+                          {
+                            "id": "u:18f59ce20a7f",
+                            "type": "button",
+                            "label": "收起",
+                            "level": "primary",
+                            "onEvent": {
+                              "click": {
+                                "actions": [
+                                  {
+                                    "groupType": "component",
+                                    "actionType": "collapse",
+                                    "componentId": "u:0cce5189a847"
+                                  },
+                                  {
+                                    "actionType": "hidden",
+                                    "componentId": "u:74ec41c5ff39",
+                                    "ignoreError": false
+                                  },
+                                  {
+                                    "actionType": "show",
+                                    "componentId": "u:17c11bd90d5e",
+                                    "ignoreError": false
+                                  }
+                                ]
+                              }
+                            }
+                          }
+                        ],
+                        "size": "xs",
+                        "type": "container",
+                        "style": {
+                          "flex": "1 1 auto",
+                          "display": "flex",
+                          "flexGrow": 1,
+                          "flexWrap": "nowrap",
+                          "position": "static",
+                          "flexBasis": "auto",
+                          "justifyContent": "flex-end"
+                        },
+                        "wrapperBody": false,
+                        "isFixedWidth": false,
+                        "isFixedHeight": false
+                      }
+                    ],
+                    "style": {
+                      "position": "relative"
+                    },
+                    "className": "p-1"
+                  },
+                  {
+                    "id": "u:f87f90c2f4b8",
+                    "type": "flex",
+                    "items": [
+                      {
+                        "id": "u:14c941bf900e",
+                        "body": [
+                          {
+                            "id": "u:78d41cc11d74",
+                            "type": "divider"
+                          }
+                        ],
+                        "size": "xs",
+                        "type": "container",
+                        "style": {
+                          "flex": "1 1 auto",
+                          "display": "block",
+                          "flexGrow": 1,
+                          "position": "static",
+                          "flexBasis": "auto"
+                        },
+                        "wrapperBody": false,
+                        "isFixedWidth": false,
+                        "isFixedHeight": false
+                      }
+                    ],
+                    "style": {
+                      "position": "relative"
+                    },
+                    "className": "p-1"
+                  },
+                  {
+                    "id": "u:89a39b580c31",
+                    "body": [
+                      {
+                        "id": "u:49d0a387aaf7",
+                        "body": [
+                          {
+                            "id": "u:57c8292aeff3",
+                            "name": "tree",
+                            "size": "md",
+                            "type": "input-tree",
+                            "label": "",
+                            "source": {
+                              "url": "/api/web/in/user/menu/selectMenuBusType",
+                              "method": "post",
+                              "adaptor": "console.log(response.data)\r\nreturn {\r\n  ...response.data\r\n}",
+                              "messages": {
+                              },
+                              "requestAdaptor": ""
+                            },
+                            "onEvent": {
+                              "change": {
+                                "weight": 0,
+                                "actions": [
+                                  {
+                                    "args": {
+                                      "value": "\\${treeId}"
+                                    },
+                                    "actionType": "setValue",
+                                    "componentId": "u:57c8292aeff3",
+                                    "ignoreError": false
+                                  }
+                                ]
+                              }
+                            },
+                            "hideRoot": true,
+                            "multiple": false,
+                            "showIcon": true,
+                            "className": "labelnone",
+                            "labelField": "menuName",
+                            "valueField": "id",
+                            "initiallyOpen": true,
+                            "enableNodePath": false,
+                            "labelClassName": "",
+                            "treeContainerClassName": "teamtree"
+                          },
+                          {
+                            "id": "u:d7e7a33b99ba",
+                            "api": {
+                              "url": "/api/web/org/sensitive/selectAllBaseWords",
+                              "data": {
+                                "&": "$$",
+                                "page": "__undefined",
+                                "tree": "${tree}",
+                                "perPage": "__undefined"
+                              },
+                              "method": "post",
+                              "adaptor": "",
+                              "messages": {
+                              },
+                              "requestAdaptor": ""
+                            },
+                            "mode": "table2",
+                            "name": "my_crud",
+                            "type": "crud2",
+                            "dsType": "api",
+                            "filter": {
+                              "id": "u:65534f32974e",
+                              "body": [
+                                {
+                                  "id": "u:5b07f2438312",
+                                  "name": "sensitiveFieldName",
+                                  "size": "full",
+                                  "type": "input-text",
+                                  "label": "敏感字段名称",
+                                  "themeCss": {
+                                    "inputControlClassName": {
+                                      "padding-and-margin:default": {
+                                        "marginRight": "10px"
+                                      }
+                                    }
+                                  }
+                                }
+                              ],
+                              "feat": "Insert",
+                              "mode": "inline",
+                              "type": "form",
+                              "debug": false,
+                              "title": "条件查询",
+                              "actions": [
+                                {
+                                  "id": "u:a7751c979987",
+                                  "type": "reset",
+                                  "label": "重置"
+                                },
+                                {
+                                  "id": "u:8ee7e37e40ad",
+                                  "type": "submit",
+                                  "label": "查询",
+                                  "level": "primary"
+                                }
+                              ],
+                              "behavior": [
+                                "SimpleQuery"
+                              ],
+                              "columnCount": 3,
+                              "clearValueOnHidden": true
+                            },
+                            "columns": [
+                              {
+                                "id": "u:d32a6c5a8d16",
+                                "name": "busTypeDesc",
+                                "type": "tpl",
+                                "label": "模块",
+                                "editable": false,
+                                "quickEdit": false,
+                                "placeholder": "-"
+                              },
+                              {
+                                "id": "u:690b5873641f",
+                                "name": "busType",
+                                "type": "hidden",
+                                "editable": false,
+                                "quickEdit": false,
+                                "placeholder": ""
+                              },
+                              {
+                                "id": "u:690b58736418",
+                                "name": "sensitiveField",
+                                "type": "hidden",
+                                "label": "",
+                                "editable": false,
+                                "quickEdit": false,
+                                "placeholder": ""
+                              },
+                              {
+                                "id": "u:690b58736418",
+                                "name": "sensitiveFieldName",
+                                "type": "tpl",
+                                "label": "字段名称",
+                                "editable": false,
+                                "quickEdit": false,
+                                "placeholder": "-"
+                              },
+                              {
+                                "id": "u:5835a897c727",
+                                "name": "sensitiveDesc",
+                                "type": "tpl",
+                                "label": "字段描述",
+                                "editable": false,
+                                "quickEdit": false,
+                                "placeholder": "-"
+                              },
+                              {
+                                "id": "u:daceeeb36e1b",
+                                "name": "sensitivePrivilege",
+                                "type": "radios",
+                                "label": "权限",
+                                "value": "READ",
+                                "onEvent": {
+                                  "change": {
+                                    "weight": 0,
+                                    "actions": [
+                                      {
+                                        "ignoreError": false,
+                                        "script": "console.log(context.props,event.data)\ndebugger\nvar crudComponent = context.components.find(c => c.props && c.props.name === 'my_crud');\nif (crudComponent) {\n  var tableData = crudComponent.getData();\n  context.setValue('dataList', tableData);\n}",
+                                        "actionType": "custom"
+                                      },
+                                      {
+                                        "ignoreError": false,
+                                        "script": "/* 自定义JS使用说明：\n  * 1.动作执行函数doAction，可以执行所有类型的动作\n  * 2.通过上下文对象context可以获取当前组件实例，例如context.props可以获取该组件相关属性\n  * 3.事件对象event，在doAction之后执行event.stopPropagation();可以阻止后续动作执行\n*/\nconst myMsg = '我是自定义JS';\ndoAction({\n  actionType: 'toast',\n  args: {\n    msg: myMsg\n  }\n});\n",
+                                        "actionType": "custom"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "options": [
+                                  {
+                                    "label": "只读",
+                                    "value": "READ"
+                                  },
+                                  {
+                                    "label": "编辑",
+                                    "value": "EDIT"
+                                  },
+                                  {
+                                    "label": "隐藏",
+                                    "value": "HIDE"
+                                  }
+                                ],
+                                "autoFill": {
+                                },
+                                "validateOnChange": true
+                              }
+                            ],
+                            "onEvent": {
+                              "rowClick": {
+                                "weight": 0,
+                                "actions": [
+                                  {
+                                    "script": "/* 自定义JS使用说明：\n  * 1.动作执行函数doAction，可以执行所有类型的动作\n  * 2.通过上下文对象context可以获取当前组件实例，例如context.props可以获取该组件相关属性\n  * 3.事件对象event，在doAction之后执行event.stopPropagation();可以阻止后续动作执行\n*/\nconsole.log(event.data, context,\"biaoge\")\n",
+                                    "actionType": "custom",
+                                    "ignoreError": false
+                                  }
+                                ]
+                              }
+                            },
+                            "loadType": "",
+                            "multiple": true,
+                            "selectable": true,
+                            "primaryField": "id",
+                            "syncLocation": true,
+                            "footerToolbar": [
+                            ],
+                            "headerToolbar": [
+                              {
+                                "id": "u:90d6e9fb7614",
+                                "type": "flex",
+                                "items": [
+                                  {
+                                    "id": "u:8ab3a51d7dc7",
+                                    "body": [
+                                      {
+                                        "id": "u:7f7a195a869a",
+                                        "type": "button-group",
+                                        "buttons": [
+                                          {
+                                            "id": "u:f502ea16ebb3",
+                                            "type": "button",
+                                            "label": "批量设置只读",
+                                            "onEvent": {
+                                              "click": {
+                                                "actions": [
+                                                ]
+                                              }
+                                            },
+                                            "themeCss": {
+                                              "className": {
+                                                "padding-and-margin:default": {
+                                                  "marginRight": "0.5rem"
+                                                }
+                                              }
+                                            }
+                                          },
+                                          {
+                                            "id": "u:4d43d1633254",
+                                            "type": "button",
+                                            "label": "批量设置编辑",
+                                            "onEvent": {
+                                              "click": {
+                                                "actions": [
+                                                ]
+                                              }
+                                            },
+                                            "themeCss": {
+                                              "className": {
+                                                "padding-and-margin:default": {
+                                                  "marginLeft": "0.5rem",
+                                                  "marginRight": "0.5rem"
+                                                }
+                                              }
+                                            }
+                                          },
+                                          {
+                                            "id": "u:b4c76cb3ead7",
+                                            "type": "button",
+                                            "label": "批量设置隐藏"
+                                          }
+                                        ]
+                                      }
+                                    ],
+                                    "type": "container",
+                                    "align": "left",
+                                    "style": {
+                                      "flex": "1 1 auto",
+                                      "display": "flex",
+                                      "flexGrow": 1,
+                                      "flexWrap": "nowrap",
+                                      "position": "static",
+                                      "flexBasis": "auto",
+                                      "alignItems": "stretch",
+                                      "flexDirection": "row",
+                                      "justifyContent": "flex-start"
+                                    },
+                                    "behavior": [
+                                      "Insert",
+                                      "BulkEdit",
+                                      "BulkDelete"
+                                    ],
+                                    "wrapperBody": false
+                                  }
+                                ],
+                                "style": {
+                                  "position": "static"
+                                },
+                                "justify": "flex-start",
+                                "direction": "row",
+                                "alignItems": "stretch"
+                              }
+                            ]
+                          }
+                        ],
+                        "size": "none",
+                        "type": "container",
+                        "style": {
+                          "width": "90vw",
+                          "display": "flex",
+                          "flexWrap": "nowrap",
+                          "position": "static",
+                          "maxHeight": "1200px",
+                          "minHeight": "500px",
+                          "overflowX": "visible",
+                          "overflowY": "visible",
+                          "textAlign": "left",
+                          "flexDirection": "row",
+                          "justifyContent": "flex-start"
+                        },
+                        "themeCss": {
+                          "baseControlClassName": {
+                            "padding-and-margin:default": {
+                              "margin": "0"
+                            }
+                          }
+                        },
+                        "wrapperBody": false,
+                        "isFixedWidth": true,
+                        "isFixedHeight": false
+                      }
+                    ],
+                    "type": "collapse",
+                    "header": "",
+                    "showArrow": false
+                  }
+                ],
+                "type": "collapse",
+                "header": "",
+                "showArrow": false
+              }
+            ],
+            "size": "none",
+            "type": "container",
+            "style": {
+              "display": "block",
+              "position": "static"
+            },
+            "wrapperBody": false
+          }
+        ],
+        "feat": "Insert",
+        "mode": "horizontal",
+        "type": "form",
+        "title": "",
+        "dsType": "api",
+        "actions": [
+          {
+            "id": "u:19959a5f34ea",
+            "type": "button",
+            "label": "提交",
+            "level": "primary",
+            "onEvent": {
+              "click": {
+                "actions": [
+                  {
+                    "actionType": "submit",
+                    "componentId": "u:a14192b58fa1"
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "wrapWithPanel": false,
+        "resetAfterSubmit": true,
+        "canAccessSuperData": false
+      }
+    ],
+    "data": {
+      "tree": "CLUE",
+      "treeId": ""
+    },
+    "initApi": {
+      "url": "",
+      "data": {
+        "tree": "CLUE",
+        "treeId": "",
+        "sensitiveWordsDtoList": [
+        ]
+      },
+      "method": "get",
+      "adaptor": "sensitiveWordsDtoList=response.data\r\nreturn {\r\n  sensitiveWordsDtoList: response.data,\r\n  ...response\r\n}",
+      "messages": {
+      },
+      "requestAdaptor": ""
+    },
+    "regions": [
+      "body"
+    ],
+    "pullRefresh": {
+      "disabled": true
+    },
+    "asideResizor": false,
+    "wrapperCustomStyle": {
+      ".cxd-Tree": {
+        "max-height": "100vh"
+      },
+      ".cxd-Crud2": {
+        "width": "100% !important"
+      },
+      ".labelnone": {
+        "height": "500px"
+      },
+      ".labelnone .cxd-Form-label": {
+        "display": "none"
+      }
+    }
+  }

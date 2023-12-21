@@ -7,7 +7,7 @@ import java.util.Date;
 /**
  * 所有原始类型
  */
-@Data
+//@Data
 public class AllPrimitiveType {
     public char charValue;
     public int intValue;

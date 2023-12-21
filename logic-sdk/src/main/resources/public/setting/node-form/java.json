@@ -1,0 +1,44 @@
+{
+  "type": "object",
+  "properties": {
+    "name": {
+      "title": "名称",
+      "type": "string",
+      "widget": "textArea",
+      "props": {
+        "rows": 1
+      }
+    },
+    "system": {
+      "title": "系统名 ",
+      "type": "string",
+      "defaultValue": ""
+    },
+    "url": {
+      "title": "完整类路径",
+      "type": "string",
+      "props": {
+        "height": 50
+      },
+      "extra": "js代码块，需return字符串"
+    },
+    "method": {
+      "title": "方法名",
+      "type": "string",
+      "props": {
+        "height": 50
+      },
+      "extra": "js代码块，需return字符串"
+    },
+    "body": {
+      "title": "参数",
+      "type": "string",
+      "widget": "js",
+      "props": {
+        "height": 200
+      },
+      "extra": "js代码块，需return参数数组"
+    }
+  },
+  "column": 2
+}
