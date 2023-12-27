@@ -3,7 +3,10 @@ package com.aims.logic.runtime.runner;
 import com.aims.logic.contract.dsl.LogicItemTreeNode;
 import com.aims.logic.contract.dsl.LogicTreeNode;
 import com.aims.logic.contract.dto.LogicItemRunResult;
+import com.aims.logic.contract.dto.LogicRunModelEnum;
 import com.aims.logic.contract.dto.LogicRunResult;
+import com.aims.logic.contract.dto.LogicStopEnum;
+import com.aims.logic.contract.enums.LogicConfigModelEnum;
 import com.aims.logic.contract.logger.LogicItemLog;
 import com.aims.logic.contract.logger.LogicLog;
 import com.aims.logic.contract.parser.TypeAnnotationParser;
@@ -44,6 +47,16 @@ public class LogicRunner {
         init(_config, _env, bizId);
     }
 
+    public LogicRunner(JSONObject _config, JSONObject _env, JSONObject paramsJson, JSONObject varsJson, String runItemId, String bizId) {
+        init(_config, _env, bizId);
+        this.setStartNode(getStartItem(runItemId));
+        fnCtx.set_par(JsonUtil.jsonMerge(paramsJson, fnCtx.get_par()));
+        fnCtx.set_var(JsonUtil.jsonMerge(varsJson, fnCtx.get_var()));
+        logicLog.setParamsJson(fnCtx.get_par() == null ? null : fnCtx.get_par().clone())
+                .setVarsJson(fnCtx.get_var() == null ? null : fnCtx.get_var().clone())
+                .setEnvsJson(fnCtx.get_env());
+    }
+
 
     /**
      * 初始化
@@ -62,6 +75,7 @@ public class LogicRunner {
         this.fnCtx.set_var(varsJson);
         this.fnCtx.set_env(envJson);
         this.fnCtx.setBizId(bizId);
+        logicLog.setBizId(bizId);
         System.out.println("初始化成功");
         System.out.printf("默认参数，_par:%s%n", this.fnCtx.get_par());
         System.out.printf("默认局部变量，_var:%s%n", this.fnCtx.get_var());
@@ -188,50 +202,52 @@ public class LogicRunner {
         logicLog.setParamsJson(fnCtx.get_par() == null ? null : fnCtx.get_par().clone())
                 .setVarsJson(fnCtx.get_var() == null ? null : fnCtx.get_var().clone())
                 .setEnvsJson(fnCtx.get_env());
-        var itemRes = this.runItem(startNode, fnCtx);
+        LogicItemRunResult itemRes = runItem(startNode);
+        var nextItem = findNextItem(startNode);
+        while (isContinue(itemRes, nextItem) == LogicStopEnum.Continue) {
+            itemRes = runItem(nextItem);
+            nextItem = findNextItem(nextItem);
+        }
         var res = LogicRunResult.fromItemResult(itemRes);
         logicLog.setVarsJson_end(fnCtx.get_var())
                 .setLogicId(logic.getId())
+                .setOver(fnCtx.getLogicStopEnum() == LogicStopEnum.End)
+                .setNextItem(fnCtx.getNextItem())
                 .setVersion(logic.getVersion())
+                .setReturnDataStr(res.getDataString())
                 .setMsg(res.getMsg())
                 .setSuccess(res.isSuccess());
         res.setLogicLog(logicLog);
         return res;
     }
 
-    private LogicItemRunResult runItem(LogicItemTreeNode item, FunctionContext fnCtx) {
-        LogicItemRunResult itemRes = new LogicItemRunner(item).run(fnCtx);
-        var itemLog = new LogicItemLog()
-                .setName(item.getName())
-                .setConfigInstance(itemRes.getItemInstance())
-                .setConfig(item)
-                .setParamsJson(fnCtx.get_par())
-                .setReturnData(itemRes.getData())
-                .setSuccess(itemRes.isSuccess());
-        logicLog.getItemLogs().add(itemLog);
-        if (!itemRes.isSuccess()) {
-            return itemRes;
-        }
+    public LogicItemRunResult runItem(LogicItemTreeNode item) {
+        var itemRes = new LogicItemRunner(item).run(fnCtx);
         fnCtx.set_lastRet(itemRes.getData());
         if (item.getReturnAccept() != null && !item.getReturnAccept().isBlank()) {
             Functions.get("js").invoke(fnCtx, String.format("%s=_lastRet", item.getReturnAccept()));
         }
-        var nextItem = findNextItem(item, fnCtx);
-        if (nextItem != null && !nextItem.getId().isBlank()) {
-            if (Objects.equals(nextItem.getType(), "wait-for-continue")) {//发现下一个交互节点，本次执行结束
-                logicLog.setNextItem(nextItem);
-                return itemRes;
-            } else {
-                itemRes = this.runItem(nextItem, fnCtx);
-            }
-        } else {
-            System.out.println("无下级节点！");
-            logicLog.setOver(true);
-        }
+        logicLog.getItemLogs().add(itemRes.getItemLog());
         return itemRes;
     }
 
-    public LogicItemTreeNode findNextItem(LogicItemTreeNode curItem, FunctionContext fnCtx) {
+    public LogicStopEnum isContinue(LogicItemRunResult itemRes, LogicItemTreeNode nextItem) {
+        fnCtx.setNextItem(nextItem);
+        if (!itemRes.isSuccess()) {
+            fnCtx.setLogicStopEnum(LogicStopEnum.Error);
+        }
+        if (nextItem != null && !nextItem.getId().isBlank()) {
+            if (Objects.equals(nextItem.getType(), "wait-for-continue")) {//发现下一个交互节点，本次执行结束
+                fnCtx.setLogicStopEnum(LogicStopEnum.WaitForContinue);
+            } else {
+                fnCtx.setLogicStopEnum(LogicStopEnum.Continue);
+            }
+        } else
+            fnCtx.setLogicStopEnum(LogicStopEnum.End);
+        return fnCtx.getLogicStopEnum();
+    }
+
+    public LogicItemTreeNode findNextItem(LogicItemTreeNode curItem) {
         AtomicReference<String> nextId = new AtomicReference<>("");
         AtomicReference<String> defNextId = new AtomicReference<>("");
         AtomicReference<LogicItemTreeNode> nextItem = new AtomicReference<>(null);

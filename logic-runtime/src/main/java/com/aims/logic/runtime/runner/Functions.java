@@ -1,6 +1,6 @@
 package com.aims.logic.runtime.runner;
 
-import com.aims.logic.runtime.runner.functions.LogicItemFunctionRunnerService;
+import com.aims.logic.runtime.runner.functions.ILogicItemFunctionRunner;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,7 +9,7 @@ import java.util.Map;
  * @author liukun
  */
 public class Functions {
-    static final Map<String, LogicItemFunctionRunnerService> functions = new HashMap<>();
+    static final Map<String, ILogicItemFunctionRunner> functions = new HashMap<>();
 
 
 //    static {
@@ -20,7 +20,7 @@ public class Functions {
     public Functions() {
     }
 
-    public static LogicItemFunctionRunnerService get(String name) {
+    public static ILogicItemFunctionRunner get(String name) {
         return functions.get(name);
     }
 }

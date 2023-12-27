@@ -1,6 +1,7 @@
 package com.aims.logic.contract.dto;
 
 import com.aims.logic.contract.dsl.LogicItemTreeNode;
+import com.aims.logic.contract.logger.LogicItemLog;
 import com.aims.logic.contract.logger.LogicLog;
 import com.alibaba.fastjson2.JSONObject;
 import lombok.Getter;
@@ -41,5 +42,7 @@ public class LogicItemRunResult {
      * 逻辑项实例，配置解析后的数据实例
      */
     LogicItemTreeNode itemInstance;
+
+    LogicItemLog itemLog;
 
 }

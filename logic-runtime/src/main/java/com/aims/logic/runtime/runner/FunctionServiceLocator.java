@@ -1,6 +1,6 @@
 package com.aims.logic.runtime.runner;
 
-import com.aims.logic.runtime.runner.functions.LogicItemFunctionRunnerService;
+import com.aims.logic.runtime.runner.functions.ILogicItemFunctionRunner;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -14,8 +14,8 @@ import org.springframework.stereotype.Component;
 public class FunctionServiceLocator implements ApplicationContextAware {
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        var list = applicationContext.getBeansOfType(LogicItemFunctionRunnerService.class);
-        for (LogicItemFunctionRunnerService f : list.values()) {
+        var list = applicationContext.getBeansOfType(ILogicItemFunctionRunner.class);
+        for (ILogicItemFunctionRunner f : list.values()) {
             var itemType = f.getItemType();
             Functions.functions.put(itemType, f);
         }

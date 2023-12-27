@@ -5,33 +5,23 @@ import com.aims.logic.contract.dsl.ParamTreeNode;
 import com.aims.logic.contract.dsl.basic.TypeAnnotationTreeNode;
 import com.aims.logic.contract.dto.LogicItemRunResult;
 import com.aims.logic.contract.enums.TypeKindEnum;
-import com.aims.logic.contract.parser.TypeAnnotationParser;
 import com.aims.logic.runtime.runner.FunctionContext;
 import com.aims.logic.runtime.runner.Functions;
-import com.aims.logic.runtime.runner.functions.JavaCodeFunctionService;
+import com.aims.logic.runtime.runner.functions.ILogicItemFunctionRunner;
 import com.aims.logic.util.*;
-import com.alibaba.fastjson2.*;
-import com.alibaba.fastjson2.util.ParameterizedTypeImpl;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.openjdk.nashorn.api.scripting.JSObject;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.TypeReference;
 import org.openjdk.nashorn.api.scripting.ScriptObjectMirror;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.ModelMap;
 
-import java.lang.reflect.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.toList;
 
 @Service
-public class JavaCodeFunction implements JavaCodeFunctionService {
+public class JavaCodeFunction implements ILogicItemFunctionRunner {
     @Override
     public LogicItemRunResult invoke(FunctionContext ctx, Object item) {
         var itemDsl = ((LogicItemTreeNode) item);
@@ -40,12 +30,10 @@ public class JavaCodeFunction implements JavaCodeFunctionService {
             var clazz = ClassLoaderUtils.loadClass(itemDsl.getUrl().trim());
             System.out.printf("load class:%s%n", itemDsl.getUrl().trim());
             var bodyObj = Functions.get("js").invoke(ctx, itemDsl.getBody()).getData();
-            var methodName = itemDsl.getMethod();
+            var methodName = itemDsl.getMethod().split("\\(")[0];
             try {
                 //参数声明
                 List<ParamTreeNode> paramTreeNodes = itemDsl.getParams();
-                //提交参数，实参
-//                JSONObject paramsJson = JSONObject.from(bodyObj);
                 var paramsMap = JsonUtil.toObject((ScriptObjectMirror) bodyObj);
                 var paramsJson = JSONObject.from(paramsMap);
                 //将参数转换为数组，用于反射调用
@@ -71,14 +59,17 @@ public class JavaCodeFunction implements JavaCodeFunctionService {
                         Object obj;
                         if (paramTypeAnno.getTypeKind() == TypeKindEnum.generic) {
                             if (Objects.equals(paramTypeAnno.getTypeName(), Map.class.getTypeName())) {
-                                throw new RuntimeException("暂不支持Map类型，请使用其他对象，如JSONObject代替");
-//                                var parTypes = classWrapper.getParameterizedType();
-//                                var key = parTypes.get(0);
-//                                var value = parTypes.get(1);
-//                                var keyClazz = ClassLoaderUtils.loadClass(key.getName());
+//                                throw new RuntimeException("暂不支持Map类型，请使用其他对象，如JSONObject代替");
+                                var parTypes = classWrapper.getParameterizedType();
+                                var key = parTypes.get(0);
+                                var value = parTypes.get(1);
+                                var keyClazz = ClassLoaderUtils.loadClass(key.getName());
 //                                var keyIns = keyClazz.getDeclaredConstructor().newInstance();
-//                                var valClazz = ClassLoaderUtils.loadClass(value.getName());
+                                var valClazz = ClassLoaderUtils.loadClass(value.getName());
 //                                var valIns = valClazz.getDeclaredConstructor().newInstance();
+                                obj = paramsJson.getJSONObject(k).to(TypeReference.mapType(Map.class, keyClazz, valClazz));
+                                paramClass = obj.getClass();
+                                cls.add(paramClass);
 //                                Type mapType = new ParameterizedType() {
 //                                    @Override
 //                                    public Type[] getActualTypeArguments() {
@@ -182,22 +173,31 @@ public class JavaCodeFunction implements JavaCodeFunctionService {
                 });
                 Method method = clazz.getDeclaredMethod(methodName, cls.toArray(new Class<?>[]{}));
                 LogicItemRunResult res = new LogicItemRunResult();
-                var obj = method.invoke(clazz.getDeclaredConstructor().newInstance(), paramsArrayFromJsObj.toArray());
-                res.setData(obj);
+                try {
+                    var obj = method.invoke(SpringContextUtil.getBean(clazz), paramsArrayFromJsObj.toArray());
+                    res.setData(obj);
+                } catch (InvocationTargetException invocationTargetException) {
+                    System.err.printf("执行方法%s报错%n", methodName);
+                    invocationTargetException.printStackTrace();
+                    throw new RuntimeException(invocationTargetException.getTargetException().getCause());
+                }
                 return res;
+
             } catch (
                     NoSuchMethodException e) {
                 ctx.setHasErr(true);
                 ctx.setErrMsg(String.format("未找到方法%s,请检查方法名与提交参数是否与实际一致！", methodName));
                 System.err.println(e.toString());
-                return new LogicItemRunResult().setData(e);
+                return new LogicItemRunResult().setData(e.toString());
             }
         } catch (
                 Exception e) {
-            ctx.setHasErr(true);
-            ctx.setErrMsg(e.toString());
-            System.err.println(e.toString());
-            return new LogicItemRunResult().setData(e);
+            e.printStackTrace();
+            throw new RuntimeException(e.toString());
+//            ctx.setHasErr(true);
+//            ctx.setErrMsg(e.toString());
+//            System.err.println(e.toString());
+//            return new LogicItemRunResult().setData(e.toString());
         }
 
     }
