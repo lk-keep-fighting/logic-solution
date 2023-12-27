@@ -16,5 +16,4 @@ server:
   port: 4055
 logic:
   config-dir: /Users/lk/Documents/Dev/aims/xuanwu-logic/logic-solution/logic-configs
-  annotation: service
   scan-package-names: com.aims.logic.sdk.test,com.aims.logic.service.demo
