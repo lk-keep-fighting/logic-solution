@@ -6,12 +6,14 @@ import com.aims.logic.service.demo.dto.TestInput2;
 import com.alibaba.fastjson2.JSONObject;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
+@Service
 public class test {
     public TestInput func1(TestInput2 input) {
         return input.getInputs().stream().max(Comparator.comparingInt(TestInput::getI)).orElse(null);
@@ -24,6 +26,9 @@ public class test {
         return Arrays.stream(strings).reduce("", (x, y) -> {
             return x + "-" + y;
         });
+    }
+    public String strs() {
+        return "测试同名方法2";
     }
 
     /*

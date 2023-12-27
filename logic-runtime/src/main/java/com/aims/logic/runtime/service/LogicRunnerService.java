@@ -45,4 +45,5 @@ public interface LogicRunnerService {
      */
     LogicRunResult runBizByVerifyCode(String logicId, String bizId, String verifyCode, JSONObject pars, JSONObject customEnv);
 
+    LogicRunResult runBizWithTransaction(String logicId, String bizId, JSONObject pars, JSONObject customEnv);
 }

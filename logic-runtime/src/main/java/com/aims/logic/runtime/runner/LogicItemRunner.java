@@ -3,6 +3,7 @@ package com.aims.logic.runtime.runner;
 import com.aims.logic.contract.dsl.LogicItemTreeNode;
 import com.aims.logic.contract.dto.LogicItemRunResult;
 import com.aims.logic.contract.dto.LogicRunResult;
+import com.aims.logic.contract.logger.LogicItemLog;
 import com.alibaba.fastjson2.JSONObject;
 
 public class LogicItemRunner {
@@ -22,9 +23,6 @@ public class LogicItemRunner {
             case "end":
                 ret = Functions.get(itemType).invoke(ctx, this.dsl.getScript() != null ? this.dsl.getScript() : "return _ret");
                 break;
-//            case "http":
-//                ret = Functions.get(itemType).invoke(ctx, this.dsl);
-//                break;
             case "wait":
                 if (this.dsl.getTimeout() != null) {
                     try {
@@ -52,8 +50,13 @@ public class LogicItemRunner {
         if (ctx.isHasErr()) {
             ret.setSuccess(false).setMsg(ctx.getErrMsg());
         }
-//        result.setData(ret);
+        ret.setItemLog(new LogicItemLog()
+                .setName(dsl.getName())
+                .setConfigInstance(dsl)
+                .setConfig(dsl)
+                .setParamsJson(ctx.get_par())
+                .setReturnData(ret.getData())
+                .setSuccess(ret.isSuccess()));
         return ret;
     }
-
 }

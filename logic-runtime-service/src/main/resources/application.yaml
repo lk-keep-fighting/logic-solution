@@ -3,9 +3,6 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-#    url: jdbc:mysql://localhost:3307/logic_demo?useUnicode=true&characterEncoding=gbk&autoReconnect=true&failOverReadOnly=false
-#    username: root
-#    password: 123qwe
     url: jdbc:mysql://localhost:3306/logic_demo?useUnicode=true&characterEncoding=gbk&autoReconnect=true&failOverReadOnly=false
     username: root
     password: 12#$qwER
@@ -13,5 +10,4 @@ spring:
     resources:
       static-locations: classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/,classpath:/public/,classpath:/public/web
 logic:
-    ide:
-      scan-package-name: com.aims.logic.service.demo
+  config-dir: /Users/lk/Documents/Dev/aims/xuanwu-logic/logic-solution/logic-configs

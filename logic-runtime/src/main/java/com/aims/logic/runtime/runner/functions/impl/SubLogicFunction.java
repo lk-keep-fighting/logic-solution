@@ -4,12 +4,8 @@ import com.aims.logic.contract.dsl.LogicItemTreeNode;
 import com.aims.logic.contract.dto.LogicItemRunResult;
 import com.aims.logic.runtime.runner.FunctionContext;
 import com.aims.logic.runtime.runner.Functions;
-import com.aims.logic.runtime.runner.LogicRunner;
-import com.aims.logic.runtime.runner.functions.SubLogicFunctionService;
+import com.aims.logic.runtime.runner.functions.ILogicItemFunctionRunner;
 import com.aims.logic.runtime.service.LogicRunnerService;
-import com.aims.logic.util.FileUtil;
-import com.aims.logic.util.RuntimeUtil;
-import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +13,7 @@ import org.springframework.stereotype.Service;
  * @author liukun
  */
 @Service
-public class SubLogicFunction implements SubLogicFunctionService {
+public class SubLogicFunction implements ILogicItemFunctionRunner {
     LogicRunnerService runnerService;
 
     public SubLogicFunction(LogicRunnerService runnerService) {

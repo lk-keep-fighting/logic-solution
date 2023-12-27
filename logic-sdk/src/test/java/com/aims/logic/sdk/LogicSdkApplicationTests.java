@@ -9,10 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest(classes = LogicSdkApplicationTests.class)
 @SpringBootApplication(scanBasePackages = "com.aims")
 @SpringBootConfiguration
+@EnableTransactionManagement
 @MapperScan("com.aims.logic.sdk.mapper")
 public class LogicSdkApplicationTests {
     @Autowired
@@ -34,18 +37,20 @@ public class LogicSdkApplicationTests {
 //        testSaveFile();
     }
 
-//    @Test
+    //    @Test
     void testRun() {
         var res = runner.runBiz("test", null, null);
         System.out.println(res.getMsg());
     }
-//    @Test
+
+    //    @Test
     void testJava() {
         var res = runner.runBiz("test.java", null, null);
         System.out.println(res.getData());
     }
 
-    void testHeaderFilters() {
-
+//    @Test
+    void testTran() {
+        runner.runBizWithTransaction("java.demo", "t11", null, null);
     }
 }

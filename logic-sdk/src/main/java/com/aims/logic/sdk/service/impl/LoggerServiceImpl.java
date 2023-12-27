@@ -34,10 +34,9 @@ public class LoggerServiceImpl {
      *
      * @param res
      */
-    public void addOrUpdateInstanceLog(LogicRunResult res) {
+    public void addOrUpdateInstanceLog(LogicLog logicLog) {
         try {
             String env = RuntimeUtil.getEnv().getNODE_ENV();
-            LogicLog logicLog = res.getLogicLog();
             var nextId = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getId();
             var nextName = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getName();
             QueryWrapper<LogicInstanceEntity> q = new QueryWrapper<>();
@@ -47,9 +46,9 @@ public class LoggerServiceImpl {
             q.allEq(m);
             var ins = instanceService.getOne(q);
             if (ins != null) {
-                ins.setSuccess(res.isSuccess())
-                        .setMessage(res.getMsg())
-                        .setReturnData(res.getDataString())
+                ins.setSuccess(logicLog.isSuccess())
+                        .setMessage(logicLog.getMsg())
+                        .setReturnData(logicLog.getReturnDataStr() != null ? logicLog.getReturnDataStr() : null)
                         .setParamsJson(logicLog.getParamsJson() == null ? null : logicLog.getParamsJson().toJSONString())
                         .setVarsJson(logicLog.getVarsJson() == null ? null : logicLog.getVarsJson().toJSONString())
                         .setVarsJsonEnd(logicLog.getVarsJson_end() == null ? null : logicLog.getVarsJson_end().toJSONString())
@@ -60,11 +59,11 @@ public class LoggerServiceImpl {
                 ins.update(q);
             } else {
                 ins = new LogicInstanceEntity()
-                        .setSuccess(res.isSuccess())
-                        .setMessage(res.getMsg())
+                        .setSuccess(logicLog.isSuccess())
+                        .setMessage(logicLog.getMsg())
                         .setBizId(logicLog.getBizId())
                         .setVersion(logicLog.getVersion())
-                        .setReturnData(res.getDataString())
+                        .setReturnData(logicLog.getReturnDataStr() != null ? logicLog.getReturnDataStr() : null)
                         .setLogicId(logicLog.getLogicId())
                         .setParamsJson(logicLog.getParamsJson() == null ? null : logicLog.getParamsJson().toJSONString())
                         .setVarsJson(logicLog.getVarsJson() == null ? null : logicLog.getVarsJson().toJSONString())
@@ -85,12 +84,12 @@ public class LoggerServiceImpl {
                 requestClientId = headers.getString(REQUEST_CLIENT_FLAG);
             }
             LogicLogEntity logEntity = new LogicLogEntity()
-                    .setSuccess(res.isSuccess())
-                    .setMessage(res.getMsg())
+                    .setSuccess(logicLog.isSuccess())
+                    .setMessage(logicLog.getMsg())
                     .setBizId(logicLog.getBizId())
                     .setVersion(logicLog.getVersion())
                     .setItemLogs(JSON.toJSONString(logicLog.getItemLogs()))
-                    .setReturnData(res.getDataString())
+                    .setReturnData(logicLog.getReturnDataStr() != null ? logicLog.getReturnDataStr() : null)
                     .setLogicId(logicLog.getLogicId())
                     .setParamsJson(logicLog.getParamsJson() == null ? null : logicLog.getParamsJson().toJSONString())
                     .setVarsJson(logicLog.getVarsJson() == null ? null : logicLog.getVarsJson().toJSONString())

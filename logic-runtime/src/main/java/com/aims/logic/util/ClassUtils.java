@@ -82,4 +82,15 @@ public class ClassUtils {
         var methods = clazz.getDeclaredMethods();
         return Arrays.stream(methods).toList();
     }
+
+    public static List<Method> getdMethods(String fullClassPath) throws ClassNotFoundException {
+        var clazz = ClassLoaderUtils.loadClass(fullClassPath);
+        return getMethods(clazz);
+    }
+
+    public static List<Method> getMethods(Class<?> clazz) {
+        var methods = clazz.getMethods();
+        return Arrays.stream(methods).toList();
+    }
+
 }

@@ -8,6 +8,7 @@ import lombok.experimental.Accessors;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Accessors(chain = true)
 @Getter
@@ -43,5 +44,6 @@ public class LogicLog extends Log {
      * 整个逻辑是否已结束，没有后续交互节点
      */
     boolean isOver = false;
+    String returnDataStr;
     List<LogicItemLog> itemLogs = new ArrayList<>();
 }

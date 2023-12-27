@@ -18,4 +18,19 @@ public final class SpringContextUtil implements ApplicationContextAware {
         SpringContextUtil.applicationContext = applicationContext;
     }
 
+    public static <T> T getBean(Class<T> clazz) {
+        // 先判断是否存在上下文对象
+        if (applicationContext == null) {
+            return null;
+        }
+        return applicationContext.getBean(clazz);
+    }
+
+    public static <T> T getBean(String beanName, Class<T> clazz) {
+        // 先判断是否存在上下文对象
+        if (applicationContext == null) {
+            return null;
+        }
+        return applicationContext.getBean(beanName, clazz);
+    }
 }

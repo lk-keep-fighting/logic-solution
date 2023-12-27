@@ -2,7 +2,7 @@ package com.aims.logic.runtime.runner.functions.impl;
 
 import com.aims.logic.contract.dto.LogicItemRunResult;
 import com.aims.logic.runtime.runner.FunctionContext;
-import com.aims.logic.runtime.runner.functions.JSFunctionService;
+import com.aims.logic.runtime.runner.functions.ILogicItemFunctionRunner;
 import org.springframework.stereotype.Service;
 
 import javax.script.Invocable;
@@ -13,7 +13,7 @@ import javax.script.ScriptEngineManager;
  * @author liukun
  */
 @Service
-public class JsFunction implements JSFunctionService {
+public class JsFunction implements ILogicItemFunctionRunner {
     @Override
     public LogicItemRunResult invoke(FunctionContext ctx, Object script) {
         if (script == null) {

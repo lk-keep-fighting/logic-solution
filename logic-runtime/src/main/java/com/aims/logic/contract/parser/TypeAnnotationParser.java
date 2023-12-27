@@ -69,7 +69,7 @@ public class TypeAnnotationParser {
         return Class.forName(fullClassName);
     }
 
-        public static TypeAnnotationTreeNode createTypeAnnotationTreeNode(Type paramType) {
+    public static TypeAnnotationTreeNode createTypeAnnotationTreeNode(Type paramType) {
         if (paramType instanceof ParameterizedType typeP) {
             List<TypeAnnotationTreeNode> typeArguments = Arrays.stream(typeP.getActualTypeArguments())
                     .map(TypeAnnotationParser::createTypeAnnotationTreeNode)
@@ -104,8 +104,8 @@ public class TypeAnnotationParser {
                         .setProperties(properties);
             }
         }
-            return null;
-        }
+        return null;
+    }
 
 
 //

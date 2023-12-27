@@ -4,7 +4,7 @@ import com.aims.logic.contract.dsl.LogicItemTreeNode;
 import com.aims.logic.contract.dto.LogicItemRunResult;
 import com.aims.logic.runtime.runner.FunctionContext;
 import com.aims.logic.runtime.runner.Functions;
-import com.aims.logic.runtime.runner.functions.HttpFunctionService;
+import com.aims.logic.runtime.runner.functions.ILogicItemFunctionRunner;
 import com.aims.logic.util.RuntimeUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
@@ -12,7 +12,6 @@ import okhttp3.*;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -21,7 +20,7 @@ import java.util.concurrent.TimeUnit;
  * @author liukun
  */
 @Service
-public class HttpFunction implements HttpFunctionService {
+public class HttpFunction implements ILogicItemFunctionRunner {
     public HttpFunction() {
     }
 

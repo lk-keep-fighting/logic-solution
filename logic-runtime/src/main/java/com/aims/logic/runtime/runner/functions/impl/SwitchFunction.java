@@ -4,7 +4,7 @@ import com.aims.logic.contract.dsl.LogicItemTreeNode;
 import com.aims.logic.contract.dto.LogicItemRunResult;
 import com.aims.logic.runtime.runner.FunctionContext;
 import com.aims.logic.runtime.runner.Functions;
-import com.aims.logic.runtime.runner.functions.SwitchFunctionService;
+import com.aims.logic.runtime.runner.functions.ILogicItemFunctionRunner;
 import com.aims.logic.runtime.service.LogicRunnerService;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author liukun
  */
 @Service
-public class SwitchFunction implements SwitchFunctionService {
+public class SwitchFunction implements ILogicItemFunctionRunner {
 
     public SwitchFunction(LogicRunnerService runnerService) {
     }

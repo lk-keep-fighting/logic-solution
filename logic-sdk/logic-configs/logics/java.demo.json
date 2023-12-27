@@ -1,0 +1,1332 @@
+{
+  "id": "java.demo",
+  "name": null,
+  "schemaVersion": null,
+  "version": "20231225232725",
+  "label": null,
+  "description": null,
+  "triggerType": null,
+  "cron": null,
+  "typeParams": null,
+  "params": [
+    {
+      "name": "inputStr",
+      "describe": null,
+      "typeAnnotation": {
+        "typeKind": "primitive",
+        "typeNamespace": null,
+        "typeName": "string",
+        "typeArguments": null,
+        "returnType": null,
+        "inferred": false,
+        "properties": null,
+        "ruleMap": null,
+        "defaultValue": ""
+      },
+      "required": false,
+      "defaultValue": ""
+    }
+  ],
+  "returns": [],
+  "variables": [
+    {
+      "name": "tmpStr",
+      "describe": null,
+      "typeAnnotation": {
+        "typeKind": "primitive",
+        "typeNamespace": null,
+        "typeName": "string",
+        "typeArguments": null,
+        "returnType": null,
+        "inferred": false,
+        "properties": null,
+        "ruleMap": null,
+        "defaultValue": ""
+      },
+      "required": false,
+      "defaultValue": ""
+    }
+  ],
+  "envs": [],
+  "items": [
+    {
+      "type": "start",
+      "id": "f506079c-3c3d-4460-ba6a-04408b78eab6",
+      "name": "start",
+      "nextId": "73aedd69-fe83-410c-afb2-b8dd1ae2d9f4"
+    },
+    {
+      "type": "java",
+      "name": "1",
+      "url": "com.aims.logic.sdk.testTran",
+      "method": "insertData(id)",
+      "body": "return {\"id\":\"1111\"}",
+      "params": [
+        {
+          "name": "id",
+          "describe": null,
+          "typeAnnotation": {
+            "typeKind": "primitive",
+            "typeNamespace": "java.lang.String",
+            "typeName": "java.lang.String",
+            "typeArguments": null,
+            "returnType": null,
+            "inferred": false,
+            "properties": null,
+            "ruleMap": null,
+            "defaultValue": null
+          },
+          "required": false,
+          "defaultValue": null
+        }
+      ],
+      "script": "",
+      "code": "",
+      "condition": "",
+      "system": "",
+      "headers": "",
+      "returnAccept": "",
+      "id": "73aedd69-fe83-410c-afb2-b8dd1ae2d9f4",
+      "nextId": "85372442-5287-49fb-9a19-5189cff59a96"
+    },
+    {
+      "type": "java",
+      "name": "2",
+      "url": "com.aims.logic.sdk.testTran",
+      "method": "insertData(id)",
+      "body": "return {\"id\":\"33\"}",
+      "params": [
+        {
+          "name": "id",
+          "describe": null,
+          "typeAnnotation": {
+            "typeKind": "primitive",
+            "typeNamespace": "java.lang.String",
+            "typeName": "java.lang.String",
+            "typeArguments": null,
+            "returnType": null,
+            "inferred": false,
+            "properties": null,
+            "ruleMap": null,
+            "defaultValue": null
+          },
+          "required": false,
+          "defaultValue": null
+        }
+      ],
+      "script": "",
+      "code": "",
+      "condition": "",
+      "system": "",
+      "headers": "",
+      "returnAccept": "",
+      "id": "85372442-5287-49fb-9a19-5189cff59a96"
+    }
+  ],
+  "visualConfig": {
+    "cells": [
+      {
+        "shape": "edge",
+        "id": "99d37535-9bfd-41f7-a53a-1a7f92d96784",
+        "zIndex": 0,
+        "source": {
+          "cell": "f506079c-3c3d-4460-ba6a-04408b78eab6",
+          "port": "ed7d534f-fec2-4be1-988d-aa1c5341fc9f"
+        },
+        "target": {
+          "cell": "73aedd69-fe83-410c-afb2-b8dd1ae2d9f4",
+          "port": "835ee262-c08c-4c39-85fb-9dfdd4cada50"
+        }
+      },
+      {
+        "shape": "edge",
+        "id": "8d6d1c3d-015f-486d-a139-46743edd11bf",
+        "zIndex": 0,
+        "source": {
+          "cell": "bb4a45e7-65ce-4de7-b89b-3ebf01e0db1a",
+          "port": "12b485b6-5b76-4625-8f7d-3502c44a4a91"
+        },
+        "target": {
+          "cell": "0199137d-dbed-49e1-a1b7-ad470954c633",
+          "port": "33ddffcb-ad3f-4e28-bc18-209cbc7cc1f6"
+        }
+      },
+      {
+        "shape": "edge",
+        "id": "cefcd920-173f-4422-aaa8-508901871054",
+        "zIndex": 0,
+        "source": {
+          "cell": "bb4a45e7-65ce-4de7-b89b-3ebf01e0db1a",
+          "port": "12b485b6-5b76-4625-8f7d-3502c44a4a91"
+        },
+        "target": {
+          "cell": "6de2106f-b320-468c-b479-26babd035fe2",
+          "port": "00e6e72c-3b9c-457c-ab34-26b3182c491a"
+        }
+      },
+      {
+        "shape": "edge",
+        "id": "8dbab4f0-dfc6-49a1-9c86-dd778e1d9215",
+        "zIndex": 0,
+        "source": {
+          "cell": "8b9299c3-c2f2-45a2-836d-f223f27a5d6a",
+          "port": "93825a8f-f790-4b4e-af39-47acf56c11dd"
+        },
+        "target": {
+          "cell": "e1168492-9cf7-4174-8cca-7295a5d3d917",
+          "port": "762ba394-461d-4966-938f-641b35fd98bc"
+        }
+      },
+      {
+        "shape": "edge",
+        "id": "f64c5561-3de8-4e17-801c-585dc3d59ba4",
+        "zIndex": 0,
+        "source": {
+          "cell": "73aedd69-fe83-410c-afb2-b8dd1ae2d9f4",
+          "port": "fe5e6945-239e-4910-b3d1-4aee4f5bd476"
+        },
+        "target": {
+          "cell": "85372442-5287-49fb-9a19-5189cff59a96",
+          "port": "835ee262-c08c-4c39-85fb-9dfdd4cada50"
+        }
+      },
+      {
+        "position": {
+          "x": 375,
+          "y": 75
+        },
+        "size": {
+          "width": 50,
+          "height": 50
+        },
+        "attrs": {
+          "text": {
+            "text": "start"
+          }
+        },
+        "visible": true,
+        "shape": "circle",
+        "id": "f506079c-3c3d-4460-ba6a-04408b78eab6",
+        "data": {
+          "config": {
+            "type": "start"
+          }
+        },
+        "zIndex": 1,
+        "ports": {
+          "groups": {
+            "bottom": {
+              "position": "bottom",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              },
+              "zIndex": 1
+            }
+          },
+          "items": [
+            {
+              "group": "bottom",
+              "id": "ed7d534f-fec2-4be1-988d-aa1c5341fc9f"
+            }
+          ]
+        }
+      },
+      {
+        "position": {
+          "x": 350,
+          "y": 185
+        },
+        "size": {
+          "width": 100,
+          "height": 50
+        },
+        "attrs": {
+          "image": {
+            "width": 15,
+            "x": 2,
+            "y": 2,
+            "xlink:href": "/icons/code.svg"
+          },
+          "text": {
+            "fontSize": 14,
+            "text": "1"
+          }
+        },
+        "shape": "ExtSharp",
+        "id": "73aedd69-fe83-410c-afb2-b8dd1ae2d9f4",
+        "data": {
+          "config": {
+            "type": "java",
+            "name": "1",
+            "url": "com.aims.logic.sdk.testTran",
+            "method": "insertData(id)",
+            "body": "return {\"id\":\"1111\"}",
+            "params": [
+              {
+                "name": "id",
+                "describe": null,
+                "typeAnnotation": {
+                  "typeKind": "primitive",
+                  "typeNamespace": "java.lang.String",
+                  "typeName": "java.lang.String",
+                  "typeArguments": null,
+                  "returnType": null,
+                  "inferred": false,
+                  "properties": null,
+                  "ruleMap": null,
+                  "defaultValue": null
+                },
+                "required": false,
+                "defaultValue": null
+              }
+            ],
+            "script": "",
+            "code": "",
+            "condition": "",
+            "system": "",
+            "headers": "",
+            "returnAccept": ""
+          }
+        },
+        "groups": [
+          "biz"
+        ],
+        "zIndex": 2,
+        "ports": {
+          "groups": {
+            "top": {
+              "position": "top",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              }
+            },
+            "right": {
+              "position": "right",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              },
+              "zIndex": 1
+            },
+            "bottom": {
+              "position": "bottom",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              }
+            },
+            "left": {
+              "position": "left",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              }
+            }
+          },
+          "items": [
+            {
+              "group": "top",
+              "id": "835ee262-c08c-4c39-85fb-9dfdd4cada50"
+            },
+            {
+              "group": "right",
+              "id": "98eeb45f-e06a-46e1-bf42-b946b72a1d25"
+            },
+            {
+              "group": "bottom",
+              "id": "fe5e6945-239e-4910-b3d1-4aee4f5bd476"
+            },
+            {
+              "group": "left",
+              "id": "082fae18-93b3-4749-a0b3-fe6dcde7bd51"
+            }
+          ]
+        }
+      },
+      {
+        "position": {
+          "x": 550,
+          "y": 185
+        },
+        "size": {
+          "width": 100,
+          "height": 50
+        },
+        "attrs": {
+          "image": {
+            "width": 15,
+            "x": 2,
+            "y": 2,
+            "xlink:href": "/icons/code.svg"
+          },
+          "text": {
+            "fontSize": 14,
+            "text": "js代码块"
+          }
+        },
+        "shape": "ExtSharp",
+        "id": "e1168492-9cf7-4174-8cca-7295a5d3d917",
+        "data": {
+          "config": {
+            "type": "js",
+            "name": "js代码块",
+            "url": "",
+            "method": "",
+            "body": "",
+            "params": "",
+            "script": "return _par;",
+            "code": "",
+            "condition": "",
+            "system": "",
+            "headers": "",
+            "returnAccept": ""
+          }
+        },
+        "groups": [
+          "biz"
+        ],
+        "zIndex": 3,
+        "ports": {
+          "groups": {
+            "top": {
+              "position": "top",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              }
+            },
+            "right": {
+              "position": "right",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              },
+              "zIndex": 1
+            },
+            "bottom": {
+              "position": "bottom",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              }
+            },
+            "left": {
+              "position": "left",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              }
+            }
+          },
+          "items": [
+            {
+              "group": "top",
+              "id": "762ba394-461d-4966-938f-641b35fd98bc"
+            },
+            {
+              "group": "right",
+              "id": "033c1fb2-a402-440e-9ff9-4c76936aea39"
+            },
+            {
+              "group": "bottom",
+              "id": "409a06d8-676c-4b7f-a315-339621b232ff"
+            },
+            {
+              "group": "left",
+              "id": "4042aa5e-2a96-42d1-a59d-c3bd2eb97a08"
+            }
+          ]
+        }
+      },
+      {
+        "position": {
+          "x": 1100,
+          "y": 75
+        },
+        "size": {
+          "width": 200,
+          "height": 50
+        },
+        "view": "react-shape-view",
+        "attrs": {
+          "body": {
+            "fill": "#fff",
+            "stroke": "#8f8f8f",
+            "strokeWidth": 1,
+            "rx": 6,
+            "ry": 6
+          }
+        },
+        "shape": "switch",
+        "id": "bb4a45e7-65ce-4de7-b89b-3ebf01e0db1a",
+        "data": {
+          "config": {
+            "type": "switch"
+          }
+        },
+        "zIndex": 5,
+        "ports": {
+          "groups": {
+            "top": {
+              "position": "top",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              }
+            },
+            "right": {
+              "position": "right",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              },
+              "zIndex": 1
+            },
+            "bottom": {
+              "position": "bottom",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              }
+            },
+            "left": {
+              "position": "left",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              }
+            }
+          },
+          "items": [
+            {
+              "group": "top",
+              "id": "a3f532e5-5452-4081-8acb-204b77e3f206"
+            },
+            {
+              "group": "right",
+              "id": "68c4492d-3b4f-46bf-ae46-3e9a76d346b0"
+            },
+            {
+              "group": "bottom",
+              "id": "12b485b6-5b76-4625-8f7d-3502c44a4a91"
+            },
+            {
+              "group": "left",
+              "id": "38663831-a402-4c29-b1a8-432e23acd6e9"
+            }
+          ]
+        }
+      },
+      {
+        "position": {
+          "x": 940,
+          "y": 185
+        },
+        "size": {
+          "width": 120,
+          "height": 50
+        },
+        "view": "react-shape-view",
+        "shape": "switch-case",
+        "id": "0199137d-dbed-49e1-a1b7-ad470954c633",
+        "data": {
+          "config": {
+            "type": "switch-case"
+          }
+        },
+        "zIndex": 6,
+        "ports": {
+          "groups": {
+            "top": {
+              "position": "top",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              }
+            },
+            "right": {
+              "position": "right",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              },
+              "zIndex": 1
+            },
+            "bottom": {
+              "position": "bottom",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              }
+            },
+            "left": {
+              "position": "left",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              }
+            }
+          },
+          "items": [
+            {
+              "group": "top",
+              "id": "33ddffcb-ad3f-4e28-bc18-209cbc7cc1f6"
+            },
+            {
+              "group": "right",
+              "id": "97972deb-28fa-4acb-a7fc-b06e58865c04"
+            },
+            {
+              "group": "bottom",
+              "id": "6fb4a5ba-be1a-4573-be0c-b4d22f826b87"
+            },
+            {
+              "group": "left",
+              "id": "83100056-ae4a-4813-a950-6db8621d4b84"
+            }
+          ]
+        }
+      },
+      {
+        "position": {
+          "x": 1240,
+          "y": 185
+        },
+        "size": {
+          "width": 120,
+          "height": 50
+        },
+        "view": "react-shape-view",
+        "shape": "switch-default",
+        "id": "6de2106f-b320-468c-b479-26babd035fe2",
+        "data": {
+          "config": {
+            "type": "switch-default"
+          }
+        },
+        "zIndex": 7,
+        "ports": {
+          "groups": {
+            "top": {
+              "position": "top",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              }
+            },
+            "right": {
+              "position": "right",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              },
+              "zIndex": 1
+            },
+            "bottom": {
+              "position": "bottom",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              }
+            },
+            "left": {
+              "position": "left",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              }
+            }
+          },
+          "items": [
+            {
+              "group": "top",
+              "id": "00e6e72c-3b9c-457c-ab34-26b3182c491a"
+            },
+            {
+              "group": "right",
+              "id": "dfa20449-4861-4450-a35d-fb0ffaaacaac"
+            },
+            {
+              "group": "bottom",
+              "id": "8991339b-6723-46fe-945f-44667f2cbf4a"
+            },
+            {
+              "group": "left",
+              "id": "c394e3d4-b4f1-4dee-b4c2-3851e8cc7677"
+            }
+          ]
+        }
+      },
+      {
+        "position": {
+          "x": 750,
+          "y": 75
+        },
+        "size": {
+          "width": 100,
+          "height": 50
+        },
+        "attrs": {
+          "image": {
+            "width": 15,
+            "x": 2,
+            "y": 2,
+            "xlink:href": "/icons/code.svg"
+          },
+          "text": {
+            "fontSize": 14,
+            "text": "java代码块"
+          }
+        },
+        "shape": "ExtSharp",
+        "id": "2083fd99-94da-4a9a-962e-6bd32afd8f08",
+        "data": {
+          "config": {
+            "type": "java"
+          }
+        },
+        "groups": [
+          "biz"
+        ],
+        "zIndex": 8,
+        "ports": {
+          "groups": {
+            "top": {
+              "position": "top",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              }
+            },
+            "right": {
+              "position": "right",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              },
+              "zIndex": 1
+            },
+            "bottom": {
+              "position": "bottom",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              }
+            },
+            "left": {
+              "position": "left",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              }
+            }
+          },
+          "items": [
+            {
+              "group": "top",
+              "id": "dcdb32e4-b90e-4c30-8401-98e3df598f8f"
+            },
+            {
+              "group": "right",
+              "id": "e6b7a0a8-5de9-4380-a607-20352b1d6d26"
+            },
+            {
+              "group": "bottom",
+              "id": "26c52c8c-cca9-4fd8-a4bd-8e170c08a58c"
+            },
+            {
+              "group": "left",
+              "id": "ef5113a7-e627-4a72-b40f-10d47290d57b"
+            }
+          ]
+        }
+      },
+      {
+        "position": {
+          "x": 950,
+          "y": 75
+        },
+        "size": {
+          "width": 100,
+          "height": 50
+        },
+        "attrs": {
+          "image": {
+            "width": 15,
+            "x": 2,
+            "y": 2,
+            "xlink:href": "/icons/CarbonSubflowLocal.svg"
+          },
+          "text": {
+            "fontSize": 14,
+            "text": "复用逻辑"
+          }
+        },
+        "shape": "ExtSharp",
+        "id": "a5133a60-ddcd-4ede-85a2-f5e7ab067782",
+        "data": {
+          "config": {
+            "type": "sub-logic"
+          }
+        },
+        "groups": [
+          "biz"
+        ],
+        "zIndex": 9,
+        "ports": {
+          "groups": {
+            "top": {
+              "position": "top",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              }
+            },
+            "right": {
+              "position": "right",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              },
+              "zIndex": 1
+            },
+            "bottom": {
+              "position": "bottom",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              }
+            },
+            "left": {
+              "position": "left",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              }
+            }
+          },
+          "items": [
+            {
+              "group": "top",
+              "id": "5f8fd41d-1c70-466f-b66f-73e6315834fd"
+            },
+            {
+              "group": "right",
+              "id": "aa3c4663-9fa6-447d-8213-5f9086a077b1"
+            },
+            {
+              "group": "bottom",
+              "id": "ab66a20f-f0a0-4464-91cd-25b0754dc34f"
+            },
+            {
+              "group": "left",
+              "id": "568cf439-e89b-4f33-a5db-623ba0006838"
+            }
+          ]
+        }
+      },
+      {
+        "position": {
+          "x": 575,
+          "y": 75
+        },
+        "size": {
+          "width": 50,
+          "height": 50
+        },
+        "attrs": {
+          "text": {
+            "text": "交互点"
+          },
+          "body": {
+            "fill": "white"
+          }
+        },
+        "visible": true,
+        "shape": "circle",
+        "id": "8b9299c3-c2f2-45a2-836d-f223f27a5d6a",
+        "markup": [
+          {
+            "tagName": "circle",
+            "selector": "body"
+          },
+          {
+            "tagName": "text",
+            "selector": "label"
+          }
+        ],
+        "data": {
+          "config": {
+            "type": "wait-for-continue"
+          }
+        },
+        "groups": [
+          "global"
+        ],
+        "zIndex": 10,
+        "ports": {
+          "groups": {
+            "top": {
+              "position": "top",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              }
+            },
+            "right": {
+              "position": "right",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              },
+              "zIndex": 1
+            },
+            "bottom": {
+              "position": "bottom",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              }
+            },
+            "left": {
+              "position": "left",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              }
+            }
+          },
+          "items": [
+            {
+              "group": "top",
+              "id": "497dce3c-bd02-402c-ad32-766b43af7996"
+            },
+            {
+              "group": "right",
+              "id": "b88edb6c-0768-412b-a059-577e1f865789"
+            },
+            {
+              "group": "bottom",
+              "id": "93825a8f-f790-4b4e-af39-47acf56c11dd"
+            },
+            {
+              "group": "left",
+              "id": "5ecbcedc-f9f2-4be9-a3cf-591145871f9c"
+            }
+          ]
+        }
+      },
+      {
+        "position": {
+          "x": 350,
+          "y": 295
+        },
+        "size": {
+          "width": 100,
+          "height": 50
+        },
+        "attrs": {
+          "image": {
+            "width": 15,
+            "x": 2,
+            "y": 2,
+            "xlink:href": "/icons/code.svg"
+          },
+          "text": {
+            "fontSize": 14,
+            "text": "2"
+          }
+        },
+        "shape": "ExtSharp",
+        "id": "85372442-5287-49fb-9a19-5189cff59a96",
+        "data": {
+          "config": {
+            "type": "java",
+            "name": "2",
+            "url": "com.aims.logic.sdk.testTran",
+            "method": "insertData(id)",
+            "body": "return {\"id\":\"33\"}",
+            "params": [
+              {
+                "name": "id",
+                "describe": null,
+                "typeAnnotation": {
+                  "typeKind": "primitive",
+                  "typeNamespace": "java.lang.String",
+                  "typeName": "java.lang.String",
+                  "typeArguments": null,
+                  "returnType": null,
+                  "inferred": false,
+                  "properties": null,
+                  "ruleMap": null,
+                  "defaultValue": null
+                },
+                "required": false,
+                "defaultValue": null
+              }
+            ],
+            "script": "",
+            "code": "",
+            "condition": "",
+            "system": "",
+            "headers": "",
+            "returnAccept": ""
+          }
+        },
+        "groups": [
+          "biz"
+        ],
+        "zIndex": 11,
+        "ports": {
+          "groups": {
+            "top": {
+              "position": "top",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              }
+            },
+            "right": {
+              "position": "right",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              },
+              "zIndex": 1
+            },
+            "bottom": {
+              "position": "bottom",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              }
+            },
+            "left": {
+              "position": "left",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              }
+            }
+          },
+          "items": [
+            {
+              "group": "top",
+              "id": "835ee262-c08c-4c39-85fb-9dfdd4cada50"
+            },
+            {
+              "group": "right",
+              "id": "98eeb45f-e06a-46e1-bf42-b946b72a1d25"
+            },
+            {
+              "group": "bottom",
+              "id": "fe5e6945-239e-4910-b3d1-4aee4f5bd476"
+            },
+            {
+              "group": "left",
+              "id": "082fae18-93b3-4749-a0b3-fe6dcde7bd51"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
