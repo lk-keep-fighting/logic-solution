@@ -1,0 +1,24 @@
+{
+    "id": "mes-gy",
+    "title": "工艺编排",
+    "menus": [
+        {
+            "key": "process-logic-api",
+            "label": "工艺逻辑编排"
+        },
+        {
+            "key": "versions",
+            "label": "版本管理",
+            "children": [
+                {
+                    "key": "logic-bak",
+                    "label": "版本记录"
+                },
+                {
+                    "key": "logic-pub-record",
+                    "label": "发布记录"
+                }
+            ]
+        }
+    ]
+}
