@@ -1,6 +1,6 @@
 package com.aims.logic.runtime.runner.functions;
 
-import com.aims.logic.contract.dto.LogicItemRunResult;
+import com.aims.logic.runtime.contract.dto.LogicItemRunResult;
 import com.aims.logic.runtime.runner.FunctionContext;
 
 /**

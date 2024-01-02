@@ -1,12 +1,14 @@
 package com.aims.logic.runtime.service;
 
-import com.aims.logic.contract.dto.LogicRunResult;
+import com.aims.logic.runtime.contract.dto.LogicRunResult;
 import com.alibaba.fastjson2.JSONObject;
+
+import java.util.Map;
 
 public interface LogicRunnerService {
     LogicRunResult run(String logicId, String parsJsonString);
 
-    LogicRunResult run(String logicId, JSONObject pars, JSONObject customEnv);
+    LogicRunResult run(String logicId,  Map<String, Object> parsMap, JSONObject customEnv);
 
     LogicRunResult runBiz(String logicId, String bizId, String parsJsonString);
 
@@ -16,14 +18,16 @@ public interface LogicRunnerService {
      *
      * @param logicId
      * @param bizId
-     * @param pars
+     * @param parsMap
      * @param customEnv
      * @return
      */
 
-    LogicRunResult runBiz(String logicId, String bizId, JSONObject pars, JSONObject customEnv);
+    LogicRunResult runBiz(String logicId, String bizId, Map<String, Object> parsMap, JSONObject customEnv);
 
-    /** 与runBiz的区别是，当节点报错时，会将当前报错节点记录为下一次请求的执行节点
+    /**
+     * 与runBiz的区别是，当节点报错时，会将当前报错节点记录为下一次请求的执行节点
+     *
      * @param logicId
      * @param bizId
      * @param pars
@@ -36,6 +40,7 @@ public interface LogicRunnerService {
 
     /**
      * 根据verifyCode判断是否与当前等待的交互点相同，不一致则报错
+     *
      * @param logicId
      * @param bizId
      * @param verifyCode
@@ -45,5 +50,5 @@ public interface LogicRunnerService {
      */
     LogicRunResult runBizByVerifyCode(String logicId, String bizId, String verifyCode, JSONObject pars, JSONObject customEnv);
 
-    LogicRunResult runBizWithTransaction(String logicId, String bizId, JSONObject pars, JSONObject customEnv);
+    LogicRunResult runBizWithTransaction(String logicId, String bizId, Map<String, Object> parsMap, JSONObject customEnv);
 }
