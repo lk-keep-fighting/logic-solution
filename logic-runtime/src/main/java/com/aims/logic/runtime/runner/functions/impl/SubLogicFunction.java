@@ -1,7 +1,7 @@
 package com.aims.logic.runtime.runner.functions.impl;
 
-import com.aims.logic.contract.dsl.LogicItemTreeNode;
-import com.aims.logic.contract.dto.LogicItemRunResult;
+import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
+import com.aims.logic.runtime.contract.dto.LogicItemRunResult;
 import com.aims.logic.runtime.runner.FunctionContext;
 import com.aims.logic.runtime.runner.Functions;
 import com.aims.logic.runtime.runner.functions.ILogicItemFunctionRunner;

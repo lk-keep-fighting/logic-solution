@@ -1,16 +1,13 @@
 package com.aims.logic.runtime.runner;
 
-import com.aims.logic.contract.dsl.LogicItemTreeNode;
-import com.aims.logic.contract.dsl.LogicTreeNode;
-import com.aims.logic.contract.dto.LogicItemRunResult;
-import com.aims.logic.contract.dto.LogicRunModelEnum;
-import com.aims.logic.contract.dto.LogicRunResult;
-import com.aims.logic.contract.dto.LogicStopEnum;
-import com.aims.logic.contract.enums.LogicConfigModelEnum;
-import com.aims.logic.contract.logger.LogicItemLog;
-import com.aims.logic.contract.logger.LogicLog;
-import com.aims.logic.contract.parser.TypeAnnotationParser;
-import com.aims.logic.util.JsonUtil;
+import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
+import com.aims.logic.runtime.contract.dsl.LogicTreeNode;
+import com.aims.logic.runtime.contract.dto.LogicItemRunResult;
+import com.aims.logic.runtime.contract.dto.LogicRunResult;
+import com.aims.logic.runtime.contract.dto.RunnerStatusEnum;
+import com.aims.logic.runtime.contract.logger.LogicLog;
+import com.aims.logic.runtime.contract.parser.TypeAnnotationParser;
+import com.aims.logic.runtime.util.JsonUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
@@ -20,6 +17,7 @@ import lombok.experimental.Accessors;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -31,6 +29,7 @@ public class LogicRunner {
     private LogicLog logicLog = new LogicLog();
     private LogicItemTreeNode startNode;
     private LogicTreeNode logic;
+    private RunnerStatusEnum runnerStatus;
     private FunctionContext fnCtx = new FunctionContext();
 
     public void setStartNode(LogicItemTreeNode startNode) {
@@ -47,12 +46,12 @@ public class LogicRunner {
         init(_config, _env, bizId);
     }
 
-    public LogicRunner(JSONObject _config, JSONObject _env, JSONObject paramsJson, JSONObject varsJson, String runItemId, String bizId) {
+    public LogicRunner(JSONObject _config, JSONObject _env, Map<String, Object> paramsMap, JSONObject varsJson, String runItemId, String bizId) {
         init(_config, _env, bizId);
         this.setStartNode(getStartItem(runItemId));
-        fnCtx.set_par(JsonUtil.jsonMerge(paramsJson, fnCtx.get_par()));
+        fnCtx.set_par(paramsMap);
         fnCtx.set_var(JsonUtil.jsonMerge(varsJson, fnCtx.get_var()));
-        logicLog.setParamsJson(fnCtx.get_par() == null ? null : fnCtx.get_par().clone())
+        logicLog.setParamsJson(fnCtx.get_par() == null ? null : JSONObject.from(fnCtx.get_par()))
                 .setVarsJson(fnCtx.get_var() == null ? null : fnCtx.get_var().clone())
                 .setEnvsJson(fnCtx.get_env());
     }
@@ -180,38 +179,38 @@ public class LogicRunner {
     /**
      * 从start执行逻辑
      *
-     * @param paramsJson 入参json对象，传入后与配置中的入参json合并
+     * @param paramsMap 入参
      * @return 返回，通过success判断是否执行成功，data为最后一个节点返回的数据
      */
-    public LogicRunResult run(JSONObject paramsJson) {
-        return run(null, paramsJson, null);
+    public LogicRunResult run(Map<String, Object> paramsMap) {
+        return run(null, paramsMap, null);
     }
 
     /**
      * 执行逻辑，可指定节点编号执行
      *
-     * @param runItemId  指定编号执行，null则从start开始执行
-     * @param paramsJson 入参json对象，传入后与配置中的入参json合并
-     * @param varsJson   局部变量对象，null则从配置中读取，传入则与配置中json合并
+     * @param runItemId 指定编号执行，null则从start开始执行
+     * @param paramsMap 入参对象
+     * @param varsJson  局部变量对象，null则从配置中读取，传入则与配置中json合并
      * @return 返回，通过success判断是否执行成功，data为最后一个节点返回的数据
      */
-    public LogicRunResult run(String runItemId, JSONObject paramsJson, JSONObject varsJson) {
+    public LogicRunResult run(String runItemId, Map<String, Object> paramsMap, JSONObject varsJson) {
         this.setStartNode(getStartItem(runItemId));
-        fnCtx.set_par(JsonUtil.jsonMerge(paramsJson, fnCtx.get_par()));
+        fnCtx.set_par(paramsMap);
         fnCtx.set_var(JsonUtil.jsonMerge(varsJson, fnCtx.get_var()));
-        logicLog.setParamsJson(fnCtx.get_par() == null ? null : fnCtx.get_par().clone())
+        logicLog.setParamsJson(fnCtx.get_par() == null ? null : JSONObject.from(fnCtx.get_par()))
                 .setVarsJson(fnCtx.get_var() == null ? null : fnCtx.get_var().clone())
                 .setEnvsJson(fnCtx.get_env());
         LogicItemRunResult itemRes = runItem(startNode);
         var nextItem = findNextItem(startNode);
-        while (isContinue(itemRes, nextItem) == LogicStopEnum.Continue) {
+        while (updateStatus(itemRes, nextItem) == RunnerStatusEnum.Continue) {
             itemRes = runItem(nextItem);
             nextItem = findNextItem(nextItem);
         }
         var res = LogicRunResult.fromItemResult(itemRes);
         logicLog.setVarsJson_end(fnCtx.get_var())
                 .setLogicId(logic.getId())
-                .setOver(fnCtx.getLogicStopEnum() == LogicStopEnum.End)
+                .setOver(this.runnerStatus == RunnerStatusEnum.End)
                 .setNextItem(fnCtx.getNextItem())
                 .setVersion(logic.getVersion())
                 .setReturnDataStr(res.getDataString())
@@ -231,42 +230,29 @@ public class LogicRunner {
         return itemRes;
     }
 
-    public LogicStopEnum isContinue(LogicItemRunResult itemRes, LogicItemTreeNode nextItem) {
+    public RunnerStatusEnum updateStatus(LogicItemRunResult itemRes, LogicItemTreeNode nextItem) {
         fnCtx.setNextItem(nextItem);
         if (!itemRes.isSuccess()) {
-            fnCtx.setLogicStopEnum(LogicStopEnum.Error);
+            this.setRunnerStatus(RunnerStatusEnum.Error);
+        } else {
+            if (nextItem != null && !nextItem.getId().isBlank()) {
+                if (Objects.equals(nextItem.getType(), "wait-for-continue")) {//发现下一个交互节点，本次执行结束
+                    this.setRunnerStatus(RunnerStatusEnum.WaitForContinue);
+                } else {
+                    this.setRunnerStatus(RunnerStatusEnum.Continue);
+                }
+            } else
+                this.setRunnerStatus(RunnerStatusEnum.End);
         }
-        if (nextItem != null && !nextItem.getId().isBlank()) {
-            if (Objects.equals(nextItem.getType(), "wait-for-continue")) {//发现下一个交互节点，本次执行结束
-                fnCtx.setLogicStopEnum(LogicStopEnum.WaitForContinue);
-            } else {
-                fnCtx.setLogicStopEnum(LogicStopEnum.Continue);
-            }
-        } else
-            fnCtx.setLogicStopEnum(LogicStopEnum.End);
-        return fnCtx.getLogicStopEnum();
+        return this.getRunnerStatus();
     }
 
     public LogicItemTreeNode findNextItem(LogicItemTreeNode curItem) {
         AtomicReference<String> nextId = new AtomicReference<>("");
-        AtomicReference<String> defNextId = new AtomicReference<>("");
         AtomicReference<LogicItemTreeNode> nextItem = new AtomicReference<>(null);
         switch (curItem.getType()) {
             case "switch":
                 nextId.set(fnCtx.get_lastRet().toString());
-//                String res = Functions.get("js").invoke(fnCtx, "return  " + curItem.getCondition()).toString();
-//                curItem.getBranches().forEach(b -> {
-//                    if (b.getWhen() != null) {
-//                        if (b.getWhen().equals(res)) {
-//                            nextId.set(b.getNextId());
-//                        }
-//                    } else {//default节点没有when属性
-//                        defNextId.set(b.getNextId());
-//                    }
-//                });
-//                if (nextId.get().isBlank()) {
-//                    nextId.set(defNextId.get());//when条件未匹配成功，分配默认节点
-//                }
                 break;
             default:
                 nextId.set(curItem.getNextId());
@@ -275,46 +261,5 @@ public class LogicRunner {
         logic.getItems().stream().filter(i -> Objects.equals(i.getId(), nextId.get())).findFirst().ifPresent(nextItem::set);
         return nextItem.get();
     }
-
-//    public JSONObject run(JSONObject paramsJson) {
-//        ScriptEngineManager manager = new ScriptEngineManager();
-//        ScriptEngine engine = manager.getEngineByName("js");
-//        //动态声明对象参数，匿名类型
-//        var v = new Object() {
-//            public String a = "2000";
-//        };
-//        //转换为json对象传入，匿名类型不能直接传入，否则获取不到值
-//        JSONObject j = (JSONObject) JSON.toJSON(v);
-//        //声明整型变量，非引用类型，看是否会被js改变
-//        var i = 1;
-//        //将Java变量放入js上下文
-//        engine.put("javaVar", j);
-//        engine.put("i", i);
-//        try {
-//            //js内改变Java变量
-//            var res = engine.eval("javaVar.a+=\"ddd\";i+=1;");
-//            //js内调用看是否改变成功
-//            res = engine.eval("print(javaVar.a,i)");
-//            //通过函数的方式返回给Java变量，此处只是函数声明，返回为null
-//            //想直接获取，可以直接写res=engine.eval("javaVar")
-//            engine.eval("function d(){return {a:javaVar.a,i:i}}");
-//            Invocable invocable = (Invocable) engine;
-//            //调用js函数，获取返回值
-//            var jres = (ScriptObjectMirror) invocable.invokeFunction("d");
-//            System.out.println("获取js变更后的整型参数");
-//            System.out.println(jres.get("i"));
-//            System.out.println("java中的整型变量i");
-//            System.out.println(i);//整型值未被js改变
-//            var jvar = engine.get("javaVar");
-//            System.out.println("获取js变更后的对象参数");
-//            System.out.println(jvar);
-//            System.out.println("java中的对象变量j");
-//            System.out.println(j);//对象变量的属性被改变
-//
-//        } catch (Exception ex) {
-//            System.out.println(ex);
-//        }
-//        return paramsJson;
-//    }
 
 }

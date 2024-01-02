@@ -7,7 +7,7 @@ import com.aims.logic.sdk.mapper.LogicBakMapper;
 import com.aims.logic.sdk.mapper.LogicMapper;
 import com.aims.logic.sdk.mapper.LogicPublishedMapper;
 import com.aims.logic.sdk.service.LogicService;
-import com.aims.logic.util.RuntimeUtil;
+import com.aims.logic.runtime.util.RuntimeUtil;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -1,16 +1,13 @@
 package com.aims.logic.sdk;
 
 import com.aims.logic.runtime.service.LogicRunnerService;
-import com.aims.logic.util.FileUtil;
 import com.alibaba.fastjson2.JSONObject;
-import org.junit.jupiter.api.Test;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest(classes = LogicSdkApplicationTests.class)
 @SpringBootApplication(scanBasePackages = "com.aims")

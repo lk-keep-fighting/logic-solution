@@ -1,21 +1,20 @@
 package com.aims.logic.sdk;
 
-import com.aims.logic.contract.dsl.LogicItemTreeNode;
-import com.aims.logic.contract.dto.LogicItemRunResult;
-import com.aims.logic.contract.dto.LogicRunResult;
-import com.aims.logic.contract.dto.LogicStopEnum;
-import com.aims.logic.contract.logger.LogicItemLog;
-import com.aims.logic.contract.logger.LogicLog;
+import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
+import com.aims.logic.runtime.contract.dto.LogicItemRunResult;
+import com.aims.logic.runtime.contract.dto.LogicRunResult;
+import com.aims.logic.runtime.contract.dto.RunnerStatusEnum;
+import com.aims.logic.runtime.contract.logger.LogicItemLog;
+import com.aims.logic.runtime.contract.logger.LogicLog;
 import com.aims.logic.runtime.service.LogicRunnerService;
 import com.aims.logic.sdk.entity.LogicInstanceEntity;
 import com.aims.logic.sdk.service.LogicInstanceService;
 import com.aims.logic.sdk.service.impl.LoggerServiceImpl;
 import com.aims.logic.sdk.util.TransactionalUtils;
-import com.aims.logic.util.JsonUtil;
-import com.aims.logic.util.RuntimeUtil;
+import com.aims.logic.runtime.util.JsonUtil;
+import com.aims.logic.runtime.util.RuntimeUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
@@ -50,16 +49,16 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
      * 传入逻辑编号、入参、自定义环境变量执行逻辑
      *
      * @param logicId   逻辑编号
-     * @param pars      入参
+     * @param parsMap   入参
      * @param customEnv 自定义环境变量
      * @return 返回参数
      */
     @Override
-    public LogicRunResult run(String logicId, JSONObject pars, JSONObject customEnv) {
+    public LogicRunResult run(String logicId, Map<String, Object> parsMap, JSONObject customEnv) {
         JSONObject config = RuntimeUtil.readLogicConfig(logicId);
         JSONObject env = RuntimeUtil.readEnv();
         env = JsonUtil.jsonMerge(customEnv, env);
-        var res = new com.aims.logic.runtime.runner.LogicRunner(config, env).run(pars);
+        var res = new com.aims.logic.runtime.runner.LogicRunner(config, env).run(parsMap);
         logService.addOrUpdateInstanceLog(res.getLogicLog());
         return res;
     }
@@ -84,13 +83,13 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
      *
      * @param logicId   逻辑编号
      * @param bizId     业务编号
-     * @param pars      入参json
+     * @param parsMap   入参json
      * @param customEnv 环境变量json
      * @return 执行结果
      */
     @Override
-    public LogicRunResult runBiz(String logicId, String bizId, JSONObject pars, JSONObject customEnv) {
-        return runBizWithTransaction(logicId, bizId, pars, customEnv);
+    public LogicRunResult runBiz(String logicId, String bizId, Map<String, Object> parsMap, JSONObject customEnv) {
+        return runBizWithTransaction(logicId, bizId, parsMap, customEnv);
 //        JSONObject env = RuntimeUtil.getEnvJson();
 //        env = JsonUtil.jsonMerge(customEnv, env);
 //        String cacheVarsJson = null;
@@ -116,6 +115,10 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
 //        res.getLogicLog().setBizId(bizId);
 //        logService.addOrUpdateInstanceLog(res.getLogicLog());
 //        return res;
+    }
+
+    public LogicRunResult runBiz(String logicId, String bizId, Map<String, Object> parsMap) {
+        return runBizWithTransaction(logicId, bizId, parsMap, null);
     }
 
     /***
@@ -207,7 +210,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
     @Autowired
     TransactionalUtils transactionalUtils;
 
-    public LogicRunResult runBizWithTransaction(String logicId, String bizId, JSONObject pars, JSONObject customEnv) {
+    public LogicRunResult runBizWithTransaction(String logicId, String bizId, Map<String, Object> parsMap, JSONObject customEnv) {
         JSONObject env = RuntimeUtil.getEnvJson();
         env = JsonUtil.jsonMerge(customEnv, env);
         String cacheVarsJson = null;
@@ -228,7 +231,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         if (config == null) {
             throw new RuntimeException("未发现指定的逻辑：" + logicId);
         }
-        var runner = new com.aims.logic.runtime.runner.LogicRunner(config, env, pars, JSON.isValid(cacheVarsJson) ? JSON.parseObject(cacheVarsJson) : null, startId, bizId);
+        var runner = new com.aims.logic.runtime.runner.LogicRunner(config, env, parsMap, JSON.isValid(cacheVarsJson) ? JSON.parseObject(cacheVarsJson) : null, startId, bizId);
         TransactionStatus begin = null;
         LogicItemRunResult itemRes = null;
         LogicItemTreeNode nextItem = null;
@@ -245,7 +248,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
             nextItem = runner.findNextItem(runner.getStartNode());
             itemLogs.add(itemRes.getItemLog());
             logicLog.setItemLogs(itemLogs)
-                    .setOver(runner.isContinue(itemRes, nextItem) == LogicStopEnum.End)
+                    .setOver(runner.updateStatus(itemRes, nextItem) == RunnerStatusEnum.End)
                     .setNextItem(runner.getFnCtx().getNextItem())
                     .setMsg(itemRes.getMsg())
                     .setSuccess(itemRes.isSuccess());
@@ -257,17 +260,18 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                     .setSuccess(false)
                     .setMsg(e.getMessage());
         }
-
-        while (runner.isContinue(itemRes, nextItem) == LogicStopEnum.Continue) {
+        runner.updateStatus(itemRes, nextItem);
+        while (runner.getRunnerStatus() == RunnerStatusEnum.Continue) {
             try {
                 begin = transactionalUtils.begin();
                 itemRes = runner.runItem(nextItem);
                 nextItem = runner.findNextItem(nextItem);
+                runner.updateStatus(itemRes, nextItem);
                 itemLogs = new ArrayList<>();
                 itemLogs.add(itemRes.getItemLog());
                 logicLog.setItemLogs(itemLogs)
                         .setReturnDataStr(itemRes.getDataString())
-                        .setOver(runner.getFnCtx().getLogicStopEnum() == LogicStopEnum.End)
+                        .setOver(runner.getRunnerStatus() == RunnerStatusEnum.End)
                         .setNextItem(nextItem)
                         .setMsg(itemRes.getMsg())
                         .setSuccess(itemRes.isSuccess());
@@ -324,12 +328,12 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                     .setEnvsJson(runner.getLogicLog().getEnvsJson())
                     .setLogicId(logicId)
                     .setItemLogs(itemLogs)
-                    .setOver(runner.isContinue(itemRes, nextItem) == LogicStopEnum.End)
+                    .setOver(runner.updateStatus(itemRes, nextItem) == RunnerStatusEnum.End)
                     .setNextItem(runner.getFnCtx().getNextItem())
                     .setVersion(runner.getLogic().getVersion())
                     .setMsg(itemRes.getMsg())
                     .setSuccess(itemRes.isSuccess());
-            while (!"java".equals(curItem.getType()) && runner.isContinue(itemRes, nextItem) == LogicStopEnum.Continue) {
+            while (!"java".equals(curItem.getType()) && runner.updateStatus(itemRes, nextItem) == RunnerStatusEnum.Continue) {
                 try {
                     itemRes = runner.runItem(nextItem);
                     nextItem = runner.findNextItem(nextItem);
@@ -337,7 +341,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                     itemLogs.add(itemRes.getItemLog());
                     logicLog.setItemLogs(itemLogs)
                             .setReturnDataStr(itemRes.getDataString())
-                            .setOver(runner.getFnCtx().getLogicStopEnum() == LogicStopEnum.End)
+                            .setOver(runner.getRunnerStatus() == RunnerStatusEnum.End)
                             .setNextItem(nextItem)
                             .setMsg(itemRes.getMsg())
                             .setSuccess(itemRes.isSuccess());

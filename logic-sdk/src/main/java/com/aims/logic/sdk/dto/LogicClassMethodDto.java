@@ -1,12 +1,9 @@
 package com.aims.logic.sdk.dto;
 
-import com.aims.logic.contract.dsl.ParamTreeNode;
-import com.aims.logic.contract.dsl.basic.TypeAnnotationTreeNode;
-import com.aims.logic.contract.dsl.basic.TypeParamTreeNode;
+import com.aims.logic.runtime.contract.dsl.ParamTreeNode;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
 

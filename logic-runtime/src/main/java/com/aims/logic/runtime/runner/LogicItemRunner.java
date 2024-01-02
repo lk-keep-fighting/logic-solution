@@ -1,9 +1,9 @@
 package com.aims.logic.runtime.runner;
 
-import com.aims.logic.contract.dsl.LogicItemTreeNode;
-import com.aims.logic.contract.dto.LogicItemRunResult;
-import com.aims.logic.contract.dto.LogicRunResult;
-import com.aims.logic.contract.logger.LogicItemLog;
+import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
+import com.aims.logic.runtime.contract.dto.LogicItemRunResult;
+import com.aims.logic.runtime.contract.logger.LogicItemLog;
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 
 public class LogicItemRunner {
@@ -19,6 +19,7 @@ public class LogicItemRunner {
         System.out.println("执行节点 " + this.dsl.getName());
         System.out.println("上下文 " + JSONObject.toJSONString(ctx));
         var itemType = this.dsl.getType();
+        var originConfig = JSON.copy(this.dsl);
         switch (itemType) {
             case "end":
                 ret = Functions.get(itemType).invoke(ctx, this.dsl.getScript() != null ? this.dsl.getScript() : "return _ret");
@@ -53,8 +54,8 @@ public class LogicItemRunner {
         ret.setItemLog(new LogicItemLog()
                 .setName(dsl.getName())
                 .setConfigInstance(dsl)
-                .setConfig(dsl)
-                .setParamsJson(ctx.get_par())
+                .setConfig(originConfig)
+                .setParamsJson(JSONObject.from(ctx.get_par()))
                 .setReturnData(ret.getData())
                 .setSuccess(ret.isSuccess()));
         return ret;

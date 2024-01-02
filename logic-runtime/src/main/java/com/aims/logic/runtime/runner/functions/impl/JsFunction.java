@@ -1,8 +1,9 @@
 package com.aims.logic.runtime.runner.functions.impl;
 
-import com.aims.logic.contract.dto.LogicItemRunResult;
+import com.aims.logic.runtime.contract.dto.LogicItemRunResult;
 import com.aims.logic.runtime.runner.FunctionContext;
 import com.aims.logic.runtime.runner.functions.ILogicItemFunctionRunner;
+import com.alibaba.fastjson2.JSONObject;
 import org.springframework.stereotype.Service;
 
 import javax.script.Invocable;
@@ -23,8 +24,8 @@ public class JsFunction implements ILogicItemFunctionRunner {
         ScriptEngine engine = manager.getEngineByName("js");
         engine.put("_var", ctx.get_var());
         engine.put("_env", ctx.get_env());
-        engine.put("_par", ctx.get_par());
-        engine.put("_ret", ctx.get_ret());
+        engine.put("_par", JSONObject.from(ctx.get_par()));
+//        engine.put("_ret", ctx.get_ret());
         engine.put("_lastRet", ctx.get_lastRet());
         try {
             String processedCode = script.toString().replaceAll("^//.*", "");
