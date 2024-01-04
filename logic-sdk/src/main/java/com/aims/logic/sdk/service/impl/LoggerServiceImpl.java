@@ -25,15 +25,15 @@ public class LoggerServiceImpl {
     public LoggerServiceImpl(LogicLogMapper _logMapper,
                              LogicInstanceService _instanceService) {
         this.logMapper = _logMapper;
-        instanceService = _instanceService;
+        this.instanceService = _instanceService;
     }
 
     /**
-     * 新增或更新运行实例日志与logic_log日志
+     * 新增或更新运行实例日志并新增logic_log日志
      *
      * @param logicLog
      */
-    public void addOrUpdateInstanceLog(LogicLog logicLog) {
+    public void addOrUpdateInstanceAndAddLogicLog(LogicLog logicLog) {
         try {
             String env = RuntimeUtil.getEnv().getNODE_ENV();
             var nextId = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getId();
@@ -73,7 +73,7 @@ public class LoggerServiceImpl {
                         .setEnv(env);
                 ins.insert();
             }
-            addLogicRunLog(logicLog);
+            addLogicLog(logicLog);
         } catch (
                 Exception ex) {
             System.err.println("添加日志异常");
@@ -82,7 +82,7 @@ public class LoggerServiceImpl {
 
     }
 
-    public void addLogicRunLog(LogicLog logicLog) {
+    public void addLogicLog(LogicLog logicLog) {
         JSONObject envJson = logicLog.getEnvsJson();
         JSONObject headers = envJson.getJSONObject("HEADERS");
         String requestHost = null;
