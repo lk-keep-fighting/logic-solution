@@ -17,33 +17,34 @@ import org.springframework.stereotype.Service;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class JavaCodeFunction implements ILogicItemFunctionRunner {
     public LogicItemRunResult invoke(FunctionContext ctx, Object item) {
+        System.out.printf("-------开始执行Java代码-------");
         var itemDsl = (LogicItemTreeNode) item;
         try {
             var clazz = ClassLoaderUtils.loadClass(itemDsl.getUrl().trim());
-            System.out.printf("加载类：%s%n", itemDsl.getUrl().trim());
-            var bodyObj = Functions.get("js").invoke(ctx, itemDsl.getBody()).getData();
+            System.out.printf("执行Java代码-成功加载方法所在类：%s%n", itemDsl.getUrl().trim());
+            var bodyObj = Functions.get("js").invoke(ctx, itemDsl.getBody()).getData();//执行js脚本，返回方法实参
             var methodName = itemDsl.getMethod().split("\\(")[0];
-
-            List<Object> paramsArrayFromJsObj = new ArrayList<>();
-            List<Class<?>> cls = new ArrayList<>();
-
-            // 处理参数
+            // 获取参数声明
             List<ParamTreeNode> paramTreeNodes = itemDsl.getParams();
             var paramsJson = bodyObj instanceof ScriptObjectMirror ? JSONObject.from(JsonUtil.toObject((ScriptObjectMirror) bodyObj)) : JSONObject.from(bodyObj);
             itemDsl.setBody(paramsJson.toJSONString());
-
-            for (ParamTreeNode param : paramTreeNodes) {
+            List<Class<?>> cls = new ArrayList<>();
+            List<Object> paramsArrayFromJsObj = new ArrayList<>();
+            for (int i = 0; i < paramTreeNodes.size(); i++) {
+                ParamTreeNode param = paramTreeNodes.get(i);
                 var paramName = param.getName();
                 var paramTypeAnno = param.getTypeAnnotation();
                 var classWrapper = ClassWrapper.of(paramTypeAnno.getTypeNamespace());
-
                 Class<?> paramClass = null;
-                //传入的Object数据，可能为代码中传入，有强类型声明
-                Object inputParamValue = ctx.get_par().get(paramName);
+                Object inputParamValue = ctx.get_par().get(paramName);//参数可能为代码中传入，有强类型声明
+                if (inputParamValue == null) {//可能通过动态参数传入，自动生成的参数名_p0、_p1、_p2...
+                    inputParamValue = ctx.get_par().get("_p" + i);
+                }
                 Object obj = null;
                 if (inputParamValue != null) {
                     //获取传入的数据的类型声明，用于判断与方法声明是否一致，如果一直，则不用转换
@@ -65,7 +66,7 @@ public class JavaCodeFunction implements ILogicItemFunctionRunner {
                                 obj = paramsJson.getJSONObject(paramName).to(TypeReference.mapType(Map.class, keyClazz, valClazz));
                                 paramClass = obj.getClass();
                                 cls.add(paramClass);
-                            } else {
+                            } else {//List
                                 paramClass = ClassLoaderUtils.loadClass(classWrapper.getPackageName() + "." + classWrapper.getShortRawName());
                                 var TypeParClazz = ClassLoaderUtils.loadClass(classWrapper.getParameterizedType().get(0).getName());
                                 obj = JSONArray.parseArray(JSONObject.toJSONString(paramsJson.get(paramName)), TypeParClazz);
@@ -91,21 +92,24 @@ public class JavaCodeFunction implements ILogicItemFunctionRunner {
                 paramsArrayFromJsObj.add(obj);
             }
 
-            Method method = clazz.getDeclaredMethod(methodName, cls.toArray(new Class<?>[]{}));
+            Method method = findMethod(clazz, methodName, cls.toArray((new Class<?>[]{})));
             LogicItemRunResult res = new LogicItemRunResult();
             try {
                 var obj = method.invoke(SpringContextUtil.getBean(clazz), paramsArrayFromJsObj.toArray());
                 res.setData(obj);
-            } catch (InvocationTargetException e) {
+            } catch (InvocationTargetException e) {//抛出异常触发事务回滚
 //                var str=e.getTargetException().getCause()==null?e.getTargetException().getCause():
                 throw new RuntimeException(e.getTargetException().getMessage());
             }
-
             return res;
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e.toString());
         }
+    }
+
+    private Method findMethod(Class<?> clazz, String methodName, Class<?>... parameterTypes) throws NoSuchMethodException {
+        return clazz.getDeclaredMethod(methodName, parameterTypes);
     }
 
     @Override
