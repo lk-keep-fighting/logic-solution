@@ -43,15 +43,16 @@ public class JavaCodeFunction implements ILogicItemFunctionRunner {
                 Class<?> paramClass = null;
                 Object inputParamValue = ctx.get_par().get(paramName);//参数可能为代码中传入，有强类型声明
                 if (inputParamValue == null) {//可能通过动态参数传入，自动生成的参数名_p0、_p1、_p2...
-                    inputParamValue = ctx.get_par().get("_p" + i);
+                    inputParamValue = ctx.get_par().get("_p" + (i + 1));
                 }
-                Object obj = null;
+                Object obj = inputParamValue;
                 if (inputParamValue != null) {
                     //获取传入的数据的类型声明，用于判断与方法声明是否一致，如果一直，则不用转换
                     Class<?> inputParamClass = inputParamValue.getClass();
                     if (Objects.equals(inputParamClass.getTypeName(), paramTypeAnno.getTypeNamespace())) {
                         paramClass = inputParamClass;
-                        obj = ctx.get_par().get(paramName);
+                    } else {
+                        paramsJson.put(paramName, inputParamValue);
                     }
                 }
                 if (paramClass == null) {
@@ -98,13 +99,15 @@ public class JavaCodeFunction implements ILogicItemFunctionRunner {
                 var obj = method.invoke(SpringContextUtil.getBean(clazz), paramsArrayFromJsObj.toArray());
                 res.setData(obj);
             } catch (InvocationTargetException e) {//抛出异常触发事务回滚
-//                var str=e.getTargetException().getCause()==null?e.getTargetException().getCause():
-                throw new RuntimeException(e.getTargetException().getMessage());
+                return res.setSuccess(false)
+                        .setMsg(e.getTargetException().getMessage());
             }
             return res;
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException(e.toString());
+            var msg = e.getCause() == null ? e.getMessage() : e.getCause().getMessage();
+            return new LogicItemRunResult().setSuccess(false)
+                    .setMsg(msg);
         }
     }
 

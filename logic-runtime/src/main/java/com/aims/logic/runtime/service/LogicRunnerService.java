@@ -35,7 +35,7 @@ public interface LogicRunnerService {
 
     /**
      * 无状态-入参为可变对象数组
-     * ！！传入对象会按顺序转换为_p0、_p1、_p2...形式的Map<String,Object>
+     * ！！传入对象会按顺序转换为_p1、_p2...形式的Map<String,Object>
      *
      * @param logicId 逻辑编号
      * @param pars    可变入参对象
@@ -66,7 +66,7 @@ public interface LogicRunnerService {
 
     /**
      * 有状态-入参为可变对象数组
-     * ！！传入对象会按顺序转换为_p0、_p1、_p2...形式的Map<String,Object>
+     * ！！传入对象会按顺序转换为_p1、_p2...形式的Map<String,Object>
      *
      * @param logicId 逻辑编号
      * @param bizId   业务编号
