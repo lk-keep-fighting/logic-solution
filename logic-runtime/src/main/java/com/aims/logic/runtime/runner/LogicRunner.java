@@ -251,7 +251,7 @@ public class LogicRunner {
         AtomicReference<String> nextId = new AtomicReference<>("");
         AtomicReference<LogicItemTreeNode> nextItem = new AtomicReference<>(null);
         switch (curItem.getType()) {
-            case "switch":
+            case "switch"://switch运行时内部解析了分支条件，并返回了命中分支的下一个节点
                 nextId.set(fnCtx.get_lastRet().toString());
                 break;
             default:
