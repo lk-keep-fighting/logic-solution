@@ -22,8 +22,11 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T> extends ServiceImpl<M, 
                 if (!v.getValues().isEmpty()) {
                     if (v.getType().equals("="))
                         queryWrapper.eq(v.getDataIndex(), v.getValues().get(0));
-                    else
-                        queryWrapper.like(v.getDataIndex(), v.getValues().get(0));
+                    else {
+                        var likeValue = v.getValues().get(0);
+                        if (!likeValue.isBlank())
+                            queryWrapper.like(v.getDataIndex(), likeValue);
+                    }
                 }
             });
         if (input.getOrderBy() != null && !input.getOrderBy().isEmpty()) {
