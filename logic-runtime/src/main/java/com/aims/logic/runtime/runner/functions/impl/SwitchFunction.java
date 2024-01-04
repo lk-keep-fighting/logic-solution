@@ -23,14 +23,17 @@ public class SwitchFunction implements ILogicItemFunctionRunner {
     public LogicItemRunResult invoke(FunctionContext ctx, Object item) {
         try {
             var itemDsl = ((LogicItemTreeNode) item);
-            Object data = Functions.get("js").invoke(ctx, itemDsl.getBody()).getData();
-            String res = Functions.get("js").invoke(ctx, "return  " + itemDsl.getCondition()).getDataString();
+            Object conditionObj = Functions.get("js").invoke(ctx, "return  " + itemDsl.getCondition()).getData();
+            String res = conditionObj == null ? null : conditionObj.toString();
+            System.out.printf("表达式值：%s%n", res);
+            LogicItemRunResult ret = new LogicItemRunResult();
             AtomicReference<String> nextId = new AtomicReference<>("");
             AtomicReference<String> defNextId = new AtomicReference<>("");
             itemDsl.getBranches().forEach(b -> {
                 if (b.getWhen() != null) {
                     if (b.getWhen().equals(res)) {
                         nextId.set(b.getNextId());
+                        ret.setMsg("命中：" + b.getWhen());
                     }
                 } else {//default节点没有when属性
                     defNextId.set(b.getNextId());
@@ -38,8 +41,9 @@ public class SwitchFunction implements ILogicItemFunctionRunner {
             });
             if (nextId.get().isBlank()) {
                 nextId.set(defNextId.get());//when条件未匹配成功，分配默认节点
+                ret.setMsg("命中默认节点，表达式值：" + res);
             }
-            return new LogicItemRunResult().setData(nextId.get());
+            return ret.setData(nextId.get());
         } catch (Exception e) {
             ctx.setHasErr(true);
             ctx.setErrMsg(e.getLocalizedMessage());
