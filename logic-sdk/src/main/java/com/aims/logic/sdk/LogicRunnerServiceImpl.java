@@ -9,7 +9,6 @@ import com.aims.logic.runtime.contract.logger.LogicLog;
 import com.aims.logic.runtime.env.LogicAppConfig;
 import com.aims.logic.runtime.runner.LogicRunner;
 import com.aims.logic.runtime.service.LogicRunnerService;
-import com.aims.logic.runtime.util.SpringContextUtil;
 import com.aims.logic.sdk.entity.LogicInstanceEntity;
 import com.aims.logic.sdk.service.LogicInstanceService;
 import com.aims.logic.sdk.service.impl.LoggerServiceImpl;
@@ -19,12 +18,9 @@ import com.aims.logic.runtime.util.RuntimeUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 
-import javax.annotation.PostConstruct;
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 /**
@@ -111,7 +107,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
     public LogicRunResult runByMap(String logicId, Map<String, Object> parsMap) {
         JSONObject config = RuntimeUtil.readLogicConfig(logicId);
         var res = new com.aims.logic.runtime.runner.LogicRunner(config, env).run(parsMap);
-        logService.addOrUpdateInstanceLog(res.getLogicLog());
+        logService.addOrUpdateInstanceAndAddLogicLog(res.getLogicLog());
         return res;
     }
 
@@ -227,7 +223,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         var res = runner
                 .run(startId, parsMap, JSON.isValid(cacheVarsJson) ? JSON.parseObject(cacheVarsJson) : null);
         res.getLogicLog().setBizId(bizId);
-        logService.addOrUpdateInstanceLog(res.getLogicLog());
+        logService.addOrUpdateInstanceAndAddLogicLog(res.getLogicLog());
         return res;
     }
 
@@ -275,12 +271,12 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                         .setNextItem(runner.getFnCtx().getNextItem())
                         .setMsg(itemRes.getMsg())
                         .setSuccess(itemRes.isSuccess());
-                logService.addOrUpdateInstanceLog(logicLog);
+                logService.addOrUpdateInstanceAndAddLogicLog(logicLog);
                 if (itemRes.isSuccess()) {
                     transactionalUtils.commit(begin);
                 } else {
                     transactionalUtils.rollback(begin);
-                    logService.addLogicRunLog(logicLog);
+                    logService.addLogicLog(logicLog);
                     return new LogicRunResult().setLogicLog(logicLog)
                             .setSuccess(false)
                             .setMsg(itemRes.getMsg());
@@ -288,7 +284,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 runner.updateStatus(itemRes, nextItem);
             } catch (Exception e) {
 //                transactionalUtils.rollback(begin);
-                logService.addLogicRunLog(logicLog);
+                logService.addLogicLog(logicLog);
                 return new LogicRunResult().setLogicLog(logicLog)
                         .setSuccess(false)
                         .setMsg(e.getMessage());
@@ -396,6 +392,6 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
     }
 
     public void updateBizAfterRunBizToNextJavaMethod(LogicRunResult result) {
-        logService.addOrUpdateInstanceLog(result.getLogicLog());
+        logService.addOrUpdateInstanceAndAddLogicLog(result.getLogicLog());
     }
 }
