@@ -1,9 +1,9 @@
 package com.aims.logic.ide.controller;
 
-import com.aims.logic.contract.dsl.LogicTreeNode;
-import com.aims.logic.contract.dsl.ParamTreeNode;
-import com.aims.logic.contract.dsl.basic.TypeAnnotationTreeNode;
-import com.aims.logic.contract.parser.TypeAnnotationParser;
+import com.aims.logic.runtime.contract.dsl.LogicTreeNode;
+import com.aims.logic.runtime.contract.dsl.ParamTreeNode;
+import com.aims.logic.runtime.contract.dsl.basic.TypeAnnotationTreeNode;
+import com.aims.logic.runtime.contract.parser.TypeAnnotationParser;
 import com.aims.logic.sdk.dto.ApiResult;
 import com.aims.logic.sdk.dto.FormQueryInput;
 import com.aims.logic.sdk.dto.LogicClassDto;
@@ -13,10 +13,11 @@ import com.aims.logic.sdk.entity.LogicEntity;
 import com.aims.logic.sdk.mapper.LogicMapper;
 import com.aims.logic.sdk.service.LogicBakService;
 import com.aims.logic.sdk.service.LogicService;
-import com.aims.logic.util.ClassUtils;
+import com.aims.logic.runtime.util.ClassUtils;
 import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.DefaultParameterNameDiscoverer;
@@ -131,7 +132,7 @@ public class LogicIdeController {
 
     @GetMapping("/api/ide/asset/v1/java/class/{fullClassPath}/methods")
     public ApiResult<List<LogicClassMethodDto>> classMethods(@PathVariable String fullClassPath) throws ClassNotFoundException {
-        List<LogicClassMethodDto> methodDtos = ClassUtils.getDeclaredMethods(fullClassPath).stream()
+        List<LogicClassMethodDto> methodDtos = ClassUtils.getMethods(fullClassPath).stream()
                 .map(m -> {
                     var dto = new LogicClassMethodDto().setName(m.getName());
                     var paramNames = discoverer.getParameterNames(m);
@@ -150,8 +151,12 @@ public class LogicIdeController {
     }
 
     private ParamTreeNode createParamTreeNode(String paramName, Type paramType) {
-        return new ParamTreeNode(paramName)
+        ParamTreeNode p = new ParamTreeNode(paramName)
                 .setTypeAnnotation(TypeAnnotationParser.createTypeAnnotationTreeNode(paramType));
+        if (paramType instanceof Class<?> clazz) {//通过NotNull注解判断是否必填
+            p.setRequired(clazz.getAnnotation(NotNull.class) != null);
+        }
+        return p;
     }
 
 //    @GetMapping("/api/ide/asset/v1/java/class/{fullClassPath}/methods")
@@ -231,7 +236,6 @@ public class LogicIdeController {
         var res = classLoader.getResource(packagePath);
         if (res == null) return classNames;
         File packageDir = new File(res.getFile());
-
         if (packageDir.exists() && packageDir.isDirectory()) {
             File[] files = packageDir.listFiles();
             for (File file : files) {
