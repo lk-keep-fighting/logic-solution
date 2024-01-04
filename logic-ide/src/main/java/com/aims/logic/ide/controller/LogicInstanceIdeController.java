@@ -4,6 +4,7 @@ import com.aims.logic.sdk.dto.ApiResult;
 import com.aims.logic.sdk.dto.FormQueryInput;
 import com.aims.logic.sdk.entity.LogicInstanceEntity;
 import com.aims.logic.sdk.service.LogicInstanceService;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class LogicInstanceIdeController {
     private final LogicInstanceService instanceService;
+
     @Autowired
     public LogicInstanceIdeController(
             LogicInstanceService _insService) {
@@ -21,6 +23,13 @@ public class LogicInstanceIdeController {
     public ApiResult<Page<LogicInstanceEntity>> logicList(@RequestBody FormQueryInput input) {
         var list = this.instanceService.selectPage(input);
         return new ApiResult<Page<LogicInstanceEntity>>().setData(list);
+    }
+
+    @PostMapping("/api/ide/logic-instance/edit/{id}/version")
+    public ApiResult<Boolean> editLogicVersion(@PathVariable String id, @RequestBody LogicInstanceEntity entity) {
+        UpdateWrapper<LogicInstanceEntity> wrapper = new UpdateWrapper();
+        wrapper.eq("id", id).set("version", entity.getVersion());
+        return new ApiResult<Boolean>().setData(this.instanceService.update(null, wrapper));
     }
 
     @DeleteMapping("/api/ide/logic-instance/delete/{id}")
