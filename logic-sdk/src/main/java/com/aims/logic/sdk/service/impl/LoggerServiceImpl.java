@@ -31,7 +31,7 @@ public class LoggerServiceImpl {
     /**
      * 新增或更新运行实例日志与logic_log日志
      *
-     * @param res
+     * @param logicLog
      */
     public void addOrUpdateInstanceLog(LogicLog logicLog) {
         try {
@@ -73,39 +73,46 @@ public class LoggerServiceImpl {
                         .setEnv(env);
                 ins.insert();
             }
-            JSONObject envJson = logicLog.getEnvsJson();
-            JSONObject headers = envJson.getJSONObject("HEADERS");
-            String requestHost = null;
-            String requestClientId = null;
-            String REQUEST_CLIENT_FLAG = envJson.getString("REQUEST_CLIENT_FLAG");
-            if (headers != null) {
-                requestHost = headers.getString("host");
-                requestClientId = headers.getString(REQUEST_CLIENT_FLAG);
-            }
-            LogicLogEntity logEntity = new LogicLogEntity()
-                    .setSuccess(logicLog.isSuccess())
-                    .setMessage(logicLog.getMsg())
-                    .setBizId(logicLog.getBizId())
-                    .setVersion(logicLog.getVersion())
-                    .setItemLogs(JSON.toJSONString(logicLog.getItemLogs()))
-                    .setReturnData(logicLog.getReturnDataStr() != null ? logicLog.getReturnDataStr() : null)
-                    .setLogicId(logicLog.getLogicId())
-                    .setParamsJson(logicLog.getParamsJson() == null ? null : logicLog.getParamsJson().toJSONString())
-                    .setVarsJson(logicLog.getVarsJson() == null ? null : logicLog.getVarsJson().toJSONString())
-                    .setVarsJsonEnd(logicLog.getVarsJson_end() == null ? null : logicLog.getVarsJson_end().toJSONString())
-                    .setNextId(nextId)
-                    .setNextName(nextName)
-                    .setIsOver(logicLog.isOver())
-                    .setEnv(env)
-                    .setHost(requestHost)
-                    .setClientId(requestClientId);
-            logMapper.insert(logEntity);
+            addLogicRunLog(logicLog);
         } catch (
                 Exception ex) {
             System.err.println("添加日志异常");
             System.err.println(ex);
         }
 
+    }
+
+    public void addLogicRunLog(LogicLog logicLog) {
+        JSONObject envJson = logicLog.getEnvsJson();
+        JSONObject headers = envJson.getJSONObject("HEADERS");
+        String requestHost = null;
+        String requestClientId = null;
+        String REQUEST_CLIENT_FLAG = envJson.getString("REQUEST_CLIENT_FLAG");
+        if (headers != null) {
+            requestHost = headers.getString("host");
+            requestClientId = headers.getString(REQUEST_CLIENT_FLAG);
+        }
+        var nextId = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getNextId();
+        var nextName = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getName();
+        var msg255 = logicLog.getMsg() == null ? null : logicLog.getMsg().substring(0, Math.min(logicLog.getMsg().length(), 255));
+        LogicLogEntity logEntity = new LogicLogEntity()
+                .setSuccess(logicLog.isSuccess())
+                .setMessage(msg255)
+                .setBizId(logicLog.getBizId())
+                .setVersion(logicLog.getVersion())
+                .setItemLogs(JSON.toJSONString(logicLog.getItemLogs()))
+                .setReturnData(logicLog.getReturnDataStr() != null ? logicLog.getReturnDataStr() : null)
+                .setLogicId(logicLog.getLogicId())
+                .setParamsJson(logicLog.getParamsJson() == null ? null : logicLog.getParamsJson().toJSONString())
+                .setVarsJson(logicLog.getVarsJson() == null ? null : logicLog.getVarsJson().toJSONString())
+                .setVarsJsonEnd(logicLog.getVarsJson_end() == null ? null : logicLog.getVarsJson_end().toJSONString())
+                .setNextId(nextId)
+                .setNextName(nextName)
+                .setIsOver(logicLog.isOver())
+                .setEnv(RuntimeUtil.getEnv().getNODE_ENV())
+                .setHost(requestHost)
+                .setClientId(requestClientId);
+        logMapper.insert(logEntity);
     }
 
     public List<LogicLogEntity> queryLogs(String logicId) {

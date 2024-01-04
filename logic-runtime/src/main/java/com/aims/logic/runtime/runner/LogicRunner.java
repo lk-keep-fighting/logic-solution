@@ -34,8 +34,10 @@ public class LogicRunner {
 
     public void setStartNode(LogicItemTreeNode startNode) {
         this.startNode = startNode;
-        if (startNode != null)
+        if (startNode != null) {
             this.startId = startNode.getId();
+            this.setRunnerStatus(RunnerStatusEnum.Continue);
+        }
     }
 
     public LogicRunner(JSONObject _config, JSONObject _env) {

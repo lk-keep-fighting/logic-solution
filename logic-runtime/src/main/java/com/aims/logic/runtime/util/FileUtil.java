@@ -1,8 +1,16 @@
 package com.aims.logic.runtime.util;
 
+import com.aims.logic.runtime.env.LogicAppConfig;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.annotation.Order;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PropertiesLoaderUtils;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -14,20 +22,15 @@ import java.util.Objects;
 /**
  * @author liukun
  */
+@Component
 public class FileUtil {
-    /**
-     * 配置文件根目录
-     */
-    private static String CONFIG_DIR = "";
     public static final String ENV_DIR = "envs";
     public static final String LOGIC_DIR = "logics";
 
+
     public static String getConfigDir() {
-        if (Objects.equals(CONFIG_DIR, "")) {
-            CONFIG_DIR = SpringContextUtil.getApplicationContext().getEnvironment().getProperty("logic.config-dir");
-        }
-        if (CONFIG_DIR != null && !CONFIG_DIR.isBlank()) {
-            return CONFIG_DIR;
+        if (RuntimeUtil.AppConfig.CONFIG_DIR != null && !RuntimeUtil.AppConfig.CONFIG_DIR.isBlank()) {
+            return RuntimeUtil.AppConfig.CONFIG_DIR;
         } else {
             return buildPath(System.getProperty("user.dir"), "logic-configs");
         }

@@ -1,5 +1,6 @@
 package com.aims.logic.runtime.util;
 
+import com.aims.logic.runtime.env.LogicAppConfig;
 import com.aims.logic.runtime.env.RuntimeEnvs;
 import com.aims.logic.runtime.store.LogicConfigStoreService;
 import com.aims.logic.runtime.store.impl.LogicConfigStoreServiceImpl;
@@ -12,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 public class RuntimeUtil {
     private static LogicConfigStoreService logicConfigStoreService = new LogicConfigStoreServiceImpl();
     private static JSONObject ENVs;
+    public static LogicAppConfig AppConfig;
 
     /**
      * 获取强类型的环境变量，主要用于系统变量的方便读取
