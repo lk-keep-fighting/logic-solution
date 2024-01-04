@@ -3,14 +3,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.aims.xuanwu</groupId>
+        <groupId>com.aims.logic</groupId>
         <artifactId>logic-solution</artifactId>
-        <version>${revision}</version>
+        <version>0.0.1-SNAPSHOT</version>
     </parent>
     <groupId>com.aims.logic</groupId>
     <artifactId>logic-sdk</artifactId>
-    <!--        <version>0.0.6-SNAPSHOT</version>-->
-    <version>0.2.1-SNAPSHOT</version>
+    <version>0.2.5-SNAPSHOT</version>
     <name>logic-sdk</name>
     <description>logic-sdk</description>
     <properties>
@@ -34,7 +33,7 @@
         <dependency>
             <groupId>com.aims.logic</groupId>
             <artifactId>logic-runtime</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>0.0.4-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
@@ -58,6 +57,10 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
         </dependency>
     </dependencies>
     <repositories>

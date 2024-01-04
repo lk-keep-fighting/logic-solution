@@ -27,7 +27,8 @@ public class LogicSdkApplicationTests {
         headers.put("CUSTOME", "SOME VALUE");
         headers.put("wms", "wms config");
         cusEnv.put("HEADERS", headers);
-        var res = runner.run("test", null, cusEnv);
+        runner.setEnv(cusEnv, false);
+        var res = runner.runByJson("test", "");
 //        var res = runner.runBiz("test", "222", null);
 //        System.out.printf("user.dir:%s",System.getProperty("user.dir"));
 //        mapper.insert(new LogicRuntimeLog().setEnv("java"));
@@ -36,18 +37,18 @@ public class LogicSdkApplicationTests {
 
     //    @Test
     void testRun() {
-        var res = runner.runBiz("test", null, null);
+        var res = runner.runBizByJson("test", null, "");
         System.out.println(res.getMsg());
     }
 
     //    @Test
     void testJava() {
-        var res = runner.runBiz("test.java", null, null);
+        var res = runner.runBizByJson("test.java", null, "");
         System.out.println(res.getData());
     }
 
-//    @Test
+    //    @Test
     void testTran() {
-        runner.runBizWithTransaction("java.demo", "t11", null, null);
+        runner.runBizByMap("java.demo", "t11", null);
     }
 }

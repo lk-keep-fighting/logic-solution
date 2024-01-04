@@ -6,7 +6,9 @@ import com.aims.logic.runtime.contract.dto.LogicRunResult;
 import com.aims.logic.runtime.contract.dto.RunnerStatusEnum;
 import com.aims.logic.runtime.contract.logger.LogicItemLog;
 import com.aims.logic.runtime.contract.logger.LogicLog;
+import com.aims.logic.runtime.runner.LogicRunner;
 import com.aims.logic.runtime.service.LogicRunnerService;
+import com.aims.logic.runtime.util.SpringContextUtil;
 import com.aims.logic.sdk.entity.LogicInstanceEntity;
 import com.aims.logic.sdk.service.LogicInstanceService;
 import com.aims.logic.sdk.service.impl.LoggerServiceImpl;
@@ -19,10 +21,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
 
 /**
  * @author liukun
@@ -31,33 +31,71 @@ import java.util.Objects;
 public class LogicRunnerServiceImpl implements LogicRunnerService {
     private final LoggerServiceImpl logService;
     private final LogicInstanceService insService;
+    private final TransactionalUtils transactionalUtils;
 
     @Autowired
     public LogicRunnerServiceImpl(LoggerServiceImpl logService,
                                   LogicInstanceService insService) {
         this.logService = logService;
         this.insService = insService;
+        this.transactionalUtils = SpringContextUtil.getBean(TransactionalUtils.class);
+    }
+
+    /**
+     * 环境变量，初始化时加载一次，内部方法共享
+     */
+    JSONObject env;
+
+    /**
+     * 设置环境变量
+     *
+     * @param customEnv  自定义环境变量
+     * @param isOverride 是否覆盖默认环境变量
+     * @return
+     */
+    @Override
+    public JSONObject setEnv(JSONObject customEnv, boolean isOverride) {
+        if (isOverride) {
+            this.env = customEnv.clone();
+        } else {
+            var defEnv = RuntimeUtil.readEnv();
+            this.env = JsonUtil.jsonMerge(defEnv, customEnv);
+        }
+        return this.env;
     }
 
     @Override
-    public LogicRunResult run(String logicId, String parsJsonString) {
+    public LogicRunnerService newInstance(JSONObject env) {
+        var ins = new LogicRunnerServiceImpl(logService, insService);
+        ins.setEnv(env, true);
+        return ins;
+    }
+
+    @Override
+    public LogicRunResult runByJson(String logicId, String parsJsonString) {
         JSONObject pars = parsJsonString == null ? null : JSONObject.parseObject(parsJsonString);
-        return run(logicId, pars, null);
+        return runByMap(logicId, pars);
+    }
+
+    @Override
+    public LogicRunResult runByObjectArgs(String logicId, Object... pars) {
+        Map<String, Object> parsMap = new HashMap<>();
+        for (int i = 0; i < pars.length; i++) {
+            parsMap.put("_p" + (i + 1), pars[i]);
+        }
+        return runByMap(logicId, parsMap);
     }
 
     /**
      * 传入逻辑编号、入参、自定义环境变量执行逻辑
      *
-     * @param logicId   逻辑编号
-     * @param parsMap   入参
-     * @param customEnv 自定义环境变量
+     * @param logicId 逻辑编号
+     * @param parsMap 入参
      * @return 返回参数
      */
     @Override
-    public LogicRunResult run(String logicId, Map<String, Object> parsMap, JSONObject customEnv) {
+    public LogicRunResult runByMap(String logicId, Map<String, Object> parsMap) {
         JSONObject config = RuntimeUtil.readLogicConfig(logicId);
-        JSONObject env = RuntimeUtil.readEnv();
-        env = JsonUtil.jsonMerge(customEnv, env);
         var res = new com.aims.logic.runtime.runner.LogicRunner(config, env).run(parsMap);
         logService.addOrUpdateInstanceLog(res.getLogicLog());
         return res;
@@ -73,23 +111,31 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
      * @return 执行结果
      */
     @Override
-    public LogicRunResult runBiz(String logicId, String bizId, String parsJsonString) {
+    public LogicRunResult runBizByJson(String logicId, String bizId, String parsJsonString) {
         JSONObject pars = parsJsonString == null ? null : JSONObject.parseObject(parsJsonString);
-        return runBiz(logicId, bizId, pars, null);
+        return runBizByMap(logicId, bizId, pars);
+    }
+
+    @Override
+    public LogicRunResult runBizByObjectArgs(String logicId, String bizId, Object... pars) {
+        Map<String, Object> parsMap = new HashMap<>();
+        for (int i = 0; i < pars.length; i++) {
+            parsMap.put("_p" + (i + 1), pars[i]);
+        }
+        return runBizByMap(logicId, bizId, parsMap);
     }
 
     /**
      * 执行业务逻辑
      *
-     * @param logicId   逻辑编号
-     * @param bizId     业务编号
-     * @param parsMap   入参json
-     * @param customEnv 环境变量json
+     * @param logicId 逻辑编号
+     * @param bizId   业务编号
+     * @param parsMap 入参Map,key为参数名，value为实参
      * @return 执行结果
      */
     @Override
-    public LogicRunResult runBiz(String logicId, String bizId, Map<String, Object> parsMap, JSONObject customEnv) {
-        return runBizWithTransaction(logicId, bizId, parsMap, customEnv);
+    public LogicRunResult runBizByMap(String logicId, String bizId, Map<String, Object> parsMap) {
+        return runBizWithTransaction(logicId, bizId, parsMap);
 //        JSONObject env = RuntimeUtil.getEnvJson();
 //        env = JsonUtil.jsonMerge(customEnv, env);
 //        String cacheVarsJson = null;
@@ -117,10 +163,6 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
 //        return res;
     }
 
-    public LogicRunResult runBiz(String logicId, String bizId, Map<String, Object> parsMap) {
-        return runBizWithTransaction(logicId, bizId, parsMap, null);
-    }
-
     /***
      * 执行前先校验交互点是否正确
      * @param logicId
@@ -132,11 +174,21 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
     @Override
     public LogicRunResult runBizByVerifyCode(String logicId, String bizId, String verifyCode, String parsJsonString) {
         JSONObject pars = parsJsonString == null ? null : JSONObject.parseObject(parsJsonString);
-        return runBizByVerifyCode(logicId, bizId, verifyCode, pars, null);
+        return runBizByVerifyCode(logicId, bizId, verifyCode, pars);
+    }
+
+    void verifyCode(LogicInstanceEntity insEntity, LogicRunner runner, String verifyCode) {
+        var itemNode = runner.findItemByCode(verifyCode);
+        if (itemNode == null) throw new RuntimeException("未找到指定的交互点编号：" + verifyCode);
+        var startNode = runner.getStartItem(insEntity.getNextId());
+        if (!Objects.equals(itemNode.getId(), startNode.getId())) {
+            throw new RuntimeException(String.format("非法交互，请求执行【%s】，与待交互点【%s】不一致。", itemNode.getName(), startNode.getName()));
+        }
     }
 
     @Override
-    public LogicRunResult runBizByVerifyCode(String logicId, String bizId, String verifyCode, JSONObject pars, JSONObject customEnv) {
+    public LogicRunResult runBizByVerifyCode(String logicId, String bizId, String verifyCode, Map<String, Object>
+            parsMap) {
         if (bizId == null || bizId.isBlank()) throw new RuntimeException("未指定业务标识！");
         if (verifyCode == null || verifyCode.isBlank())
             throw new RuntimeException("未指定期望执行节点！");
@@ -144,8 +196,6 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         if (insEntity != null && insEntity.getIsOver()) {
             return new LogicRunResult().setSuccess(false).setMsg(String.format("指定的bizId:%s已完成执行，无法重复执行。", bizId));
         }
-        JSONObject env = RuntimeUtil.getEnvJson();
-        env = JsonUtil.jsonMerge(customEnv, env);
         String cacheVarsJson = null;
         String startId = null;
         String logicVersion = null;
@@ -159,60 +209,16 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
             throw new RuntimeException("未发现指定的逻辑：" + logicId);
         }
         var runner = new com.aims.logic.runtime.runner.LogicRunner(config, env, bizId);
-        var itemNode = runner.findItemByCode(verifyCode);
-        if (itemNode == null) throw new RuntimeException("未找到指定的交互点编号：" + verifyCode);
-        var startNode = runner.getStartItem(startId);
-        if (!Objects.equals(itemNode.getId(), startNode.getId())) {
-            throw new RuntimeException(String.format("非法交互，请求执行【%s】，与待交互点【%s】不一致。", itemNode.getName(), startNode.getName()));
-        }
+        verifyCode(insEntity, runner, verifyCode);
         var res = runner
-                .run(startId, pars, JSON.isValid(cacheVarsJson) ? JSON.parseObject(cacheVarsJson) : null);
+                .run(startId, parsMap, JSON.isValid(cacheVarsJson) ? JSON.parseObject(cacheVarsJson) : null);
         res.getLogicLog().setBizId(bizId);
         logService.addOrUpdateInstanceLog(res.getLogicLog());
         return res;
     }
 
-    @Override
-    public LogicRunResult runBizStepByStep(String logicId, String bizId, JSONObject pars, JSONObject customEnv) {
-        JSONObject env = RuntimeUtil.getEnvJson();
-        env = JsonUtil.jsonMerge(customEnv, env);
-        String cacheVarsJson = null;
-        String startId = null;
-        String logicVersion = null;
-        if (bizId != null && !bizId.isBlank()) {
-            LogicInstanceEntity insEntity = insService.getInstance(logicId, bizId);
-            if (insEntity != null) {
-                cacheVarsJson = insEntity.getVarsJsonEnd();
-                startId = insEntity.getNextId();
-                logicVersion = insEntity.getVersion();
-            }
-            if (insEntity != null && insEntity.getIsOver()) {
-                return new LogicRunResult().setSuccess(false).setMsg(String.format("指定的bizId:%s已完成执行，无法重复执行。", bizId));
-            }
-        }
-        JSONObject config = RuntimeUtil.readLogicConfig(logicId, logicVersion);
-        if (config == null) {
-            throw new RuntimeException("未发现指定的逻辑：" + logicId);
-        }
-        var res = new com.aims.logic.runtime.runner.LogicRunner(config, env, bizId)
-                .run(startId, pars, JSON.isValid(cacheVarsJson) ? JSON.parseObject(cacheVarsJson) : null);
-        res.getLogicLog().setBizId(bizId);
-        var logicLog = res.getLogicLog();
-        if (!logicLog.isSuccess()) {//发生错误，当前模式为步进模式，把当前节点设置为下一次请求的执行节点
-            var itemLogs = logicLog.getItemLogs();
-            var curItem = itemLogs.get(itemLogs.size() - 1);
-            res.getLogicLog().setNextItem(curItem.getConfig());
-        }
-        logService.addOrUpdateInstanceLog(res.getLogicLog());
-        return res;
-    }
 
-    @Autowired
-    TransactionalUtils transactionalUtils;
-
-    public LogicRunResult runBizWithTransaction(String logicId, String bizId, Map<String, Object> parsMap, JSONObject customEnv) {
-        JSONObject env = RuntimeUtil.getEnvJson();
-        env = JsonUtil.jsonMerge(customEnv, env);
+    LogicRunResult runBizWithTransaction(String logicId, String bizId, Map<String, Object> parsMap) {
         String cacheVarsJson = null;
         String startId = null;
         String logicVersion = null;
@@ -290,9 +296,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 .setMsg(itemRes.getMsg());
     }
 
-    public LogicRunResult runBizToNextJavaMethod(String logicId, String bizId, JSONObject pars, JSONObject customEnv) {
-        JSONObject env = RuntimeUtil.getEnvJson();
-        env = JsonUtil.jsonMerge(customEnv, env);
+    public LogicRunResult runBizToNextJavaMethod(String logicId, String bizId, JSONObject pars) {
         String cacheVarsJson = null;
         String startId = null;
         String logicVersion = null;

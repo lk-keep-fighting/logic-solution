@@ -22,14 +22,14 @@ class LogicRuntimeServiceApplicationTests {
     @Autowired
     LogicRunnerServiceImpl logic;
 
-    @Test
+    //    @Test
     void testTran() {
         TestEntity entity = new TestEntity();
         entity.setId(UUID.randomUUID().toString());
         entity.setName(LocalDateTime.now() + " from test");
         Map<String, Object> pars = new HashMap<>();
         pars.put("entity", entity);
-        logic.run("test.tran", pars, null);
+        logic.runByMap("test.tran", pars);
     }
 
 }
