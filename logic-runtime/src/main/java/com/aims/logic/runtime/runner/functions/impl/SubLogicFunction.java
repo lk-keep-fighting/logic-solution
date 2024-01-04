@@ -27,9 +27,7 @@ public class SubLogicFunction implements ILogicItemFunctionRunner {
             Object data = Functions.get("js").invoke(ctx, itemDsl.getBody()).getData();
             String subLogicId = itemDsl.getUrl();
             JSONObject jsonData = data == null ? null : JSONObject.from(data);
-//            var config = RuntimeUtil.readLogicConfig(subLogicId);
-//            var res = new LogicRunner(config, ctx.get_env()).run(jsonData);
-            var res = runnerService.runBiz(subLogicId, ctx.getBizId(), jsonData, ctx.get_env());
+            var res = runnerService.newInstance(ctx.get_env()).runBizByMap(subLogicId, ctx.getBizId(), jsonData);
             return new LogicItemRunResult().setData(res.getData());
         } catch (Exception e) {
             ctx.setHasErr(true);
