@@ -99,6 +99,9 @@ public class JavaCodeFunction implements ILogicItemFunctionRunner {
                 var obj = method.invoke(SpringContextUtil.getBean(clazz), paramsArrayFromJsObj.toArray());
                 res.setData(obj);
             } catch (InvocationTargetException e) {//抛出异常触发事务回滚
+                System.err.printf(">>>logic执行方法%s发生错误", methodName);
+                System.err.println(e.getTargetException().getMessage());
+                e.printStackTrace();
                 return res.setSuccess(false)
                         .setMsg(e.getTargetException().getMessage());
             }
