@@ -1,1 +1,503 @@
-{"concept":"Logic","schemeVersion":"0.1","version":"20240104155733","id":"test.objectArgs","items":[{"type":"start","id":"c05ccd77-81f4-4481-97cd-f0d545f3a30d","name":"start","nextId":"e298c154-dd85-408b-8c10-fc9acf58bbb3"},{"type":"java","name":"java方法","body":"return _par;","url":"com.aims.logic.service.demo.test","method":"func3(input,i,strs)","params":[{"name":"input","describe":null,"typeAnnotation":{"typeKind":"generic","typeNamespace":"java.util.List<com.aims.logic.service.demo.dto.TestInput>","typeName":"java.util.List","typeArguments":[{"typeKind":"reference","typeNamespace":"com.aims.logic.service.demo.dto.TestInput","typeName":"com.aims.logic.service.demo.dto.TestInput","typeArguments":null,"returnType":null,"inferred":false,"properties":[{"concept":null,"name":"str","label":null,"description":null,"typeAnnotation":{"typeKind":"primitive","typeNamespace":"java.lang.String","typeName":"java.lang.String","typeArguments":null,"returnType":null,"inferred":false,"properties":null,"ruleMap":null,"defaultValue":"\"\""},"required":false,"defaultValue":"\"\""},{"concept":null,"name":"i","label":null,"description":null,"typeAnnotation":{"typeKind":"primitive","typeNamespace":"int","typeName":"int","typeArguments":null,"returnType":null,"inferred":false,"properties":null,"ruleMap":null,"defaultValue":"0"},"required":false,"defaultValue":"0"},{"concept":null,"name":"arr","label":null,"description":null,"typeAnnotation":{"typeKind":"generic","typeNamespace":"java.util.List<java.lang.String>","typeName":"java.util.List","typeArguments":[{"typeKind":"primitive","typeNamespace":"java.lang.String","typeName":"java.lang.String","typeArguments":null,"returnType":null,"inferred":false,"properties":null,"ruleMap":null,"defaultValue":"\"\""}],"returnType":null,"inferred":false,"properties":null,"ruleMap":null,"defaultValue":null},"required":false,"defaultValue":null}],"ruleMap":null,"defaultValue":null}],"returnType":null,"inferred":false,"properties":null,"ruleMap":null,"defaultValue":null},"required":false,"defaultValue":null},{"name":"i","describe":null,"typeAnnotation":{"typeKind":"primitive","typeNamespace":"java.lang.Integer","typeName":"java.lang.Integer","typeArguments":null,"returnType":null,"inferred":false,"properties":null,"ruleMap":null,"defaultValue":"0"},"required":false,"defaultValue":null},{"name":"strs","describe":null,"typeAnnotation":{"typeKind":"generic","typeNamespace":"java.util.List<java.lang.String>","typeName":"java.util.List","typeArguments":[{"typeKind":"primitive","typeNamespace":"java.lang.String","typeName":"java.lang.String","typeArguments":null,"returnType":null,"inferred":false,"properties":null,"ruleMap":null,"defaultValue":"\"\""}],"returnType":null,"inferred":false,"properties":null,"ruleMap":null,"defaultValue":null},"required":false,"defaultValue":null}],"id":"e298c154-dd85-408b-8c10-fc9acf58bbb3"}],"visualConfig":{"cells":[{"shape":"edge","id":"b91fb080-7362-4da2-b427-15bde22f8bc0","zIndex":0,"source":{"cell":"c05ccd77-81f4-4481-97cd-f0d545f3a30d","port":"2544b485-4396-44dc-9e4d-708a4ac6e91e"},"target":{"cell":"e298c154-dd85-408b-8c10-fc9acf58bbb3","port":"2e13e889-6a8e-4d81-8cff-cb70347fa794"}},{"position":{"x":375,"y":75},"size":{"width":50,"height":50},"attrs":{"text":{"text":"start"}},"visible":true,"shape":"circle","id":"c05ccd77-81f4-4481-97cd-f0d545f3a30d","data":{"config":{"type":"start"}},"ports":{"groups":{"bottom":{"position":"bottom","attrs":{"circle":{"r":4,"magnet":true,"stroke":"#5F95FF","strokeWidth":1,"fill":"#fff","style":{"visibility":"hidden"}}},"zIndex":1}},"items":[{"group":"bottom","id":"2544b485-4396-44dc-9e4d-708a4ac6e91e"}]},"zIndex":1},{"position":{"x":350,"y":185},"size":{"width":100,"height":50},"attrs":{"image":{"width":15,"x":2,"y":2,"xlink:href":"/icons/code.svg"},"text":{"fontSize":14,"text":"java方法"}},"shape":"ExtSharp","id":"e298c154-dd85-408b-8c10-fc9acf58bbb3","data":{"config":{"type":"java","name":"java方法","body":"return _par;","url":"com.aims.logic.service.demo.test","method":"func3(input,i,strs)","params":[{"name":"input","describe":null,"typeAnnotation":{"typeKind":"generic","typeNamespace":"java.util.List<com.aims.logic.service.demo.dto.TestInput>","typeName":"java.util.List","typeArguments":[{"typeKind":"reference","typeNamespace":"com.aims.logic.service.demo.dto.TestInput","typeName":"com.aims.logic.service.demo.dto.TestInput","typeArguments":null,"returnType":null,"inferred":false,"properties":[{"concept":null,"name":"str","label":null,"description":null,"typeAnnotation":{"typeKind":"primitive","typeNamespace":"java.lang.String","typeName":"java.lang.String","typeArguments":null,"returnType":null,"inferred":false,"properties":null,"ruleMap":null,"defaultValue":"\"\""},"required":false,"defaultValue":"\"\""},{"concept":null,"name":"i","label":null,"description":null,"typeAnnotation":{"typeKind":"primitive","typeNamespace":"int","typeName":"int","typeArguments":null,"returnType":null,"inferred":false,"properties":null,"ruleMap":null,"defaultValue":"0"},"required":false,"defaultValue":"0"},{"concept":null,"name":"arr","label":null,"description":null,"typeAnnotation":{"typeKind":"generic","typeNamespace":"java.util.List<java.lang.String>","typeName":"java.util.List","typeArguments":[{"typeKind":"primitive","typeNamespace":"java.lang.String","typeName":"java.lang.String","typeArguments":null,"returnType":null,"inferred":false,"properties":null,"ruleMap":null,"defaultValue":"\"\""}],"returnType":null,"inferred":false,"properties":null,"ruleMap":null,"defaultValue":null},"required":false,"defaultValue":null}],"ruleMap":null,"defaultValue":null}],"returnType":null,"inferred":false,"properties":null,"ruleMap":null,"defaultValue":null},"required":false,"defaultValue":null},{"name":"i","describe":null,"typeAnnotation":{"typeKind":"primitive","typeNamespace":"java.lang.Integer","typeName":"java.lang.Integer","typeArguments":null,"returnType":null,"inferred":false,"properties":null,"ruleMap":null,"defaultValue":"0"},"required":false,"defaultValue":null},{"name":"strs","describe":null,"typeAnnotation":{"typeKind":"generic","typeNamespace":"java.util.List<java.lang.String>","typeName":"java.util.List","typeArguments":[{"typeKind":"primitive","typeNamespace":"java.lang.String","typeName":"java.lang.String","typeArguments":null,"returnType":null,"inferred":false,"properties":null,"ruleMap":null,"defaultValue":"\"\""}],"returnType":null,"inferred":false,"properties":null,"ruleMap":null,"defaultValue":null},"required":false,"defaultValue":null}]}},"groups":["biz"],"ports":{"groups":{"top":{"position":"top","attrs":{"circle":{"r":4,"magnet":true,"stroke":"#5F95FF","strokeWidth":1,"fill":"#fff","style":{"visibility":"hidden"}}}},"right":{"position":"right","attrs":{"circle":{"r":4,"magnet":true,"stroke":"#5F95FF","strokeWidth":1,"fill":"#fff","style":{"visibility":"hidden"}}},"zIndex":1},"bottom":{"position":"bottom","attrs":{"circle":{"r":4,"magnet":true,"stroke":"#5F95FF","strokeWidth":1,"fill":"#fff","style":{"visibility":"hidden"}}}},"left":{"position":"left","attrs":{"circle":{"r":4,"magnet":true,"stroke":"#5F95FF","strokeWidth":1,"fill":"#fff","style":{"visibility":"hidden"}}}}},"items":[{"group":"top","id":"2e13e889-6a8e-4d81-8cff-cb70347fa794"},{"group":"right","id":"9cfcb4cf-f367-4d1e-92c2-8099d9458159"},{"group":"bottom","id":"e4e08b5f-a804-442f-b650-8abb0c65b977"},{"group":"left","id":"196353b5-c758-40a3-bff3-f94d6675c83d"}]},"zIndex":2}]}}
+{
+  "concept": "Logic",
+  "schemeVersion": "0.1",
+  "version": "20240104155733",
+  "id": "test.objectArgs",
+  "items": [
+    {
+      "type": "start",
+      "id": "c05ccd77-81f4-4481-97cd-f0d545f3a30d",
+      "name": "start",
+      "nextId": "e298c154-dd85-408b-8c10-fc9acf58bbb3"
+    },
+    {
+      "type": "java",
+      "name": "java方法",
+      "body": "return _par;",
+      "url": "com.aims.logic.service.demo.test",
+      "method": "func3(input,i,strs)",
+      "params": [
+        {
+          "name": "input",
+          "describe": null,
+          "typeAnnotation": {
+            "typeKind": "generic",
+            "typeNamespace": "java.util.List<com.aims.logic.service.demo.dto.TestInput>",
+            "typeName": "java.util.List",
+            "typeArguments": [
+              {
+                "typeKind": "reference",
+                "typeNamespace": "com.aims.logic.service.demo.dto.TestInput",
+                "typeName": "com.aims.logic.service.demo.dto.TestInput",
+                "typeArguments": null,
+                "returnType": null,
+                "inferred": false,
+                "properties": [
+                  {
+                    "concept": null,
+                    "name": "str",
+                    "label": null,
+                    "description": null,
+                    "typeAnnotation": {
+                      "typeKind": "primitive",
+                      "typeNamespace": "java.lang.String",
+                      "typeName": "java.lang.String",
+                      "typeArguments": null,
+                      "returnType": null,
+                      "inferred": false,
+                      "properties": null,
+                      "ruleMap": null,
+                      "defaultValue": "\"\""
+                    },
+                    "required": false,
+                    "defaultValue": "\"\""
+                  },
+                  {
+                    "concept": null,
+                    "name": "i",
+                    "label": null,
+                    "description": null,
+                    "typeAnnotation": {
+                      "typeKind": "primitive",
+                      "typeNamespace": "int",
+                      "typeName": "int",
+                      "typeArguments": null,
+                      "returnType": null,
+                      "inferred": false,
+                      "properties": null,
+                      "ruleMap": null,
+                      "defaultValue": "0"
+                    },
+                    "required": false,
+                    "defaultValue": "0"
+                  },
+                  {
+                    "concept": null,
+                    "name": "arr",
+                    "label": null,
+                    "description": null,
+                    "typeAnnotation": {
+                      "typeKind": "generic",
+                      "typeNamespace": "java.util.List<java.lang.String>",
+                      "typeName": "java.util.List",
+                      "typeArguments": [
+                        {
+                          "typeKind": "primitive",
+                          "typeNamespace": "java.lang.String",
+                          "typeName": "java.lang.String",
+                          "typeArguments": null,
+                          "returnType": null,
+                          "inferred": false,
+                          "properties": null,
+                          "ruleMap": null,
+                          "defaultValue": "\"\""
+                        }
+                      ],
+                      "returnType": null,
+                      "inferred": false,
+                      "properties": null,
+                      "ruleMap": null,
+                      "defaultValue": null
+                    },
+                    "required": false,
+                    "defaultValue": null
+                  }
+                ],
+                "ruleMap": null,
+                "defaultValue": null
+              }
+            ],
+            "returnType": null,
+            "inferred": false,
+            "properties": null,
+            "ruleMap": null,
+            "defaultValue": null
+          },
+          "required": false,
+          "defaultValue": null
+        },
+        {
+          "name": "i",
+          "describe": null,
+          "typeAnnotation": {
+            "typeKind": "primitive",
+            "typeNamespace": "java.lang.Integer",
+            "typeName": "java.lang.Integer",
+            "typeArguments": null,
+            "returnType": null,
+            "inferred": false,
+            "properties": null,
+            "ruleMap": null,
+            "defaultValue": "0"
+          },
+          "required": false,
+          "defaultValue": null
+        },
+        {
+          "name": "strs",
+          "describe": null,
+          "typeAnnotation": {
+            "typeKind": "generic",
+            "typeNamespace": "java.util.List<java.lang.String>",
+            "typeName": "java.util.List",
+            "typeArguments": [
+              {
+                "typeKind": "primitive",
+                "typeNamespace": "java.lang.String",
+                "typeName": "java.lang.String",
+                "typeArguments": null,
+                "returnType": null,
+                "inferred": false,
+                "properties": null,
+                "ruleMap": null,
+                "defaultValue": "\"\""
+              }
+            ],
+            "returnType": null,
+            "inferred": false,
+            "properties": null,
+            "ruleMap": null,
+            "defaultValue": null
+          },
+          "required": false,
+          "defaultValue": null
+        }
+      ],
+      "id": "e298c154-dd85-408b-8c10-fc9acf58bbb3"
+    }
+  ],
+  "visualConfig": {
+    "cells": [
+      {
+        "shape": "edge",
+        "id": "b91fb080-7362-4da2-b427-15bde22f8bc0",
+        "zIndex": 0,
+        "source": {
+          "cell": "c05ccd77-81f4-4481-97cd-f0d545f3a30d",
+          "port": "2544b485-4396-44dc-9e4d-708a4ac6e91e"
+        },
+        "target": {
+          "cell": "e298c154-dd85-408b-8c10-fc9acf58bbb3",
+          "port": "2e13e889-6a8e-4d81-8cff-cb70347fa794"
+        }
+      },
+      {
+        "position": {
+          "x": 375,
+          "y": 75
+        },
+        "size": {
+          "width": 50,
+          "height": 50
+        },
+        "attrs": {
+          "text": {
+            "text": "start"
+          }
+        },
+        "visible": true,
+        "shape": "circle",
+        "id": "c05ccd77-81f4-4481-97cd-f0d545f3a30d",
+        "data": {
+          "config": {
+            "type": "start"
+          }
+        },
+        "ports": {
+          "groups": {
+            "bottom": {
+              "position": "bottom",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              },
+              "zIndex": 1
+            }
+          },
+          "items": [
+            {
+              "group": "bottom",
+              "id": "2544b485-4396-44dc-9e4d-708a4ac6e91e"
+            }
+          ]
+        },
+        "zIndex": 1
+      },
+      {
+        "position": {
+          "x": 350,
+          "y": 185
+        },
+        "size": {
+          "width": 100,
+          "height": 50
+        },
+        "attrs": {
+          "image": {
+            "width": 15,
+            "x": 2,
+            "y": 2,
+            "xlink:href": "/icons/code.svg"
+          },
+          "text": {
+            "fontSize": 14,
+            "text": "java方法"
+          }
+        },
+        "shape": "ExtSharp",
+        "id": "e298c154-dd85-408b-8c10-fc9acf58bbb3",
+        "data": {
+          "config": {
+            "type": "java",
+            "name": "java方法",
+            "body": "return _par;",
+            "url": "com.aims.logic.service.demo.test",
+            "method": "func3(input,i,strs)",
+            "params": [
+              {
+                "name": "input",
+                "describe": null,
+                "typeAnnotation": {
+                  "typeKind": "generic",
+                  "typeNamespace": "java.util.List<com.aims.logic.service.demo.dto.TestInput>",
+                  "typeName": "java.util.List",
+                  "typeArguments": [
+                    {
+                      "typeKind": "reference",
+                      "typeNamespace": "com.aims.logic.service.demo.dto.TestInput",
+                      "typeName": "com.aims.logic.service.demo.dto.TestInput",
+                      "typeArguments": null,
+                      "returnType": null,
+                      "inferred": false,
+                      "properties": [
+                        {
+                          "concept": null,
+                          "name": "str",
+                          "label": null,
+                          "description": null,
+                          "typeAnnotation": {
+                            "typeKind": "primitive",
+                            "typeNamespace": "java.lang.String",
+                            "typeName": "java.lang.String",
+                            "typeArguments": null,
+                            "returnType": null,
+                            "inferred": false,
+                            "properties": null,
+                            "ruleMap": null,
+                            "defaultValue": "\"\""
+                          },
+                          "required": false,
+                          "defaultValue": "\"\""
+                        },
+                        {
+                          "concept": null,
+                          "name": "i",
+                          "label": null,
+                          "description": null,
+                          "typeAnnotation": {
+                            "typeKind": "primitive",
+                            "typeNamespace": "int",
+                            "typeName": "int",
+                            "typeArguments": null,
+                            "returnType": null,
+                            "inferred": false,
+                            "properties": null,
+                            "ruleMap": null,
+                            "defaultValue": "0"
+                          },
+                          "required": false,
+                          "defaultValue": "0"
+                        },
+                        {
+                          "concept": null,
+                          "name": "arr",
+                          "label": null,
+                          "description": null,
+                          "typeAnnotation": {
+                            "typeKind": "generic",
+                            "typeNamespace": "java.util.List<java.lang.String>",
+                            "typeName": "java.util.List",
+                            "typeArguments": [
+                              {
+                                "typeKind": "primitive",
+                                "typeNamespace": "java.lang.String",
+                                "typeName": "java.lang.String",
+                                "typeArguments": null,
+                                "returnType": null,
+                                "inferred": false,
+                                "properties": null,
+                                "ruleMap": null,
+                                "defaultValue": "\"\""
+                              }
+                            ],
+                            "returnType": null,
+                            "inferred": false,
+                            "properties": null,
+                            "ruleMap": null,
+                            "defaultValue": null
+                          },
+                          "required": false,
+                          "defaultValue": null
+                        }
+                      ],
+                      "ruleMap": null,
+                      "defaultValue": null
+                    }
+                  ],
+                  "returnType": null,
+                  "inferred": false,
+                  "properties": null,
+                  "ruleMap": null,
+                  "defaultValue": null
+                },
+                "required": false,
+                "defaultValue": null
+              },
+              {
+                "name": "i",
+                "describe": null,
+                "typeAnnotation": {
+                  "typeKind": "primitive",
+                  "typeNamespace": "java.lang.Integer",
+                  "typeName": "java.lang.Integer",
+                  "typeArguments": null,
+                  "returnType": null,
+                  "inferred": false,
+                  "properties": null,
+                  "ruleMap": null,
+                  "defaultValue": "0"
+                },
+                "required": false,
+                "defaultValue": null
+              },
+              {
+                "name": "strs",
+                "describe": null,
+                "typeAnnotation": {
+                  "typeKind": "generic",
+                  "typeNamespace": "java.util.List<java.lang.String>",
+                  "typeName": "java.util.List",
+                  "typeArguments": [
+                    {
+                      "typeKind": "primitive",
+                      "typeNamespace": "java.lang.String",
+                      "typeName": "java.lang.String",
+                      "typeArguments": null,
+                      "returnType": null,
+                      "inferred": false,
+                      "properties": null,
+                      "ruleMap": null,
+                      "defaultValue": "\"\""
+                    }
+                  ],
+                  "returnType": null,
+                  "inferred": false,
+                  "properties": null,
+                  "ruleMap": null,
+                  "defaultValue": null
+                },
+                "required": false,
+                "defaultValue": null
+              }
+            ]
+          }
+        },
+        "groups": [
+          "biz"
+        ],
+        "ports": {
+          "groups": {
+            "top": {
+              "position": "top",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              }
+            },
+            "right": {
+              "position": "right",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              },
+              "zIndex": 1
+            },
+            "bottom": {
+              "position": "bottom",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              }
+            },
+            "left": {
+              "position": "left",
+              "attrs": {
+                "circle": {
+                  "r": 4,
+                  "magnet": true,
+                  "stroke": "#5F95FF",
+                  "strokeWidth": 1,
+                  "fill": "#fff",
+                  "style": {
+                    "visibility": "hidden"
+                  }
+                }
+              }
+            }
+          },
+          "items": [
+            {
+              "group": "top",
+              "id": "2e13e889-6a8e-4d81-8cff-cb70347fa794"
+            },
+            {
+              "group": "right",
+              "id": "9cfcb4cf-f367-4d1e-92c2-8099d9458159"
+            },
+            {
+              "group": "bottom",
+              "id": "e4e08b5f-a804-442f-b650-8abb0c65b977"
+            },
+            {
+              "group": "left",
+              "id": "196353b5-c758-40a3-bff3-f94d6675c83d"
+            }
+          ]
+        },
+        "zIndex": 2
+      }
+    ]
+  }
+}
