@@ -41,8 +41,8 @@ public class JavaCodeFunction implements ILogicItemFunctionRunner {
                 var paramTypeAnno = param.getTypeAnnotation();
                 var classWrapper = ClassWrapper.of(paramTypeAnno.getTypeNamespace());
                 Class<?> paramClass = null;
-                Object inputParamValue = ctx.get_par().get(paramName);//参数可能为代码中传入，有强类型声明
-                if (inputParamValue == null) {//可能通过动态参数传入，自动生成的参数名_p0、_p1、_p2...
+                Object inputParamValue = ctx.get_par().get(paramName);//参数可能为代码中ByMap传入，有强类型声明
+                if (inputParamValue == null) {//可能通过ByObjectArgs动态参数传入，自动生成的参数名_p1、_p2、_p3...
                     inputParamValue = ctx.get_par().get("_p" + (i + 1));
                 }
                 Object obj = inputParamValue;
