@@ -9,6 +9,8 @@ import com.aims.logic.runtime.util.RuntimeUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,59 +31,98 @@ public class LoggerServiceImpl {
     }
 
     /**
-     * 新增或更新运行实例日志并新增logic_log日志
+     * 添加实例和日志聚合方法,添加出错不会抛出异常，会在控制台打印
+     * 1、addOrUpdateInstance新增或更新运行实例日志；
+     * 2、addLogicLog新增执行日志logic_log日志
      *
      * @param logicLog
      */
     public void addOrUpdateInstanceAndAddLogicLog(LogicLog logicLog) {
+        addOrUpdateInstance(logicLog);
         try {
-            String env = RuntimeUtil.getEnv().getNODE_ENV();
-            var nextId = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getId();
-            var nextName = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getName();
-            QueryWrapper<LogicInstanceEntity> q = new QueryWrapper<>();
-            Map<String, String> m = new HashMap<>();
-            m.put("logicId", logicLog.getLogicId());
-            m.put("bizId", logicLog.getBizId());
-            q.allEq(m);
-            var ins = instanceService.getOne(q);
-            if (ins != null) {
-                ins.setSuccess(logicLog.isSuccess())
-                        .setMessage(logicLog.getMsg())
-                        .setReturnData(logicLog.getReturnDataStr() != null ? logicLog.getReturnDataStr() : null)
-                        .setParamsJson(logicLog.getParamsJson() == null ? null : logicLog.getParamsJson().toJSONString())
-                        .setVarsJson(logicLog.getVarsJson() == null ? null : logicLog.getVarsJson().toJSONString())
-                        .setVarsJsonEnd(logicLog.getVarsJson_end() == null ? null : logicLog.getVarsJson_end().toJSONString())
-                        .setIsOver(logicLog.isOver())
-                        .setNextId(nextId)
-                        .setNextName(nextName)
-                        .setEnv(env);
-                ins.update(q);
-            } else {
-                ins = new LogicInstanceEntity()
-                        .setSuccess(logicLog.isSuccess())
-                        .setMessage(logicLog.getMsg())
-                        .setBizId(logicLog.getBizId())
-                        .setVersion(logicLog.getVersion())
-                        .setReturnData(logicLog.getReturnDataStr() != null ? logicLog.getReturnDataStr() : null)
-                        .setLogicId(logicLog.getLogicId())
-                        .setParamsJson(logicLog.getParamsJson() == null ? null : logicLog.getParamsJson().toJSONString())
-                        .setVarsJson(logicLog.getVarsJson() == null ? null : logicLog.getVarsJson().toJSONString())
-                        .setVarsJsonEnd(logicLog.getVarsJson_end() == null ? null : logicLog.getVarsJson_end().toJSONString())
-                        .setIsOver(logicLog.isOver())
-                        .setNextId(nextId)
-                        .setNextName(nextName)
-                        .setEnv(env);
-                ins.insert();
-            }
             addLogicLog(logicLog);
-        } catch (
-                Exception ex) {
+        } catch (Exception ex) {
             System.err.println("添加日志异常");
             System.err.println(ex);
         }
-
     }
 
+    public void updateInstanceStatus(String logicId, String bizId, boolean success, String msg) {
+        UpdateWrapper updateWrapper = new UpdateWrapper();
+        Map<String, String> m = new HashMap<>();
+        m.put("logicId", logicId);
+        m.put("bizId", bizId);
+        updateWrapper.allEq(m);
+        updateWrapper.set("success", success);
+        var msg255 = msg == null ? null : msg.length() > 255 ? msg.substring(0, 255) : msg;
+        updateWrapper.set("message", msg255);
+        instanceService.update(null, updateWrapper);
+    }
+
+    /**
+     * 新增或更新运行实例日志
+     *
+     * @param logicLog
+     */
+    public void addOrUpdateInstance(LogicLog logicLog) {
+        String env = RuntimeUtil.getEnv().getNODE_ENV();
+        var nextId = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getId();
+        var nextName = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getName();
+        QueryWrapper<LogicInstanceEntity> q = new QueryWrapper<>();
+        Map<String, String> m = new HashMap<>();
+        m.put("logicId", logicLog.getLogicId());
+        m.put("bizId", logicLog.getBizId());
+        q.allEq(m);
+        var ins = instanceService.getOne(q);
+        var msg255 = logicLog.getMsg() == null ? null : logicLog.getMsg().length() > 255 ? logicLog.getMsg().substring(0, 255) : logicLog.getMsg();
+        if (ins != null) {
+            LambdaUpdateWrapper<LogicInstanceEntity> updateWrapper = new LambdaUpdateWrapper<>();
+            updateWrapper.set(LogicInstanceEntity::getSuccess, logicLog.isSuccess())
+                    .set(LogicInstanceEntity::getMessage, msg255)
+                    .set(LogicInstanceEntity::getReturnData, logicLog.getReturnDataStr() != null ? logicLog.getReturnDataStr() : null)
+                    .set(LogicInstanceEntity::getParamsJson, logicLog.getParamsJson() == null ? null : logicLog.getParamsJson().toJSONString())
+                    .set(LogicInstanceEntity::getVarsJson, logicLog.getVarsJson() == null ? null : logicLog.getVarsJson().toJSONString())
+                    .set(LogicInstanceEntity::getVarsJsonEnd, logicLog.getVarsJson_end() == null ? null : logicLog.getVarsJson_end().toJSONString())
+                    .set(LogicInstanceEntity::getIsOver, logicLog.isOver()).set(LogicInstanceEntity::getNextId, nextId)
+                    .set(LogicInstanceEntity::getNextName, nextName)
+                    .set(LogicInstanceEntity::getEnv, env)
+                    .eq(LogicInstanceEntity::getId, ins.getId());
+            instanceService.update(updateWrapper);
+//            ins.setSuccess(logicLog.isSuccess())
+//                    .setMessage(msg255)
+//                    .setReturnData(logicLog.getReturnDataStr() != null ? logicLog.getReturnDataStr() : null)
+//                    .setParamsJson(logicLog.getParamsJson() == null ? null : logicLog.getParamsJson().toJSONString())
+//                    .setVarsJson(logicLog.getVarsJson() == null ? null : logicLog.getVarsJson().toJSONString())
+//                    .setVarsJsonEnd(logicLog.getVarsJson_end() == null ? null : logicLog.getVarsJson_end().toJSONString())
+//                    .setIsOver(logicLog.isOver())
+//                    .setNextId(nextId)
+//                    .setNextName(nextName)
+//                    .setEnv(env);
+//            instanceService.update(ins, q);
+        } else {
+            LogicInstanceEntity newIns = new LogicInstanceEntity()
+                    .setSuccess(logicLog.isSuccess())
+                    .setMessage(msg255)
+                    .setBizId(logicLog.getBizId())
+                    .setVersion(logicLog.getVersion())
+                    .setReturnData(logicLog.getReturnDataStr() != null ? logicLog.getReturnDataStr() : null)
+                    .setLogicId(logicLog.getLogicId())
+                    .setParamsJson(logicLog.getParamsJson() == null ? null : logicLog.getParamsJson().toJSONString())
+                    .setVarsJson(logicLog.getVarsJson() == null ? null : logicLog.getVarsJson().toJSONString())
+                    .setVarsJsonEnd(logicLog.getVarsJson_end() == null ? null : logicLog.getVarsJson_end().toJSONString())
+                    .setIsOver(logicLog.isOver())
+                    .setNextId(nextId)
+                    .setNextName(nextName)
+                    .setEnv(env);
+            newIns.insert();
+        }
+    }
+
+    /**
+     * 新增执行日志logic_log日志
+     *
+     * @param logicLog
+     */
     public void addLogicLog(LogicLog logicLog) {
         JSONObject envJson = logicLog.getEnvsJson();
         JSONObject headers = envJson.getJSONObject("HEADERS");
@@ -122,12 +163,12 @@ public class LoggerServiceImpl {
         return logMapper.selectList(wrapper);
     }
 
-    public LogicLogEntity findLastBizLog(String logicId, String bizId) {
+    public List<LogicLogEntity> queryBizLogs(String logicId, String bizId) {
         QueryWrapper<LogicLogEntity> wrapper = new QueryWrapper<>();
         wrapper.eq("logicId", logicId);
         wrapper.eq("bizId", bizId);
-        wrapper.orderByDesc("serverTime").last("LIMIT 1");
-        return logMapper.selectOne(wrapper);
+        wrapper.orderByDesc("serverTime");
+        return logMapper.selectList(wrapper);
     }
 
     public int deleteLog(long aid) {
