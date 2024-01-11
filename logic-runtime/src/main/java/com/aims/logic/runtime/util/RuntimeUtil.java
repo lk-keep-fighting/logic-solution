@@ -25,6 +25,15 @@ public class RuntimeUtil {
     }
 
     /**
+     * 设置全局环境变量
+     *
+     * @param env
+     */
+    public static void setEnv(JSONObject env) {
+        ENVs = env;
+    }
+
+    /**
      * 获取原始配置的环境变量json，包含自定义的配置
      *
      * @return 原始配置的环境变量json
