@@ -1,8 +1,10 @@
 package com.aims.logic.service;
 
+import com.aims.logic.runtime.contract.enums.LogicConfigModelEnum;
 import com.aims.logic.sdk.LogicRunnerServiceImpl;
 import com.aims.logic.service.demo.dto.TestInput;
 import com.aims.logic.service.demo.entity.TestEntity;
+import com.alibaba.fastjson2.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
@@ -14,15 +16,21 @@ import java.util.*;
 @SpringBootTest
 class LogicRuntimeServiceApplicationTests {
 
-    @Test
-    void contextLoads() {
-        testObjectArgs();
-    }
 
     @Autowired
     LogicRunnerServiceImpl logic;
 
-    //    @Test
+    @Test
+    void contextLoads() {
+        var env = logic.getEnv();
+        env.setLOGIC_CONFIG_MODEL(LogicConfigModelEnum.offline);
+        logic.setEnv(JSONObject.from(env), true);
+        testObjectArgs();
+//        testTran();
+    }
+
+
+//    @Test
     void testTran() {
         TestEntity entity = new TestEntity();
         entity.setId(UUID.randomUUID().toString());
@@ -46,10 +54,16 @@ class LogicRuntimeServiceApplicationTests {
         entityList.add(entity2);
         List<String> strings = List.of("1", "2");
         var res = logic.runBizByObjectArgs("test.objectArgs", UUID.randomUUID().toString(), entityList, 1, strings);
+        TestInput input = (TestInput) res.getData();
         System.out.println(">>>testObjectArgs--result");
         System.out.println(res.getMsg());
         System.out.println(res.getData());
         System.out.println(">>>testObjectArgs--result over");
+        if (input.str.equals("22str") && input.getI() == 22 && input.getArr().size() == 2) {
+            System.out.printf("ok-->testObjectArgs");
+        } else {
+            System.err.printf("error-->testObjectArgs");
+            throw new RuntimeException(">>>testObjectArgs--result");
+        }
     }
-
 }
