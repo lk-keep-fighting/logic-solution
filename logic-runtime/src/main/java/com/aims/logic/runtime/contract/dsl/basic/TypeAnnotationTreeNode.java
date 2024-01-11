@@ -18,9 +18,9 @@ public class TypeAnnotationTreeNode extends BaseLASL {
     String typeNamespace; // 类型命名空间
     String typeName; // 类型名称
     List<TypeAnnotationTreeNode> typeArguments; // 类型参数
-    List<TypeAnnotationTreeNode> returnType; // 返回类型
-    boolean inferred; // 是否是推断出来的
+//    List<TypeAnnotationTreeNode> returnType; // 返回类型
+//    boolean inferred; // 是否是推断出来的
     List<StructurePropertyTreeNode> properties; // 匿名数据结构属性
-    Object ruleMap; // 规则对象
+//    Object ruleMap; // 规则对象
     String defaultValue;
 }
