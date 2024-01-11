@@ -1,6 +1,7 @@
 package com.aims.logic.runtime.service;
 
 import com.aims.logic.runtime.contract.dto.LogicRunResult;
+import com.aims.logic.runtime.env.RuntimeEnvs;
 import com.alibaba.fastjson2.JSONObject;
 
 import java.util.*;
@@ -14,6 +15,20 @@ public interface LogicRunnerService {
      * @return 返回参数
      */
     JSONObject setEnv(JSONObject customEnv, boolean isOverride);
+
+    /**
+     * 获取json格式的环境变量，包含自定义值
+     *
+     * @return
+     */
+    JSONObject getEnvJson();
+
+    /**
+     * 获取强类型环境变量，无法获取自定义值，若需要获取自定义值，请使用getEnvJson方法
+     *
+     * @return
+     */
+    RuntimeEnvs getEnv();
 
     /**
      * 传入自定义环境变量创建逻辑运行器
@@ -88,10 +103,20 @@ public interface LogicRunnerService {
     LogicRunResult runBizByMap(String logicId, String bizId, Map<String, Object> parsMap);
 
     /**
-     *  先校验验证码，再执行业务逻辑
-     * @param logicId 逻辑编号
-     * @param bizId 业务编号
-     * @param verifyCode 验证码
+     * 重试存在异常的业务，通过实例缓存读取入参、临时变量和环境变量
+     *
+     * @param logicId
+     * @param bizId
+     * @return
+     */
+    LogicRunResult retryErrorBiz(String logicId, String bizId);
+
+    /**
+     * 先校验验证码，再执行业务逻辑
+     *
+     * @param logicId        逻辑编号
+     * @param bizId          业务编号
+     * @param verifyCode     验证码
      * @param parsJsonString 入参json
      * @return
      */
@@ -99,16 +124,17 @@ public interface LogicRunnerService {
     LogicRunResult runBizByVerifyCode(String logicId, String bizId, String verifyCode, String parsJsonString);
 
     /**
-     *  先校验验证码，再执行业务逻辑
-     * @param logicId 逻辑编号
-     * @param bizId 业务编号
+     * 先校验验证码，再执行业务逻辑
+     *
+     * @param logicId    逻辑编号
+     * @param bizId      业务编号
      * @param verifyCode 验证码
-     * @param parsMap 入参Map
+     * @param parsMap    入参Map
      * @return
      */
 
     LogicRunResult runBizByVerifyCode(String logicId, String bizId, String verifyCode, Map<String, Object> parsMap);
-//
+    //
 //    LogicRunResult runBizStepByStep(String logicId, String bizId, JSONObject pars);
 //
 //    LogicRunResult runBizToNextJavaMethod(String logicId, String bizId, JSONObject pars);
