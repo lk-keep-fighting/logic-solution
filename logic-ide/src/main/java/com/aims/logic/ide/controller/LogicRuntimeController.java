@@ -47,6 +47,16 @@ public class LogicRuntimeController {
         return res;
     }
 
+    @PostMapping("/api/runtime/logic/v1/retry-error-biz/{id}/{bizId}")
+    public ApiResult retryErrorBiz(@PathVariable String id, @PathVariable String bizId, @RequestParam(value = "debug", required = false, defaultValue = "false") boolean debug) {
+        var rep = runner.retryErrorBiz(id, bizId);
+        var res = ApiResult.fromLogicRunResult(rep);
+        if (debug) {
+            res.setDebug(rep.getLogicLog());
+        }
+        return res;
+    }
+
     @PostMapping("/api/runtime/logic/v1/biz/{id}/{startCode}/{bizId}")
     public ApiResult runBizByStartCode(@RequestHeader Map<String, String> headers, @RequestBody(required = false) String body, @PathVariable String id, @PathVariable String bizId, @PathVariable String startCode, @RequestParam(value = "debug", required = false, defaultValue = "false") boolean debug) {
         JSONObject headerJson = JSONObject.from(headers);

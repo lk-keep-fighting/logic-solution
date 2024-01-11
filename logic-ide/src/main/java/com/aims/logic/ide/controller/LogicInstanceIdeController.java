@@ -32,6 +32,13 @@ public class LogicInstanceIdeController {
         return new ApiResult<Boolean>().setData(this.instanceService.update(null, wrapper));
     }
 
+    @PostMapping("/api/ide/logic-instance/edit/{id}/paramsJson")
+    public ApiResult<Boolean> editLogicParamsJson(@PathVariable String id, @RequestBody LogicInstanceEntity entity) {
+        UpdateWrapper<LogicInstanceEntity> wrapper = new UpdateWrapper();
+        wrapper.eq("id", id).set("paramsJson", entity.getParamsJson());
+        return new ApiResult<Boolean>().setData(this.instanceService.update(null, wrapper));
+    }
+
     @DeleteMapping("/api/ide/logic-instance/delete/{id}")
     public ApiResult<Boolean> deleteLogic(@PathVariable String id) {
         var res = instanceService.removeById(id);

@@ -7,6 +7,7 @@ import com.aims.logic.runtime.contract.dto.RunnerStatusEnum;
 import com.aims.logic.runtime.contract.logger.LogicItemLog;
 import com.aims.logic.runtime.contract.logger.LogicLog;
 import com.aims.logic.runtime.env.LogicAppConfig;
+import com.aims.logic.runtime.env.RuntimeEnvs;
 import com.aims.logic.runtime.runner.LogicRunner;
 import com.aims.logic.runtime.service.LogicRunnerService;
 import com.aims.logic.sdk.entity.LogicInstanceEntity;
@@ -33,11 +34,6 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
     private final LogicAppConfig appConfig;
     private final TransactionalUtils transactionalUtils;
 
-    /**
-     * 环境变量，初始化时加载一次，内部方法共享
-     */
-    JSONObject env;
-
     @Autowired
     public LogicRunnerServiceImpl(LoggerServiceImpl logService,
                                   LogicInstanceService insService,
@@ -48,11 +44,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         this.appConfig = appConfig;
         this.transactionalUtils = transactionalUtils;
         RuntimeUtil.AppConfig = appConfig;
-        env = RuntimeUtil.readEnv();
-    }
-
-    public void init() {
-        env = RuntimeUtil.readEnv();
+        RuntimeUtil.readEnv();
     }
 
 
@@ -66,12 +58,22 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
     @Override
     public JSONObject setEnv(JSONObject customEnv, boolean isOverride) {
         if (isOverride) {
-            this.env = customEnv.clone();
+            RuntimeUtil.setEnv(customEnv.clone());
         } else {
             var defEnv = RuntimeUtil.readEnv();
-            this.env = JsonUtil.jsonMerge(defEnv, customEnv);
+            RuntimeUtil.setEnv(JsonUtil.jsonMerge(defEnv, customEnv));
         }
-        return this.env;
+        return RuntimeUtil.getEnvJson();
+    }
+
+    @Override
+    public JSONObject getEnvJson() {
+        return RuntimeUtil.getEnvJson();
+    }
+
+    @Override
+    public RuntimeEnvs getEnv() {
+        return RuntimeUtil.getEnv();
     }
 
     @Override
@@ -106,7 +108,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
     @Override
     public LogicRunResult runByMap(String logicId, Map<String, Object> parsMap) {
         JSONObject config = RuntimeUtil.readLogicConfig(logicId);
-        var res = new com.aims.logic.runtime.runner.LogicRunner(config, env).run(parsMap);
+        var res = new com.aims.logic.runtime.runner.LogicRunner(config, getEnvJson()).run(parsMap);
         logService.addOrUpdateInstanceAndAddLogicLog(res.getLogicLog());
         return res;
     }
@@ -146,31 +148,6 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
     @Override
     public LogicRunResult runBizByMap(String logicId, String bizId, Map<String, Object> parsMap) {
         return runBizWithTransaction(logicId, bizId, parsMap);
-//        JSONObject env = RuntimeUtil.getEnvJson();
-//        env = JsonUtil.jsonMerge(customEnv, env);
-//        String cacheVarsJson = null;
-//        String startId = null;
-//        String logicVersion = null;
-//        if (bizId != null && !bizId.isBlank()) {
-//            LogicInstanceEntity insEntity = insService.getInstance(logicId, bizId);
-//            if (insEntity != null) {
-//                cacheVarsJson = insEntity.getVarsJsonEnd();
-//                startId = insEntity.getNextId();
-//                logicVersion = insEntity.getVersion();
-//            }
-//            if (insEntity != null && insEntity.getIsOver()) {
-//                return new LogicRunResult().setSuccess(false).setMsg(String.format("指定的bizId:%s已完成执行，无法重复执行。", bizId));
-//            }
-//        }
-//        JSONObject config = RuntimeUtil.readLogicConfig(logicId, logicVersion);
-//        if (config == null) {
-//            throw new RuntimeException("未发现指定的逻辑：" + logicId);
-//        }
-//        var res = new com.aims.logic.runtime.runner.LogicRunner(config, env, bizId)
-//                .run(startId, pars, JSON.isValid(cacheVarsJson) ? JSON.parseObject(cacheVarsJson) : null);
-//        res.getLogicLog().setBizId(bizId);
-//        logService.addOrUpdateInstanceLog(res.getLogicLog());
-//        return res;
     }
 
     /***
@@ -218,7 +195,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         if (config == null) {
             throw new RuntimeException("未发现指定的逻辑：" + logicId);
         }
-        var runner = new com.aims.logic.runtime.runner.LogicRunner(config, env, bizId);
+        var runner = new com.aims.logic.runtime.runner.LogicRunner(config, getEnvJson(), bizId);
         verifyCode(insEntity, runner, verifyCode);
         var res = runner
                 .run(startId, parsMap, JSON.isValid(cacheVarsJson) ? JSON.parseObject(cacheVarsJson) : null);
@@ -228,14 +205,22 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
     }
 
 
+    /**
+     * 加事务执行业务逻辑，每执行一个节点提交一次
+     *
+     * @param logicId
+     * @param bizId
+     * @param parsMap
+     * @return
+     */
     LogicRunResult runBizWithTransaction(String logicId, String bizId, Map<String, Object> parsMap) {
-        String cacheVarsJson = null;
+        JSONObject cacheVarsJson = null;
         String startId = null;
         String logicVersion = null;
         if (bizId != null && !bizId.isBlank()) {
             LogicInstanceEntity insEntity = insService.getInstance(logicId, bizId);
             if (insEntity != null) {
-                cacheVarsJson = insEntity.getVarsJsonEnd();
+                cacheVarsJson = JSON.isValid(insEntity.getVarsJsonEnd()) ? JSON.parseObject(insEntity.getVarsJsonEnd()) : null;
                 startId = insEntity.getNextId();
                 logicVersion = insEntity.getVersion();
             }
@@ -245,13 +230,103 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         }
         JSONObject config = RuntimeUtil.readLogicConfig(logicId, logicVersion);
         if (config == null) {
-            throw new RuntimeException("未发现指定的逻辑：" + logicId);
+            return new LogicRunResult().setSuccess(false).setMsg("未发现指定的逻辑：" + logicId);
         }
-        var runner = new com.aims.logic.runtime.runner.LogicRunner(config, env, parsMap, JSON.isValid(cacheVarsJson) ? JSON.parseObject(cacheVarsJson) : null, startId, bizId);
+        var runner = new com.aims.logic.runtime.runner.LogicRunner(config, getEnvJson(), parsMap, cacheVarsJson, startId, bizId);
+
+        LogicLog logicLog = new LogicLog();
+        logicLog.setBizId(bizId).setParamsJson(JSONObject.from(parsMap))
+                .setVarsJson(runner.getLogicLog().getVarsJson())
+                .setEnvsJson(runner.getLogicLog().getEnvsJson())
+                .setLogicId(logicId)
+                .setVersion(runner.getLogic().getVersion());
+        TransactionStatus begin = null;
+        LogicItemRunResult itemRes = null;
+        LogicItemTreeNode nextItem = runner.getStartNode();
+        List<LogicItemLog> itemLogs = new ArrayList<>();
+        while (runner.getRunnerStatus() == RunnerStatusEnum.Continue) {
+            try {
+                begin = transactionalUtils.begin();
+                itemRes = runner.runItem(nextItem);
+                nextItem = runner.findNextItem(nextItem);
+                itemLogs.clear();
+                itemLogs.add(itemRes.getItemLog());
+                logicLog.setItemLogs(itemLogs)
+                        .setVarsJson_end(runner.getFnCtx().get_var())
+                        .setOver(runner.updateStatus(itemRes, nextItem) == RunnerStatusEnum.End)
+                        .setNextItem(runner.getFnCtx().getNextItem())
+                        .setMsg(itemRes.getMsg())
+                        .setSuccess(itemRes.isSuccess());
+                logService.addOrUpdateInstanceAndAddLogicLog(logicLog);
+                if (itemRes.isSuccess()) {
+                    transactionalUtils.commit(begin);
+                } else {
+                    transactionalUtils.rollback(begin);
+                    logService.updateInstanceStatus(logicId, bizId, false, itemRes.getMsg());
+                    logService.addLogicLog(logicLog);
+                    return new LogicRunResult().setLogicLog(logicLog)
+                            .setSuccess(false)
+                            .setMsg(itemRes.getMsg());
+                }
+                runner.updateStatus(itemRes, nextItem);
+            } catch (Exception e) {
+//                transactionalUtils.rollback(begin);
+                logService.addLogicLog(logicLog);
+                logService.updateInstanceStatus(logicId, bizId, false, itemRes.getMsg());
+                return new LogicRunResult().setLogicLog(logicLog)
+                        .setSuccess(false)
+                        .setMsg(e.getMessage());
+            }
+        }
+        return new LogicRunResult().setLogicLog(logicLog)
+                .setData(itemRes.getData())
+                .setSuccess(itemRes.isSuccess())
+                .setMsg(itemRes.getMsg());
+    }
+
+    /**
+     * 通过实例记录重试业务，从记录的待执行节点继续执行；
+     * 从实例读取缓存的入参与临时变量
+     *
+     * @param logicId
+     * @param bizId
+     * @return
+     */
+    public LogicRunResult retryErrorBiz(String logicId, String bizId) {
+        JSONObject cacheVarsJson = null;
+        JSONObject cacheParJson = null;
+        JSONObject cacheEnvsJson = null;
+        String startId = null;
+        String logicVersion = null;
+        if (bizId != null && !bizId.isBlank()) {
+            LogicInstanceEntity insEntity = insService.getInstance(logicId, bizId);
+            if (insEntity != null) {
+                if (insEntity.getSuccess()) {
+                    return new LogicRunResult().setSuccess(false).
+                            setMsg(String.format("业务[%s]没有发生异常，不可重试！", bizId));
+                }
+                //上次未执行成功，发生错误的节点不会更新实例
+                cacheVarsJson = JSON.isValid(insEntity.getVarsJsonEnd()) ? JSON.parseObject(insEntity.getVarsJsonEnd()) : null;
+                cacheParJson = JSON.isValid(insEntity.getParamsJson()) ? JSON.parseObject(insEntity.getParamsJson()) : null;
+                cacheEnvsJson = JSON.isValid(insEntity.getEnv()) ? JSON.parseObject(insEntity.getEnv()) : null;
+                startId = insEntity.getNextId();
+                logicVersion = insEntity.getVersion();
+            } else {
+                return new LogicRunResult().setSuccess(false).setMsg(String.format("业务逻辑[%s]的实例[%s]不存在，不可重试！", logicId, bizId));
+            }
+            if (insEntity != null && insEntity.getIsOver()) {
+                return new LogicRunResult().setSuccess(false).setMsg(String.format("指定的bizId:%s已完成执行，无法重复执行。", bizId));
+            }
+        }
+        JSONObject config = RuntimeUtil.readLogicConfig(logicId, logicVersion);
+        if (config == null) {
+            return new LogicRunResult().setSuccess(false).setMsg(String.format("未发现逻辑配置文件：[%s]！", logicId));
+        }
+        var runner = new com.aims.logic.runtime.runner.LogicRunner(config, cacheEnvsJson, cacheParJson, cacheVarsJson, startId, bizId);
 
         LogicLog logicLog = new LogicLog();
         logicLog.setBizId(bizId)
-                .setVarsJson_end(runner.getFnCtx().get_var())
+                .setVarsJson(runner.getFnCtx().get_var())
                 .setEnvsJson(runner.getLogicLog().getEnvsJson())
                 .setLogicId(logicId)
                 .setVersion(runner.getLogic().getVersion());
@@ -268,6 +343,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 itemLogs.add(itemRes.getItemLog());
                 logicLog.setItemLogs(itemLogs)
                         .setOver(runner.updateStatus(itemRes, nextItem) == RunnerStatusEnum.End)
+                        .setVarsJson_end(runner.getFnCtx().get_var())
                         .setNextItem(runner.getFnCtx().getNextItem())
                         .setMsg(itemRes.getMsg())
                         .setSuccess(itemRes.isSuccess());
@@ -276,6 +352,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                     transactionalUtils.commit(begin);
                 } else {
                     transactionalUtils.rollback(begin);
+                    logService.updateInstanceStatus(logicId, bizId, false, itemRes.getMsg());
                     logService.addLogicLog(logicLog);
                     return new LogicRunResult().setLogicLog(logicLog)
                             .setSuccess(false)
@@ -284,114 +361,18 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 runner.updateStatus(itemRes, nextItem);
             } catch (Exception e) {
 //                transactionalUtils.rollback(begin);
+                logService.updateInstanceStatus(logicId, bizId, false, itemRes.getMsg());
                 logService.addLogicLog(logicLog);
+
                 return new LogicRunResult().setLogicLog(logicLog)
                         .setSuccess(false)
                         .setMsg(e.getMessage());
             }
         }
-//        while (runner.getRunnerStatus() == RunnerStatusEnum.Continue) {
-//            try {
-//                begin = transactionalUtils.begin();
-//                itemRes = runner.runItem(nextItem);
-//                nextItem = runner.findNextItem(nextItem);
-//                itemLogs = new ArrayList<>();
-//                itemLogs.add(itemRes.getItemLog());
-//                logicLog.setItemLogs(itemLogs)
-//                        .setReturnDataStr(itemRes.getDataString())
-//                        .setOver(runner.getRunnerStatus() == RunnerStatusEnum.End)
-//                        .setNextItem(nextItem)
-//                        .setMsg(itemRes.getMsg())
-//                        .setSuccess(itemRes.isSuccess());
-//                logService.addOrUpdateInstanceLog(logicLog);
-//                transactionalUtils.commit(begin);
-//                runner.updateStatus(itemRes, nextItem);
-//            } catch (Exception e) {
-//                transactionalUtils.rollback(begin);
-//                logService.addLogicRunLog(logicLog);
-//                return new LogicRunResult().setLogicLog(logicLog)
-//                        .setSuccess(false)
-//                        .setMsg(e.getMessage());
-//            }
-//        }
-//
         return new LogicRunResult().setLogicLog(logicLog)
                 .setData(itemRes.getData())
                 .setSuccess(itemRes.isSuccess())
                 .setMsg(itemRes.getMsg());
     }
 
-    public LogicRunResult runBizToNextJavaMethod(String logicId, String bizId, JSONObject pars) {
-        String cacheVarsJson = null;
-        String startId = null;
-        String logicVersion = null;
-        if (bizId != null && !bizId.isBlank()) {
-            LogicInstanceEntity insEntity = insService.getInstance(logicId, bizId);
-            if (insEntity != null) {
-                cacheVarsJson = insEntity.getVarsJsonEnd();
-                startId = insEntity.getNextId();
-                logicVersion = insEntity.getVersion();
-            }
-            if (insEntity != null && insEntity.getIsOver()) {
-                return new LogicRunResult().setSuccess(false).setMsg(String.format("指定的bizId:%s已完成执行，无法重复执行。", bizId));
-            }
-        }
-        JSONObject config = RuntimeUtil.readLogicConfig(logicId, logicVersion);
-        if (config == null) {
-            throw new RuntimeException("未发现指定的逻辑：" + logicId);
-        }
-        var runner = new com.aims.logic.runtime.runner.LogicRunner(config, env, pars, JSON.isValid(cacheVarsJson) ? JSON.parseObject(cacheVarsJson) : null, startId, bizId);
-
-        LogicItemRunResult itemRes = null;
-        LogicItemTreeNode curItem = runner.getStartNode();
-        LogicItemTreeNode nextItem = null;
-        LogicLog logicLog = new LogicLog();
-        List<LogicItemLog> itemLogs = new ArrayList<>();
-        try {
-
-            itemRes = runner.runItem(runner.getStartNode());
-            nextItem = runner.findNextItem(runner.getStartNode());
-            itemLogs.add(itemRes.getItemLog());
-            logicLog.setBizId(bizId)
-                    .setVarsJson_end(runner.getFnCtx().get_var())
-                    .setEnvsJson(runner.getLogicLog().getEnvsJson())
-                    .setLogicId(logicId)
-                    .setItemLogs(itemLogs)
-                    .setOver(runner.updateStatus(itemRes, nextItem) == RunnerStatusEnum.End)
-                    .setNextItem(runner.getFnCtx().getNextItem())
-                    .setVersion(runner.getLogic().getVersion())
-                    .setMsg(itemRes.getMsg())
-                    .setSuccess(itemRes.isSuccess());
-            while (!"java".equals(curItem.getType()) && runner.updateStatus(itemRes, nextItem) == RunnerStatusEnum.Continue) {
-                try {
-                    itemRes = runner.runItem(nextItem);
-                    nextItem = runner.findNextItem(nextItem);
-                    itemLogs = new ArrayList<>();
-                    itemLogs.add(itemRes.getItemLog());
-                    logicLog.setItemLogs(itemLogs)
-                            .setReturnDataStr(itemRes.getDataString())
-                            .setOver(runner.getRunnerStatus() == RunnerStatusEnum.End)
-                            .setNextItem(nextItem)
-                            .setMsg(itemRes.getMsg())
-                            .setSuccess(itemRes.isSuccess());
-                } catch (Exception e) {
-                    return new LogicRunResult().setLogicLog(logicLog)
-                            .setSuccess(false)
-                            .setMsg(e.getMessage());
-                }
-            }
-        } catch (Exception e) {
-            return new LogicRunResult().setLogicLog(logicLog)
-                    .setSuccess(false)
-                    .setMsg(e.getMessage());
-        }
-        return new LogicRunResult().setLogicLog(logicLog)
-                .setData(itemRes.getData())
-                .setSuccess(itemRes.isSuccess())
-                .setMsg(itemRes.getMsg());
-    }
-
-    public void updateBizAfterRunBizToNextJavaMethod(LogicRunResult result) {
-        logService.addOrUpdateInstanceAndAddLogicLog(result.getLogicLog());
-    }
 }
