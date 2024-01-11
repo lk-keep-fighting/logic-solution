@@ -44,7 +44,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         this.appConfig = appConfig;
         this.transactionalUtils = transactionalUtils;
         RuntimeUtil.AppConfig = appConfig;
-        RuntimeUtil.readEnv();
+        RuntimeUtil.initEnv();
     }
 
 
@@ -294,7 +294,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
      */
     public LogicRunResult retryErrorBiz(String logicId, String bizId) {
         JSONObject cacheVarsJson = null;
-        JSONObject cacheParJson = null;
+        JSONObject parsJson = null;
         JSONObject cacheEnvsJson = null;
         String startId = null;
         String logicVersion = null;
@@ -307,7 +307,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 }
                 //上次未执行成功，发生错误的节点不会更新实例
                 cacheVarsJson = JSON.isValid(insEntity.getVarsJsonEnd()) ? JSON.parseObject(insEntity.getVarsJsonEnd()) : null;
-                cacheParJson = JSON.isValid(insEntity.getParamsJson()) ? JSON.parseObject(insEntity.getParamsJson()) : null;
+                parsJson = JSON.isValid(insEntity.getParamsJson()) ? JSON.parseObject(insEntity.getParamsJson()) : null;
                 cacheEnvsJson = JSON.isValid(insEntity.getEnv()) ? JSON.parseObject(insEntity.getEnv()) : null;
                 startId = insEntity.getNextId();
                 logicVersion = insEntity.getVersion();
@@ -322,10 +322,11 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         if (config == null) {
             return new LogicRunResult().setSuccess(false).setMsg(String.format("未发现逻辑配置文件：[%s]！", logicId));
         }
-        var runner = new com.aims.logic.runtime.runner.LogicRunner(config, cacheEnvsJson, cacheParJson, cacheVarsJson, startId, bizId);
+        var runner = new com.aims.logic.runtime.runner.LogicRunner(config, cacheEnvsJson, parsJson, cacheVarsJson, startId, bizId);
 
         LogicLog logicLog = new LogicLog();
         logicLog.setBizId(bizId)
+                .setParamsJson(JSONObject.from(runner.getFnCtx().get_par()))
                 .setVarsJson(runner.getFnCtx().get_var())
                 .setEnvsJson(runner.getLogicLog().getEnvsJson())
                 .setLogicId(logicId)
@@ -375,4 +376,27 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 .setMsg(itemRes.getMsg());
     }
 
+    /**
+     * 更新当前业务实例入参
+     *
+     * @param logicId
+     * @param bizId
+     * @param pars
+     * @return
+     */
+    @Override
+    public boolean updateBizInstanceParams(String logicId, String bizId, Object... pars) {
+        Map<String, Object> parsMap = new HashMap<>();
+        for (int i = 0; i < pars.length; i++) {
+            parsMap.put("_p" + (i + 1), pars[i]);
+        }
+        if (bizId != null && !bizId.isBlank()) {
+            LogicInstanceEntity insEntity = insService.getInstance(logicId, bizId);
+            if (insEntity != null) {
+                insEntity.setParamsJson(JSONObject.toJSONString(parsMap));
+                return insService.updateById(insEntity);
+            }
+        }
+        return false;
+    }
 }

@@ -112,6 +112,16 @@ public interface LogicRunnerService {
     LogicRunResult retryErrorBiz(String logicId, String bizId);
 
     /**
+     * 更新当前业务实例入参
+     *
+     * @param logicId
+     * @param bizId
+     * @param pars
+     * @return
+     */
+    boolean updateBizInstanceParams(String logicId, String bizId, Object... pars);
+
+    /**
      * 先校验验证码，再执行业务逻辑
      *
      * @param logicId        逻辑编号

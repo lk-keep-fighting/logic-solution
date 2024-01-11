@@ -40,7 +40,7 @@ public class RuntimeUtil {
      */
     public static JSONObject getEnvJson() {
         if (ENVs == null) {
-            ENVs = readEnv();
+            initEnv();
         }
         return ENVs;
     }
@@ -101,5 +101,9 @@ public class RuntimeUtil {
         String envFileName = String.format("env.%s.json", _env);
         String defEnvFile = "{\"NODE_ENV\":\"" + _env + "\",\"LOGIC_CONFIG_MODEL\":\"online\",\"IDE_HOST\":\"\",\"JWT\":{},\"LOG\":\"error\"}";
         return FileUtil.readOrCreateFile(FileUtil.ENV_DIR, envFileName, defEnvFile);
+    }
+
+    public static void initEnv() {
+        ENVs = readEnv();
     }
 }

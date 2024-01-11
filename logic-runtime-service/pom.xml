@@ -40,9 +40,14 @@
         <dependency>
             <groupId>com.aims.logic</groupId>
             <artifactId>logic-ide</artifactId>
-            <version>0.0.8-SNAPSHOT</version>
+            <version>0.0.9-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.aims.logic</groupId>-->
+<!--            <artifactId>logic-sdk</artifactId>-->
+<!--            <version>0.2.5-SNAPSHOT</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
