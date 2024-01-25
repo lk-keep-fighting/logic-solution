@@ -1,12 +1,12 @@
 package com.aims.logic.runtime.contract.enums;
 
-public enum LogicConfigModelEnum {
-    online("online"),
-    offline("offline");
+public enum KeepBizVersionEnum {
+    on("on"),
+    off("off");
 
     private final String value;
 
-    LogicConfigModelEnum(String value) {
+    KeepBizVersionEnum(String value) {
         this.value = value;
     }
 

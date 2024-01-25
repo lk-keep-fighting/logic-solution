@@ -21,9 +21,12 @@ public class LogicConfigStoreServiceImpl implements LogicConfigStoreService {
     @Override
     public JSONObject readLogicConfig(String logicId, String version) {
         JSONObject logicConfig = null;
-        if (version != null || RuntimeUtil.getEnv().getLOGIC_CONFIG_MODEL() == LogicConfigModelEnum.online) {
+        //当指定offline时，始终从本地文件读取，否则默认为online
+        if (RuntimeUtil.getEnvObject().getLOGIC_CONFIG_MODEL() == LogicConfigModelEnum.offline) {
+            logicConfig = FileUtil.readJsonFile(FileUtil.LOGIC_DIR, logicId + ".json");
+        } else {
             OkHttpClient client = httpClient.newBuilder().callTimeout(Duration.ofSeconds(10)).build();
-            String onlineHost = RuntimeUtil.getEnv().getIDE_HOST().isBlank() ? RuntimeUtil.getUrl() : RuntimeUtil.getEnv().getIDE_HOST();
+            String onlineHost = RuntimeUtil.getEnvObject().getIDE_HOST().isBlank() ? RuntimeUtil.getUrl() : RuntimeUtil.getEnvObject().getIDE_HOST();
             String url;
             if (version == null) {//读取最新配置
                 url = String.format("%s/api/ide/logic/%s/config", onlineHost, logicId);
@@ -48,8 +51,6 @@ public class LogicConfigStoreServiceImpl implements LogicConfigStoreService {
             } catch (IOException e) {
                 throw new RuntimeException(String.format("online获取配置失败，逻辑编号:%s,错误：%s", logicId, e.getLocalizedMessage()));
             }
-        } else {
-            logicConfig = FileUtil.readJsonFile(FileUtil.LOGIC_DIR, logicId + ".json");
         }
         if (logicConfig != null) {
             logicConfig.put("id", logicId);//自动修复文件名编号与内部配置编号不同的问题

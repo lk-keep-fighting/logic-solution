@@ -1,7 +1,8 @@
 package com.aims.logic.runtime.util;
 
+import com.aims.logic.runtime.contract.enums.KeepBizVersionEnum;
 import com.aims.logic.runtime.env.LogicAppConfig;
-import com.aims.logic.runtime.env.RuntimeEnvs;
+import com.aims.logic.runtime.env.LogicAppEnvObject;
 import com.aims.logic.runtime.store.LogicConfigStoreService;
 import com.aims.logic.runtime.store.impl.LogicConfigStoreServiceImpl;
 import com.alibaba.fastjson2.JSONObject;
@@ -11,8 +12,9 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.servlet.http.HttpServletRequest;
 
 public class RuntimeUtil {
-    private static LogicConfigStoreService logicConfigStoreService = new LogicConfigStoreServiceImpl();
+    private static final LogicConfigStoreService logicConfigStoreService = new LogicConfigStoreServiceImpl();
     private static JSONObject ENVs;
+    private static LogicAppEnvObject ENVObject = null;
     public static LogicAppConfig AppConfig;
 
     /**
@@ -20,8 +22,8 @@ public class RuntimeUtil {
      *
      * @return 返回强类型环境变量
      */
-    public static RuntimeEnvs getEnv() {
-        return getEnvJson().toJavaObject(RuntimeEnvs.class);
+    public static LogicAppEnvObject getEnvObject() {
+        return ENVObject;
     }
 
     /**
@@ -31,6 +33,8 @@ public class RuntimeUtil {
      */
     public static void setEnv(JSONObject env) {
         ENVs = env;
+        if (ENVs != null)
+            ENVObject = ENVs.toJavaObject(LogicAppEnvObject.class);
     }
 
     /**
@@ -76,7 +80,9 @@ public class RuntimeUtil {
      * @return 指定版本的逻辑配置
      */
     public static JSONObject readLogicConfig(String logicId, String version) {
-        return logicConfigStoreService.readLogicConfig(logicId, version);
+        if (RuntimeUtil.getEnvObject().getKEEP_BIZ_VERSION() == KeepBizVersionEnum.off)
+            return logicConfigStoreService.readLogicConfig(logicId, null);
+        else return logicConfigStoreService.readLogicConfig(logicId, version);
     }
 
 
@@ -104,6 +110,6 @@ public class RuntimeUtil {
     }
 
     public static void initEnv() {
-        ENVs = readEnv();
+        setEnv(readEnv());
     }
 }

@@ -11,7 +11,7 @@
  Target Server Version : 80200
  File Encoding         : 65001
 
- Date: 16/11/2023 18:22:10
+ Date: 24/01/2024 17:16:28
 */
 
 SET NAMES utf8mb4;
@@ -44,7 +44,7 @@ CREATE TABLE `logic_bak` (
   `configJson` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `updateTime` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`aid`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=1725072157574766595 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1750045840707268610 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------
 -- Table structure for logic_instance
@@ -61,14 +61,15 @@ CREATE TABLE `logic_instance` (
   `messageId` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '消息标识',
   `paramsJson` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '缓存前序流程的入参值',
   `varsJson` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '开始执行时的局部变量值',
+  `envsJson` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '开始执行时的环境变量值',
   `varsJsonEnd` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '执行结束时局部变量值，为下次交互时的恢复变量值',
-  `returnData` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '最近一次返回数据',
+  `returnData` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '最近一次返回数据',
   `env` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '环境',
   `success` tinyint(1) DEFAULT NULL COMMENT '最近一次是否成功',
   `isOver` tinyint(1) DEFAULT '0' COMMENT '是否结束',
   `serverTime` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '服务器时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=1725095028881190915 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1750039550274682883 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------
 -- Table structure for logic_log
@@ -92,7 +93,7 @@ CREATE TABLE `logic_log` (
   `varsJsonEnd` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '执行完成后的局部变量，用于下一个交互的执行',
   `returnData` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '返回数据',
   `isOver` tinyint(1) DEFAULT '0' COMMENT '是否已经执行到最后一个节点',
-  `itemLogs` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '执行过程日志',
+  `itemLogs` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '执行过程日志',
   `messageId` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '消息唯一标识',
   PRIMARY KEY (`id`,`version`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -109,7 +110,9 @@ CREATE TABLE `logic_published` (
   `module` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `configJson` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `publishTime` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `source` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '发布来源',
+  `target` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '发布目标',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=53 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 SET FOREIGN_KEY_CHECKS = 1;

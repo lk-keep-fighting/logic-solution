@@ -32,6 +32,8 @@ public class LogicInstanceEntity extends Model<LogicInstanceEntity> {
     private String varsJson;
     @TableField("varsJsonEnd")
     private String varsJsonEnd;
+    @TableField("envsJson")
+    private String envsJson;
     @TableField("returnData")
     private String returnData;
     private Boolean success;

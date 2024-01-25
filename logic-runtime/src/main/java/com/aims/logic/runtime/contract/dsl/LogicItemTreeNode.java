@@ -2,6 +2,7 @@ package com.aims.logic.runtime.contract.dsl;
 
 import com.aims.logic.runtime.contract.enums.ConceptEnum;
 import com.aims.logic.runtime.contract.dsl.basic.BaseLASL;
+import com.aims.logic.runtime.contract.enums.LogicItemTransactionScope;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -32,6 +33,13 @@ public class LogicItemTreeNode extends BaseLASL {
     List<ParamTreeNode> params;
     String timeout;
     String nextId;
+    /**
+     * 事务范围
+     * EveryJavaNode-每个java节点开启事务
+     * EveryRequest-每次请求交互开启事务，即每个交互点
+     * off-关闭事务
+     */
+    LogicItemTransactionScope tranScope;
     /*
     条件分支表达式
      */

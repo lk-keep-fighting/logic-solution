@@ -27,4 +27,8 @@ public class LogicPublishedEntity extends Model<LogicPublishedEntity> {
     @TableField("publishTime")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     LocalDateTime publishTime;
+    @TableField("source")
+    String source;
+    @TableField("target")
+    String target;
 }

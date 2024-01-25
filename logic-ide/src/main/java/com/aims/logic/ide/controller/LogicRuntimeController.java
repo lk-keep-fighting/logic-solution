@@ -60,7 +60,7 @@ public class LogicRuntimeController {
     @PostMapping("/api/runtime/logic/v1/biz/{id}/{startCode}/{bizId}")
     public ApiResult runBizByStartCode(@RequestHeader Map<String, String> headers, @RequestBody(required = false) String body, @PathVariable String id, @PathVariable String bizId, @PathVariable String startCode, @RequestParam(value = "debug", required = false, defaultValue = "false") boolean debug) {
         JSONObject headerJson = JSONObject.from(headers);
-        JSONObject customEnv =  runner.getEnvJson();
+        JSONObject customEnv = runner.getEnvJson();
         customEnv.put("HEADERS", headerJson);
         var rep = runner.newInstance(customEnv).runBizByVerifyCode(id, bizId, startCode, body);
         var res = ApiResult.fromLogicRunResult(rep);
@@ -94,7 +94,7 @@ public class LogicRuntimeController {
      * @return 环境变量json
      */
     @GetMapping("/api/runtime/env")
-    public JSONObject env() {
-        return RuntimeUtil.getEnvJson();
+    public ApiResult env() {
+        return new ApiResult().setData(RuntimeUtil.getEnvJson());
     }
 }

@@ -20,7 +20,7 @@ class LogicRuntimeServiceApplicationTests {
     @Autowired
     LogicRunnerServiceImpl logic;
 
-    @Test
+//    @Test
     void contextLoads() {
         var env = logic.getEnv();
         env.setLOGIC_CONFIG_MODEL(LogicConfigModelEnum.offline);

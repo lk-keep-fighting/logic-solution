@@ -16,9 +16,21 @@ public interface LogicService extends BaseService<LogicEntity> {
 
     /**
      * 发布到本地
+     *
      * @param id 路径编号
      * @return 保存路径
      */
 
     String pubToLocal(String id);
+
+    /**
+     * 通过Logic实体json发布到本地，用于远程发布
+     *
+     * @param jsonStr Logic实体json
+     * @param source  发布源
+     * @return
+     */
+    String pubToLocalFromEntityJson(String jsonStr, String source);
+
+    String pubToIdeHost(String id, String url);
 }
