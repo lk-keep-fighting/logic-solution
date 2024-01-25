@@ -17,4 +17,11 @@ public class LogicInstanceServiceImpl extends BaseServiceImpl<LogicInstanceMappe
         q.allEq(Map.of("logicId", logicId, "bizId", bizId));
         return this.getOne(q);
     }
+
+//    @Override
+//    public long clearCompletedInstanceOver(String logicId, String bizId) {
+//        QueryWrapper<LogicInstanceEntity> q = new QueryWrapper<>();
+//        q.allEq(Map.of("logicId", logicId, "bizId", bizId, "isOver", true));
+//        return this.remove(q);
+//    }
 }

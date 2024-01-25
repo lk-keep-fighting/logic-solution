@@ -1,7 +1,7 @@
 package com.aims.logic.runtime.service;
 
 import com.aims.logic.runtime.contract.dto.LogicRunResult;
-import com.aims.logic.runtime.env.RuntimeEnvs;
+import com.aims.logic.runtime.env.LogicAppEnvObject;
 import com.alibaba.fastjson2.JSONObject;
 
 import java.util.*;
@@ -28,7 +28,7 @@ public interface LogicRunnerService {
      *
      * @return
      */
-    RuntimeEnvs getEnv();
+    LogicAppEnvObject getEnv();
 
     /**
      * 传入自定义环境变量创建逻辑运行器

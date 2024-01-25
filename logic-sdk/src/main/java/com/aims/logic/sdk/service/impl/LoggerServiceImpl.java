@@ -65,7 +65,7 @@ public class LoggerServiceImpl {
      * @param logicLog
      */
     public void addOrUpdateInstance(LogicLog logicLog) {
-        String env = RuntimeUtil.getEnv().getNODE_ENV();
+        String env = RuntimeUtil.getEnvObject().getNODE_ENV();
         var nextId = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getId();
         var nextName = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getName();
         QueryWrapper<LogicInstanceEntity> q = new QueryWrapper<>();
@@ -88,17 +88,6 @@ public class LoggerServiceImpl {
                     .set(LogicInstanceEntity::getEnv, env)
                     .eq(LogicInstanceEntity::getId, ins.getId());
             instanceService.update(updateWrapper);
-//            ins.setSuccess(logicLog.isSuccess())
-//                    .setMessage(msg255)
-//                    .setReturnData(logicLog.getReturnDataStr() != null ? logicLog.getReturnDataStr() : null)
-//                    .setParamsJson(logicLog.getParamsJson() == null ? null : logicLog.getParamsJson().toJSONString())
-//                    .setVarsJson(logicLog.getVarsJson() == null ? null : logicLog.getVarsJson().toJSONString())
-//                    .setVarsJsonEnd(logicLog.getVarsJson_end() == null ? null : logicLog.getVarsJson_end().toJSONString())
-//                    .setIsOver(logicLog.isOver())
-//                    .setNextId(nextId)
-//                    .setNextName(nextName)
-//                    .setEnv(env);
-//            instanceService.update(ins, q);
         } else {
             LogicInstanceEntity newIns = new LogicInstanceEntity()
                     .setSuccess(logicLog.isSuccess())
@@ -110,6 +99,7 @@ public class LoggerServiceImpl {
                     .setParamsJson(logicLog.getParamsJson() == null ? null : logicLog.getParamsJson().toJSONString())
                     .setVarsJson(logicLog.getVarsJson() == null ? null : logicLog.getVarsJson().toJSONString())
                     .setVarsJsonEnd(logicLog.getVarsJson_end() == null ? null : logicLog.getVarsJson_end().toJSONString())
+                    .setEnvsJson(logicLog.getEnvsJson() == null ? null : logicLog.getEnvsJson().toJSONString())
                     .setIsOver(logicLog.isOver())
                     .setNextId(nextId)
                     .setNextName(nextName)
@@ -150,7 +140,7 @@ public class LoggerServiceImpl {
                 .setNextId(nextId)
                 .setNextName(nextName)
                 .setIsOver(logicLog.isOver())
-                .setEnv(RuntimeUtil.getEnv().getNODE_ENV())
+                .setEnv(RuntimeUtil.getEnvObject().getNODE_ENV())
                 .setHost(requestHost)
                 .setClientId(requestClientId);
         logMapper.insert(logEntity);

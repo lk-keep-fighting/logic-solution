@@ -205,7 +205,7 @@ public class LogicRunner {
                 .setEnvsJson(fnCtx.get_env());
         LogicItemRunResult itemRes = runItem(startNode);
         var nextItem = findNextItem(startNode);
-        while (updateStatus(itemRes, nextItem) == RunnerStatusEnum.Continue) {
+        while (refreshStatus(itemRes.isSuccess(), nextItem) == RunnerStatusEnum.Continue) {
             itemRes = runItem(nextItem);
             nextItem = findNextItem(nextItem);
         }
@@ -232,9 +232,9 @@ public class LogicRunner {
         return itemRes;
     }
 
-    public RunnerStatusEnum updateStatus(LogicItemRunResult itemRes, LogicItemTreeNode nextItem) {
+    public RunnerStatusEnum refreshStatus(Boolean isCurItemSuccess, LogicItemTreeNode nextItem) {
         fnCtx.setNextItem(nextItem);
-        if (!itemRes.isSuccess()) {
+        if (!isCurItemSuccess) {
             this.setRunnerStatus(RunnerStatusEnum.Error);
         } else {
             if (nextItem != null && !nextItem.getId().isBlank()) {

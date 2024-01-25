@@ -20,7 +20,7 @@ public class ParamTreeNode extends BaseLASL {
     }
 
     private String name;
-    private String describe;
+    //    private String describe;
     private TypeAnnotationTreeNode typeAnnotation;
     private boolean required;
     private String defaultValue;
