@@ -1,0 +1,11 @@
+server:
+  port: 8888
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/logic_test?useUnicode=true&characterEncoding=gbk&autoReconnect=true&failOverReadOnly=false
+    username: root
+    password: 12#$qwER
+logic:
+  config-dir: /Users/lk/Documents/Dev/aims/xuanwu-logic/logic-solution/test-suite/test-case-configs
+  scan-package-names: com.aims.logic.testsuite
