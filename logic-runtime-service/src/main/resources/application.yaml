@@ -15,3 +15,6 @@ spring:
 logic:
   config-dir: /Users/lk/Documents/Dev/aims/xuanwu-logic/logic-solution/logic-configs
   scan-package-names: com.aims.logic.service.demo
+logging:
+  level:
+    root: DEBUG
