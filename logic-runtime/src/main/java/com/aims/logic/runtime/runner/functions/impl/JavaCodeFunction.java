@@ -11,6 +11,7 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.TypeReference;
+import lombok.extern.slf4j.Slf4j;
 import org.openjdk.nashorn.api.scripting.ScriptObjectMirror;
 import org.springframework.stereotype.Service;
 
@@ -20,13 +21,14 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class JavaCodeFunction implements ILogicItemFunctionRunner {
     public LogicItemRunResult invoke(FunctionContext ctx, Object item) {
-        System.out.printf("-------开始执行Java代码-------");
+        log.info("-------开始执行Java代码-------");
         var itemDsl = (LogicItemTreeNode) item;
         try {
             var clazz = ClassLoaderUtils.loadClass(itemDsl.getUrl().trim());
-            System.out.printf("执行Java代码-成功加载方法所在类：%s%n", itemDsl.getUrl().trim());
+            log.info("执行Java代码-成功加载方法所在类：{}", itemDsl.getUrl().trim());
             var bodyObj = Functions.get("js").invoke(ctx, itemDsl.getBody()).getData();//执行js脚本，返回方法实参
             var methodName = itemDsl.getMethod().split("\\(")[0];
             // 获取参数声明
@@ -99,14 +101,15 @@ public class JavaCodeFunction implements ILogicItemFunctionRunner {
                 var obj = method.invoke(SpringContextUtil.getBean(clazz), paramsArrayFromJsObj.toArray());
                 res.setData(obj);
             } catch (InvocationTargetException e) {//抛出异常触发事务回滚
-                System.err.printf(">>>logic执行方法%s发生错误", methodName);
-                System.err.println(e.getTargetException().getMessage());
+                log.info(">>>logic执行方法{}发生错误", methodName);
+                log.info(e.getTargetException().getMessage());
                 e.printStackTrace();
                 return res.setSuccess(false)
                         .setMsg(e.getTargetException().getMessage());
             }
             return res;
         } catch (Exception e) {
+            log.error(">>>java节点意外的异常");
             e.printStackTrace();
             var msg = e.getCause() == null ? e.getMessage() : e.getCause().getMessage();
             return new LogicItemRunResult().setSuccess(false)

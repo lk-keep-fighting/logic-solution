@@ -4,7 +4,6 @@ import com.aims.logic.runtime.contract.enums.KeepBizVersionEnum;
 import com.aims.logic.runtime.env.LogicAppConfig;
 import com.aims.logic.runtime.env.LogicAppEnvObject;
 import com.aims.logic.runtime.store.LogicConfigStoreService;
-import com.aims.logic.runtime.store.impl.LogicConfigStoreServiceImpl;
 import com.alibaba.fastjson2.JSONObject;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -12,7 +11,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.servlet.http.HttpServletRequest;
 
 public class RuntimeUtil {
-    private static final LogicConfigStoreService logicConfigStoreService = new LogicConfigStoreServiceImpl();
+    public static LogicConfigStoreService logicConfigStoreService;// = new LogicConfigStoreServiceImpl();
     private static JSONObject ENVs;
     private static LogicAppEnvObject ENVObject = null;
     public static LogicAppConfig AppConfig;
@@ -35,6 +34,12 @@ public class RuntimeUtil {
         ENVs = env;
         if (ENVs != null)
             ENVObject = ENVs.toJavaObject(LogicAppEnvObject.class);
+    }
+
+    public static LogicAppEnvObject toEnvObject(JSONObject env) {
+        if (env != null)
+            return env.toJavaObject(LogicAppEnvObject.class);
+        else return null;
     }
 
     /**
