@@ -23,27 +23,38 @@ public class LogicRuntimeController {
 
     @PostMapping("/api/runtime/logic/v1/run-api/{id}")
     public ApiResult run(@RequestHeader Map<String, String> headers, @RequestBody(required = false) String body, @PathVariable String id, @RequestParam(value = "debug", required = false, defaultValue = "false") boolean debug) {
-        JSONObject headerJson = JSONObject.from(headers);
-        JSONObject customEnv = runner.getEnvJson();
-        customEnv.put("HEADERS", headerJson);
-        var rep = runner.newInstance(customEnv).runByJson(id, body);
-        var res = ApiResult.fromLogicRunResult(rep);
-        if (debug) {
-            res.setDebug(rep.getLogicLog());
+        ApiResult res;
+        try {
+            JSONObject headerJson = JSONObject.from(headers);
+            JSONObject customEnv = new JSONObject();
+            customEnv.put("HEADERS", headerJson);
+            var rep = runner.newInstance(customEnv).runByJson(id, body);
+            res = ApiResult.fromLogicRunResult(rep);
+            if (debug) {
+                res.setDebug(rep.getLogicLog());
+            }
+        } catch (Exception e) {
+            res = ApiResult.fromException(e);
         }
         return res;
     }
 
     @PostMapping("/api/runtime/logic/v1/run-biz/{id}/{bizId}")
     public ApiResult runBiz(@RequestHeader Map<String, String> headers, @RequestBody(required = false) String body, @PathVariable String id, @PathVariable String bizId, @RequestParam(value = "debug", required = false, defaultValue = "false") boolean debug) {
-        JSONObject headerJson = JSONObject.from(headers);
-        JSONObject customEnv = runner.getEnvJson();
-        customEnv.put("HEADERS", headerJson);
-        var rep = runner.newInstance(customEnv).runBizByJson(id, bizId, body);
-        var res = ApiResult.fromLogicRunResult(rep);
-        if (debug) {
-            res.setDebug(rep.getLogicLog());
+        ApiResult res;
+        try {
+            JSONObject headerJson = JSONObject.from(headers);
+            JSONObject customEnv = new JSONObject();
+            customEnv.put("HEADERS", headerJson);
+            var rep = runner.newInstance(customEnv).runBizByJson(id, bizId, body);
+            res = ApiResult.fromLogicRunResult(rep);
+            if (debug) {
+                res.setDebug(rep.getLogicLog());
+            }
+        } catch (Exception e) {
+            res = ApiResult.fromException(e);
         }
+
         return res;
     }
 
