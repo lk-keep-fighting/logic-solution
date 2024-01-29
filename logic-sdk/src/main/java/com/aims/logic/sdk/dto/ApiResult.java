@@ -19,4 +19,14 @@ public class ApiResult<T> {
                 .setMsg(res.getMsg())
                 .setData(res.getData());
     }
+
+    public static ApiResult fromException(Exception ex) {
+        return new ApiResult()
+                .setCode(500)
+                .setMsg(ex.getMessage())
+                .setError(new ApiError()
+                        .setCode(500)
+                        .setMsg(ex.getMessage())
+                        .setDetail(ex));
+    }
 }

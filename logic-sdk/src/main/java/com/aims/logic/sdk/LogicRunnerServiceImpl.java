@@ -12,6 +12,7 @@ import com.aims.logic.runtime.env.LogicAppConfig;
 import com.aims.logic.runtime.env.LogicAppEnvObject;
 import com.aims.logic.runtime.runner.LogicRunner;
 import com.aims.logic.runtime.service.LogicRunnerService;
+import com.aims.logic.runtime.store.LogicConfigStoreService;
 import com.aims.logic.sdk.entity.LogicInstanceEntity;
 import com.aims.logic.sdk.service.LogicInstanceService;
 import com.aims.logic.sdk.service.impl.LoggerServiceImpl;
@@ -33,19 +34,29 @@ import java.util.*;
 public class LogicRunnerServiceImpl implements LogicRunnerService {
     private final LoggerServiceImpl logService;
     private final LogicInstanceService insService;
+    private final LogicConfigStoreService configStoreService;
     private final LogicAppConfig appConfig;
     private final TransactionalUtils transactionalUtils;
+    /**
+     * 私有环境变量，若为null则使用全局环境变量
+     */
+    private LogicAppEnvObject envObject = null;
+    private JSONObject envJson = null;
+
 
     @Autowired
     public LogicRunnerServiceImpl(LoggerServiceImpl logService,
                                   LogicInstanceService insService,
+                                  LogicConfigStoreService _configStoreService,
                                   TransactionalUtils transactionalUtils,
                                   LogicAppConfig appConfig) {
         this.logService = logService;
         this.insService = insService;
+        this.configStoreService = _configStoreService;
         this.appConfig = appConfig;
         this.transactionalUtils = transactionalUtils;
         RuntimeUtil.AppConfig = appConfig;
+        RuntimeUtil.logicConfigStoreService = configStoreService;
         RuntimeUtil.initEnv();
     }
 
@@ -59,28 +70,31 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
      */
     @Override
     public JSONObject setEnv(JSONObject customEnv, boolean isOverride) {
+        this.envJson = JsonUtil.jsonMerge(customEnv, RuntimeUtil.getEnvJson());
+        this.envObject = RuntimeUtil.toEnvObject(envJson);
         if (isOverride) {
             RuntimeUtil.setEnv(customEnv.clone());
-        } else {
-            var defEnv = RuntimeUtil.readEnv();
-            RuntimeUtil.setEnv(JsonUtil.jsonMerge(defEnv, customEnv));
         }
-        return RuntimeUtil.getEnvJson();
+        return this.envJson;
     }
 
     @Override
     public JSONObject getEnvJson() {
-        return RuntimeUtil.getEnvJson();
+        if (this.envJson == null)
+            return RuntimeUtil.getEnvJson();
+        else return this.envJson;
     }
 
     @Override
     public LogicAppEnvObject getEnv() {
-        return RuntimeUtil.getEnvObject();
+        if (this.envObject == null)
+            return RuntimeUtil.getEnvObject();
+        return this.envObject;
     }
 
     @Override
     public LogicRunnerService newInstance(JSONObject env) {
-        var ins = new LogicRunnerServiceImpl(logService, insService, transactionalUtils, appConfig);
+        var ins = new LogicRunnerServiceImpl(logService, insService, configStoreService, transactionalUtils, appConfig);
         ins.setEnv(env, true);
         return ins;
     }

@@ -3,6 +3,7 @@ package com.aims.logic.runtime.util;
 import com.aims.logic.runtime.env.LogicAppConfig;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.Order;
@@ -23,6 +24,7 @@ import java.util.Objects;
  * @author liukun
  */
 @Component
+@Slf4j
 public class FileUtil {
     public static final String ENV_DIR = "envs";
     public static final String LOGIC_DIR = "logics";
@@ -47,7 +49,7 @@ public class FileUtil {
         JSONObject json;
         String fullDir = buildPath(getConfigDir(), dir);
         String path = buildPath(fullDir, fileName);
-        System.out.printf("read json file:%s%n", path);
+        log.info("read json file:{}", path);
         String jsonStr;
         try {
             jsonStr = Files.readString(Path.of(path));
@@ -62,7 +64,7 @@ public class FileUtil {
         JSONObject json;
         String fullDir = buildPath(getConfigDir(), dir);
         String path = buildPath(fullDir, fileName);
-        System.out.printf("read json file:%s%n", path);
+        log.info("read json file:{}", path);
         String jsonStr;
         createDirIfNotExist(fullDir);
         try {
@@ -113,7 +115,7 @@ public class FileUtil {
      */
     public static String writeFile(String dir, String filename, String content) throws Exception {
         var filePath = buildPath(buildPath(getConfigDir(), dir), filename);
-        System.out.printf("save file:%s%n", filePath);
+        log.info("save file:{}", filePath);
         createDirIfNotExist(dir);
         File file = new File(filePath);
         if (!file.exists()) {
