@@ -1,6 +1,9 @@
 package com.aims.logic.testsuite;
 
+import com.aims.logic.runtime.contract.enums.LogicConfigModelEnum;
 import com.aims.logic.runtime.service.LogicRunnerService;
+import com.alibaba.fastjson2.JSONObject;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -13,7 +16,7 @@ class TestSuitApplicationTests {
     @Autowired
     LogicRunnerService logic;
 
-//    @Test
+    @Test
     void contextLoads() {
         testBatchTran(10);
     }
@@ -32,12 +35,16 @@ class TestSuitApplicationTests {
     void testTran() {
         String id = String.valueOf(new Random().nextInt());
         var bizId = String.valueOf(new Date().getTime());
-        var res = logic.runBizByObjectArgs("test.tran", bizId, id);
+        var cusEnv = logic.getEnv();
+        cusEnv.setLOGIC_CONFIG_MODEL(LogicConfigModelEnum.offline);
+        var offlineLogic = logic.newInstance(JSONObject.from(cusEnv));
+        offlineLogic.getEnv().setLOGIC_CONFIG_MODEL(LogicConfigModelEnum.offline);
+        var res = offlineLogic.runBizByObjectArgs("test.tran", bizId, id);
         if (!res.isSuccess()) {
             var newId = id + 1;
-            var uptRes = logic.updateBizInstanceParams("test.tran", bizId, newId);
+            var uptRes = offlineLogic.updateBizInstanceParams("test.tran", bizId, newId);
             if (uptRes) {
-                res = logic.retryErrorBiz("test.tran", bizId);
+                res = offlineLogic.retryErrorBiz("test.tran", bizId);
                 if (res.isSuccess()) {
                     System.out.println(">>test ok>>testTran");
                 } else {

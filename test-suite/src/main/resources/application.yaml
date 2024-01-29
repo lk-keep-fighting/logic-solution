@@ -8,4 +8,4 @@ spring:
     password: 12#$qwER
 logic:
   config-dir: /Users/lk/Documents/Dev/aims/xuanwu-logic/logic-solution/test-suite/test-case-configs
-  scan-package-names: com.aims.logic.testsuite
+  scan-package-names: com.aims.logic.testsuite,com.aims.logic.ide.configuration
