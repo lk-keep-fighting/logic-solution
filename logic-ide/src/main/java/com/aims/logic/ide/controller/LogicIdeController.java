@@ -17,19 +17,29 @@ import com.aims.logic.runtime.util.ClassUtils;
 import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.DefaultParameterNameDiscoverer;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
+import org.springframework.core.type.classreading.MetadataReader;
+import org.springframework.core.type.classreading.MetadataReaderFactory;
+import org.springframework.core.type.classreading.SimpleMetadataReaderFactory;
+import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @RestController
+@Slf4j
 public class LogicIdeController {
     private final LogicMapper logicMapper;
     private final LogicService logicService;
@@ -119,6 +129,7 @@ public class LogicIdeController {
     public ApiResult curPackageClassList() {
 //        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 //        var res = classLoader.getDefinedPackages();
+        log.info("扫描指定package:{}下的类", ScanPackageNames);
         List<LogicClassDto> classDtos = new ArrayList<>();
         for (String name : ScanPackageNames) {
             var res = getAllClassNames(name);
@@ -229,7 +240,7 @@ public class LogicIdeController {
         return res;
     }
 
-    public List<LogicClassDto> getAllClassNames(String packageName) {
+    public List<LogicClassDto> getAllClassNames_bak(String packageName) {
         String packagePath = packageName.replace(".", "/");
         List<LogicClassDto> classNames = new ArrayList<>();
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -253,5 +264,40 @@ public class LogicIdeController {
         return classNames;
     }
 
+    public List<LogicClassDto> getAllClassNames(String basePackage) {
+        List<LogicClassDto> classNames = new ArrayList<>();
+        ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
+        MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory(resourcePatternResolver);
 
+        ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
+        scanner.addIncludeFilter(new AssignableTypeFilter(Object.class)); // 替换成你想要的类型
+
+        String packageSearchPath = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX +
+                basePackage.replace('.', '/') + "/**/*.class";
+
+        org.springframework.core.io.Resource[] resources = new org.springframework.core.io.Resource[0];
+        try {
+            resources = resourcePatternResolver.getResources(packageSearchPath);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        for (org.springframework.core.io.Resource resource : resources) {
+            if (resource.isReadable()) {
+                MetadataReader metadataReader = null;
+                try {
+                    metadataReader = metadataReaderFactory.getMetadataReader(resource);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                String className = metadataReader.getClassMetadata().getClassName();
+                classNames.add(new LogicClassDto(className));
+            }
+        }
+
+        // 打印类路径
+        for (var classPath : classNames) {
+            log.debug("className: " + classPath.getValue());
+        }
+        return classNames;
+    }
 }
