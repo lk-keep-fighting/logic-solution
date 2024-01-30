@@ -91,6 +91,8 @@ public class LogicConfigStoreServiceImpl implements LogicConfigStoreService {
             log.info("已删除key为[{}-null]的缓存", logicId);
             return path;
         } catch (Exception e) {
+            log.error("保存逻辑配置报错[{}.json]", logicId);
+            log.error(e.getMessage());
             throw new RuntimeException(e);
         }
     }
