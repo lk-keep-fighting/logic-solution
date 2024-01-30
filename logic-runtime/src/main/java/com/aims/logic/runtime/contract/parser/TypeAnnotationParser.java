@@ -20,7 +20,7 @@ public class TypeAnnotationParser {
             return null;
         }
         params.forEach(v -> {
-            if (!v.getDefaultValue().isBlank()) {
+            if (v.getDefaultValue() != null && !v.getDefaultValue().isBlank()) {
                 System.out.println(v.getDefaultValue());
                 var detValueTypeName = v.getTypeAnnotation().getTypeName();
                 switch (detValueTypeName) {
