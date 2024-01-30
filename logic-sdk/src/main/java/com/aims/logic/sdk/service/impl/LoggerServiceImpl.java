@@ -7,6 +7,7 @@ import com.aims.logic.sdk.mapper.LogicLogMapper;
 import com.aims.logic.sdk.service.LogicInstanceService;
 import com.aims.logic.runtime.util.RuntimeUtil;
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -131,7 +132,7 @@ public class LoggerServiceImpl {
                 .setMessage(msg255)
                 .setBizId(logicLog.getBizId())
                 .setVersion(logicLog.getVersion())
-                .setItemLogs(JSON.toJSONString(logicLog.getItemLogs()))
+                .setItemLogs(JSONArray.toJSONString(logicLog.getItemLogs()))
                 .setReturnData(logicLog.getReturnDataStr() != null ? logicLog.getReturnDataStr() : null)
                 .setLogicId(logicLog.getLogicId())
                 .setParamsJson(logicLog.getParamsJson() == null ? null : logicLog.getParamsJson().toJSONString())
