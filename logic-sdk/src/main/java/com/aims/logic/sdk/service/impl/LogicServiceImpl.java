@@ -144,6 +144,8 @@ public class LogicServiceImpl extends BaseServiceImpl<LogicMapper, LogicEntity> 
                     throw new RuntimeException("请求异常，Http Code:" + rep.code() + ", " + rep.message());
                 }
             } catch (IOException e) {
+                log.error("请求catch异常:");
+                log.error(e.getMessage());
                 throw new RuntimeException(e);
             }
             LogicPublishedEntity publishedEntity = new LogicPublishedEntity();
@@ -157,7 +159,8 @@ public class LogicServiceImpl extends BaseServiceImpl<LogicMapper, LogicEntity> 
             logicPublishedMapper.insert(publishedEntity);
             return url;
         } else {
-            throw new RuntimeException("未找到逻辑：" + id);
+            log.error("未找到要发布的逻辑：" + id);
+            throw new RuntimeException("未找到要发布的逻辑：" + id);
         }
     }
 }
