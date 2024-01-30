@@ -108,7 +108,7 @@ public class LogicIdeController {
         Map<String, String> map = new HashMap<>();
         map.put("id", id);
         map.put("version", version);
-        queryWrapper.allEq(map);
+        queryWrapper.allEq(map).orderByDesc("aid").last("limit 1");
         var logicBakEntityEntity = logicBakService.getOne(queryWrapper);
         if (logicBakEntityEntity != null) {
             var config = logicBakEntityEntity.getConfigJson();
