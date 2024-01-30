@@ -27,6 +27,6 @@ public class ApiResult<T> {
                 .setError(new ApiError()
                         .setCode(500)
                         .setMsg(ex.getMessage())
-                        .setDetail(ex));
+                        .setDetail(ex.getCause() != null ? ex.getCause() : ex));
     }
 }
