@@ -32,7 +32,7 @@ public class FileUtil {
 
     public static String getConfigDir() {
         String configDir;
-        if (RuntimeUtil.AppConfig.CONFIG_DIR != null && !RuntimeUtil.AppConfig.CONFIG_DIR.isBlank()) {
+        if (RuntimeUtil.AppConfig.CONFIG_DIR != null && !RuntimeUtil.AppConfig.CONFIG_DIR.isEmpty()) {
             configDir = RuntimeUtil.AppConfig.CONFIG_DIR;
         } else {
             configDir = buildPath(System.getProperty("user.dir"), "logic-configs");
@@ -95,6 +95,9 @@ public class FileUtil {
      * @return 完整地址
      */
     public static String buildPath(String dir, String subFilePath) {
+        if (dir.equals(File.separator)) {
+            return dir + subFilePath;
+        }
         return dir + File.separator + subFilePath;
     }
 
@@ -105,6 +108,7 @@ public class FileUtil {
             if (!res) {
                 throw new RuntimeException("创建文件夹失败!" + dir);
             }
+            log.info("自动创建配置文件目录{}", dir);
         }
     }
 
@@ -117,9 +121,10 @@ public class FileUtil {
      * @throws Exception 异常
      */
     public static String writeFile(String dir, String filename, String content) throws Exception {
-        var filePath = buildPath(buildPath(getConfigDir(), dir), filename);
+        var fullDir = buildPath(getConfigDir(), dir);
+        var filePath = buildPath(fullDir, filename);
         log.info("save file:{}", filePath);
-        createDirIfNotExist(dir);
+        createDirIfNotExist(fullDir);
         File file = new File(filePath);
         if (!file.exists()) {
             var res = file.createNewFile();
