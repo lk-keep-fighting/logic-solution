@@ -55,7 +55,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         this.configStoreService = _configStoreService;
         this.appConfig = appConfig;
         this.transactionalUtils = transactionalUtils;
-        RuntimeUtil.AppConfig = appConfig;
+        RuntimeUtil.AppConfig=appConfig;
         RuntimeUtil.logicConfigStoreService = configStoreService;
         RuntimeUtil.initEnv();
     }

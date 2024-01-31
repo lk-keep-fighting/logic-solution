@@ -15,8 +15,7 @@ import java.util.Map;
 public class LogicRuntimeController {
     private final LogicRunnerService runner;
 
-    public LogicRuntimeController(LogicRunnerService _runner
-    ) {
+    public LogicRuntimeController(LogicRunnerService _runner) {
         this.runner = _runner;
     }
 
