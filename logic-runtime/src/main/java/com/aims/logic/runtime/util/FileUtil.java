@@ -31,11 +31,14 @@ public class FileUtil {
 
 
     public static String getConfigDir() {
+        String configDir;
         if (RuntimeUtil.AppConfig.CONFIG_DIR != null && !RuntimeUtil.AppConfig.CONFIG_DIR.isBlank()) {
-            return RuntimeUtil.AppConfig.CONFIG_DIR;
+            configDir = RuntimeUtil.AppConfig.CONFIG_DIR;
         } else {
-            return buildPath(System.getProperty("user.dir"), "logic-configs");
+            configDir = buildPath(System.getProperty("user.dir"), "logic-configs");
         }
+        log.info("获取配置目录：[{}]", configDir);
+        return configDir;
     }
 
     /**
@@ -125,7 +128,7 @@ public class FileUtil {
             }
         }
         try (FileWriter fileWriter = new FileWriter(file)) {
-            fileWriter.write(content);
+            fileWriter.write(content == null ? "" : content);
             fileWriter.flush();
         } catch (Exception ex) {
             throw new RuntimeException(ex);
