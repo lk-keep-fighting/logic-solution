@@ -14,6 +14,7 @@ import com.alibaba.fastjson2.JSONObject;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import lombok.extern.slf4j.Slf4j;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -21,6 +22,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
+@Slf4j
 @Accessors(chain = true)
 @Setter
 @Getter
@@ -77,10 +79,10 @@ public class LogicRunner {
         this.fnCtx.set_env(envJson);
         this.fnCtx.setBizId(bizId);
         logicLog.setBizId(bizId);
-        System.out.println("初始化成功");
-        System.out.printf("默认参数，_par:%s%n", this.fnCtx.get_par());
-        System.out.printf("默认局部变量，_var:%s%n", this.fnCtx.get_var());
-        System.out.printf("环境变量，_env:%s%n", this.fnCtx.get_env());
+        log.info("初始化成功,bizId:{}", bizId);
+        log.debug("参数声明：_par:{}", this.fnCtx.get_par());
+        log.debug("局部变量声明：_var:{}", this.fnCtx.get_var());
+        log.debug("环境变量声明：_env:{}", this.fnCtx.get_env());
     }
 
     /**
