@@ -7,16 +7,16 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.concurrent.TimeUnit;
 
-@Configuration
+//@Configuration
 public class CaffeineCacheConfig {
-    @Bean
-    public Cache caffeineCache() {
-        return Caffeine.newBuilder()
-//                .expireAfterAccess(10, TimeUnit.SECONDS)
-                //初始容量为100
-                .initialCapacity(100)
-                //最大容量为200
-                .maximumSize(200)
-                .build();
-    }
+//    @Bean
+//    public Cache caffeineCache() {
+//        return Caffeine.newBuilder()
+//                .expireAfterAccess(1, TimeUnit.DAYS)
+//                //初始容量为100
+//                .initialCapacity(100)
+//                //最大容量为200
+//                .maximumSize(200)
+//                .build();
+//    }
 }
