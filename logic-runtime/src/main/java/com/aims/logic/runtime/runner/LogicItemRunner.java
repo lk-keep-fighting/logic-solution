@@ -5,7 +5,9 @@ import com.aims.logic.runtime.contract.dto.LogicItemRunResult;
 import com.aims.logic.runtime.contract.logger.LogicItemLog;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class LogicItemRunner {
     final LogicItemTreeNode dsl;
 
@@ -15,9 +17,8 @@ public class LogicItemRunner {
 
     public LogicItemRunResult run(FunctionContext ctx) {
         LogicItemRunResult ret = new LogicItemRunResult();
-//        Object ret = null;
-        System.out.println("执行节点 " + this.dsl.getName());
-        System.out.println("上下文 " + JSONObject.toJSONString(ctx));
+        log.info("执行节点 " + this.dsl.getName());
+        log.debug("上下文 " + JSONObject.toJSONString(ctx));
         var itemType = this.dsl.getType();
         var originConfig = JSON.copy(this.dsl);
         switch (itemType) {
@@ -32,7 +33,8 @@ public class LogicItemRunner {
                             Thread.sleep(timeout);
                         }
                     } catch (InterruptedException exception) {
-                        System.out.println(exception.toString());
+                        log.error("等待节点线程被中断");
+                        log.error(exception.toString());
                     }
                 }
                 break;
@@ -45,7 +47,7 @@ public class LogicItemRunner {
                 if (func != null)
                     ret = func.invoke(ctx, this.dsl);
                 else
-                    System.out.println("未实现的类型：" + dsl.getType());
+                    log.error("未实现的类型：" + dsl.getType());
                 break;
         }
         if (ctx.isHasErr()) {

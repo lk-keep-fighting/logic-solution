@@ -13,23 +13,32 @@ import com.aims.logic.runtime.env.LogicAppEnvObject;
 import com.aims.logic.runtime.runner.LogicRunner;
 import com.aims.logic.runtime.service.LogicRunnerService;
 import com.aims.logic.runtime.store.LogicConfigStoreService;
+import com.aims.logic.runtime.util.JsonUtil;
+import com.aims.logic.runtime.util.RuntimeUtil;
 import com.aims.logic.sdk.entity.LogicInstanceEntity;
 import com.aims.logic.sdk.service.LogicInstanceService;
 import com.aims.logic.sdk.service.impl.LoggerServiceImpl;
 import com.aims.logic.sdk.util.TransactionalUtils;
-import com.aims.logic.runtime.util.JsonUtil;
-import com.aims.logic.runtime.util.RuntimeUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 
+import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author liukun
  */
+@Slf4j
 @Service
 public class LogicRunnerServiceImpl implements LogicRunnerService {
     private final LoggerServiceImpl logService;
@@ -55,9 +64,13 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         this.configStoreService = _configStoreService;
         this.appConfig = appConfig;
         this.transactionalUtils = transactionalUtils;
-        RuntimeUtil.AppConfig=appConfig;
+        RuntimeUtil.AppConfig = appConfig;
         RuntimeUtil.logicConfigStoreService = configStoreService;
         RuntimeUtil.initEnv();
+//        lockMap = Caffeine.newBuilder().initialCapacity(100)
+//                //最大容量为200
+//                .maximumSize(200)
+//                .build();
     }
 
 
@@ -153,6 +166,10 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         return runBizByMap(logicId, bizId, parsMap);
     }
 
+    //    ConcurrentMap<String, Lock> lockMap = new ConcurrentHashMap<>();
+    @Resource
+    Cache<String, Lock> lockMap;
+
     /**
      * 执行业务逻辑
      *
@@ -163,8 +180,22 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
      */
     @Override
     public LogicRunResult runBizByMap(String logicId, String bizId, Map<String, Object> parsMap) {
-        return runBizWithTransaction(logicId, bizId, parsMap);
+        String lockKey = logicId + "-" + bizId;
+//        synchronized (lockKey.intern()) {
+//            return runBizWithTransaction(logicId, bizId, parsMap);
+//        }
+        Lock bizLock = lockMap.asMap().computeIfAbsent(lockKey, k -> new ReentrantLock());
+        try {
+            bizLock.lock();
+            return runBizWithTransaction(logicId, bizId, parsMap);
+        } catch (Exception e) {
+            log.error("执行业务逻辑失败", e);
+            throw new RuntimeException(e);
+        } finally {
+            bizLock.unlock();
+        }
     }
+
 
     /***
      * 执行前先校验交互点是否正确
@@ -190,8 +221,9 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
     }
 
     @Override
-    public LogicRunResult runBizByVerifyCode(String logicId, String bizId, String verifyCode, Map<String, Object>
-            parsMap) {
+    public LogicRunResult runBizByVerifyCode(String logicId, String bizId, String
+            verifyCode, Map<String, Object>
+                                                     parsMap) {
         if (bizId == null || bizId.isBlank()) throw new RuntimeException("未指定业务标识！");
         if (verifyCode == null || verifyCode.isBlank())
             throw new RuntimeException("未指定期望执行节点！");
@@ -279,7 +311,8 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
      * @return
      */
 
-    private LogicRunResult runItemWithEveryJavaNodeTran(String logicId, String bizId, LogicRunner runner, LogicItemTreeNode nextItem) {
+    private LogicRunResult runItemWithEveryJavaNodeTran(String logicId, String bizId, LogicRunner
+            runner, LogicItemTreeNode nextItem) {
         LogicLog logicLog = new LogicLog();
         logicLog.setBizId(bizId).setLogicId(logicId).setVersion(runner.getLogic().getVersion())
                 .setParamsJson(JSONObject.from(runner.getFnCtx().get_par())).setVarsJson(runner.getFnCtx().get_var()).setEnvsJson(runner.getFnCtx().get_env())
@@ -335,7 +368,8 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
      * @param nextItem
      * @return
      */
-    private LogicRunResult runItemWithEveryRequestTran(String logicId, String bizId, LogicRunner runner, LogicItemTreeNode nextItem) {
+    private LogicRunResult runItemWithEveryRequestTran(String logicId, String bizId, LogicRunner
+            runner, LogicItemTreeNode nextItem) {
         LogicLog logicLog = new LogicLog();
         logicLog.setBizId(bizId).setLogicId(logicId).setVersion(runner.getLogic().getVersion())
                 .setParamsJson(JSONObject.from(runner.getFnCtx().get_par())).setVarsJson(runner.getFnCtx().get_var()).setEnvsJson(runner.getFnCtx().get_env())
@@ -402,7 +436,8 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
      * @param nextItem
      * @return
      */
-    private LogicRunResult runItemWithNoTran(String logicId, String bizId, LogicRunner runner, LogicItemTreeNode nextItem) {
+    private LogicRunResult runItemWithNoTran(String logicId, String bizId, LogicRunner runner, LogicItemTreeNode
+            nextItem) {
         LogicLog logicLog = new LogicLog();
         logicLog.setBizId(bizId).setLogicId(logicId).setVersion(runner.getLogic().getVersion())
                 .setParamsJson(JSONObject.from(runner.getFnCtx().get_par())).setVarsJson(runner.getFnCtx().get_var()).setEnvsJson(runner.getFnCtx().get_env())
