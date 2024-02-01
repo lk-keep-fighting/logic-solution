@@ -47,7 +47,7 @@ public class LogicItemRunner {
                 if (func != null)
                     ret = func.invoke(ctx, this.dsl);
                 else
-                    log.error("未实现的类型：" + dsl.getType());
+                    log.debug("未实现的类型：" + dsl.getType());
                 break;
         }
         if (ctx.isHasErr()) {

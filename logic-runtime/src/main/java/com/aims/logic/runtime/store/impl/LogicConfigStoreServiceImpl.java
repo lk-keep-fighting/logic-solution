@@ -7,6 +7,7 @@ import com.aims.logic.runtime.util.RuntimeUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -23,8 +24,16 @@ import java.time.Duration;
 @Service
 public class LogicConfigStoreServiceImpl implements LogicConfigStoreService {
     OkHttpClient httpClient = new OkHttpClient();
-    @Resource
     private Cache<String, JSONObject> logicConfigCache;
+
+    public LogicConfigStoreServiceImpl() {
+        logicConfigCache = Caffeine.newBuilder().initialCapacity(100)
+                //最大容量为200
+//                .maximumSize(200)
+                .expireAfterAccess(Duration.ofDays(7))
+                .build();
+    }
+
 
     @Override
     public JSONObject readLogicConfig(String logicId, String version) {

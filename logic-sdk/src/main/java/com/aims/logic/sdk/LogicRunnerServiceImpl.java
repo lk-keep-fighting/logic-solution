@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 
 import javax.annotation.Resource;
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -52,6 +53,9 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
     private LogicAppEnvObject envObject = null;
     private JSONObject envJson = null;
 
+    //    ConcurrentMap<String, Lock> lockMap = new ConcurrentHashMap<>();
+    Cache<String, Lock> lockMap;
+
 
     @Autowired
     public LogicRunnerServiceImpl(LoggerServiceImpl logService,
@@ -67,10 +71,11 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         RuntimeUtil.AppConfig = appConfig;
         RuntimeUtil.logicConfigStoreService = configStoreService;
         RuntimeUtil.initEnv();
-//        lockMap = Caffeine.newBuilder().initialCapacity(100)
-//                //最大容量为200
+        lockMap = Caffeine.newBuilder().initialCapacity(100)
+                //最大容量为200
 //                .maximumSize(200)
-//                .build();
+                .expireAfterAccess(Duration.ofMinutes(1))
+                .build();
     }
 
 
@@ -166,9 +171,6 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         return runBizByMap(logicId, bizId, parsMap);
     }
 
-    //    ConcurrentMap<String, Lock> lockMap = new ConcurrentHashMap<>();
-    @Resource
-    Cache<String, Lock> lockMap;
 
     /**
      * 执行业务逻辑
