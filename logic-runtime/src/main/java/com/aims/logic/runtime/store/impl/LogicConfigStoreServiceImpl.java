@@ -24,16 +24,15 @@ import java.time.Duration;
 @Service
 public class LogicConfigStoreServiceImpl implements LogicConfigStoreService {
     OkHttpClient httpClient = new OkHttpClient();
-    private Cache<String, JSONObject> logicConfigCache;
-
-    public LogicConfigStoreServiceImpl() {
-        logicConfigCache = Caffeine.newBuilder().initialCapacity(100)
-                //最大容量为200
+    public static Cache<String, JSONObject> logicConfigCache = Caffeine.newBuilder().initialCapacity(100)
+            //最大容量为200
 //                .maximumSize(200)
-                .expireAfterAccess(Duration.ofDays(7))
-                .build();
-    }
+            .expireAfterAccess(Duration.ofDays(7))
+            .build();
 
+    public Cache<String, JSONObject> getLogicConfigCache() {
+        return logicConfigCache;
+    }
 
     @Override
     public JSONObject readLogicConfig(String logicId, String version) {
@@ -49,6 +48,7 @@ public class LogicConfigStoreServiceImpl implements LogicConfigStoreService {
             logicConfig = FileUtil.readJsonFile(FileUtil.LOGIC_DIR, logicId + ".json");
             if (logicConfig != null) {
                 logicConfig.put("id", logicId);//修复复制配置时id可能不一致问题
+//                logicCacheKey = logicId + "-" + logicConfig.get("version");//使用文件内版本组成缓存key
                 logicConfigCache.put(logicCacheKey, logicConfig);
                 log.info("offline-从文件读取逻辑配置并更新到缓存[{}]，json内version：{}", logicCacheKey, logicConfig.get("version"));
                 return logicConfig;

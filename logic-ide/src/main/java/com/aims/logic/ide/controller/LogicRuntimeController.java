@@ -107,4 +107,9 @@ public class LogicRuntimeController {
     public ApiResult env() {
         return new ApiResult().setData(RuntimeUtil.getEnvJson());
     }
+
+    @GetMapping("/api/runtime/state")
+    public ApiResult state() {
+        return new ApiResult().setData(RuntimeUtil.logicConfigStoreService.getLogicConfigCache().stats());
+    }
 }

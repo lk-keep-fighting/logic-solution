@@ -1,11 +1,13 @@
 package com.aims.logic.runtime.store;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.github.benmanes.caffeine.cache.Cache;
 
 /**
  * @author liukun
  */
 public interface LogicConfigStoreService {
+    Cache<String, JSONObject> getLogicConfigCache();
 
     /**
      * 根据逻辑编号读取逻辑配置
