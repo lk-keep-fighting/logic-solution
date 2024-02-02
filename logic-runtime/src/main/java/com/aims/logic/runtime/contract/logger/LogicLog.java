@@ -29,6 +29,10 @@ public class LogicLog extends Log {
      * 执行结束后当前的具备变量值
      */
     JSONObject varsJson_end;
+    /**
+     * 业务实例流水号
+     */
+    String instanceId;
     String logicId;
     String version;
     /**
