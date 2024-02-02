@@ -48,12 +48,9 @@ public class LoggerServiceImpl {
         }
     }
 
-    public void updateInstanceStatus(String logicId, String bizId, boolean success, String msg) {
+    public void updateInstanceStatus(String instanceId, boolean success, String msg) {
         UpdateWrapper updateWrapper = new UpdateWrapper();
-        Map<String, String> m = new HashMap<>();
-        m.put("logicId", logicId);
-        m.put("bizId", bizId);
-        updateWrapper.allEq(m);
+        updateWrapper.eq("id", instanceId);
         updateWrapper.set("success", success);
         var msg255 = msg == null ? null : msg.length() > 255 ? msg.substring(0, 255) : msg;
         updateWrapper.set("message", msg255);
@@ -69,14 +66,14 @@ public class LoggerServiceImpl {
         String env = RuntimeUtil.getEnvObject().getNODE_ENV();
         var nextId = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getId();
         var nextName = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getName();
-        QueryWrapper<LogicInstanceEntity> q = new QueryWrapper<>();
-        Map<String, String> m = new HashMap<>();
-        m.put("logicId", logicLog.getLogicId());
-        m.put("bizId", logicLog.getBizId());
-        q.allEq(m);
-        var ins = instanceService.getOne(q);
+//        QueryWrapper<LogicInstanceEntity> q = new QueryWrapper<>();
+//        Map<String, String> m = new HashMap<>();
+//        m.put("logicId", logicLog.getLogicId());
+//        m.put("bizId", logicLog.getBizId());
+//        q.allEq(m);
+//        var ins = instanceService.getOne(q);
         var msg255 = logicLog.getMsg() == null ? null : logicLog.getMsg().length() > 255 ? logicLog.getMsg().substring(0, 255) : logicLog.getMsg();
-        if (ins != null) {
+        if (logicLog.getInstanceId() != null) {
             LambdaUpdateWrapper<LogicInstanceEntity> updateWrapper = new LambdaUpdateWrapper<>();
             updateWrapper.set(LogicInstanceEntity::getSuccess, logicLog.isSuccess())
                     .set(LogicInstanceEntity::getMessage, msg255)
@@ -87,7 +84,7 @@ public class LoggerServiceImpl {
                     .set(LogicInstanceEntity::getIsOver, logicLog.isOver()).set(LogicInstanceEntity::getNextId, nextId)
                     .set(LogicInstanceEntity::getNextName, nextName)
                     .set(LogicInstanceEntity::getEnv, env)
-                    .eq(LogicInstanceEntity::getId, ins.getId());
+                    .eq(LogicInstanceEntity::getId, logicLog.getInstanceId());
             instanceService.update(updateWrapper);
         } else {
             LogicInstanceEntity newIns = new LogicInstanceEntity()
@@ -105,7 +102,9 @@ public class LoggerServiceImpl {
                     .setNextId(nextId)
                     .setNextName(nextName)
                     .setEnv(env);
-            newIns.insert();
+//            newIns.insert();
+            instanceService.save(newIns);
+            logicLog.setInstanceId(newIns.getId());
         }
     }
 
