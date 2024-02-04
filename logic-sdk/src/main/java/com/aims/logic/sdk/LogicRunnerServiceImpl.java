@@ -367,14 +367,17 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         logicLog.setInstanceId(instanceId).setBizId(bizId).setLogicId(logicId).setVersion(runner.getLogic().getVersion())
                 .setParamsJson(JSONObject.from(runner.getFnCtx().get_par())).setVarsJson(runner.getFnCtx().get_var()).setEnvsJson(runner.getFnCtx().get_env())
                 .setNextItem(nextItem);
-        if (LogicItemType.start.compareType(nextItem.getType())) {//如果为开始节点，业务实例先入库，记录本次请求，避免后续失败数据丢失
-            nextItem = runner.findNextItem(nextItem);
-            logicLog.setNextItem(nextItem).setVarsJson_end(runner.getFnCtx().get_var());
-            logService.addOrUpdateInstanceAndAddLogicLog(logicLog);
-            runner.refreshStatus(true, nextItem);
-        }
         LogicItemRunResult itemRes = null;
         List<LogicItemLog> itemLogs = new ArrayList<>();
+//        if (LogicItemType.start.compareType(nextItem.getType())) {//如果为开始节点，业务实例先入库，记录本次请求，避免后续失败数据丢失
+//            itemRes = runner.runItem(nextItem);
+//            nextItem = runner.findNextItem(nextItem);
+//            itemLogs.add(itemRes.getItemLog());
+//            logicLog.setItemLogs(itemLogs).setNextItem(nextItem).setVarsJson_end(runner.getFnCtx().get_var()).setSuccess(true);
+//            logService.addOrUpdateInstanceAndAddLogicLog(logicLog);
+//            runner.refreshStatus(true, nextItem);
+//        }
+//        itemLogs.clear();
         if (runner.getRunnerStatus() == RunnerStatusEnum.Continue) {
             TransactionStatus begin = null;
             begin = transactionalUtils.begin();
@@ -382,31 +385,33 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 try {
                     itemRes = runner.runItem(nextItem);
                     nextItem = runner.findNextItem(nextItem);
-                    itemLogs.clear();
                     itemLogs.add(itemRes.getItemLog());
-                    logicLog.setItemLogs(itemLogs).setVarsJson_end(runner.getFnCtx().get_var())
-                            .setOver(runner.refreshStatus(itemRes.isSuccess(), nextItem) == RunnerStatusEnum.End)
-                            .setNextItem(nextItem)
-                            .setSuccess(itemRes.isSuccess()).setMsg(itemRes.getMsg());
-                    logService.addOrUpdateInstanceAndAddLogicLog(logicLog);
                     if (itemRes.isSuccess()) {
                         runner.refreshStatus(true, nextItem);
                     } else {
                         break;
                     }
                 } catch (Exception e) {
-                    logService.addLogicLog(logicLog);
-                    logService.updateInstanceStatus(logicLog.getInstanceId(), false, itemRes.getMsg());
-                    return new LogicRunResult().setLogicLog(logicLog)
-                            .setSuccess(false)
-                            .setMsg(e.getMessage());
+//                    transactionalUtils.rollback(begin);
+//                    logService.addLogicLog(logicLog);
+//                    logService.updateInstanceStatus(logicLog.getInstanceId(), false, itemRes.getMsg());
+//                    return new LogicRunResult().setLogicLog(logicLog)
+//                            .setSuccess(false)
+//                            .setMsg(e.getMessage());
                 }
             }
+
             //本次交互完成，没有错误则提交，否则本次交互全部回滚，只更新实例success状态和消息
-            if (itemRes.isSuccess())
+            if (itemRes == null || itemRes.isSuccess()) {
+                logicLog.setItemLogs(itemLogs).setVarsJson_end(runner.getFnCtx().get_var())
+                        .setOver(runner.refreshStatus(itemRes.isSuccess(), nextItem) == RunnerStatusEnum.End)
+                        .setNextItem(nextItem)
+                        .setSuccess(itemRes.isSuccess()).setMsg(itemRes.getMsg());
+                logService.addOrUpdateInstanceAndAddLogicLog(logicLog);
                 transactionalUtils.commit(begin);
-            else {
+            } else {
                 transactionalUtils.rollback(begin);
+                logicLog.setSuccess(false);
                 logService.updateInstanceStatus(logicLog.getInstanceId(), false, itemRes.getMsg());
                 logService.addLogicLog(logicLog);
                 return new LogicRunResult().setLogicLog(logicLog)
@@ -415,8 +420,8 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
             }
         }
         return new LogicRunResult().setLogicLog(logicLog)
-                .setData(itemRes.getData())
-                .setSuccess(itemRes.isSuccess())
+                .setData(itemRes == null ? null : itemRes.getData())
+                .setSuccess(itemRes == null ? true : itemRes.isSuccess())
                 .setMsg(itemRes.getMsg());
     }
 
