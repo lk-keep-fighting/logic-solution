@@ -127,7 +127,8 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
     public LogicRunResult runByMap(String logicId, Map<String, Object> parsMap) {
         JSONObject config = RuntimeUtil.readLogicConfig(logicId);
         var res = new com.aims.logic.runtime.runner.LogicRunner(config, getEnvJson()).run(parsMap);
-        logService.addOrUpdateInstanceAndAddLogicLog(res.getLogicLog());
+        logService.addLogicLog(res.getLogicLog());
+//        logService.addOrUpdateInstanceAndAddLogicLog(res.getLogicLog());
         return res;
     }
 
