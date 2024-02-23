@@ -28,12 +28,14 @@ public class JavaCodeFunction implements ILogicItemFunctionRunner {
         var itemDsl = (LogicItemTreeNode) item;
         try {
             var clazz = ClassLoaderUtils.loadClass(itemDsl.getUrl().trim());
-            log.info("执行Java代码-成功加载方法所在类：{}", itemDsl.getUrl().trim());
+            log.info("成功加载方法所在类：{}", itemDsl.getUrl().trim());
             var bodyObj = Functions.get("js").invoke(ctx, itemDsl.getBody()).getData();//执行js脚本，返回方法实参
+            log.info("Java代码实参类型：-{}", bodyObj.getClass());
             var methodName = itemDsl.getMethod().split("\\(")[0];
             // 获取参数声明
             List<ParamTreeNode> paramTreeNodes = itemDsl.getParams();
             var paramsJson = bodyObj instanceof ScriptObjectMirror ? JSONObject.from(JsonUtil.toObject((ScriptObjectMirror) bodyObj)) : JSONObject.from(bodyObj);
+            log.info("Java代码实参：-{}", paramsJson.toJSONString());
             itemDsl.setBody(paramsJson.toJSONString());
             List<Class<?>> cls = new ArrayList<>();
             List<Object> paramsArrayFromJsObj = new ArrayList<>();
@@ -43,9 +45,9 @@ public class JavaCodeFunction implements ILogicItemFunctionRunner {
                 var paramTypeAnno = param.getTypeAnnotation();
                 var classWrapper = ClassWrapper.of(paramTypeAnno.getTypeNamespace());
                 Class<?> paramClass = null;
-                Object inputParamValue = ctx.get_par().get(paramName);//参数可能为代码中ByMap传入，有强类型声明
+                Object inputParamValue = paramsJson.get(paramName);//参数可能为代码中ByMap传入，有强类型声明
                 if (inputParamValue == null) {//可能通过ByObjectArgs动态参数传入，自动生成的参数名_p1、_p2、_p3...
-                    inputParamValue = ctx.get_par().get("_p" + (i + 1));
+                    inputParamValue = paramsJson.get("_p" + (i + 1));
                 }
                 Object obj = inputParamValue;
                 if (inputParamValue != null) {
