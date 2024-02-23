@@ -12,7 +12,7 @@ public class LogicItemRunner {
     final LogicItemTreeNode dsl;
 
     public LogicItemRunner(LogicItemTreeNode _dsl) {
-        dsl = _dsl;
+        dsl = JSON.parseObject(JSON.toJSONString(_dsl), LogicItemTreeNode.class);
     }
 
     public LogicItemRunResult run(FunctionContext ctx) {
