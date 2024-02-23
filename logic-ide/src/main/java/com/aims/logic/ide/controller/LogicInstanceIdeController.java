@@ -9,6 +9,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 public class LogicInstanceIdeController {
     private final LogicInstanceService instanceService;
@@ -42,6 +44,12 @@ public class LogicInstanceIdeController {
     @DeleteMapping("/api/ide/logic-instance/delete/{id}")
     public ApiResult<Boolean> deleteLogic(@PathVariable String id) {
         var res = instanceService.removeById(id);
+        return new ApiResult<Boolean>().setData(res);
+    }
+
+    @DeleteMapping("/api/ide/logic-instance/batch-delete")
+    public ApiResult<Boolean> deleteLogic(@RequestBody List<String> ids) {
+        var res = instanceService.removeByIds(ids);
         return new ApiResult<Boolean>().setData(res);
     }
 
