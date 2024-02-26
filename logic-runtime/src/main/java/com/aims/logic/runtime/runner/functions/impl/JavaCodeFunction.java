@@ -45,11 +45,11 @@ public class JavaCodeFunction implements ILogicItemFunctionRunner {
                 var paramTypeAnno = param.getTypeAnnotation();
                 var classWrapper = ClassWrapper.of(paramTypeAnno.getTypeNamespace());
                 Class<?> paramClass = null;
-                Object inputParamValue = paramsJson.get(paramName);//参数可能为代码中ByMap传入，有强类型声明
-                if (inputParamValue == null) {//可能通过ByObjectArgs动态参数传入，自动生成的参数名_p1、_p2、_p3...
-                    inputParamValue = paramsJson.get("_p" + (i + 1));
-                }
-                Object obj = inputParamValue;
+//                Object inputParamValue = paramsJson.get(paramName);//参数可能为代码中ByMap传入，有强类型声明
+//                if (inputParamValue == null) {//可能通过ByObjectArgs动态参数传入，自动生成的参数名_p1、_p2、_p3...
+//                    inputParamValue = paramsJson.get("_p" + (i + 1));
+//                }
+                Object inputParamValue = paramsJson.get("_p" + (i + 1));//可能通过ByObjectArgs动态参数传入，自动生成的参数名_p1、_p2、_p3...
                 if (inputParamValue != null) {
                     //获取传入的数据的类型声明，用于判断与方法声明是否一致，如果一直，则不用转换
                     Class<?> inputParamClass = inputParamValue.getClass();
@@ -59,6 +59,7 @@ public class JavaCodeFunction implements ILogicItemFunctionRunner {
                         paramsJson.put(paramName, inputParamValue);
                     }
                 }
+                Object obj = inputParamValue;
                 if (paramClass == null) {
                     switch (paramTypeAnno.getTypeKind()) {
                         case generic:
