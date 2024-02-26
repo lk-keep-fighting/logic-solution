@@ -308,7 +308,9 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         log.info("runItemWithEveryJavaNodeTran-insId:{}", instanceId);
         LogicLog logicLog = new LogicLog();
         logicLog.setInstanceId(instanceId).setBizId(bizId).setLogicId(logicId).setVersion(runner.getLogic().getVersion())
-                .setParamsJson(JSONObject.from(runner.getFnCtx().get_par())).setVarsJson(runner.getFnCtx().get_var()).setEnvsJson(runner.getFnCtx().get_env())
+                .setParamsJson(JSONObject.from(runner.getFnCtx().get_par()))
+                .setVarsJson(JSONObject.parse(runner.getFnCtx().get_var().toJSONString()))
+                .setEnvsJson(runner.getFnCtx().get_env())
                 .setNextItem(nextItem);
 
         TransactionStatus begin = null;
@@ -366,7 +368,9 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
             runner, LogicItemTreeNode nextItem) {
         LogicLog logicLog = new LogicLog();
         logicLog.setInstanceId(instanceId).setBizId(bizId).setLogicId(logicId).setVersion(runner.getLogic().getVersion())
-                .setParamsJson(JSONObject.from(runner.getFnCtx().get_par())).setVarsJson(runner.getFnCtx().get_var()).setEnvsJson(runner.getFnCtx().get_env())
+                .setParamsJson(JSONObject.from(runner.getFnCtx().get_par()))
+                .setVarsJson(JSONObject.parse(runner.getFnCtx().get_var().toJSONString()))
+                .setEnvsJson(runner.getFnCtx().get_env())
                 .setNextItem(nextItem);
         LogicItemRunResult itemRes = null;
         List<LogicItemLog> itemLogs = new ArrayList<>();
@@ -439,7 +443,8 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
             nextItem) {
         LogicLog logicLog = new LogicLog();
         logicLog.setInstanceId(instanceId).setBizId(bizId).setLogicId(logicId).setVersion(runner.getLogic().getVersion())
-                .setParamsJson(JSONObject.from(runner.getFnCtx().get_par())).setVarsJson(runner.getFnCtx().get_var()).setEnvsJson(runner.getFnCtx().get_env())
+                .setParamsJson(JSONObject.from(runner.getFnCtx().get_par()))
+                .setVarsJson(JSONObject.parse(runner.getFnCtx().get_var().toJSONString())).setEnvsJson(runner.getFnCtx().get_env())
                 .setNextItem(nextItem);
         if (LogicItemType.start.compareType(nextItem.getType())) {//如果为开始节点，业务实例先入库，记录本次请求，避免后续失败数据丢失
             nextItem = runner.findNextItem(nextItem);
