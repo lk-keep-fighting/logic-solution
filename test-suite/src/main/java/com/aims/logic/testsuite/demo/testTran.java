@@ -1,8 +1,10 @@
 package com.aims.logic.testsuite.demo;
 
 import com.aims.logic.testsuite.demo.dto.TestDtoWithDetail;
+import com.aims.logic.testsuite.demo.entity.TestAutoIdEntity;
 import com.aims.logic.testsuite.demo.entity.TestDetailEntity;
 import com.aims.logic.testsuite.demo.entity.TestEntity;
+import com.aims.logic.testsuite.demo.mapper.TestAutoIdMapper;
 import com.aims.logic.testsuite.demo.mapper.TestDetailMapper;
 import com.aims.logic.testsuite.demo.mapper.TestMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,8 @@ import java.util.List;
 public class testTran {
     @Autowired
     TestMapper testMapper;
+    @Autowired
+    TestAutoIdMapper testAutoIdMapper;
     @Autowired
     TestDetailMapper testDetailMapperMapper;
 
@@ -30,6 +34,10 @@ public class testTran {
             testMapper.insert(entity);
         }
         return 1;
+    }
+
+    public int insertTestAutoId(TestAutoIdEntity entity) {
+        return testAutoIdMapper.insert(entity);
     }
 
     public int insertDtoArray(TestEntity[] entitys) {
