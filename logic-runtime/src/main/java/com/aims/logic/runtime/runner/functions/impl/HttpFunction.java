@@ -8,6 +8,7 @@ import com.aims.logic.runtime.runner.functions.ILogicItemFunctionRunner;
 import com.aims.logic.runtime.util.RuntimeUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author liukun
  */
+@Slf4j
 @Service
 public class HttpFunction implements ILogicItemFunctionRunner {
     public HttpFunction() {
@@ -30,10 +32,10 @@ public class HttpFunction implements ILogicItemFunctionRunner {
     public LogicItemRunResult invoke(FunctionContext ctx, Object item) {
         var itemDsl = ((LogicItemTreeNode) item);
         var itemInstance = new LogicItemTreeNode();
-        Object data = Functions.get("js").invoke(ctx, itemDsl.getBody()).getData();
-        var customHeaders = Functions.get("js").invoke(ctx, itemDsl.getHeaders()).getData();
+        Object data = Functions.runJsByContext(ctx, itemDsl.getBody());
+        var customHeaders = Functions.runJsByContext(ctx, itemDsl.getHeaders());
         var method = itemDsl.getMethod().isEmpty() ? "post" : itemDsl.getMethod();
-        var url = (String) Functions.get("js").invoke(ctx, itemDsl.getUrl()).getData();
+        var url = (String) Functions.runJsByContext(ctx, itemDsl.getUrl());
         if (url != null && url.startsWith(("/"))) {
             url = RuntimeUtil.getUrl() + url;
         }
@@ -69,16 +71,14 @@ public class HttpFunction implements ILogicItemFunctionRunner {
             req = reqBuilder
                     .method(method, body).build();
         }
-        System.out.println("-----http fn-----");
-        System.out.printf("%s:%s%n", method, url);
-        System.out.printf("data:%s%n", jsonData);
-        System.out.printf("headers:%s%n", headers);
+        log.debug("bizId:{},>>http fn,method:{},url:{},data:{},headers:{}", ctx.getBizId(), method, url, jsonData, headers);
         try {
             Object repData = null;
             try (var rep = client.newCall(req).execute()) {
                 if (!rep.isSuccessful()) {
                     ctx.setErrMsg(String.format("请求异常，Http Code:%s,%s", rep.code(), rep.message()));
                     ctx.setHasErr(true);
+                    log.error("bizId:{},>>http 请求异常,rep code:{},rep msg:{}", ctx.getBizId(), rep.code(), rep.message());
                 }
                 if (rep.body() != null) {
                     String repBody = rep.body().string();

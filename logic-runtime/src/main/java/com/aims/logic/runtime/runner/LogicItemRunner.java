@@ -17,8 +17,8 @@ public class LogicItemRunner {
 
     public LogicItemRunResult run(FunctionContext ctx) {
         LogicItemRunResult ret = new LogicItemRunResult();
-        log.info("执行节点 " + this.dsl.getName());
-        log.debug("上下文 " + JSONObject.toJSONString(ctx));
+        log.info("bizId:{},执行节点:{}", ctx.getBizId(), this.dsl.getName());
+        log.debug("bizId:{},上下文 {}", ctx.getBizId(), JSONObject.toJSONString(ctx));
         var itemType = this.dsl.getType();
         var originConfig = JSON.copy(this.dsl);
         switch (itemType) {
@@ -33,8 +33,7 @@ public class LogicItemRunner {
                             Thread.sleep(timeout);
                         }
                     } catch (InterruptedException exception) {
-                        log.error("等待节点线程被中断");
-                        log.error(exception.toString());
+                        log.error("bizId:{},wait节点异常:{}", ctx.getBizId(), exception.toString());
                     }
                 }
                 break;
@@ -47,7 +46,7 @@ public class LogicItemRunner {
                 if (func != null)
                     ret = func.invoke(ctx, this.dsl);
                 else
-                    log.debug("未实现的类型：" + dsl.getType());
+                    log.debug("bizId:{},未实现的类型：{}", ctx.getBizId(), dsl.getType());
                 break;
         }
         if (ctx.isHasErr()) {

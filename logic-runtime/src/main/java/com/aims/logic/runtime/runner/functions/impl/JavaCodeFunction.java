@@ -24,18 +24,18 @@ import java.util.stream.Collectors;
 @Slf4j
 public class JavaCodeFunction implements ILogicItemFunctionRunner {
     public LogicItemRunResult invoke(FunctionContext ctx, Object item) {
-        log.info("-------开始执行Java代码-------");
+        log.info("bizId:{},>>开始执行Java代码", ctx.getBizId());
         var itemDsl = (LogicItemTreeNode) item;
         try {
             var clazz = ClassLoaderUtils.loadClass(itemDsl.getUrl().trim());
-            log.info("成功加载方法所在类：{}", itemDsl.getUrl().trim());
-            var bodyObj = Functions.get("js").invoke(ctx, itemDsl.getBody()).getData();//执行js脚本，返回方法实参
-            log.info("Java代码实参类型：-{}", bodyObj.getClass());
+            log.info("bizId:{},成功加载方法所在类：{}", ctx.getBizId(), itemDsl.getUrl().trim());
+            var bodyObj = Functions.runJsByContext(ctx, itemDsl.getBody());// Functions.get("js").invoke(ctx, itemDsl.getBody()).getData();//执行js脚本，返回方法实参
+            log.info("bizId:{},Java代码实参类型：-{}", ctx.getBizId(), bodyObj.getClass());
             var methodName = itemDsl.getMethod().split("\\(")[0];
             // 获取参数声明
             List<ParamTreeNode> paramTreeNodes = itemDsl.getParams();
-            var paramsJson = bodyObj instanceof ScriptObjectMirror ? JSONObject.from(JsonUtil.toObject((ScriptObjectMirror) bodyObj)) : JSONObject.from(bodyObj);
-            log.info("Java代码实参：-{}", paramsJson.toJSONString());
+            var paramsJson = JSONObject.from(bodyObj);//bodyObj instanceof ScriptObjectMirror ? JSONObject.from(JsonUtil.toObject((ScriptObjectMirror) bodyObj)) : JSONObject.from(bodyObj);
+            log.info("bizId:{},Java代码实参：-{}", ctx.getBizId(), paramsJson.toJSONString());
             itemDsl.setBody(paramsJson.toJSONString());
             List<Class<?>> cls = new ArrayList<>();
             List<Object> paramsArrayFromJsObj = new ArrayList<>();
@@ -103,20 +103,24 @@ public class JavaCodeFunction implements ILogicItemFunctionRunner {
             try {
                 var obj = method.invoke(SpringContextUtil.getBean(clazz), paramsArrayFromJsObj.toArray());
                 res.setData(obj);
-            } catch (InvocationTargetException e) {//抛出异常触发事务回滚
-                log.info(">>>logic执行方法{}发生错误", methodName);
-                log.info(e.getTargetException().getMessage());
-                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                var errMsg = String.format(">>执行java方法[%s]报错：%s", methodName, e.getTargetException().getMessage());
+                log.error("bizId:{},{}", ctx.getBizId(), errMsg);
                 return res.setSuccess(false)
-                        .setMsg(e.getTargetException().getMessage());
+                        .setMsg(errMsg);
+            } catch (Exception e) {
+                var errMsg = String.format(">>执行java方法[%s]异常：%s", methodName, e.getMessage());
+                log.error("bizId:{},{}", ctx.getBizId(), errMsg);
+                return res.setSuccess(false)
+                        .setMsg(errMsg);
             }
             return res;
         } catch (Exception e) {
-            log.error(">>>java节点意外的异常");
-            e.printStackTrace();
             var msg = e.getCause() == null ? e.getMessage() : e.getCause().getMessage();
+            log.error("bizId:{},>>>java节点意外的异常:{}", ctx.getBizId(), msg);
+            e.printStackTrace();
             return new LogicItemRunResult().setSuccess(false)
-                    .setMsg(msg);
+                    .setMsg("!!java节点意外的异常:" + msg);
         }
     }
 

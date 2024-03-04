@@ -1,5 +1,6 @@
 package com.aims.logic.sdk.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -15,7 +16,7 @@ import java.util.Date;
 @Accessors(chain = true)
 @TableName("logic_instance")
 public class LogicInstanceEntity extends Model<LogicInstanceEntity> {
-    @TableId
+    @TableId(type = IdType.ASSIGN_ID)
     private String id;
     @TableField("logicId")
     private String logicId;

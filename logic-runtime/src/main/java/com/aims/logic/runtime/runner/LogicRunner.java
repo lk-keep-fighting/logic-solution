@@ -74,8 +74,10 @@ public class LogicRunner {
         JSONObject envJson = TypeAnnotationParser.ParamsToJson(logic.getEnvs());
         envJson = JsonUtil.jsonMerge(_env, envJson);
         autoAnalyzeAndAppendEnv(envJson);
-        this.fnCtx.set_par(paramsJson);
-        this.fnCtx.set_var(varsJson);
+        if (paramsJson != null)
+            this.fnCtx.set_par(paramsJson);
+        if (varsJson != null)
+            this.fnCtx.set_var(varsJson);
         this.fnCtx.set_env(envJson);
         this.fnCtx.setBizId(bizId);
         logicLog.setBizId(bizId);
@@ -228,7 +230,7 @@ public class LogicRunner {
         var itemRes = new LogicItemRunner(item).run(fnCtx);
         fnCtx.set_lastRet(itemRes.getData());
         if (item.getReturnAccept() != null && !item.getReturnAccept().isBlank()) {
-            Functions.get("js").invoke(fnCtx, String.format("%s=_lastRet", item.getReturnAccept()));
+            Functions.runJsByContext(fnCtx, String.format("%s=_lastRet", item.getReturnAccept()));
         }
         logicLog.getItemLogs().add(itemRes.getItemLog());
         return itemRes;

@@ -3,7 +3,12 @@ package com.aims.logic.runtime.runner.functions.impl;
 import com.aims.logic.runtime.contract.dto.LogicItemRunResult;
 import com.aims.logic.runtime.runner.FunctionContext;
 import com.aims.logic.runtime.runner.functions.ILogicItemFunctionRunner;
+import com.aims.logic.runtime.util.JsonUtil;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import lombok.extern.slf4j.Slf4j;
+import org.openjdk.nashorn.api.scripting.ScriptObjectMirror;
 import org.springframework.stereotype.Service;
 
 import javax.script.Invocable;
@@ -13,6 +18,7 @@ import javax.script.ScriptEngineManager;
 /**
  * @author liukun
  */
+@Slf4j
 @Service
 public class JsFunction implements ILogicItemFunctionRunner {
     @Override
@@ -35,12 +41,22 @@ public class JsFunction implements ILogicItemFunctionRunner {
 //            processedCode = matcher.replaceAll("");
             engine.eval(String.format("function fn(){ %s }", processedCode));
             Invocable inv = (Invocable) engine;
-            Object res = inv.invokeFunction("fn");
-            return new LogicItemRunResult().setData(res);
+            Object funcRes = inv.invokeFunction("fn");
+            Object data = null;
+            if (funcRes instanceof ScriptObjectMirror scriptObj) {
+                if (scriptObj.isArray()) {
+                    data = JsonUtil.toObject((ScriptObjectMirror) funcRes);
+                } else {
+                    data = JsonUtil.toObject((ScriptObjectMirror) funcRes);
+                }
+            } else {
+                data = funcRes;
+            }
+            return new LogicItemRunResult().setData(data);
         } catch (Exception exception) {
             ctx.setHasErr(true);
             ctx.setErrMsg(exception.toString());
-            System.err.println(exception.toString());
+            log.error("bizId:{},js function error: {}", ctx.getBizId(), exception.toString());
             return new LogicItemRunResult().setData(exception);
         }
     }

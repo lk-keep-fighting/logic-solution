@@ -80,4 +80,10 @@ public class JsonUtil {
         }
         return map;
     }
+
+    public static JSONObject clone(JSONObject json) {
+        if (json != null)
+            return JSONObject.parseObject(json.toJSONString());
+        else return null;
+    }
 }
