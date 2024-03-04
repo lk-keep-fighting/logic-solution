@@ -11,7 +11,7 @@
  Target Server Version : 80200
  File Encoding         : 65001
 
- Date: 24/01/2024 17:16:28
+ Date: 04/03/2024 09:43:16
 */
 
 SET NAMES utf8mb4;
@@ -44,14 +44,14 @@ CREATE TABLE `logic_bak` (
   `configJson` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `updateTime` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`aid`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=1750045840707268610 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1762671082692718594 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------
 -- Table structure for logic_instance
 -- ----------------------------
 DROP TABLE IF EXISTS `logic_instance`;
 CREATE TABLE `logic_instance` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
+  `id` varchar(36) COLLATE utf8mb4_unicode_ci NOT NULL,
   `logicId` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '逻辑编号',
   `version` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '逻辑版本',
   `bizId` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '业务实例标识',
@@ -68,8 +68,9 @@ CREATE TABLE `logic_instance` (
   `success` tinyint(1) DEFAULT NULL COMMENT '最近一次是否成功',
   `isOver` tinyint(1) DEFAULT '0' COMMENT '是否结束',
   `serverTime` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '服务器时间',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=1750039550274682883 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_logicId_bizId` (`logicId`,`bizId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------
 -- Table structure for logic_log
@@ -113,6 +114,5 @@ CREATE TABLE `logic_published` (
   `source` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '发布来源',
   `target` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '发布目标',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=53 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=79 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-SET FOREIGN_KEY_CHECKS = 1;

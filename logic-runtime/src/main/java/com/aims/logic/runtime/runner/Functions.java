@@ -20,6 +20,10 @@ public class Functions {
     public Functions() {
     }
 
+    public static Object runJsByContext(FunctionContext ctx, String script) {
+        return Functions.get("js").invoke(ctx, script).getData();
+    }
+
     public static ILogicItemFunctionRunner get(String name) {
         return functions.get(name);
     }

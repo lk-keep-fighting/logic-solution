@@ -1,6 +1,7 @@
 package com.aims.logic.ide.controller;
 
 import com.aims.logic.runtime.service.LogicRunnerService;
+import com.aims.logic.runtime.util.StringConcurrencyUtil;
 import com.aims.logic.sdk.dto.ApiResult;
 import com.aims.logic.runtime.util.RuntimeUtil;
 import com.alibaba.fastjson2.JSONObject;
@@ -111,5 +112,10 @@ public class LogicRuntimeController {
     @GetMapping("/api/runtime/state")
     public ApiResult state() {
         return new ApiResult().setData(RuntimeUtil.logicConfigStoreService.getLogicConfigCache().stats());
+    }
+
+    @GetMapping("/api/runtime/lockKeys")
+    public ApiResult lockKeys() {
+        return new ApiResult().setData(StringConcurrencyUtil.getLockKeys());
     }
 }

@@ -33,6 +33,11 @@ public class LogicItemTreeNode extends BaseLASL {
     List<ParamTreeNode> params;
     String timeout;
     String nextId;
+
+    public String getTimeout() {
+        return timeout == null ? "5000" : timeout;
+    }
+
     /**
      * 事务范围
      * EveryJavaNode-每个java节点开启事务

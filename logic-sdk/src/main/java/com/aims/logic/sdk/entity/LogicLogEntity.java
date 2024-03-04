@@ -1,9 +1,6 @@
 package com.aims.logic.sdk.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
@@ -15,7 +12,7 @@ import java.util.Date;
 @Accessors(chain = true)
 @TableName("logic_log")
 public class LogicLogEntity extends Model<LogicLogEntity> {
-    @TableId
+    @TableId(type = IdType.ASSIGN_ID)
     private String id;
     @TableField("logicId")
     private String logicId;
