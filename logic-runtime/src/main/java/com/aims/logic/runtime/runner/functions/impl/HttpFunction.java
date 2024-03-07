@@ -88,16 +88,25 @@ public class HttpFunction implements ILogicItemFunctionRunner {
                         repData = repBody;
                     }
                 }
+            } catch (IOException e) {
+                var msg = String.format("bizId:%s,>>http IOException,msg:%s", ctx.getBizId(), e.getLocalizedMessage());
+                log.error(msg);
+                ctx.setHasErr(true);
+                ctx.setErrMsg(msg);
+                return new LogicItemRunResult()
+                        .setItemInstance(itemInstance)
+                        .setData(e.toString()).setMsg(msg);
             }
-            System.out.println(repData);
             return new LogicItemRunResult()
                     .setItemInstance(itemInstance).setData(repData);
-        } catch (IOException e) {
+        } catch (Exception e) {
+            var msg = String.format("bizId:%s,>>http意外的异常,msg:%s", ctx.getBizId(), e.getLocalizedMessage());
+            log.error(msg);
             ctx.setHasErr(true);
-            ctx.setErrMsg(e.getLocalizedMessage());
+            ctx.setErrMsg(msg);
             return new LogicItemRunResult()
                     .setItemInstance(itemInstance)
-                    .setData(e.toString()).setMsg(e.toString());
+                    .setData(e.toString()).setMsg(msg);
         }
     }
 
