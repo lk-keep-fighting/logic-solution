@@ -22,6 +22,7 @@ import com.aims.logic.sdk.service.impl.LoggerServiceImpl;
 import com.aims.logic.sdk.util.TransactionalUtils;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -390,15 +391,6 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 .setNextItem(nextItem);
         LogicItemRunResult itemRes = null;
         List<LogicItemLog> itemLogs = new ArrayList<>();
-//        if (LogicItemType.start.compareType(nextItem.getType())) {//如果为开始节点，业务实例先入库，记录本次请求，避免后续失败数据丢失
-//            itemRes = runner.runItem(nextItem);
-//            nextItem = runner.findNextItem(nextItem);
-//            itemLogs.add(itemRes.getItemLog());
-//            logicLog.setItemLogs(itemLogs).setNextItem(nextItem).setVarsJson_end(runner.getFnCtx().get_var()).setSuccess(true);
-//            logService.addOrUpdateInstanceAndAddLogicLog(logicLog);
-//            runner.refreshStatus(true, nextItem);
-//        }
-//        itemLogs.clear();
         if (runner.getRunnerStatus() == RunnerStatusEnum.Continue) {
             TransactionStatus begin = null;
             begin = transactionalUtils.begin();
@@ -413,12 +405,10 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                         break;
                     }
                 } catch (Exception e) {
-//                    transactionalUtils.rollback(begin);
-//                    logService.addLogicLog(logicLog);
-//                    logService.updateInstanceStatus(logicLog.getInstanceId(), false, itemRes.getMsg());
-//                    return new LogicRunResult().setLogicLog(logicLog)
-//                            .setSuccess(false)
-//                            .setMsg(e.getMessage());
+                    log.error("节点执行catch到意外的异常：{},跳出while", e.getMessage());
+                    itemRes.setSuccess(false);
+                    itemRes.setMsg(e.getMessage());
+                    break;
                 }
             }
 
@@ -431,7 +421,12 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 logService.addOrUpdateInstanceAndAddLogicLog(logicLog);
                 transactionalUtils.commit(begin);
             } else {
-                transactionalUtils.rollback(begin);
+                if (!begin.isCompleted()) {
+                    log.info("bizId:{},节点执行失败，begin rollback", bizId);
+                    transactionalUtils.rollback(begin);
+                } else {
+                    log.info("bizId:{},节点执行失败，事务isCompleted=true，rollback 未执行", bizId);
+                }
                 logicLog.setSuccess(false);
                 logService.updateInstanceStatus(logicLog.getInstanceId(), false, itemRes.getMsg());
                 logService.addLogicLog(logicLog);
@@ -440,7 +435,8 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                         .setMsg(itemRes.getMsg());
             }
         }
-        return new LogicRunResult().setLogicLog(logicLog)
+        return new LogicRunResult()
+                .setLogicLog(logicLog)
                 .setData(itemRes == null ? null : itemRes.getData())
                 .setSuccess(itemRes == null ? true : itemRes.isSuccess())
                 .setMsg(itemRes.getMsg());
@@ -621,5 +617,27 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
             }
         }
         return false;
+    }
+
+    public boolean deleteBizInstance(String logicId, String bizId) {
+        LogicInstanceEntity insEntity = insService.getInstance(logicId, bizId);
+        if (insEntity != null) {
+            return insService.removeById(insEntity);
+        }
+        log.info("要删除的业务实例logicId:{},bizId:{}不存在！", logicId, bizId);
+        return false;
+    }
+
+    public boolean deleteCompletedBizInstanceByLogicId(String logicId) {
+        QueryWrapper<LogicInstanceEntity> queryWrapper = new QueryWrapper<LogicInstanceEntity>();
+        queryWrapper.eq("logicId", logicId)
+                .eq("isOver", true);
+        return insService.remove(queryWrapper);
+    }
+
+    public boolean deleteCompletedBizInstance() {
+        QueryWrapper<LogicInstanceEntity> queryWrapper = new QueryWrapper<LogicInstanceEntity>();
+        queryWrapper.eq("isOver", true);
+        return insService.remove(queryWrapper);
     }
 }
