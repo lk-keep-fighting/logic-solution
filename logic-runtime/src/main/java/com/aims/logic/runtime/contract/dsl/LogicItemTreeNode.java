@@ -1,10 +1,11 @@
 package com.aims.logic.runtime.contract.dsl;
 
-import com.aims.logic.runtime.contract.enums.ConceptEnum;
 import com.aims.logic.runtime.contract.dsl.basic.BaseLASL;
+import com.aims.logic.runtime.contract.enums.ConceptEnum;
 import com.aims.logic.runtime.contract.enums.LogicItemTransactionScope;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -20,6 +21,10 @@ public class LogicItemTreeNode extends BaseLASL {
     String code;
     String type;
     String script;
+    /**
+     * 业务标识，可以是js表达式
+     */
+    String bizId;
     String url;
     String method;
     String headers;
@@ -35,7 +40,7 @@ public class LogicItemTreeNode extends BaseLASL {
     String nextId;
 
     public String getTimeout() {
-        return timeout == null ? "5000" : timeout;
+        return StringUtils.isBlank(timeout) ? "5000" : timeout;
     }
 
     /**
