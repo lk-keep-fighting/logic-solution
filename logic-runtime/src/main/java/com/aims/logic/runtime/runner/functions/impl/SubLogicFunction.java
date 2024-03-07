@@ -7,6 +7,7 @@ import com.aims.logic.runtime.runner.Functions;
 import com.aims.logic.runtime.runner.functions.ILogicItemFunctionRunner;
 import com.aims.logic.runtime.service.LogicRunnerService;
 import com.alibaba.fastjson2.JSONObject;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 /**
@@ -27,7 +28,14 @@ public class SubLogicFunction implements ILogicItemFunctionRunner {
             Object data = Functions.runJsByContext(ctx, itemDsl.getBody());
             String subLogicId = itemDsl.getUrl();
             JSONObject jsonData = data == null ? null : JSONObject.from(data);
-            var res = runnerService.newInstance(ctx.get_env()).runBizByMap(subLogicId, ctx.getBizId(), jsonData);
+            String bizId = ctx.getBizId();
+            if (StringUtils.isBlank(itemDsl.getBizId())) {
+                bizId = ctx.getBizId();
+            } else {
+                Object bizIdObj = Functions.runJsByContext(ctx, "return " + itemDsl.getBizId());
+                bizId = bizIdObj == null ? bizId : bizIdObj.toString();
+            }
+            var res = runnerService.newInstance(ctx.get_env()).runBizByMap(subLogicId, bizId, jsonData);
             return new LogicItemRunResult().setData(res.getData());
         } catch (Exception e) {
             ctx.setHasErr(true);
