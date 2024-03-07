@@ -8,10 +8,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication(scanBasePackages = "com.aims.logic")
 @MapperScan("com.aims.logic.service.demo.mapper")
 @SpringBootConfiguration
-public class LogicRuntimeServiceApplication {
+public class LogicIdeServiceApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(LogicRuntimeServiceApplication.class, args);
+        SpringApplication.run(LogicIdeServiceApplication.class, args);
     }
 
 }
