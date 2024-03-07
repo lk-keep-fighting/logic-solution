@@ -110,7 +110,7 @@ public class RuntimeUtil {
         JSONObject envIdx = FileUtil.readOrCreateFile(FileUtil.ENV_DIR, "index.json", "{\"env\":\"dev\"}");
         String _env = envIdx.get("env").toString();
         String envFileName = String.format("env.%s.json", _env);
-        String defEnvFile = "{\"NODE_ENV\":\"" + _env + "\",\"LOGIC_CONFIG_MODEL\":\"online\",\"IDE_HOST\":\"\",\"JWT\":{},\"LOG\":\"error\"}";
+        String defEnvFile = "{\"NODE_ENV\":\"" + _env + "\",\"LOGIC_CONFIG_MODEL\":\"online\",\"KEEP_BIZ_VERSION\":\"off\",\"IDE_HOST\":\"\",\"JWT\":{},\"LOG\":\"error\"}";
         return FileUtil.readOrCreateFile(FileUtil.ENV_DIR, envFileName, defEnvFile);
     }
 
