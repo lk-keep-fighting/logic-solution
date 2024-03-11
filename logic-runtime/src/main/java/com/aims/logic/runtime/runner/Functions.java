@@ -1,6 +1,7 @@
 package com.aims.logic.runtime.runner;
 
 import com.aims.logic.runtime.runner.functions.ILogicItemFunctionRunner;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,6 +9,7 @@ import java.util.Map;
 /**
  * @author liukun
  */
+@Slf4j
 public class Functions {
     static final Map<String, ILogicItemFunctionRunner> functions = new HashMap<>();
 
@@ -21,7 +23,14 @@ public class Functions {
     }
 
     public static Object runJsByContext(FunctionContext ctx, String script) {
-        return Functions.get("js").invoke(ctx, script).getData();
+        var res = Functions.get("js").invoke(ctx, script);
+        if (res.isSuccess())
+            return res.getData();
+        else {
+            var msg = String.format("执行js脚本报错：%s,异常的脚本：%s", res.getMsg(), script);
+            log.error(msg);
+            throw new RuntimeException(msg);
+        }
     }
 
     public static ILogicItemFunctionRunner get(String name) {

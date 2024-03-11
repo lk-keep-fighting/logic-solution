@@ -171,14 +171,14 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         String lockKey = logicId + "-" + bizId;
         try {
             StringConcurrencyUtil.lock(lockKey);
-            log.info("bizId:{}-get lock key:{}", bizId, lockKey);
+            log.info("[{}]bizId:{}-get lock key:{}", logicId, bizId, lockKey);
             return runBizWithTransaction(logicId, bizId, parsMap);
         } catch (Exception e) {
-            log.error("bizId:{}-runBizByMap catch逻辑异常:{}", bizId, e.getMessage());
+            log.error("[{}]bizId:{}-runBizByMap catch逻辑异常:{}", logicId, bizId, e.getMessage());
             throw new RuntimeException(e);
         } finally {
             StringConcurrencyUtil.unlock(lockKey);
-            log.info("bizId:{}-unlock key:{}", bizId, lockKey);
+            log.info("[{}]bizId:{}-unlock key:{}", logicId, bizId, lockKey);
         }
     }
 //        synchronized (lockKey.intern()) {
@@ -303,7 +303,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
 
     private LogicRunResult runItemWithEveryJavaNodeTran(String instanceId, String logicId, String bizId, LogicRunner
             runner, LogicItemTreeNode nextItem) {
-        log.info("bizId:{}-runItemWithEveryJavaNodeTran-insId:{}", bizId, instanceId);
+        log.info("[{}]bizId:{}-runItemWithEveryJavaNodeTran-insId:{}", logicId, bizId, instanceId);
         LogicLog logicLog = new LogicLog();
         logicLog.setInstanceId(instanceId).setBizId(bizId).setLogicId(logicId).setVersion(runner.getLogic().getVersion())
                 .setParamsJson(JSONObject.from(runner.getFnCtx().get_par()))
@@ -316,10 +316,10 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         List<LogicItemLog> itemLogs = new ArrayList<>();
         while (runner.getRunnerStatus() == RunnerStatusEnum.Continue) {
             try {
-                log.info("bizId:{}-当前节点：{}-{}", bizId, nextItem.getType(), nextItem.getName());
+                log.info("[{}]bizId:{}-当前节点：{}-{}", logicId, bizId, nextItem.getType(), nextItem.getName());
                 begin = transactionalUtils.begin();
                 itemRes = runner.runItem(nextItem);
-                log.info("bizId:{}-当前节点：{}-{}，执行结果,success:{},msg:{}", bizId, nextItem.getType(), nextItem.getName(), itemRes.isSuccess(), itemRes.getMsg());
+                log.info("[{}]bizId:{}-当前节点：{}-{}，执行结果,success:{},msg:{}", logicId, bizId, nextItem.getType(), nextItem.getName(), itemRes.isSuccess(), itemRes.getMsg());
                 nextItem = runner.findNextItem(nextItem);
                 itemLogs.clear();
                 itemLogs.add(itemRes.getItemLog());
@@ -329,17 +329,17 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                         .setSuccess(itemRes.isSuccess()).setMsg(itemRes.getMsg());
                 logService.addOrUpdateInstanceAndAddLogicLog(logicLog);
                 if (itemRes.isSuccess()) {
-                    log.info("bizId:{},begin commit in runItemWithEveryJavaNodeTran-itemResIsSuccess=true", bizId);
+                    log.info("[{}]bizId:{},begin commit in runItemWithEveryJavaNodeTran-itemResIsSuccess=true", logicId, bizId);
                     if (!begin.isCompleted()) {
                         transactionalUtils.commit(begin);
-                        log.info("bizId:{},commit ok", bizId);
+                        log.info("[{}]bizId:{},commit ok", logicId, bizId);
                     } else {
-                        log.info("bizId:{},commit 未执行，isCompleted=true", bizId);
+                        log.info("[{}]bizId:{},commit 未执行，isCompleted=true", logicId, bizId);
                     }
                 } else {
-                    log.info("bizId:{},节点执行失败，begin rollback，success=false,msg:{}, in runItemWithEveryJavaNodeTran", bizId, itemRes.getMsg());
+                    log.info("[{}]bizId:{},节点执行失败，begin rollback，success=false,msg:{}, in runItemWithEveryJavaNodeTran", logicId, bizId, itemRes.getMsg());
                     transactionalUtils.rollback(begin);
-                    log.info("bizId:{},节点执行失败，rollback ok", bizId);
+                    log.info("[{}]bizId:{},节点执行失败，rollback ok", logicId, bizId);
                     logService.updateInstanceStatus(logicLog.getInstanceId(), false, itemRes.getMsg());
                     logService.addLogicLog(logicLog);
                     return new LogicRunResult().setLogicLog(logicLog)
@@ -349,14 +349,14 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 runner.refreshStatus(itemRes.isSuccess(), nextItem);
             } catch (Exception e) {
                 var msg = e.toString();
-                log.error("bizId:{},节点执行catch到意外的异常：{},begin rollback", bizId, msg);
+                log.error("[{}]bizId:{},节点执行catch到意外的异常：{},begin rollback", logicId, bizId, msg);
 //                log.error("完整exception：", e);
                 e.printStackTrace();
                 if (!begin.isCompleted()) {
                     transactionalUtils.rollback(begin);
-                    log.info("bizId:{},catch意外异常，rollback ok", bizId);
+                    log.info("[{}]bizId:{},catch意外异常，rollback ok", logicId, bizId);
                 } else {
-                    log.info("bizId:{},catch意外异常，rollback 未执行，isCompleted=true", bizId);
+                    log.info("[{}]bizId:{},catch意外异常，rollback 未执行，isCompleted=true", logicId, bizId);
                 }
                 logicLog.setMsg(msg);
                 logService.addLogicLog(logicLog);
@@ -405,7 +405,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                         break;
                     }
                 } catch (Exception e) {
-                    log.error("节点执行catch到意外的异常：{},跳出while", e.getMessage());
+                    log.error("[{}]bizId:{}节点执行catch到意外的异常：{},跳出while", logicId, bizId, e.getMessage());
                     itemRes.setSuccess(false);
                     itemRes.setMsg(e.getMessage());
                     break;
@@ -422,10 +422,10 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 transactionalUtils.commit(begin);
             } else {
                 if (!begin.isCompleted()) {
-                    log.info("bizId:{},节点执行失败，begin rollback", bizId);
+                    log.info("[{}]bizId:{},节点执行失败，begin rollback", logicId, bizId);
                     transactionalUtils.rollback(begin);
                 } else {
-                    log.info("bizId:{},节点执行失败，事务isCompleted=true，rollback 未执行", bizId);
+                    log.info("[{}]bizId:{},节点执行失败，事务isCompleted=true，rollback 未执行", logicId, bizId);
                 }
                 logicLog.setSuccess(false);
                 logService.updateInstanceStatus(logicLog.getInstanceId(), false, itemRes.getMsg());

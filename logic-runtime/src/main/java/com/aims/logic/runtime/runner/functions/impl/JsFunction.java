@@ -4,8 +4,6 @@ import com.aims.logic.runtime.contract.dto.LogicItemRunResult;
 import com.aims.logic.runtime.runner.FunctionContext;
 import com.aims.logic.runtime.runner.functions.ILogicItemFunctionRunner;
 import com.aims.logic.runtime.util.JsonUtil;
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.openjdk.nashorn.api.scripting.ScriptObjectMirror;
@@ -56,8 +54,8 @@ public class JsFunction implements ILogicItemFunctionRunner {
         } catch (Exception exception) {
             ctx.setHasErr(true);
             ctx.setErrMsg(exception.toString());
-            log.error("bizId:{},js function error: {}", ctx.getBizId(), exception.toString());
-            return new LogicItemRunResult().setData(exception);
+            log.error("[{}]bizId:{},js function error: {}", ctx.getLogicId(), ctx.getBizId(), exception.toString());
+            return new LogicItemRunResult().setSuccess(false).setData(exception);
         }
     }
 

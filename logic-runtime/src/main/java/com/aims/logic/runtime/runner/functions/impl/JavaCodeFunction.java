@@ -6,36 +6,40 @@ import com.aims.logic.runtime.contract.dto.LogicItemRunResult;
 import com.aims.logic.runtime.runner.FunctionContext;
 import com.aims.logic.runtime.runner.Functions;
 import com.aims.logic.runtime.runner.functions.ILogicItemFunctionRunner;
-import com.aims.logic.runtime.util.*;
+import com.aims.logic.runtime.util.ClassLoaderUtils;
+import com.aims.logic.runtime.util.ClassWrapper;
+import com.aims.logic.runtime.util.DataType;
+import com.aims.logic.runtime.util.SpringContextUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.TypeReference;
 import lombok.extern.slf4j.Slf4j;
-import org.openjdk.nashorn.api.scripting.ScriptObjectMirror;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @Service
 @Slf4j
 public class JavaCodeFunction implements ILogicItemFunctionRunner {
     public LogicItemRunResult invoke(FunctionContext ctx, Object item) {
-        log.info("bizId:{},>>开始执行Java代码", ctx.getBizId());
+        log.info("[{}]bizId:{},>>开始执行Java代码", ctx.getLogicId(), ctx.getBizId());
         var itemDsl = (LogicItemTreeNode) item;
         try {
             var clazz = ClassLoaderUtils.loadClass(itemDsl.getUrl().trim());
-            log.info("bizId:{},成功加载方法所在类：{}", ctx.getBizId(), itemDsl.getUrl().trim());
+            log.info("[{}]bizId:{},成功加载方法所在类：{}", ctx.getLogicId(), ctx.getBizId(), itemDsl.getUrl().trim());
             var bodyObj = Functions.runJsByContext(ctx, itemDsl.getBody());// Functions.get("js").invoke(ctx, itemDsl.getBody()).getData();//执行js脚本，返回方法实参
-            log.info("bizId:{},Java代码实参类型：-{}", ctx.getBizId(), bodyObj.getClass());
+            log.info("[{}]bizId:{},Java代码实参类型：-{}", ctx.getLogicId(), ctx.getBizId(), bodyObj.getClass());
             var methodName = itemDsl.getMethod().split("\\(")[0];
             // 获取参数声明
             List<ParamTreeNode> paramTreeNodes = itemDsl.getParams();
             var paramsJson = JSONObject.from(bodyObj);//bodyObj instanceof ScriptObjectMirror ? JSONObject.from(JsonUtil.toObject((ScriptObjectMirror) bodyObj)) : JSONObject.from(bodyObj);
-            log.info("bizId:{},Java代码实参：-{}", ctx.getBizId(), paramsJson.toJSONString());
+            log.info("[{}]bizId:{},Java代码实参：-{}", ctx.getLogicId(), ctx.getBizId(), paramsJson.toJSONString());
             itemDsl.setBody(paramsJson.toJSONString());
             List<Class<?>> cls = new ArrayList<>();
             List<Object> paramsArrayFromJsObj = new ArrayList<>();
@@ -105,19 +109,19 @@ public class JavaCodeFunction implements ILogicItemFunctionRunner {
                 res.setData(obj);
             } catch (InvocationTargetException e) {
                 var errMsg = String.format(">>执行java方法[%s]报错：%s", methodName, e.getTargetException().getMessage());
-                log.error("bizId:{},{}", ctx.getBizId(), errMsg);
+                log.error("[{}]bizId:{},{}", ctx.getLogicId(), ctx.getBizId(), errMsg);
                 return res.setSuccess(false)
                         .setMsg(errMsg);
             } catch (Exception e) {
                 var errMsg = String.format(">>执行java方法[%s]异常：%s", methodName, e.getMessage());
-                log.error("bizId:{},{}", ctx.getBizId(), errMsg);
+                log.error("[{}]bizId:{},{}", ctx.getLogicId(), ctx.getBizId(), errMsg);
                 return res.setSuccess(false)
                         .setMsg(errMsg);
             }
             return res;
         } catch (Exception e) {
             var msg = e.getCause() == null ? e.getMessage() : e.getCause().getMessage();
-            log.error("bizId:{},>>>java节点意外的异常:{}", ctx.getBizId(), msg);
+            log.error("[{}]bizId:{},>>>java节点意外的异常:{}", ctx.getLogicId(), ctx.getBizId(), msg);
             e.printStackTrace();
             return new LogicItemRunResult().setSuccess(false)
                     .setMsg("!!java节点意外的异常:" + msg);

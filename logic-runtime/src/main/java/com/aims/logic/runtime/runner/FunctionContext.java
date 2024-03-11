@@ -1,7 +1,6 @@
 package com.aims.logic.runtime.runner;
 
 import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
-import com.aims.logic.runtime.contract.dto.RunnerStatusEnum;
 import com.alibaba.fastjson2.JSONObject;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,6 +19,7 @@ public class FunctionContext {
     private LogicRunner _logicRunner;
     private boolean hasErr = false;
     private String errMsg = null;
+    private String logicId = null;
     private String bizId = null;
     private LogicItemTreeNode nextItem;
 
