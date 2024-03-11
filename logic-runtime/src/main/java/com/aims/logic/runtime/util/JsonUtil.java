@@ -37,13 +37,8 @@ public class JsonUtil {
                     JSONObject targetValue = jsonMerge(valueJson, target.getJSONObject(key));
                     target.put(key, targetValue);
                 } else if (value instanceof JSONArray valueArray) {
-                    valueArray.addAll(target.getJSONArray(key));
-//                    for (int i = 0; i < valueArray.size(); i++) {
-//                        JSONObject obj = (JSONObject) valueArray.get(i);
-//                        JSONObject targetValue = jsonMerge(obj, (JSONObject) target.getJSONArray(key).get(i));
-//                        target.getJSONArray(key).set(i, targetValue);
-//                    }
-                    target.put(key, valueArray);
+//                    valueArray.addAll(target.getJSONArray(key));
+                    target.put(key, value);//数组不合并，直接使用
                 } else {
                     target.put(key, value);
                 }
