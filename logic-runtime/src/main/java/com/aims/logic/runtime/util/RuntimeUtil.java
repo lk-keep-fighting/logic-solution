@@ -34,6 +34,7 @@ public class RuntimeUtil {
         ENVs = env;
         if (ENVs != null)
             ENVObject = ENVs.toJavaObject(LogicAppEnvObject.class);
+
     }
 
     public static LogicAppEnvObject toEnvObject(JSONObject env) {
@@ -114,7 +115,8 @@ public class RuntimeUtil {
         return FileUtil.readOrCreateFile(FileUtil.ENV_DIR, envFileName, defEnvFile);
     }
 
-    public static void initEnv() {
-        setEnv(readEnv());
+    public static synchronized void initEnv() {
+        if (ENVs == null)
+            setEnv(readEnv());
     }
 }
