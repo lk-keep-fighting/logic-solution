@@ -80,11 +80,12 @@ public class LogicRunner {
             this.fnCtx.set_var(varsJson);
         this.fnCtx.set_env(envJson);
         this.fnCtx.setBizId(bizId);
+        this.fnCtx.setLogicId(logic.getId());
         logicLog.setBizId(bizId);
-        log.info("初始化成功,bizId:{}", bizId);
-        log.debug("参数声明：_par:{}", this.fnCtx.get_par());
-        log.debug("局部变量声明：_var:{}", this.fnCtx.get_var());
-        log.debug("环境变量声明：_env:{}", this.fnCtx.get_env());
+        log.info("init-[{}}]bizId:{}", logic.getId(), bizId);
+        log.debug("[{}}]参数声明：_par:{}", logic.getId(), this.fnCtx.get_par());
+        log.debug("[{}}]局部变量声明：_var:{}", logic.getId(), this.fnCtx.get_var());
+        log.debug("[{}}]环境变量声明：_env:{}", logic.getId(), this.fnCtx.get_env());
     }
 
     /**
