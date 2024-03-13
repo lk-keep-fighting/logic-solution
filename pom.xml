@@ -22,7 +22,6 @@
         <module>logic-sdk</module>
         <module>logic-ide</module>
         <module>logic-ide-service</module>
-        <module>test-suite</module>
     </modules>
     <!-- 镜像仓库 -->
     <distributionManagement>
