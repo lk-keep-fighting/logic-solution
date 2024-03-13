@@ -4,10 +4,7 @@ import com.aims.logic.runtime.contract.dsl.LogicTreeNode;
 import com.aims.logic.runtime.contract.dsl.ParamTreeNode;
 import com.aims.logic.runtime.contract.dsl.basic.TypeAnnotationTreeNode;
 import com.aims.logic.runtime.contract.parser.TypeAnnotationParser;
-import com.aims.logic.sdk.dto.ApiResult;
-import com.aims.logic.sdk.dto.FormQueryInput;
-import com.aims.logic.sdk.dto.LogicClassDto;
-import com.aims.logic.sdk.dto.LogicClassMethodDto;
+import com.aims.logic.sdk.dto.*;
 import com.aims.logic.sdk.entity.LogicBakEntity;
 import com.aims.logic.sdk.entity.LogicEntity;
 import com.aims.logic.sdk.mapper.LogicMapper;
@@ -69,6 +66,16 @@ public class LogicIdeController {
 
     @PostMapping("/api/ide/logics")
     public ApiResult<Page<LogicEntity>> logicList(@RequestBody FormQueryInput input) {
+        var list = logicService.selectPage(input);
+        return new ApiResult<Page<LogicEntity>>().setData(list);
+    }
+
+    @GetMapping("/api/ide/logics")
+    public ApiResult<Page<LogicEntity>> getLogicList(@RequestParam String qry) {
+        List<DataFilterInput> filters = new ArrayList<>();
+        filters.add(new DataFilterInput().setDataIndex("id").setValues(Collections.singletonList(qry)));
+        filters.add(new DataFilterInput().setDataIndex("name").setValues(Collections.singletonList(qry)));
+        var input = new FormQueryInput().setFilters(filters).setPageSize(1000);
         var list = logicService.selectPage(input);
         return new ApiResult<Page<LogicEntity>>().setData(list);
     }

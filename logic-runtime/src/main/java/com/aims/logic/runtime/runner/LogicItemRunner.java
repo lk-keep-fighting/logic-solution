@@ -17,7 +17,7 @@ public class LogicItemRunner {
 
     public LogicItemRunResult run(FunctionContext ctx) {
         LogicItemRunResult ret = new LogicItemRunResult();
-        log.info("[{}]bizId:{},执行节点:{}", ctx.getLogicId(), ctx.getBizId(), this.dsl.getName());
+        log.info("[{}]bizId:{},执行节点[{}]", ctx.getLogicId(), ctx.getBizId(), this.dsl.getName());
         log.debug("[{}]bizId:{},上下文 {}", ctx.getLogicId(), ctx.getBizId(), JSONObject.toJSONString(ctx));
         var itemType = this.dsl.getType();
         var originConfig = JSON.copy(this.dsl);
@@ -52,6 +52,7 @@ public class LogicItemRunner {
         if (ctx.isHasErr()) {
             ret.setSuccess(false).setMsg(ctx.getErrMsg());
         }
+        log.info("[{}]bizId:{},节点[{}]-返回值：{}", ctx.getLogicId(), ctx.getBizId(), this.dsl.getName(), ret.getData());
         ret.setItemLog(new LogicItemLog()
                 .setName(dsl.getName())
                 .setConfigInstance(dsl)
