@@ -4,13 +4,15 @@ import com.aims.logic.runtime.contract.dsl.LogicTreeNode;
 import com.aims.logic.runtime.contract.dsl.ParamTreeNode;
 import com.aims.logic.runtime.contract.dsl.basic.TypeAnnotationTreeNode;
 import com.aims.logic.runtime.contract.parser.TypeAnnotationParser;
+import com.aims.logic.runtime.util.ClassUtils;
 import com.aims.logic.sdk.dto.*;
+import com.aims.logic.sdk.entity.LogicAssetEntity;
 import com.aims.logic.sdk.entity.LogicBakEntity;
 import com.aims.logic.sdk.entity.LogicEntity;
 import com.aims.logic.sdk.mapper.LogicMapper;
+import com.aims.logic.sdk.service.LogicAssetService;
 import com.aims.logic.sdk.service.LogicBakService;
 import com.aims.logic.sdk.service.LogicService;
-import com.aims.logic.runtime.util.ClassUtils;
 import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -40,6 +42,7 @@ import java.util.stream.IntStream;
 public class LogicIdeController {
     private final LogicMapper logicMapper;
     private final LogicService logicService;
+    private final LogicAssetService logicAssetService;
     private final LogicBakService logicBakService;
 
     @Value("${logic.scan-package-names}")
@@ -51,9 +54,11 @@ public class LogicIdeController {
     public LogicIdeController(
             LogicMapper logicMapper,
             LogicService logicService,
+            LogicAssetService logicAssetService,
             LogicBakService logicBakService) {
         this.logicMapper = logicMapper;
         this.logicService = logicService;
+        this.logicAssetService = logicAssetService;
         this.logicBakService = logicBakService;
     }
 
@@ -71,10 +76,12 @@ public class LogicIdeController {
     }
 
     @GetMapping("/api/ide/logics")
-    public ApiResult<Page<LogicEntity>> getLogicList(@RequestParam String qry) {
+    public ApiResult<Page<LogicEntity>> getLogicList(@RequestParam(required = false) String qry) {
         List<DataFilterInput> filters = new ArrayList<>();
-        filters.add(new DataFilterInput().setDataIndex("id").setValues(Collections.singletonList(qry)));
-        filters.add(new DataFilterInput().setDataIndex("name").setValues(Collections.singletonList(qry)));
+        if (qry != null && !qry.isEmpty()) {
+            filters.add(new DataFilterInput().setDataIndex("id").setValues(Collections.singletonList(qry)));
+            filters.add(new DataFilterInput().setDataIndex("name").setValues(Collections.singletonList(qry)));
+        }
         var input = new FormQueryInput().setFilters(filters).setPageSize(1000);
         var list = logicService.selectPage(input);
         return new ApiResult<Page<LogicEntity>>().setData(list);
@@ -177,58 +184,6 @@ public class LogicIdeController {
         return p;
     }
 
-//    @GetMapping("/api/ide/asset/v1/java/class/{fullClassPath}/methods")
-//    public ApiResult<List<LogicClassMethodDto>> classMethods(@PathVariable String fullClassPath) throws ClassNotFoundException {
-//        var res = ClassUtils.getDeclaredMethods(fullClassPath);
-//        List<LogicClassMethodDto> methodDtos = new ArrayList<>();
-//        res.forEach(m -> {
-//            var dto = new LogicClassMethodDto().setName(m.getName());
-//            List<ParamTreeNode> pars = new ArrayList<>();
-//            var paramNames = discoverer.getParameterNames(m);
-//            var paramTypes = m.getGenericParameterTypes();
-////            var genericParameterTypes = m.getGenericParameterTypes();
-//            if (paramNames != null) {
-//                for (int i = 0; i < paramTypes.length; i++) {
-//                    var p = paramTypes[i];
-//                    List<TypeAnnotationTreeNode> typeArguments = new ArrayList<>();
-//                    if (p instanceof ParameterizedType) {
-//                        var typeP = (ParameterizedType) p;
-//                        for (var arg : typeP.getActualTypeArguments()) {
-//                            typeArguments.add(new TypeAnnotationTreeNode()
-//                                    .setTypeName(((Class) arg).getSimpleName())
-//                                    .setTypeNamespace(arg.getTypeName()));
-//                        }
-//                        pars.add(new ParamTreeNode(paramNames[i]).setTypeAnnotation(
-//                                new TypeAnnotationTreeNode()
-//                                        .setTypeName(typeP.getTypeName())
-//                                        .setTypeNamespace(typeP.getTypeName())
-//                                        .setTypeArguments(typeArguments))
-//
-//                        );
-//                    } else {
-//                        if (DataType.isSimpleDataType(p.getTypeName())) {
-//                            String typeName = DataType.getJavaObjectType(p.getTypeName());
-//                            pars.add(new ParamTreeNode(paramNames[i]).setTypeAnnotation(
-//                                    new TypeAnnotationTreeNode()
-//                                            .setTypeKind(TypeKindEnum.primitive)
-//                                            .setTypeName(typeName)
-//                                            .setTypeNamespace(typeName)));
-//                        } else {
-//                            pars.add(new ParamTreeNode(paramNames[i]).setTypeAnnotation(
-//                                    new TypeAnnotationTreeNode()
-//                                            .setTypeName(p.getTypeName())
-//                                            .setTypeNamespace(p.getTypeName())));
-//                        }
-//                    }
-//                }
-//            }
-//            dto.setParameters(pars);
-//            methodDtos.add(dto);
-//        });
-//        return new ApiResult<List<LogicClassMethodDto>>().setData(methodDtos);
-//    }
-//
-
     @PostMapping("/api/ide/asset/v1/java/class/{fullClassPath}/method/{methodName}/params")
     public ApiResult<List<ParamTreeNode>> getMethodParams(@RequestBody TypeAnnotationTreeNode[] typeParames, @PathVariable String fullClassPath, @PathVariable String methodName) throws ClassNotFoundException, NoSuchMethodException {
         ApiResult<List<ParamTreeNode>> res = new ApiResult<>();
@@ -245,6 +200,25 @@ public class LogicIdeController {
             res.setData(paramTreeNodes);
         }
         return res;
+    }
+
+    @PostMapping("/api/ide/settings/asset/{type}/{code}")
+    public ApiResult setAsset(@PathVariable String type, @PathVariable String code, @RequestBody String config) {
+        LogicAssetEntity logicAsset = new LogicAssetEntity();
+        logicAsset.setId(type + '-' + code);
+        logicAsset.setType(type);
+        logicAsset.setCode(code);
+        logicAsset.setConfig(config);
+        return new ApiResult().setData(logicAsset.insertOrUpdate());
+    }
+
+    @GetMapping("/api/ide/settings/asset/{type}/{code}")
+    public ApiResult<LogicAssetEntity> getAsset(@PathVariable String type, @PathVariable String code) {
+        Map<String, String> map = new HashMap<>();
+        map.put("type", type);
+        map.put("code", code);
+        var res = logicAssetService.query().allEq(map).oneOpt();
+        return new ApiResult().setData(res.orElse(null));
     }
 
     public List<LogicClassDto> getAllClassNames_bak(String packageName) {
