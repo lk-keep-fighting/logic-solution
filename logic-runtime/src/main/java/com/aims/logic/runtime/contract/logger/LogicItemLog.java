@@ -1,7 +1,6 @@
 package com.aims.logic.runtime.contract.logger;
 
 import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
-import com.alibaba.fastjson2.JSONObject;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -26,7 +25,7 @@ public class LogicItemLog {
     /**
      * 当前item的入参json
      */
-    private JSONObject paramsJson;
+//    private JSONObject paramsJson;
     /**
      * 当前item返回值
      */

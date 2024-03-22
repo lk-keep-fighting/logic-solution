@@ -23,12 +23,13 @@ public class SubLogicFunction implements ILogicItemFunctionRunner {
 
     @Override
     public LogicItemRunResult invoke(FunctionContext ctx, Object item) {
+        var itemDsl = ((LogicItemTreeNode) item);
         try {
-            var itemDsl = ((LogicItemTreeNode) item);
             Object data = Functions.runJsByContext(ctx, itemDsl.getBody());
             String subLogicId = itemDsl.getUrl();
             JSONObject jsonData = data == null ? null : JSONObject.from(data);
             String bizId = ctx.getBizId();
+            itemDsl.setBody(jsonData == null ? null : jsonData.toJSONString());
             if (StringUtils.isBlank(itemDsl.getBizId())) {
                 bizId = ctx.getBizId();
             } else {
@@ -36,18 +37,19 @@ public class SubLogicFunction implements ILogicItemFunctionRunner {
                 bizId = bizIdObj == null ? bizId : bizIdObj.toString();
             }
             var newRunner = runnerService.newInstance(ctx.get_env());
+            var itemRunResult = new LogicItemRunResult().setItemInstance(itemDsl);
             if (StringUtils.isBlank(bizId)) {
                 var res = newRunner.runByMap(subLogicId, jsonData);
-                return new LogicItemRunResult().setData(res.getData());
+                return itemRunResult.setData(res.getData());
             } else {
                 var res = newRunner.runBizByMap(subLogicId, bizId, jsonData);
-                return new LogicItemRunResult().setData(res.getData());
+                return itemRunResult.setData(res.getData());
             }
 
         } catch (Exception e) {
             ctx.setHasErr(true);
             ctx.setErrMsg(e.getLocalizedMessage());
-            return new LogicItemRunResult().setData(e.toString()).setMsg(e.toString());
+            return new LogicItemRunResult().setData(e.toString()).setMsg(e.toString()).setItemInstance(itemDsl);
         }
     }
 

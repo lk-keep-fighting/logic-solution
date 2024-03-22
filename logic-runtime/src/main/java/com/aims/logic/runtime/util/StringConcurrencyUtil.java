@@ -26,7 +26,7 @@ public class StringConcurrencyUtil {
             .build();
 
     public static void lock(String key) throws InterruptedException {
-        log.info("begin lock {}", key);
+        log.debug("begin lock {}", key);
 //        Semaphore semaphore = semaphores.asMap().computeIfAbsent(key, k -> new Semaphore(1));
 //        semaphore.acquire();
         ReentrantLock lock = lockCache.asMap().computeIfAbsent(key, k -> new ReentrantLock());
@@ -34,7 +34,7 @@ public class StringConcurrencyUtil {
     }
 
     public static void unlock(String key) {
-        log.info("begin unlock {}", key);
+        log.debug("begin unlock {}", key);
 //        Semaphore semaphore = semaphores.asMap().get(key);
 //        if (semaphore != null) {
 //            semaphore.release();

@@ -111,20 +111,23 @@ public class JavaCodeFunction implements ILogicItemFunctionRunner {
                 var errMsg = String.format(">>执行java方法[%s]报错：%s", methodName, e.getTargetException().getMessage());
                 log.error("[{}]bizId:{},{}", ctx.getLogicId(), ctx.getBizId(), errMsg);
                 return res.setSuccess(false)
-                        .setMsg(errMsg);
+                        .setMsg(errMsg)
+                        .setItemInstance(itemDsl);
             } catch (Exception e) {
                 var errMsg = String.format(">>执行java方法[%s]异常：%s", methodName, e.getMessage());
                 log.error("[{}]bizId:{},{}", ctx.getLogicId(), ctx.getBizId(), errMsg);
                 return res.setSuccess(false)
-                        .setMsg(errMsg);
+                        .setMsg(errMsg)
+                        .setItemInstance(itemDsl);
             }
-            return res;
+            return res.setItemInstance(itemDsl);
         } catch (Exception e) {
             var msg = e.getCause() == null ? e.getMessage() : e.getCause().getMessage();
             log.error("[{}]bizId:{},>>>java节点意外的异常:{}", ctx.getLogicId(), ctx.getBizId(), msg);
             e.printStackTrace();
             return new LogicItemRunResult().setSuccess(false)
-                    .setMsg("!!java节点意外的异常:" + msg);
+                    .setMsg("!!java节点意外的异常:" + msg)
+                    .setItemInstance(itemDsl);
         }
     }
 

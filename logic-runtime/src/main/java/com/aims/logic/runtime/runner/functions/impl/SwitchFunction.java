@@ -23,10 +23,11 @@ public class SwitchFunction implements ILogicItemFunctionRunner {
 
     @Override
     public LogicItemRunResult invoke(FunctionContext ctx, Object item) {
+        var itemDsl = ((LogicItemTreeNode) item);
         try {
-            var itemDsl = ((LogicItemTreeNode) item);
             Object conditionObj = Functions.runJsByContext(ctx, "return  " + itemDsl.getCondition());
             String res = conditionObj == null ? null : conditionObj.toString();
+            itemDsl.setCondition(res);
             log.info("[{}]bizId:{},switch表达式值：{}", ctx.getLogicId(), ctx.getBizId(), res);
             LogicItemRunResult ret = new LogicItemRunResult();
             AtomicReference<String> nextId = new AtomicReference<>("");
@@ -47,11 +48,11 @@ public class SwitchFunction implements ILogicItemFunctionRunner {
                 ret.setMsg("命中default，表达式值：" + res);
                 log.info("[{}]bizId:{},命中：default，表达式值：{}", ctx.getLogicId(), ctx.getBizId(), res);
             }
-            return ret.setData(nextId.get());
+            return ret.setData(nextId.get()).setItemInstance(itemDsl);
         } catch (Exception e) {
             ctx.setHasErr(true);
             ctx.setErrMsg(e.getLocalizedMessage());
-            return new LogicItemRunResult().setData(e.toString()).setMsg(e.toString());
+            return new LogicItemRunResult().setData(e.toString()).setMsg(e.toString()).setItemInstance(itemDsl);
         }
     }
 
