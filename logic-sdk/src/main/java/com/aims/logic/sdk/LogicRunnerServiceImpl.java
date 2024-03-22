@@ -263,11 +263,13 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 instanceId = insEntity.getId().toString();
             }
             if (insEntity != null && insEntity.getIsOver()) {
+                log.error("指定的logicId:{},bizId:{}已完成，无法重复执行", logicId, bizId);
                 return new LogicRunResult().setSuccess(false).setMsg(String.format("指定的bizId:%s已完成执行，无法重复执行。", bizId));
             }
         }
         JSONObject config = RuntimeUtil.readLogicConfig(logicId, logicVersion);
         if (config == null) {
+            log.error("未发现指定的逻辑logicId:{},bizId:{}已完成，无法重复执行", logicId, bizId);
             return new LogicRunResult().setSuccess(false).setMsg("未发现指定的逻辑：" + logicId);
         }
         var runner = new com.aims.logic.runtime.runner.LogicRunner(config, getEnvJson(), parsMap, cacheVarsJson, startId, bizId);

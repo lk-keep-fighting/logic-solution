@@ -20,7 +20,7 @@ public class LogicItemRunner {
         log.info("[{}]bizId:{},执行节点[{}]", ctx.getLogicId(), ctx.getBizId(), this.dsl.getName());
         log.debug("[{}]bizId:{},上下文 {}", ctx.getLogicId(), ctx.getBizId(), JSONObject.toJSONString(ctx));
         var itemType = this.dsl.getType();
-        var originConfig = JSON.copy(this.dsl);
+//        var originConfig = JSON.copy(this.dsl);
         switch (itemType) {
             case "end":
                 ret = Functions.get(itemType).invoke(ctx, this.dsl.getScript() != null ? this.dsl.getScript() : "return _ret");
@@ -55,9 +55,9 @@ public class LogicItemRunner {
         log.info("[{}]bizId:{},节点[{}]-返回值：{}", ctx.getLogicId(), ctx.getBizId(), this.dsl.getName(), ret.getData());
         ret.setItemLog(new LogicItemLog()
                 .setName(dsl.getName())
-                .setConfigInstance(dsl)
-                .setConfig(originConfig)
-                .setParamsJson(JSONObject.from(ctx.get_par()))
+                .setConfigInstance(ret.getItemInstance())
+                .setConfig(dsl)
+//                .setParamsJson(JSONObject.from(dsl.getBody()))
                 .setReturnData(ret.getData())
                 .setSuccess(ret.isSuccess()));
         return ret;

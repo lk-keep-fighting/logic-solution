@@ -2,11 +2,11 @@
     "apps": [
         {
             "id": "xuanwu-factory",
-            "title": "业务编排工具"
+            "title": "业务编排"
         },
         {
             "id": "mes-gy",
-            "title": "mes工艺编排"
+            "title": "MES工艺编排"
         }
     ]
 }

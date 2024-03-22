@@ -31,7 +31,6 @@ public class HttpFunction implements ILogicItemFunctionRunner {
     @Override
     public LogicItemRunResult invoke(FunctionContext ctx, Object item) {
         var itemDsl = ((LogicItemTreeNode) item);
-        var itemInstance = new LogicItemTreeNode();
         Object data = Functions.runJsByContext(ctx, itemDsl.getBody());
         var customHeaders = Functions.runJsByContext(ctx, itemDsl.getHeaders());
         var method = itemDsl.getMethod().isEmpty() ? "post" : itemDsl.getMethod();
@@ -57,11 +56,11 @@ public class HttpFunction implements ILogicItemFunctionRunner {
             headerMap.put("content-type", "application/json");
         }
         Headers headers = Headers.of(headerMap);
-        itemInstance.setMethod(method);
-        itemInstance.setHeaders(JSONObject.from(headerMap).toJSONString());
-        itemInstance.setBody(jsonData);
-        itemInstance.setUrl(url);
-        itemInstance.setTimeout(itemDsl.getTimeout());
+        itemDsl.setMethod(method);
+        itemDsl.setHeaders(JSONObject.from(headerMap).toJSONString());
+        itemDsl.setBody(jsonData);
+        itemDsl.setUrl(url);
+        itemDsl.setTimeout(itemDsl.getTimeout());
         Request req;
         var reqBuilder = new Request.Builder().url(url).headers(headers);
         if ("get".equalsIgnoreCase(method)) {
@@ -94,18 +93,18 @@ public class HttpFunction implements ILogicItemFunctionRunner {
                 ctx.setHasErr(true);
                 ctx.setErrMsg(msg);
                 return new LogicItemRunResult()
-                        .setItemInstance(itemInstance)
+                        .setItemInstance(itemDsl)
                         .setData(e.toString()).setMsg(msg);
             }
             return new LogicItemRunResult()
-                    .setItemInstance(itemInstance).setData(repData);
+                    .setItemInstance(itemDsl).setData(repData);
         } catch (Exception e) {
             var msg = String.format("[%s]bizId:%s,>>http意外的异常,msg:%s", ctx.getLogicId(), ctx.getBizId(), e.getLocalizedMessage());
             log.error(msg);
             ctx.setHasErr(true);
             ctx.setErrMsg(msg);
             return new LogicItemRunResult()
-                    .setItemInstance(itemInstance)
+                    .setItemInstance(itemDsl)
                     .setData(e.toString()).setMsg(msg);
         }
     }

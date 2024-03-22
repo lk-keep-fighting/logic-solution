@@ -3,15 +3,15 @@
 
  Source Server         : local
  Source Server Type    : MySQL
- Source Server Version : 80200
+ Source Server Version : 80200 (8.2.0)
  Source Host           : localhost:3306
  Source Schema         : logic_demo
 
  Target Server Type    : MySQL
- Target Server Version : 80200
+ Target Server Version : 80200 (8.2.0)
  File Encoding         : 65001
 
- Date: 04/03/2024 09:43:16
+ Date: 20/03/2024 10:27:09
 */
 
 SET NAMES utf8mb4;
@@ -32,6 +32,21 @@ CREATE TABLE `logic` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------
+-- Table structure for logic_asset
+-- ----------------------------
+DROP TABLE IF EXISTS `logic_asset`;
+CREATE TABLE `logic_asset` (
+  `id` varchar(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `code` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `name` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `version` varchar(36) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `type` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `config` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `updateTime` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ----------------------------
 -- Table structure for logic_bak
 -- ----------------------------
 DROP TABLE IF EXISTS `logic_bak`;
@@ -44,7 +59,7 @@ CREATE TABLE `logic_bak` (
   `configJson` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `updateTime` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`aid`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=1762671082692718594 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1768177001648136194 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------
 -- Table structure for logic_instance
@@ -96,7 +111,8 @@ CREATE TABLE `logic_log` (
   `isOver` tinyint(1) DEFAULT '0' COMMENT '是否已经执行到最后一个节点',
   `itemLogs` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '执行过程日志',
   `messageId` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '消息唯一标识',
-  PRIMARY KEY (`id`,`version`) USING BTREE
+  PRIMARY KEY (`id`,`version`) USING BTREE,
+  KEY `logicId_bizId` (`logicId`,`bizId`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------
@@ -116,3 +132,25 @@ CREATE TABLE `logic_published` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=79 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- ----------------------------
+-- Table structure for test
+-- ----------------------------
+DROP TABLE IF EXISTS `test`;
+CREATE TABLE `test` (
+  `id` varchar(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ----------------------------
+-- Table structure for test_detail
+-- ----------------------------
+DROP TABLE IF EXISTS `test_detail`;
+CREATE TABLE `test_detail` (
+  `id` varchar(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `test_id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+SET FOREIGN_KEY_CHECKS = 1;
