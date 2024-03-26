@@ -34,11 +34,11 @@ public class JavaCodeFunction implements ILogicItemFunctionRunner {
             var clazz = ClassLoaderUtils.loadClass(itemDsl.getUrl().trim());
             log.info("[{}]bizId:{},成功加载方法所在类：{}", ctx.getLogicId(), ctx.getBizId(), itemDsl.getUrl().trim());
             var bodyObj = Functions.runJsByContext(ctx, itemDsl.getBody());// Functions.get("js").invoke(ctx, itemDsl.getBody()).getData();//执行js脚本，返回方法实参
-            log.info("[{}]bizId:{},Java代码实参类型：-{}", ctx.getLogicId(), ctx.getBizId(), bodyObj.getClass());
+            log.info("[{}]bizId:{},Java代码实参类型：-{}", ctx.getLogicId(), ctx.getBizId(), bodyObj == null ? "null" : bodyObj.getClass());
             var methodName = itemDsl.getMethod().split("\\(")[0];
             // 获取参数声明
             List<ParamTreeNode> paramTreeNodes = itemDsl.getParams();
-            var paramsJson = JSONObject.from(bodyObj);//bodyObj instanceof ScriptObjectMirror ? JSONObject.from(JsonUtil.toObject((ScriptObjectMirror) bodyObj)) : JSONObject.from(bodyObj);
+            var paramsJson = bodyObj != null ? JSONObject.from(bodyObj) : new JSONObject();//bodyObj instanceof ScriptObjectMirror ? JSONObject.from(JsonUtil.toObject((ScriptObjectMirror) bodyObj)) : JSONObject.from(bodyObj);
             log.info("[{}]bizId:{},Java代码实参：-{}", ctx.getLogicId(), ctx.getBizId(), paramsJson.toJSONString());
             itemDsl.setBody(paramsJson.toJSONString());
             List<Class<?>> cls = new ArrayList<>();
