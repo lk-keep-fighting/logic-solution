@@ -19,20 +19,25 @@ public class LogicLogController {
     }
 
     @PostMapping("/api/ide/logic-logs")
-    public ApiResult<Page<LogicLogEntity>> logicList(@RequestBody FormQueryInput input) {
+    public ApiResult<Page<LogicLogEntity>> logicLogList(@RequestBody FormQueryInput input) {
         var list = this.logicLogService.selectPage(input);
         return new ApiResult<Page<LogicLogEntity>>().setData(list);
     }
 
     @DeleteMapping("/api/ide/logic-log/delete/{id}")
-    public ApiResult<Boolean> deleteLogic(@PathVariable String id) {
+    public ApiResult<Boolean> deleteLogicLog(@PathVariable String id) {
         var res = logicLogService.removeById(id);
         return new ApiResult<Boolean>().setData(res);
     }
 
     @GetMapping("/api/ide/logic-log/{id}")
-    public ApiResult<LogicLogEntity> getLogic(@PathVariable String id) {
+    public ApiResult<LogicLogEntity> getLogicLog(@PathVariable String id) {
         var entity = logicLogService.getById(id);
         return new ApiResult<LogicLogEntity>().setData(entity);
+    }
+
+    @DeleteMapping("/api/ide/logic-logs/clear")
+    public void clearLogicLog() {
+        logicLogService.clearLog();
     }
 }
