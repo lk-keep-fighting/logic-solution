@@ -4,7 +4,6 @@ import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
 import com.aims.logic.runtime.contract.dto.LogicItemRunResult;
 import com.aims.logic.runtime.contract.dto.LogicRunResult;
 import com.aims.logic.runtime.contract.dto.RunnerStatusEnum;
-import com.aims.logic.runtime.contract.enums.LogicItemTransactionScope;
 import com.aims.logic.runtime.contract.enums.LogicItemType;
 import com.aims.logic.runtime.contract.logger.LogicItemLog;
 import com.aims.logic.runtime.contract.logger.LogicLog;
@@ -278,7 +277,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         String startNodeType = nextItem.getType();
         if (LogicItemType.waitForContinue.compareType(startNodeType) || LogicItemType.start.compareType(startNodeType)) {//起始为交互点，判断交互点配置的事务范围
             var tranScope = nextItem.getTranScope();
-            if (tranScope == null) tranScope = LogicItemTransactionScope.on;
+            if (tranScope == null) tranScope = RuntimeUtil.getEnvObject().getDefaultTranScope();
             switch (tranScope) {
                 case everyRequest:
                     return runItemWithEveryRequestTran(instanceId, logicId, bizId, runner, nextItem);
