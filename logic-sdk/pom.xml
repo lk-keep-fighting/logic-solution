@@ -9,7 +9,7 @@
     </parent>
     <groupId>com.aims.logic</groupId>
     <artifactId>logic-sdk</artifactId>
-    <version>0.2.11-SNAPSHOT</version>
+    <version>0.2.12-SNAPSHOT</version>
     <name>logic-sdk</name>
     <description>logic-sdk</description>
     <properties>
@@ -39,6 +39,11 @@
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.31</version>
+        </dependency>
+        <dependency>
+            <groupId>com.aims.lowcode.tools</groupId>
+            <artifactId>json-to-sql</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <!--        <dependency>-->
         <!--            <groupId>com.alibaba.compileflow</groupId>-->

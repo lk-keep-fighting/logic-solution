@@ -1,6 +1,5 @@
 package com.aims.logic.sdk.mapper;
 
-import com.aims.logic.sdk.entity.LogicEntity;
 import com.aims.logic.sdk.entity.LogicPublishedEntity;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
