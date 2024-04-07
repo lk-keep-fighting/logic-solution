@@ -42,7 +42,7 @@
         </dependency>
         <dependency>
             <groupId>com.aims.lowcode.tools</groupId>
-            <artifactId>json-to-sql</artifactId>
+            <artifactId>jsonsql-sdk</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <!--        <dependency>-->
