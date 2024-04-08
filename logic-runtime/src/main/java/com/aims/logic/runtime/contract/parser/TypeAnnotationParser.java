@@ -29,7 +29,6 @@ public class TypeAnnotationParser {
                         break;
                     case "array":
                         json.put(v.getName(), JSONArray.parseArray(v.getDefaultValue()));
-                        System.out.println("转换array,parseArray");
                         break;
                     case "boolean":
                         json.put(v.getName(), Boolean.parseBoolean(v.getDefaultValue()));
