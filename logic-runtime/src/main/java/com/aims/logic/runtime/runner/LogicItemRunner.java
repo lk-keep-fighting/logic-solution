@@ -28,7 +28,8 @@ public class LogicItemRunner {
             case "wait":
                 if (this.dsl.getTimeout() != null) {
                     try {
-                        var timeout = Long.parseLong(this.dsl.getTimeout());
+                        var timeout = Long.parseLong(Functions.runJsByContext(ctx, "return " + this.dsl.getTimeout()).
+                                toString());
                         if (timeout > 0) {
                             Thread.sleep(timeout);
                         }
