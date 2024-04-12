@@ -16,8 +16,9 @@ import java.util.List;
 public class LogicTreeNode extends BaseLASL {
 
     public LogicTreeNode() {
-        concept= ConceptEnum.Logic;
+        concept = ConceptEnum.Logic;
     }
+
     String id;
 
     String name;
@@ -34,9 +35,9 @@ public class LogicTreeNode extends BaseLASL {
 
     String description;
 
-    String triggerType;
-
-    String cron;
+    //    String triggerType;
+//    String cron;
+    String log;
 
     List<TypeParamTreeNode> typeParams;
 

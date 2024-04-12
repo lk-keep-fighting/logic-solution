@@ -1,13 +1,11 @@
 package com.aims.logic.sdk.service.impl;
 
 import com.aims.logic.runtime.contract.logger.LogicLog;
-import com.aims.logic.runtime.env.LogicAppEnvObject;
+import com.aims.logic.runtime.util.RuntimeUtil;
 import com.aims.logic.sdk.entity.LogicInstanceEntity;
 import com.aims.logic.sdk.entity.LogicLogEntity;
 import com.aims.logic.sdk.mapper.LogicLogMapper;
 import com.aims.logic.sdk.service.LogicInstanceService;
-import com.aims.logic.runtime.util.RuntimeUtil;
-import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -18,9 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Service
