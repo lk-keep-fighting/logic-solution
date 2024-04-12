@@ -78,6 +78,7 @@ public class LogicRunner {
             this.fnCtx.set_par(paramsJson);
         if (varsJson != null)
             this.fnCtx.set_var(varsJson);
+        this.fnCtx.setLogic(logic);
         this.fnCtx.set_env(envJson);
         this.fnCtx.setBizId(bizId);
         this.fnCtx.setLogicId(logic.getId());
@@ -233,7 +234,8 @@ public class LogicRunner {
         if (item.getReturnAccept() != null && !item.getReturnAccept().isBlank()) {
             Functions.runJsByContext(fnCtx, String.format("%s=_lastRet", item.getReturnAccept()));
         }
-        logicLog.getItemLogs().add(itemRes.getItemLog());
+        if (!fnCtx.isLogOff())
+            logicLog.getItemLogs().add(itemRes.getItemLog());
         return itemRes;
     }
 
