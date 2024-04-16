@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 
 /**
  * @author liukun
@@ -33,30 +34,33 @@ public class JsFunction implements ILogicItemFunctionRunner {
         engine.put("_lastRet", ctx.get_lastRet());
         try {
             String processedCode = script.toString().replaceAll("^//.*", "");
-            // Remove multi-line comments
-//            Pattern pattern = Pattern.compile("/\\*.*?\\*/", Pattern.DOTALL);
-//            Matcher matcher = pattern.matcher(processedCode);
-//            processedCode = matcher.replaceAll("");
             engine.eval(String.format("function fn(){ %s }", processedCode));
             Invocable inv = (Invocable) engine;
             Object funcRes = inv.invokeFunction("fn");
-            Object data = null;
-            if (funcRes instanceof ScriptObjectMirror scriptObj) {
-                if (scriptObj.isArray()) {
-                    data = JsonUtil.toObject((ScriptObjectMirror) funcRes);
-                } else {
-                    data = JsonUtil.toObject((ScriptObjectMirror) funcRes);
-                }
-            } else {
-                data = funcRes;
-            }
+            Object data = convertResult(funcRes);
             return new LogicItemRunResult().setData(data);
-        } catch (Exception exception) {
+        } catch (IllegalArgumentException | ScriptException | NoSuchMethodException exception) {
             ctx.setHasErr(true);
-            ctx.setErrMsg(exception.toString());
-            log.error("[{}]bizId:{},js function error: {}", ctx.getLogicId(), ctx.getBizId(), exception.toString());
-            return new LogicItemRunResult().setSuccess(false).setData(exception);
+            ctx.setErrMsg(exception.getMessage());
+            log.error("[{}]bizId:{},js function error: {}", ctx.getLogicId(), ctx.getBizId(), exception.getMessage());
+            return new LogicItemRunResult()
+                    .setMsg(exception.getMessage())
+                    .setSuccess(false);
         }
+    }
+
+    private Object convertResult(Object funcRes) {
+        if (funcRes instanceof ScriptObjectMirror) {
+            try {
+                // 对转换过程进行异常捕获，确保数据转换的健壮性
+                return JsonUtil.toObject((ScriptObjectMirror) funcRes);
+            } catch (Exception e) {
+                // 可以根据实际情况记录日志或者采取其他处理措施
+                log.error("js意外的异常：转换js执行结果失败", e);
+                return null; // 或者返回一个特定的错误标示对象
+            }
+        }
+        return funcRes;
     }
 
     @Override
