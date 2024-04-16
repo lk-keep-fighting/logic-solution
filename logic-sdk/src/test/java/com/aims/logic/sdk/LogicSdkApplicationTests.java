@@ -20,7 +20,7 @@ public class LogicSdkApplicationTests {
 //    @Autowired
 //    private BizLogicRunner bizLogicRunner;
 
-    //    @Test
+//    @Test
     void contextLoads() {
         JSONObject cusEnv = new JSONObject();
         JSONObject headers = new JSONObject();
