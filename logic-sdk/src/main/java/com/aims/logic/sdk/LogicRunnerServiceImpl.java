@@ -322,8 +322,10 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 itemRes = runner.runItem(nextItem);
                 log.info("[{}]bizId:{}-当前节点：{}-{}，执行结果,success:{},msg:{}", logicId, bizId, nextItem.getType(), nextItem.getName(), itemRes.isSuccess(), itemRes.getMsg());
                 nextItem = runner.findNextItem(nextItem);
-                itemLogs.clear();
-                itemLogs.add(itemRes.getItemLog());
+                if (!runner.getFnCtx().isLogOff()) {
+                    itemLogs.clear();
+                    itemLogs.add(itemRes.getItemLog());
+                }
                 logicLog.setItemLogs(itemLogs).setVarsJson_end(runner.getFnCtx().get_var())
                         .setOver(runner.refreshStatus(itemRes.isSuccess(), nextItem) == RunnerStatusEnum.End)
                         .setNextItem(nextItem)
@@ -399,7 +401,8 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 try {
                     itemRes = runner.runItem(nextItem);
                     nextItem = runner.findNextItem(nextItem);
-                    itemLogs.add(itemRes.getItemLog());
+                    if (!runner.getFnCtx().isLogOff())
+                        itemLogs.add(itemRes.getItemLog());
                     if (itemRes.isSuccess()) {
                         runner.refreshStatus(true, nextItem);
                     } else {
@@ -473,8 +476,10 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 try {
                     itemRes = runner.runItem(nextItem);
                     nextItem = runner.findNextItem(nextItem);
-                    itemLogs.clear();
-                    itemLogs.add(itemRes.getItemLog());
+                    if (!runner.getFnCtx().isLogOff()) {
+                        itemLogs.clear();
+                        itemLogs.add(itemRes.getItemLog());
+                    }
                     logicLog.setItemLogs(itemLogs).setVarsJson_end(runner.getFnCtx().get_var())
                             .setOver(runner.refreshStatus(itemRes.isSuccess(), nextItem) == RunnerStatusEnum.End)
                             .setNextItem(nextItem)
@@ -560,8 +565,10 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 begin = transactionalUtils.begin();
                 itemRes = runner.runItem(nextItem);
                 nextItem = runner.findNextItem(nextItem);
-                itemLogs.clear();
-                itemLogs.add(itemRes.getItemLog());
+                if (!runner.getFnCtx().isLogOff()) {
+                    itemLogs.clear();
+                    itemLogs.add(itemRes.getItemLog());
+                }
                 logicLog.setItemLogs(itemLogs)
                         .setOver(runner.refreshStatus(itemRes.isSuccess(), nextItem) == RunnerStatusEnum.End)
                         .setVarsJson_end(runner.getFnCtx().get_var())

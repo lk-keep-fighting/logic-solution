@@ -26,13 +26,21 @@ public class LogicItemRunner {
                 ret = Functions.get(itemType).invoke(ctx, this.dsl.getScript() != null ? this.dsl.getScript() : "return _ret");
                 break;
             case "wait":
+                Double timeout = 0.0;
                 if (this.dsl.getTimeout() != null) {
                     try {
-                        var timeout = Long.parseLong(this.dsl.getTimeout());
+                        timeout = Double.parseDouble(Functions.runJsByContext(ctx, "return " + this.dsl.getTimeout()).
+                                toString());
+                    } catch (Exception ex) {
+                        log.error("[{}]bizId:{},延时未执行，wait节点转换延时异常:{}", ctx.getLogicId(), ctx.getBizId(), ex.toString());
+                    }
+                    try {
                         if (timeout > 0) {
-                            Thread.sleep(timeout);
+                            log.info("[{}]bizId:{},等待[{}]毫秒", ctx.getLogicId(), ctx.getBizId(), timeout.longValue());
+                            Thread.sleep(timeout.longValue());
                         }
                     } catch (InterruptedException exception) {
+                        ret.setSuccess(false).setMsg(exception.getMessage());
                         log.error("[{}]bizId:{},wait节点异常:{}", ctx.getLogicId(), ctx.getBizId(), exception.toString());
                     }
                 }
@@ -53,13 +61,19 @@ public class LogicItemRunner {
             ret.setSuccess(false).setMsg(ctx.getErrMsg());
         }
         log.info("[{}]bizId:{},节点[{}]-返回值：{}", ctx.getLogicId(), ctx.getBizId(), this.dsl.getName(), ret.getData());
-        ret.setItemLog(new LogicItemLog()
-                .setName(dsl.getName())
-                .setConfigInstance(ret.getItemInstance())
-                .setConfig(dsl)
+        // 关闭日志时不追加，防止循环逻辑或大数据逻辑暴内存
+        if (ctx.isLogOff()) {
+            log.info("[{}]关闭了日志", ctx.getLogicId());
+        } else {
+            ret.setItemLog(new
+                    LogicItemLog().
+                    setName(dsl.getName()).
+                    setConfigInstance(ret.getItemInstance()).
+                    setConfig(dsl)
 //                .setParamsJson(JSONObject.from(dsl.getBody()))
-                .setReturnData(ret.getData())
-                .setSuccess(ret.isSuccess()));
+                    .setReturnData(ret.getData()).
+                    setSuccess(ret.isSuccess()));
+        }
         return ret;
     }
 }

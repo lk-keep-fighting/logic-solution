@@ -29,7 +29,6 @@ public class TypeAnnotationParser {
                         break;
                     case "array":
                         json.put(v.getName(), JSONArray.parseArray(v.getDefaultValue()));
-                        System.out.println("转换array,parseArray");
                         break;
                     case "boolean":
                         json.put(v.getName(), Boolean.parseBoolean(v.getDefaultValue()));
@@ -71,14 +70,19 @@ public class TypeAnnotationParser {
 
     public static TypeAnnotationTreeNode createTypeAnnotationTreeNode(Type paramType) {
         if (paramType instanceof ParameterizedType typeP) {
-            List<TypeAnnotationTreeNode> typeArguments = Arrays.stream(typeP.getActualTypeArguments())
-                    .map(TypeAnnotationParser::createTypeAnnotationTreeNode)
-                    .collect(Collectors.toList());
+//            List<TypeAnnotationTreeNode> typeArguments = Arrays.stream(typeP.getActualTypeArguments())
+//                    .map(TypeAnnotationParser::createTypeAnnotationTreeNode)
+//                    .collect(Collectors.toList());
+            //泛型实参不再展开解析属性
+            var actualTypeArguments = typeP.getActualTypeArguments();
+            List<TypeAnnotationTreeNode> actuctualTypeArguments = Arrays.stream(actualTypeArguments)
+                    .map(arg -> new TypeAnnotationTreeNode().setTypeName(arg.getTypeName()).setTypeNamespace(arg.getTypeName()))
+                    .toList();
             return new TypeAnnotationTreeNode()
                     .setTypeKind(TypeKindEnum.generic)
                     .setTypeName(typeP.getRawType().getTypeName())
                     .setTypeNamespace(paramType.getTypeName())
-                    .setTypeArguments(typeArguments);
+                    .setTypeArguments(actuctualTypeArguments);
         } else if (paramType instanceof Class<?> clazz) {
             if (DataType.isSimpleDataType(clazz.getSimpleName()) || clazz.getTypeName().startsWith("java")) {
                 return new TypeAnnotationTreeNode()
