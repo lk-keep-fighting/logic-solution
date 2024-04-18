@@ -30,6 +30,10 @@ public class FunctionContext {
     }
 
     public boolean isLogOff() {
-        return "off".equals(logic.getLog()) || ("off".equals(_env.get("LOG")) && !"on".equals(logic.getLog()));
+        if ("off".equals(logic.getLog()))
+            return true;
+        if ("on".equals(logic.getLog()))
+            return false;
+        return "off".equals(_env.get("LOG"));
     }
 }

@@ -12,7 +12,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -109,11 +108,11 @@ public class LoggerServiceImpl {
      */
     public void addLogicLog(LogicLog logicLog) {
         try {
-            var isLogOff = logicLog.getEnvsJson().get("LOG");
-            if (isLogOff != null && StringUtils.isNotBlank(isLogOff.toString()) && "OFF".equalsIgnoreCase(isLogOff.toString())) {
-                log.info("LogicId:{}，关闭了日志，无法回放业务实例", logicLog.getLogicId());
-                return;
-            }
+//            var isLogOff = logicLog.getEnvsJson().get("LOG");
+//            if (isLogOff != null && StringUtils.isNotBlank(isLogOff.toString()) && "OFF".equalsIgnoreCase(isLogOff.toString())) {
+//                log.info("LogicId:{}，关闭了日志，无法回放业务实例", logicLog.getLogicId());
+//                return;
+//            }
             JSONObject envJson = logicLog.getEnvsJson();
             JSONObject headers = envJson.getJSONObject("HEADERS");
             String requestHost = null;

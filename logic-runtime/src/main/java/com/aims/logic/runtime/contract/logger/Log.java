@@ -9,7 +9,7 @@ import lombok.experimental.Accessors;
 @Setter
 public class Log {
     String msgId;
-    boolean success;
+    boolean success = true;
     String msg;
     Error error;
 }

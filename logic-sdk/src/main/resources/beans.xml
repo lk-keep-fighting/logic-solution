@@ -3,7 +3,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-<!--    <bean id="test1" class="com.aims.logic.sdk.test">-->
+<!--    <bean id="dataModelService" class="com.aims.datamodel.sdk.service.DataModelServiceImpl">-->
 <!--        &lt;!&ndash; Bean 的具体配置 &ndash;&gt;-->
 <!--    </bean>-->
 </beans>
