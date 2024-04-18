@@ -38,7 +38,7 @@ public class SubLogicFunction implements ILogicItemFunctionRunner {
             }
             var newRunner = runnerService.newInstance(ctx.get_env());
             var itemRunResult = new LogicItemRunResult().setItemInstance(itemDsl);
-            if (StringUtils.isBlank(bizId)) {
+            if (bizId == null || "null".equals(bizId)) {
                 var res = newRunner.runByMap(subLogicId, jsonData);
                 return itemRunResult.setData(res.getData());
             } else {

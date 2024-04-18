@@ -2,8 +2,10 @@ package com.aims.logic.runtime.contract.enums;
 
 public enum LogicItemTransactionScope {
     off("off"),
-    on("on"),
+//    on("on"),
+    def("def"),
     everyJavaNode("everyJavaNode"),
+    everyNode("everyNode"),
     everyRequest("everyRequest");
     final String value;
 
