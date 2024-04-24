@@ -11,7 +11,7 @@ spring:
     password: 12#$qwER
 #  web:
 #    resources:
-#      static-locations: classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/,classpath:/public/,classpath:/public/web
+#      static-locations: classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/,classpath:/public/,classpath:/public/logic-web
 server:
   port: 4055
 logic:
