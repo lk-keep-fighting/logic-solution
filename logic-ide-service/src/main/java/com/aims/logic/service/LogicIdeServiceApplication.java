@@ -5,7 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication(scanBasePackages = "com.aims.logic")
+@SpringBootApplication(scanBasePackages = {"com.aims.logic", "com.aims.datamodel"})
 @MapperScan("com.aims.logic.service.demo.mapper")
 @SpringBootConfiguration
 public class LogicIdeServiceApplication {
