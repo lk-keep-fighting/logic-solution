@@ -57,7 +57,7 @@ public class LogicConfigStoreServiceImpl implements LogicConfigStoreService {
         JSONObject logicConfig = null;
         //当指定offline时，始终从本地文件读取，否则默认为online
         if (RuntimeUtil.getEnvObject().getLOGIC_CONFIG_MODEL() == LogicConfigModelEnum.offline) {
-            logicConfig =readFromCache(logicId, version);
+            logicConfig = readFromCache(logicId, version);
             if (logicConfig != null) {
                 return logicConfig;
             }
@@ -66,9 +66,11 @@ public class LogicConfigStoreServiceImpl implements LogicConfigStoreService {
                 return saveToCache(logicId, version, logicConfig);
             }
         } else {
-            logicConfig = readFromCache(logicId, version);
-            if (logicConfig != null) {
-                return logicConfig;
+            if (version != null) {//版本不为null，先尝试从缓存读取
+                logicConfig = readFromCache(logicId, version);
+                if (logicConfig != null) {
+                    return logicConfig;
+                }
             }
             OkHttpClient client = httpClient.newBuilder().callTimeout(Duration.ofSeconds(10)).build();
             String onlineHost = RuntimeUtil.getEnvObject().getIDE_HOST().isBlank() ? RuntimeUtil.getUrl() : RuntimeUtil.getEnvObject().getIDE_HOST();
@@ -77,7 +79,6 @@ public class LogicConfigStoreServiceImpl implements LogicConfigStoreService {
                 url = String.format("%s/api/ide/logic/%s/config", onlineHost, logicId);
                 log.info("online-从[{}]读取最新配置logicId:[{}]", url, logicId);
             } else {
-
                 url = String.format("%s/api/ide/logic/%s/config/%s", onlineHost, logicId, version);
                 log.info("online-从[{}]读取配置logicId:[{}]-version:[{}]", url, logicId, version);
             }
