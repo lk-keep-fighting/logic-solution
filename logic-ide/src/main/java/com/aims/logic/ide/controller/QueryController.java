@@ -2,7 +2,7 @@ package com.aims.logic.ide.controller;
 
 import com.aims.datamodel.core.dsl.DataModel;
 import com.aims.datamodel.core.sqlbuilder.input.QueryInput;
-import com.aims.logic.sdk.dto.ApiResult;
+import com.aims.logic.ide.controller.dto.ApiResult;
 import com.aims.logic.sdk.service.LogicService;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;

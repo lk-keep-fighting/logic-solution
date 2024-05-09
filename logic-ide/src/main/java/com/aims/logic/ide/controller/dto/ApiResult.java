@@ -1,4 +1,4 @@
-package com.aims.logic.sdk.dto;
+package com.aims.logic.ide.controller.dto;
 
 import com.aims.logic.runtime.contract.dto.LogicRunResult;
 import lombok.Data;
@@ -20,13 +20,21 @@ public class ApiResult<T> {
                 .setData(res.getData());
     }
 
+    public static ApiResult ok(Object data) {
+        return new ApiResult().setData(data);
+    }
+
+    public static ApiResult error(String msg) {
+        return new ApiResult().setCode(500).setMsg(msg);
+    }
+
     public static ApiResult fromException(Exception ex) {
         return new ApiResult()
                 .setCode(500)
                 .setMsg(ex.getMessage())
                 .setError(new ApiError()
                         .setCode(500)
-                        .setMsg(ex.getMessage())
+                        .setMsg(ex.getCause() == null ? ex.getMessage() : ex.getCause().getMessage())
                         .setDetail(ex.getCause() != null ? ex.getCause() : ex));
     }
 }
