@@ -1,6 +1,8 @@
 package com.aims.logic.runtime.contract.logger;
 
 import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
+import com.aims.logic.runtime.runner.FunctionContext;
+import com.aims.logic.runtime.util.JsonUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import lombok.Getter;
@@ -14,6 +16,18 @@ import java.util.List;
 @Getter
 @Setter
 public class LogicLog extends Log {
+    public LogicLog() {
+
+    }
+
+    public static LogicLog newBizLogBeforeRun(String instanceId, FunctionContext ctx, LogicItemTreeNode nextItem) {
+        return new LogicLog().setInstanceId(instanceId).setBizId(ctx.getBizId()).setLogicId(ctx.getLogicId()).setVersion(ctx.getLogic().getVersion())
+                .setParamsJson(JSONObject.from(ctx.get_par()))
+                .setVarsJson(JsonUtil.clone(ctx.get_var()))
+                .setEnvsJson(ctx.get_env())
+                .setNextItem(nextItem);
+    }
+
     /**
      * 入参
      */
@@ -58,6 +72,14 @@ public class LogicLog extends Log {
                 return JSON.toJSONString(returnData);
             } else
                 return returnData.toString();
+        } else return null;
+    }
+
+    public Object getReturnData() {
+        if (itemLogs != null && !itemLogs.isEmpty()) {
+            var returnData = itemLogs.get(itemLogs.size() - 1).getReturnData();
+            if (returnData == null) return null;
+            return returnData;
         } else return null;
     }
 

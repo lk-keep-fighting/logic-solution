@@ -24,6 +24,11 @@ public class FunctionContext {
     private String logicId = null;
     private String bizId = null;
     private LogicItemTreeNode nextItem;
+    private String curTranGroupId;
+    private String nextTranGroupId;
+    private String lastTranGroupId;
+
+
 
     public FunctionContext() {
 

@@ -48,7 +48,7 @@ public class JsonUtil {
     }
 
     public static Object toObject(ScriptObjectMirror mirror) {
-        if (mirror.isEmpty()) {
+        if (!mirror.isArray() && mirror.isEmpty()) {
             return null;
         }
         if (mirror.isArray()) {
