@@ -13,8 +13,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import java.io.IOException;
 import java.time.Duration;
 
 /**
@@ -34,26 +32,46 @@ public class LogicConfigStoreServiceImpl implements LogicConfigStoreService {
         return logicConfigCache;
     }
 
+    private JSONObject readFromCache(String logicId, String version) {
+        JSONObject logicConfig = null;
+        String logicCacheKey = logicId + "-" + version;
+        logicConfig = logicConfigCache.asMap().get(logicCacheKey);
+        if (logicConfig != null) {
+            log.info("从缓存读取逻辑配置[{}]，json内version：{}", logicCacheKey, logicConfig.get("version"));
+            return logicConfig;
+        }
+        log.info("从缓存读取逻辑配置[{}]，version：{}，***未命中***", logicCacheKey, version);
+        return null;
+    }
+
+    private JSONObject saveToCache(String logicId, String version, JSONObject logicConfig) {
+        String logicCacheKey = logicId + "-" + version;
+        logicConfig.put("id", logicId);//自动修复文件名编号与内部配置编号不同的问题
+        logicConfigCache.put(logicCacheKey, logicConfig);
+        log.info("将逻辑配置[{}]写入缓存，json内version：{}", logicCacheKey, logicConfig.get("version"));
+        return logicConfig;
+    }
+
     @Override
     public JSONObject readLogicConfig(String logicId, String version) {
         JSONObject logicConfig = null;
         //当指定offline时，始终从本地文件读取，否则默认为online
         if (RuntimeUtil.getEnvObject().getLOGIC_CONFIG_MODEL() == LogicConfigModelEnum.offline) {
-            String logicCacheKey = logicId + "-" + version;
-            logicConfig = logicConfigCache.asMap().get(logicCacheKey);
+            logicConfig = readFromCache(logicId, version);
             if (logicConfig != null) {
-                log.info("offline-从缓存读取逻辑配置[{}]，json内version：{}", logicCacheKey, logicConfig.get("version"));
                 return logicConfig;
             }
             logicConfig = FileUtil.readJsonFile(FileUtil.LOGIC_DIR, logicId + ".json");
             if (logicConfig != null) {
-                logicConfig.put("id", logicId);//修复复制配置时id可能不一致问题
-//                logicCacheKey = logicId + "-" + logicConfig.get("version");//使用文件内版本组成缓存key
-                logicConfigCache.put(logicCacheKey, logicConfig);
-                log.info("offline-从文件读取逻辑配置并更新到缓存[{}]，json内version：{}", logicCacheKey, logicConfig.get("version"));
-                return logicConfig;
+                return saveToCache(logicId, version, logicConfig);
             }
         } else {
+            if (version != null) {//版本不为null，先尝试从缓存读取
+                logicConfig = readFromCache(logicId, version);
+                if (logicConfig != null) {
+                    return logicConfig;
+                }
+            }
             OkHttpClient client = httpClient.newBuilder().callTimeout(Duration.ofSeconds(10)).build();
             String onlineHost = RuntimeUtil.getEnvObject().getIDE_HOST().isBlank() ? RuntimeUtil.getUrl() : RuntimeUtil.getEnvObject().getIDE_HOST();
             String url;
@@ -74,19 +92,16 @@ public class LogicConfigStoreServiceImpl implements LogicConfigStoreService {
                         if (JSON.isValid(res)) {
                             var json = JSON.parseObject(res);
                             logicConfig = json.getJSONObject("data");
+                            return saveToCache(logicId, version, logicConfig);
                         }
                     }
                 } else {
-                    log.error("online获取配置失败，逻辑编号:{}，错误：{},{}", logicId, rep.code(), rep.message());
                     throw new RuntimeException(String.format("online获取配置失败，逻辑编号:%s,错误：%s,%s", logicId, rep.code(), rep.message()));
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
                 log.error("online获取配置失败，逻辑编号:{}，错误：{}", logicId, e.getLocalizedMessage());
                 throw new RuntimeException(String.format("online获取配置失败，逻辑编号:%s,错误：%s", logicId, e.getLocalizedMessage()));
             }
-        }
-        if (logicConfig != null) {
-            logicConfig.put("id", logicId);//自动修复文件名编号与内部配置编号不同的问题
         }
         return logicConfig;
     }

@@ -7,7 +7,6 @@
         <artifactId>logic-solution</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
-    <groupId>com.aims.logic</groupId>
     <artifactId>logic-ide-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>logic-ide-service</name>
@@ -40,9 +39,14 @@
         <dependency>
             <groupId>com.aims.logic</groupId>
             <artifactId>logic-ide</artifactId>
-            <version>0.0.14-SNAPSHOT</version>
+            <version>0.0.18-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.aims.lowcode.tools</groupId>-->
+<!--            <artifactId>jsonsql-sdk</artifactId>-->
+<!--            <version>0.0.1-SNAPSHOT</version>-->
+<!--        </dependency>-->
 <!--        <dependency>-->
 <!--            <groupId>com.aims.logic</groupId>-->
 <!--            <artifactId>logic-sdk</artifactId>-->

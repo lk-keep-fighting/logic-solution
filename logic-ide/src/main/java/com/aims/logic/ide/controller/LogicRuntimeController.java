@@ -2,7 +2,7 @@ package com.aims.logic.ide.controller;
 
 import com.aims.logic.runtime.service.LogicRunnerService;
 import com.aims.logic.runtime.util.StringConcurrencyUtil;
-import com.aims.logic.sdk.dto.ApiResult;
+import com.aims.logic.ide.controller.dto.ApiResult;
 import com.aims.logic.runtime.util.RuntimeUtil;
 import com.alibaba.fastjson2.JSONObject;
 import org.springframework.web.bind.annotation.*;

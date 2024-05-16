@@ -42,6 +42,13 @@ public class LogicRunResult {
                 .setMsg(itemRunResult.getMsg())
                 .setSuccess(itemRunResult.isSuccess());
     }
+    public static LogicRunResult fromLogicLog(LogicLog logicLog) {
+        return new LogicRunResult()
+                .setLogicLog(logicLog)
+                .setData(logicLog.getReturnData())
+                .setMsg(logicLog.getMsg())
+                .setSuccess(logicLog.isSuccess());
+    }
 
     /**
      * 执行日志
