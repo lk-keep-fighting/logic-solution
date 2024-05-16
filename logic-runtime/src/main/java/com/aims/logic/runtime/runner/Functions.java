@@ -2,6 +2,7 @@ package com.aims.logic.runtime.runner;
 
 import com.aims.logic.runtime.runner.functions.ILogicItemFunctionRunner;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,6 +33,12 @@ public class Functions {
             throw new RuntimeException(msg);
         }
     }
+
+    public static String runJsExpressByContext(FunctionContext ctx, String script) {
+        if (!StringUtils.hasText(script)) return null;
+        return Functions.get("js").invoke(ctx, "return " + script).getData().toString();
+    }
+
 
     public static ILogicItemFunctionRunner get(String name) {
         return functions.get(name);

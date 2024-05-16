@@ -19,7 +19,7 @@ public class LogicItemAop {
     public Object around(ProceedingJoinPoint joinPoint) {
         TransactionStatus begin = null;
         try {
-            begin = transactionalUtils.begin();
+            begin = transactionalUtils.newTran();
             Object result = joinPoint.proceed();//表示调用的方法
             transactionalUtils.commit(begin);
             return result;

@@ -12,7 +12,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -72,7 +71,7 @@ public class LoggerServiceImpl {
             LambdaUpdateWrapper<LogicInstanceEntity> updateWrapper = new LambdaUpdateWrapper<>();
             updateWrapper.set(LogicInstanceEntity::getSuccess, logicLog.isSuccess())
                     .set(LogicInstanceEntity::getMessage, msg255)
-                    .set(LogicInstanceEntity::getReturnData, logicLog.getReturnDataStr() != null ? logicLog.getReturnDataStr() : null)
+                    .set(LogicInstanceEntity::getReturnData, logicLog.getReturnDataStr())
                     .set(LogicInstanceEntity::getParamsJson, logicLog.getParamsJson() == null ? null : logicLog.getParamsJson().toJSONString())
                     .set(LogicInstanceEntity::getVarsJson, logicLog.getVarsJson() == null ? null : logicLog.getVarsJson().toJSONString())
                     .set(LogicInstanceEntity::getVarsJsonEnd, logicLog.getVarsJson_end() == null ? null : logicLog.getVarsJson_end().toJSONString())
@@ -87,7 +86,7 @@ public class LoggerServiceImpl {
                     .setMessage(msg255)
                     .setBizId(logicLog.getBizId())
                     .setVersion(logicLog.getVersion())
-                    .setReturnData(logicLog.getReturnDataStr() != null ? logicLog.getReturnDataStr() : null)
+                    .setReturnData(logicLog.getReturnDataStr())
                     .setLogicId(logicLog.getLogicId())
                     .setParamsJson(logicLog.getParamsJson() == null ? null : logicLog.getParamsJson().toJSONString())
                     .setVarsJson(logicLog.getVarsJson() == null ? null : logicLog.getVarsJson().toJSONString())
@@ -109,11 +108,11 @@ public class LoggerServiceImpl {
      */
     public void addLogicLog(LogicLog logicLog) {
         try {
-            var isLogOff = logicLog.getEnvsJson().get("LOG");
-            if (isLogOff != null && StringUtils.isNotBlank(isLogOff.toString()) && "OFF".equalsIgnoreCase(isLogOff.toString())) {
-                log.info("LogicId:{}，关闭了日志，无法回放业务实例", logicLog.getLogicId());
-                return;
-            }
+//            var isLogOff = logicLog.getEnvsJson().get("LOG");
+//            if (isLogOff != null && StringUtils.isNotBlank(isLogOff.toString()) && "OFF".equalsIgnoreCase(isLogOff.toString())) {
+//                log.info("LogicId:{}，关闭了日志，无法回放业务实例", logicLog.getLogicId());
+//                return;
+//            }
             JSONObject envJson = logicLog.getEnvsJson();
             JSONObject headers = envJson.getJSONObject("HEADERS");
             String requestHost = null;
@@ -132,7 +131,7 @@ public class LoggerServiceImpl {
                     .setBizId(logicLog.getBizId())
                     .setVersion(logicLog.getVersion())
                     .setItemLogs(JSONArray.toJSONString(logicLog.getItemLogs()))
-                    .setReturnData(logicLog.getReturnDataStr() == null ? null : logicLog.getReturnDataStr())
+                    .setReturnData(logicLog.getReturnDataStr())
                     .setLogicId(logicLog.getLogicId())
                     .setParamsJson(logicLog.getParamsJson() == null ? null : logicLog.getParamsJson().toJSONString())
                     .setVarsJson(logicLog.getVarsJson() == null ? null : logicLog.getVarsJson().toJSONString())

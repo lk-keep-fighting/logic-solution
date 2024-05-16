@@ -1,6 +1,6 @@
 package com.aims.logic.ide.controller;
 
-import com.aims.logic.sdk.dto.ApiResult;
+import com.aims.logic.ide.controller.dto.ApiResult;
 import com.aims.logic.sdk.dto.FormQueryInput;
 import com.aims.logic.sdk.entity.LogicInstanceEntity;
 import com.aims.logic.sdk.service.LogicInstanceService;

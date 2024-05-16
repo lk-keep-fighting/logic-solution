@@ -1,10 +1,9 @@
 package com.aims.logic.sdk.service.impl;
 
+import com.aims.datamodel.core.sqlbuilder.QueryBuilder;
+import com.aims.datamodel.core.sqlbuilder.input.QueryInput;
 import com.aims.logic.sdk.dto.FormQueryInput;
 import com.aims.logic.sdk.service.BaseService;
-import com.aims.lowcode.tools.jsonsql.core.dto.Query;
-import com.aims.lowcode.tools.jsonsql.core.service.impl.QueryBuilderServiceImpl;
-import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -19,7 +18,8 @@ import java.util.Map;
 @Slf4j
 public class BaseServiceImpl<M extends BaseMapper<T>, T> extends ServiceImpl<M, T> implements BaseService<T> {
 
-    QueryBuilderServiceImpl jsonToQuerySqlService = new QueryBuilderServiceImpl();
+    //    QueryBuilderServiceImpl jsonToQuerySqlService = new QueryBuilderServiceImpl();
+
     @Autowired
     JdbcTemplate jdbcTemplate;
 
@@ -49,9 +49,24 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T> extends ServiceImpl<M, 
         return baseMapper.selectPage(page, queryWrapper);
     }
 
-    public Page<Map<String, Object>> selectPageByJson(String json) {
-        Query query = JSONObject.parseObject(json, Query.class);
-        var sql = jsonToQuerySqlService.buildByDto(query);
+//    public Page<Map<String, Object>> selectPageByJson(String json) {
+//        QueryInput input = JSONObject.parseObject(json, QueryInput.class);
+//        var sql = QueryBuilder.build(input);
+//        var list = jdbcTemplate.queryForList(sql);
+//        var fromIdex = sql.indexOf("FROM");
+//        var countSql = "SELECT COUNT(*) FROM " + sql.substring(fromIdex + 4);
+//        var limitIdx = countSql.lastIndexOf("LIMIT");
+//        if (limitIdx > 0) {
+//            countSql = countSql.substring(0, limitIdx);
+//        }
+//        var count = jdbcTemplate.queryForObject(countSql, Long.class);
+//        var p = new Page<Map<String, Object>>(input.getPage(), input.getPageSize(), count);
+//        p.setRecords(list);
+//        return p;
+//    }
+
+    public Page<Map<String, Object>> selectPageByInput(QueryInput input) {
+        var sql = QueryBuilder.build(input);
         var list = jdbcTemplate.queryForList(sql);
         var fromIdex = sql.indexOf("FROM");
         var countSql = "SELECT COUNT(*) FROM " + sql.substring(fromIdex + 4);
@@ -60,7 +75,7 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T> extends ServiceImpl<M, 
             countSql = countSql.substring(0, limitIdx);
         }
         var count = jdbcTemplate.queryForObject(countSql, Long.class);
-        var p = new Page<Map<String, Object>>(query.getPage(), query.getPageSize(), count);
+        var p = new Page<Map<String, Object>>(input.getPage(), input.getPageSize(), count);
         p.setRecords(list);
         return p;
     }

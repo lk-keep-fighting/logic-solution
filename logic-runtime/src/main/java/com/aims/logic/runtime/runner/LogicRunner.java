@@ -221,7 +221,7 @@ public class LogicRunner {
                 .setOver(this.runnerStatus == RunnerStatusEnum.End)
                 .setNextItem(fnCtx.getNextItem())
                 .setVersion(logic.getVersion())
-                .setReturnDataStr(res.getDataString())
+//                .setReturnDataStr(res.getDataString())
                 .setMsg(res.getMsg())
                 .setSuccess(res.isSuccess());
         res.setLogicLog(logicLog);
