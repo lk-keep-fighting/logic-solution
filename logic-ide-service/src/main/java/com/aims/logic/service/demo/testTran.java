@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.UUID;
 
 @Component
 public class testTran {
@@ -20,6 +19,10 @@ public class testTran {
 
     public int insert(String id) {
         return testMapper.insert(new TestEntity().setId(id));
+    }
+
+    public int throwError() {
+        throw new RuntimeException("主动抛出RuntimeException");
     }
 
     public int insertDto(TestEntity entity) {

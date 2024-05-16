@@ -57,9 +57,6 @@ public class LogicItemRunner {
                     log.debug("[{}]bizId:{},未实现的类型：{}", ctx.getLogicId(), ctx.getBizId(), dsl.getType());
                 break;
         }
-        if (ctx.isHasErr()) {
-            ret.setSuccess(false).setMsg(ctx.getErrMsg());
-        }
         log.info("[{}]bizId:{},节点[{}]-返回值：{}", ctx.getLogicId(), ctx.getBizId(), this.dsl.getName(), ret.getData());
         // 关闭日志时不追加，防止循环逻辑或大数据逻辑暴内存
         if (ctx.isLogOff()) {
@@ -71,8 +68,8 @@ public class LogicItemRunner {
                     setConfigInstance(ret.getItemInstance()).
                     setConfig(dsl)
 //                .setParamsJson(JSONObject.from(dsl.getBody()))
-                    .setReturnData(ret.getData()).
-                    setSuccess(ret.isSuccess()));
+                    .setReturnData(ret.getData())
+                    .setSuccess(ret.isSuccess()));
         }
         return ret;
     }

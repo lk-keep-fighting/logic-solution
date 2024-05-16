@@ -31,6 +31,7 @@ public class HttpFunction implements ILogicItemFunctionRunner {
     @Override
     public LogicItemRunResult invoke(FunctionContext ctx, Object item) {
         var itemDsl = ((LogicItemTreeNode) item);
+        var itemRes = new LogicItemRunResult();
         Object data = Functions.runJsByContext(ctx, itemDsl.getBody());
         var customHeaders = Functions.runJsByContext(ctx, itemDsl.getHeaders());
         var method = itemDsl.getMethod().isEmpty() ? "post" : itemDsl.getMethod();
@@ -75,8 +76,8 @@ public class HttpFunction implements ILogicItemFunctionRunner {
             Object repData = null;
             try (var rep = client.newCall(req).execute()) {
                 if (!rep.isSuccessful()) {
-                    ctx.setErrMsg(String.format("请求异常，Http Code:%s,%s", rep.code(), rep.message()));
-                    ctx.setHasErr(true);
+                    itemRes.setMsg(String.format("请求异常，Http Code:%s,%s", rep.code(), rep.message()));
+                    itemRes.setSuccess(false);
                     log.error("[{}]bizId:{},>>http 请求异常,rep code:{},rep msg:{}", ctx.getLogicId(), ctx.getBizId(), rep.code(), rep.message());
                 }
                 if (rep.body() != null) {
@@ -90,22 +91,18 @@ public class HttpFunction implements ILogicItemFunctionRunner {
             } catch (IOException e) {
                 var msg = String.format("[%s]bizId:%s,>>http IOException,msg:%s", ctx.getLogicId(), ctx.getBizId(), e.getLocalizedMessage());
                 log.error(msg);
-                ctx.setHasErr(true);
-                ctx.setErrMsg(msg);
-                return new LogicItemRunResult()
+                return itemRes.setSuccess(false).setMsg(msg)
                         .setItemInstance(itemDsl)
-                        .setData(e.toString()).setMsg(msg);
+                        .setData(e.toString());
             }
-            return new LogicItemRunResult()
+            return itemRes
                     .setItemInstance(itemDsl).setData(repData);
         } catch (Exception e) {
             var msg = String.format("[%s]bizId:%s,>>http意外的异常,msg:%s", ctx.getLogicId(), ctx.getBizId(), e.getLocalizedMessage());
             log.error(msg);
-            ctx.setHasErr(true);
-            ctx.setErrMsg(msg);
-            return new LogicItemRunResult()
+            return itemRes.setSuccess(false).setMsg(msg)
                     .setItemInstance(itemDsl)
-                    .setData(e.toString()).setMsg(msg);
+                    .setData(e.toString());
         }
     }
 
