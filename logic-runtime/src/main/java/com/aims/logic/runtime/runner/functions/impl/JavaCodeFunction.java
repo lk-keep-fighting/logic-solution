@@ -122,7 +122,7 @@ public class JavaCodeFunction implements ILogicItemFunctionRunner {
             }
             return res.setItemInstance(itemDsl);
         } catch (Exception e) {
-            var msg = e.getCause() == null ? e.getMessage() : e.getCause().getMessage();
+            var msg = e.toString();
             log.error("[{}]bizId:{},>>>java节点意外的异常:{}", ctx.getLogicId(), ctx.getBizId(), msg);
             e.printStackTrace();
             return new LogicItemRunResult().setSuccess(false)
