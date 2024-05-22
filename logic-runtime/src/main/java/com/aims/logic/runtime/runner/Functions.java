@@ -36,7 +36,13 @@ public class Functions {
 
     public static String runJsExpressByContext(FunctionContext ctx, String script) {
         if (!StringUtils.hasText(script)) return null;
-        return Functions.get("js").invoke(ctx, "return " + script).getData().toString();
+        var res = Functions.get("js").invoke(ctx, "return " + script).getData();
+        if (res == null) {
+            var msg = String.format("bizId:%s-通过脚本未获取到值，请检查脚本：%s", ctx.getBizId(), script);
+            log.error(msg);
+            throw new RuntimeException(msg);
+        }
+        return res.toString();
     }
 
 

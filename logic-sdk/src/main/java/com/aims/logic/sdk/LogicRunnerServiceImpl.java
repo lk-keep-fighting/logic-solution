@@ -400,7 +400,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 } else {
                     log.info("[{}]bizId:{},catch意外异常，rollback 未执行，isCompleted=true", logicId, bizId);
                 }
-                logicLog.setMsg(msg);
+                logicLog.setSuccess(false).setMsg(msg);
                 logService.addLogicLog(logicLog);
                 logService.updateInstanceStatus(logicLog.getInstanceId(), false, msg);
                 return LogicRunResult.fromLogicLog(logicLog);

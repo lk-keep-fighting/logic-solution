@@ -24,18 +24,18 @@ public class LogicItemRunResult {
      */
     Object data;
 
-    /**
-     * 获取data数据的字符串表示，
-     * 如果是json则转换为json字符串，
-     * 通常用于获取值进行存储或判断
-     */
-    public String getDataString() {
-        try {
-            return JSONObject.toJSONString(data);
-        } catch (Exception ex) {
-            return (String) data;
-        }
-    }
+//    /**
+//     * 获取data数据的字符串表示，
+//     * 如果是json则转换为json字符串，
+//     * 通常用于获取值进行存储或判断
+//     */
+//    public String getDataString() {
+//        try {
+//            return JSONObject.toJSONString(data);
+//        } catch (Exception ex) {
+//            return (String) data;
+//        }
+//    }
 
     /**
      * 逻辑项实例，配置解析后的数据实例
