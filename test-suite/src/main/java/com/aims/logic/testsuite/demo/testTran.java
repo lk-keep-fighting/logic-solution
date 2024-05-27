@@ -1,5 +1,6 @@
 package com.aims.logic.testsuite.demo;
 
+import com.aims.logic.runtime.LogicBizException;
 import com.aims.logic.testsuite.demo.dto.TestDtoWithDetail;
 import com.aims.logic.testsuite.demo.entity.TestAutoIdEntity;
 import com.aims.logic.testsuite.demo.entity.TestDetailEntity;
@@ -69,5 +70,8 @@ public class testTran {
         for (String id : ids) {
             testMapper.insert(new TestEntity().setId(id));
         }
+    }
+    public void throwBizError(String msg){
+        throw new LogicBizException(msg);
     }
 }

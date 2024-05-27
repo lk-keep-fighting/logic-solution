@@ -1,5 +1,6 @@
 package com.aims.logic.runtime.runner.functions.impl;
 
+import com.aims.logic.runtime.LogicBizException;
 import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
 import com.aims.logic.runtime.contract.dsl.ParamTreeNode;
 import com.aims.logic.runtime.contract.dto.LogicItemRunResult;
@@ -108,11 +109,20 @@ public class JavaCodeFunction implements ILogicItemFunctionRunner {
                 var obj = method.invoke(SpringContextUtil.getBean(clazz), paramsArrayFromJsObj.toArray());
                 res.setData(obj);
             } catch (InvocationTargetException e) {
-                var errMsg = String.format(">>执行java方法[%s]报错：%s", methodName, e.getTargetException().getMessage());
-                log.error("[{}]bizId:{},{}", ctx.getLogicId(), ctx.getBizId(), errMsg);
-                return res.setSuccess(false)
-                        .setMsg(errMsg)
-                        .setItemInstance(itemDsl);
+                if (e.getTargetException() instanceof LogicBizException) {
+                    var bizEx = e.getTargetException();
+                    var errMsg = String.format(">>执行java方法[%s]抛出业务异常：%s", methodName, bizEx.getMessage());
+                    log.error("[{}]bizId:{},{}", ctx.getLogicId(), ctx.getBizId(), errMsg);
+                    return res.setSuccess(false)
+                            .setMsg(bizEx.getMessage())
+                            .setItemInstance(itemDsl);
+                } else {
+                    var errMsg = String.format(">>执行java方法[%s]报错：%s", methodName, e.getTargetException().getMessage());
+                    log.error("[{}]bizId:{},{}", ctx.getLogicId(), ctx.getBizId(), errMsg);
+                    return res.setSuccess(false)
+                            .setMsg(errMsg)
+                            .setItemInstance(itemDsl);
+                }
             } catch (Exception e) {
                 var errMsg = String.format(">>执行java方法[%s]异常：%s", methodName, e.getMessage());
                 log.error("[{}]bizId:{},{}", ctx.getLogicId(), ctx.getBizId(), errMsg);
