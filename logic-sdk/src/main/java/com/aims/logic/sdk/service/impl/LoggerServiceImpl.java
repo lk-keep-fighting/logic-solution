@@ -108,8 +108,7 @@ public class LoggerServiceImpl {
      */
     public void addLogicLog(LogicLog logicLog) {
         try {
-//            var isLogOff = logicLog.getEnvsJson().get("LOG");
-//            if (isLogOff != null && StringUtils.isNotBlank(isLogOff.toString()) && "OFF".equalsIgnoreCase(isLogOff.toString())) {
+//            if (logicLog.isLogOff()) {
 //                log.info("LogicId:{}，关闭了日志，无法回放业务实例", logicLog.getLogicId());
 //                return;
 //            }

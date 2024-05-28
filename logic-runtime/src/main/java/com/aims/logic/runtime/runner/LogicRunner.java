@@ -234,8 +234,7 @@ public class LogicRunner {
         if (item.getReturnAccept() != null && !item.getReturnAccept().isBlank()) {
             Functions.runJsByContext(fnCtx, String.format("%s=_lastRet", item.getReturnAccept()));
         }
-        if (!fnCtx.isLogOff())
-            logicLog.getItemLogs().add(itemRes.getItemLog());
+        logicLog.addItemLog(itemRes);
         return itemRes;
     }
 

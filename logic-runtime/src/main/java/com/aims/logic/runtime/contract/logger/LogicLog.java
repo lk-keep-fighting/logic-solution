@@ -1,9 +1,9 @@
 package com.aims.logic.runtime.contract.logger;
 
 import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
+import com.aims.logic.runtime.contract.dto.LogicItemRunResult;
 import com.aims.logic.runtime.runner.FunctionContext;
 import com.aims.logic.runtime.util.JsonUtil;
-import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,12 +20,15 @@ public class LogicLog extends Log {
 
     }
 
+    boolean isLogOff = false;
+
     public static LogicLog newBizLogBeforeRun(String instanceId, FunctionContext ctx, LogicItemTreeNode nextItem) {
         return new LogicLog().setInstanceId(instanceId).setBizId(ctx.getBizId()).setLogicId(ctx.getLogicId()).setVersion(ctx.getLogic().getVersion())
                 .setParamsJson(JSONObject.from(ctx.get_par()))
                 .setVarsJson(JsonUtil.clone(ctx.get_var()))
                 .setEnvsJson(ctx.get_env())
-                .setNextItem(nextItem);
+                .setNextItem(nextItem)
+                .setLogOff(ctx.isLogOff());
     }
 
     /**
@@ -65,23 +68,22 @@ public class LogicLog extends Log {
 
     //    String returnDataStr;
     public String getReturnDataStr() {
-        if (itemLogs != null && !itemLogs.isEmpty()) {
-            var returnData = itemLogs.get(itemLogs.size() - 1).getReturnData();
-            if (returnData == null) return null;
-            if (returnData instanceof JSONObject) {
-                return JSON.toJSONString(returnData);
-            } else
-                return returnData.toString();
-        } else return null;
+        if (returnData != null) JSONObject.toJSONString(returnData);
+        return null;
     }
 
-    public Object getReturnData() {
-        if (itemLogs != null && !itemLogs.isEmpty()) {
-            var returnData = itemLogs.get(itemLogs.size() - 1).getReturnData();
-            if (returnData == null) return null;
-            return returnData;
-        } else return null;
-    }
+    //    public Object getReturnData() {
+//        if (itemLogs != null && !itemLogs.isEmpty()) {
+//            return itemLogs.get(itemLogs.size() - 1).getReturnData();
+//        } else return null;
+//    }
+    Object returnData;
 
     List<LogicItemLog> itemLogs = new ArrayList<>();
+
+    public void addItemLog(LogicItemRunResult itemRunResult) {
+        returnData = itemRunResult.getData();
+        if (!isLogOff)
+            itemLogs.add(itemRunResult.getItemLog());
+    }
 }

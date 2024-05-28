@@ -1,6 +1,7 @@
 package com.aims.logic.runtime.contract.logger;
 
 import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
+import com.alibaba.fastjson2.JSON;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -29,6 +30,14 @@ public class LogicItemLog {
     /**
      * 当前item返回值
      */
-    private Object returnData;
+    private String returnData;
+
+    public LogicItemLog setReturnData(Object returnData) {
+        if (returnData != null) this.returnData = JSON.toJSONString(returnData);
+        else this.returnData = null;
+        return this;
+    }
+    // 存储返回值副本，防止returnData存在嵌套对象时被后面的日志覆盖
+//    private String returnDataStr;
     private boolean success;
 }
