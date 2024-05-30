@@ -5,6 +5,7 @@ import com.aims.logic.runtime.contract.dto.LogicItemRunResult;
 import com.aims.logic.runtime.runner.FunctionContext;
 import com.aims.logic.runtime.util.JsonUtil;
 import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.JSONWriter;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -68,7 +69,7 @@ public class LogicLog extends Log {
 
     //    String returnDataStr;
     public String getReturnDataStr() {
-        if (returnData != null) JSONObject.toJSONString(returnData);
+        if (returnData != null) JSONObject.toJSONString(returnData, JSONWriter.Feature.WriteNulls);
         return null;
     }
 
