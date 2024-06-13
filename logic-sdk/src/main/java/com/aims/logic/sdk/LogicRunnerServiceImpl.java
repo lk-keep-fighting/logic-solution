@@ -243,6 +243,18 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         return res;
     }
 
+    /**
+     * 清除日志 truncate logic_log
+     */
+    @Override
+    public void clearLog() {
+        logService.clearLog();
+    }
+
+    @Override
+    public void clearCompletedInstance() {
+        insService.remove(new QueryWrapper<LogicInstanceEntity>().eq("isOver", true));
+    }
 
     /**
      * 加事务执行业务逻辑，每执行一个节点提交一次
