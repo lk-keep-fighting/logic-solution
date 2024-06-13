@@ -72,12 +72,16 @@ public class LogicLog extends Log {
         if (returnData != null) JSONObject.toJSONString(returnData, JSONWriter.Feature.WriteNulls);
         return null;
     }
-
-    //    public Object getReturnData() {
-//        if (itemLogs != null && !itemLogs.isEmpty()) {
-//            return itemLogs.get(itemLogs.size() - 1).getReturnData();
-//        } else return null;
+//
+//    public Object getReturnData() {
+//        if (returnData == null) {
+//            if (itemLogs != null && !itemLogs.isEmpty()) {
+//                return itemLogs.get(itemLogs.size() - 1).getReturnData();
+//            }
+//        }
+//        return returnData;
 //    }
+
     Object returnData;
 
     List<LogicItemLog> itemLogs = new ArrayList<>();
