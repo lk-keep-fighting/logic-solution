@@ -1,6 +1,7 @@
 package com.aims.logic.ide.controller;
 
 import com.aims.logic.ide.controller.dto.ApiResult;
+import com.aims.logic.ide.controller.dto.ListData;
 import com.aims.logic.runtime.contract.dsl.LogicTreeNode;
 import com.aims.logic.runtime.contract.dsl.ParamTreeNode;
 import com.aims.logic.runtime.contract.dsl.basic.TypeAnnotationTreeNode;
@@ -104,6 +105,12 @@ public class LogicIdeController {
     public ApiResult<LogicEntity> getLogic(@PathVariable String id) {
         var logicEntity = logicMapper.selectById(id);
         return new ApiResult<LogicEntity>().setData(logicEntity);
+    }
+
+    @GetMapping("/api/ide/modules")
+    public ApiResult<ListData> getModules() {
+        var modules = logicService.getModuleList();
+        return new ApiResult<ListData>().setData(new ListData(modules));
     }
 
     @GetMapping("/api/ide/logic/{id}/config")
