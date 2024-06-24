@@ -21,6 +21,9 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author liukun
@@ -162,5 +165,14 @@ public class LogicServiceImpl extends BaseServiceImpl<LogicMapper, LogicEntity> 
             log.error("未找到要发布的逻辑：" + id);
             throw new RuntimeException("未找到要发布的逻辑：" + id);
         }
+    }
+
+    @Override
+    public List<Map<String, Object>> getModuleList() {
+        List<Map<String, Object>> res = new ArrayList<>();
+        logicMapper.getModuleList().forEach(m -> {
+            res.add(Map.of("label", m, "id", m));
+        });
+        return res;
     }
 }

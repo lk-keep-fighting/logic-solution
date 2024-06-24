@@ -9,7 +9,7 @@
     </parent>
     <groupId>com.aims.logic</groupId>
     <artifactId>logic-runtime</artifactId>
-    <version>0.0.10-SNAPSHOT</version>
+    <version>0.0.13-SNAPSHOT</version>
     <name>logic-runtime</name>
     <description>logic-runtime</description>
     <properties>

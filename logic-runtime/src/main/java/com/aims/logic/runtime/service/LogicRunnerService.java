@@ -144,6 +144,10 @@ public interface LogicRunnerService {
      */
 
     LogicRunResult runBizByVerifyCode(String logicId, String bizId, String verifyCode, Map<String, Object> parsMap);
+
+    void clearLog();
+
+    void clearCompletedInstance();
     //
 //    LogicRunResult runBizStepByStep(String logicId, String bizId, JSONObject pars);
 //

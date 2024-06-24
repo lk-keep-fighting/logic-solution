@@ -22,8 +22,9 @@ import javax.script.ScriptException;
 public class JsFunction implements ILogicItemFunctionRunner {
     @Override
     public LogicItemRunResult invoke(FunctionContext ctx, Object script) {
+        LogicItemRunResult itemRes = new LogicItemRunResult();
         if (script == null) {
-            return new LogicItemRunResult();
+            return itemRes;
         }
         ScriptEngineManager manager = new ScriptEngineManager();
         ScriptEngine engine = manager.getEngineByName("js");
@@ -40,8 +41,6 @@ public class JsFunction implements ILogicItemFunctionRunner {
             Object data = convertResult(funcRes);
             return new LogicItemRunResult().setData(data);
         } catch (IllegalArgumentException | ScriptException | NoSuchMethodException exception) {
-            ctx.setHasErr(true);
-            ctx.setErrMsg(exception.getMessage());
             log.error("[{}]bizId:{},js function error: {}", ctx.getLogicId(), ctx.getBizId(), exception.getMessage());
             return new LogicItemRunResult()
                     .setMsg(exception.getMessage())

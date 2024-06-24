@@ -56,8 +56,7 @@ public class LogicRunner {
         fnCtx.set_par(paramsMap);
         fnCtx.set_var(JsonUtil.jsonMerge(varsJson, fnCtx.get_var()));
         logicLog.setParamsJson(fnCtx.get_par() == null ? null : JSONObject.from(fnCtx.get_par()))
-                .setVarsJson(fnCtx.get_var() == null ? null : fnCtx.get_var().clone())
-                .setEnvsJson(fnCtx.get_env());
+                .setVarsJson(fnCtx.get_var() == null ? null : fnCtx.get_var().clone());
     }
 
 
@@ -82,7 +81,7 @@ public class LogicRunner {
         this.fnCtx.set_env(envJson);
         this.fnCtx.setBizId(bizId);
         this.fnCtx.setLogicId(logic.getId());
-        logicLog.setBizId(bizId);
+        logicLog.setBizId(bizId).setLogOff(fnCtx.isLogOff());
         log.info("init-[{}}]bizId:{}", logic.getId(), bizId);
         log.debug("[{}}]参数声明：_par:{}", logic.getId(), this.fnCtx.get_par());
         log.debug("[{}}]局部变量声明：_var:{}", logic.getId(), this.fnCtx.get_var());
@@ -234,8 +233,7 @@ public class LogicRunner {
         if (item.getReturnAccept() != null && !item.getReturnAccept().isBlank()) {
             Functions.runJsByContext(fnCtx, String.format("%s=_lastRet", item.getReturnAccept()));
         }
-        if (!fnCtx.isLogOff())
-            logicLog.getItemLogs().add(itemRes.getItemLog());
+        logicLog.addItemLog(itemRes);
         return itemRes;
     }
 
