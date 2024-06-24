@@ -1,8 +1,9 @@
 package com.aims.logic.sdk.service;
 
 import com.aims.logic.sdk.entity.LogicEntity;
-import com.baomidou.mybatisplus.extension.service.IService;
-import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
 
 public interface LogicService extends BaseService<LogicEntity> {
     /**
@@ -33,4 +34,6 @@ public interface LogicService extends BaseService<LogicEntity> {
     String pubToLocalFromEntityJson(String jsonStr, String source);
 
     String pubToIdeHost(String id, String url);
+
+    List<Map<String, Object>> getModuleList();
 }

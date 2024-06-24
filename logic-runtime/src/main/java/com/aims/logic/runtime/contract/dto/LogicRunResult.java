@@ -2,6 +2,7 @@ package com.aims.logic.runtime.contract.dto;
 
 import com.aims.logic.runtime.contract.logger.LogicLog;
 import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.JSONWriter;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -30,7 +31,7 @@ public class LogicRunResult {
      */
     public String getDataString() {
         try {
-            return JSONObject.toJSONString(data);
+            return JSONObject.toJSONString(data, JSONWriter.Feature.WriteNulls);
         } catch (Exception ex) {
             return (String) data;
         }

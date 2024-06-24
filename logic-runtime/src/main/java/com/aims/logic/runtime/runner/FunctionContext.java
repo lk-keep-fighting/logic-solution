@@ -19,8 +19,6 @@ public class FunctionContext {
     private Object _lastRet;
     private LogicTreeNode logic;
     //    private LogicRunner _logicRunner;
-    private boolean hasErr = false;
-    private String errMsg = null;
     private String logicId = null;
     private String bizId = null;
     private LogicItemTreeNode nextItem;

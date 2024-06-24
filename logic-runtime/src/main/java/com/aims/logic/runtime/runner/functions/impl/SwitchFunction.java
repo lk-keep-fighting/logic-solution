@@ -50,9 +50,7 @@ public class SwitchFunction implements ILogicItemFunctionRunner {
             }
             return ret.setData(nextId.get()).setItemInstance(itemDsl);
         } catch (Exception e) {
-            ctx.setHasErr(true);
-            ctx.setErrMsg(e.getLocalizedMessage());
-            return new LogicItemRunResult().setData(e.toString()).setMsg(e.toString()).setItemInstance(itemDsl);
+            return new LogicItemRunResult().setSuccess(false).setData(e.toString()).setMsg(e.toString()).setItemInstance(itemDsl);
         }
     }
 

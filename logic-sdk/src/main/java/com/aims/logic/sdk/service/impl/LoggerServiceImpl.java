@@ -60,12 +60,6 @@ public class LoggerServiceImpl {
         String env = RuntimeUtil.getEnvObject().getNODE_ENV();
         var nextId = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getId();
         var nextName = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getName();
-//        QueryWrapper<LogicInstanceEntity> q = new QueryWrapper<>();
-//        Map<String, String> m = new HashMap<>();
-//        m.put("logicId", logicLog.getLogicId());
-//        m.put("bizId", logicLog.getBizId());
-//        q.allEq(m);
-//        var ins = instanceService.getOne(q);
         var msg255 = logicLog.getMsg() == null ? null : logicLog.getMsg().length() > 255 ? logicLog.getMsg().substring(0, 255) : logicLog.getMsg();
         if (logicLog.getInstanceId() != null) {
             LambdaUpdateWrapper<LogicInstanceEntity> updateWrapper = new LambdaUpdateWrapper<>();
@@ -108,11 +102,10 @@ public class LoggerServiceImpl {
      */
     public void addLogicLog(LogicLog logicLog) {
         try {
-//            var isLogOff = logicLog.getEnvsJson().get("LOG");
-//            if (isLogOff != null && StringUtils.isNotBlank(isLogOff.toString()) && "OFF".equalsIgnoreCase(isLogOff.toString())) {
-//                log.info("LogicId:{}，关闭了日志，无法回放业务实例", logicLog.getLogicId());
-//                return;
-//            }
+            if (logicLog.isLogOff()) {
+                log.info("LogicId:{}，关闭了日志，无法回放业务实例", logicLog.getLogicId());
+                return;
+            }
             JSONObject envJson = logicLog.getEnvsJson();
             JSONObject headers = envJson.getJSONObject("HEADERS");
             String requestHost = null;
@@ -165,7 +158,7 @@ public class LoggerServiceImpl {
         return logMapper.selectList(wrapper);
     }
 
-    public int deleteLog(long aid) {
-        return logMapper.deleteById(aid);
+    public void clearLog() {
+        logMapper.clearLog();
     }
 }
