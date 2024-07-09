@@ -68,6 +68,11 @@ public class RuntimeUtil {
         return url;
     }
 
+    public static HttpServletRequest getRequest() {
+        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        return requestAttributes.getRequest();
+    }
+
     /**
      * 根据逻辑编号读取逻辑配置
      *
