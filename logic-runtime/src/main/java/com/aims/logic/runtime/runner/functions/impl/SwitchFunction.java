@@ -33,7 +33,7 @@ public class SwitchFunction implements ILogicItemFunctionRunner {
             AtomicReference<String> nextId = new AtomicReference<>("");
             AtomicReference<String> defNextId = new AtomicReference<>("");
             itemDsl.getBranches().forEach(b -> {
-                if (b.getWhen() != null) {
+                if (b.getWhen() != null && !b.getWhen().isEmpty()) {
                     if (b.getWhen().equals(res)) {
                         nextId.set(b.getNextId());
                         log.info("[{}]bizId:{},命中：{}", ctx.getLogicId(), ctx.getBizId(), b.getWhen());

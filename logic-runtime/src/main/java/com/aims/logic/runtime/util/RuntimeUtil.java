@@ -69,6 +69,8 @@ public class RuntimeUtil {
     }
 
     public static HttpServletRequest getRequest() {
+        if (RequestContextHolder.getRequestAttributes() == null)
+            return null;
         ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         return requestAttributes.getRequest();
     }
