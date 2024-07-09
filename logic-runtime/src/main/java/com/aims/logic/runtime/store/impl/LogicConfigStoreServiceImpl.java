@@ -83,7 +83,11 @@ public class LogicConfigStoreServiceImpl implements LogicConfigStoreService {
                 url = String.format("%s/api/ide/logic/%s/config/%s", onlineHost, logicId, version);
                 log.info("online-从[{}]读取配置logicId:[{}]-version:[{}]", url, logicId, version);
             }
-            var defaultHeaders = Headers.of("Authorization", RuntimeUtil.getRequest().getHeader("Authorization"));
+            String token = "";
+            if (RuntimeUtil.getRequest() != null && RuntimeUtil.getRequest().getHeader("Authorization") != null) {
+                token = RuntimeUtil.getRequest().getHeader("Authorization");
+            }
+            var defaultHeaders = Headers.of("Authorization", token);
             Request request = new Request.Builder()
                     .url(url).headers(defaultHeaders)
                     .build();
