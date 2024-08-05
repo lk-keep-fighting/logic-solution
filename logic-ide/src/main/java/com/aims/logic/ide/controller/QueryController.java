@@ -18,8 +18,8 @@ public class QueryController {
     private LogicService logicService;
 
     @PostMapping("/query")
-    public ApiResult<Page<Map<String, Object>>> queryByJson(@PathVariable("dataModelId") String dataModelId, @RequestBody String json) {
-        QueryInput input = JSONObject.parseObject(json, QueryInput.class);
+    public ApiResult<Page<Map<String, Object>>> queryByJson(@PathVariable("dataModelId") String dataModelId, @RequestBody JSONObject json) {
+        QueryInput input = json.to(QueryInput.class);//JSONObject.parseObject(json, QueryInput.class);
         if (input.getFrom() == null)
             input.setFrom(new DataModel().setMainTable(dataModelId));
         return new ApiResult<Page<Map<String, Object>>>().setData(logicService.selectPageByInput(input));
