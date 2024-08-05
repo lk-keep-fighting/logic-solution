@@ -77,10 +77,17 @@ public class JavaCodeFunction implements ILogicItemFunctionRunner {
                                 obj = paramsJson.getJSONObject(paramName).to(TypeReference.mapType(Map.class, keyClazz, valClazz));
                                 paramClass = obj.getClass();
                                 cls.add(paramClass);
-                            } else {//List
+                            } else if (paramTypeAnno.getTypeName().equals(List.class.getTypeName())) {
                                 paramClass = ClassLoaderUtils.loadClass(classWrapper.getPackageName() + "." + classWrapper.getShortRawName());
                                 var TypeParClazz = ClassLoaderUtils.loadClass(classWrapper.getParameterizedType().get(0).getName());
                                 obj = JSONArray.parseArray(JSONObject.toJSONString(paramsJson.get(paramName)), TypeParClazz);
+                            } else {//泛型
+                                var parTypes = classWrapper.getParameterizedType();
+                                var parametricType = ClassLoaderUtils.loadClass(classWrapper.getPackageName() + "." + classWrapper.getShortRawName());
+                                var value = parTypes.get(0);
+                                var valueClazz = ClassLoaderUtils.loadClass(value.getName());
+                                obj = paramsJson.getJSONObject(paramName).to(TypeReference.parametricType(parametricType, valueClazz));
+                                paramClass = obj.getClass();
                             }
                             break;
                         case primitiveArray:
@@ -142,7 +149,7 @@ public class JavaCodeFunction implements ILogicItemFunctionRunner {
     }
 
     private Method findMethod(Class<?> clazz, String methodName, Class<?>... parameterTypes) throws NoSuchMethodException {
-        return clazz.getDeclaredMethod(methodName, parameterTypes);
+        return clazz.getMethod(methodName, parameterTypes);
     }
 
     @Override
