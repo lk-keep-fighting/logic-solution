@@ -2,12 +2,17 @@ package com.aims.logic.ide.controller;
 
 import com.aims.logic.ide.controller.dto.ApiResult;
 import com.aims.logic.ide.controller.dto.ListData;
+import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
 import com.aims.logic.runtime.contract.dsl.LogicTreeNode;
 import com.aims.logic.runtime.contract.dsl.ParamTreeNode;
 import com.aims.logic.runtime.contract.dsl.basic.TypeAnnotationTreeNode;
+import com.aims.logic.runtime.contract.dto.LogicClassDto;
+import com.aims.logic.runtime.contract.dto.LogicClassMethodDto;
 import com.aims.logic.runtime.contract.parser.TypeAnnotationParser;
 import com.aims.logic.runtime.util.ClassUtils;
-import com.aims.logic.sdk.dto.*;
+import com.aims.logic.sdk.annotation.LogicItemJavaMethod;
+import com.aims.logic.sdk.dto.DataFilterInput;
+import com.aims.logic.sdk.dto.FormQueryInput;
 import com.aims.logic.sdk.entity.LogicAssetEntity;
 import com.aims.logic.sdk.entity.LogicBakEntity;
 import com.aims.logic.sdk.entity.LogicEntity;
@@ -22,18 +27,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.DefaultParameterNameDiscoverer;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.core.io.support.ResourcePatternResolver;
-import org.springframework.core.type.classreading.MetadataReader;
-import org.springframework.core.type.classreading.MetadataReaderFactory;
-import org.springframework.core.type.classreading.SimpleMetadataReaderFactory;
-import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -143,7 +140,7 @@ public class LogicIdeController {
 
     @GetMapping("/api/ide/asset/v1/java/classes/{packageName}")
     public ApiResult classList(@PathVariable String packageName) {
-        var res = getAllClassNames(packageName);
+        var res = ClassUtils.getAllClassNames(packageName);
         return new ApiResult().setData(res);
     }
 
@@ -154,7 +151,7 @@ public class LogicIdeController {
         log.info("扫描指定package:{}下的类", ScanPackageNames);
         List<LogicClassDto> classDtos = new ArrayList<>();
         for (String name : ScanPackageNames) {
-            var res = getAllClassNames(name);
+            var res = ClassUtils.getAllClassNames(name);
             classDtos.addAll(res);
         }
 
@@ -183,6 +180,47 @@ public class LogicIdeController {
         return new ApiResult<List<LogicClassMethodDto>>().setData(methodDtos);
     }
 
+    @GetMapping("/api/ide/asset/v1/logic-item/readFromCode")
+    public ApiResult<List<LogicClassMethodDto>> logicItemJava() throws ClassNotFoundException {
+        List<LogicClassDto> classDtos = new ArrayList<>();
+        List<LogicClassMethodDto> methodDtos = new ArrayList<>();
+        for (String name : ScanPackageNames) {
+            var res = ClassUtils.getAllClassNames(name);
+            classDtos.addAll(res);
+        }
+        classDtos.forEach(c -> {
+            try {
+                ClassUtils.getMethodsByAnnotation(c.getValue(), LogicItemJavaMethod.class)
+                        .forEach(m -> {
+                            var dto = new LogicClassMethodDto().setName(m.getName());
+                            var anno = m.getAnnotation(LogicItemJavaMethod.class);
+                            dto.setName(anno.name());
+                            dto.setGroup(anno.group());
+                            LogicItemTreeNode logicItemTreeNode = new LogicItemTreeNode()
+                                    .setName(anno.name())
+                                    .setType(anno.type());
+                            var paramNames = discoverer.getParameterNames(m);
+                            logicItemTreeNode.setMethod(m.getName(), paramNames);
+                            logicItemTreeNode.setBody("return {}");
+                            logicItemTreeNode.setUrl(c.getValue());
+                            var paramTypes = m.getGenericParameterTypes();
+                            if (paramNames != null) {
+                                var pars = IntStream.range(0, paramTypes.length)
+                                        .mapToObj(i -> createParamTreeNode(paramNames[i], paramTypes[i]))
+                                        .collect(Collectors.toList());
+                                logicItemTreeNode.setParams(pars);
+                            }
+                            dto.setLogicItemTreeNode(logicItemTreeNode);
+                            methodDtos.add(dto);
+                        });
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        return new ApiResult<List<LogicClassMethodDto>>().setData(methodDtos);
+    }
+
     private ParamTreeNode createParamTreeNode(String paramName, Type paramType) {
         ParamTreeNode p = new ParamTreeNode(paramName)
                 .setTypeAnnotation(TypeAnnotationParser.createTypeAnnotationTreeNode(paramType));
@@ -193,7 +231,9 @@ public class LogicIdeController {
     }
 
     @PostMapping("/api/ide/asset/v1/java/class/{fullClassPath}/method/{methodName}/params")
-    public ApiResult<List<ParamTreeNode>> getMethodParams(@RequestBody TypeAnnotationTreeNode[] typeParames, @PathVariable String fullClassPath, @PathVariable String methodName) throws ClassNotFoundException, NoSuchMethodException {
+    public ApiResult<List<ParamTreeNode>> getMethodParams(@RequestBody TypeAnnotationTreeNode[]
+                                                                  typeParames, @PathVariable String fullClassPath, @PathVariable String methodName) throws
+            ClassNotFoundException, NoSuchMethodException {
         ApiResult<List<ParamTreeNode>> res = new ApiResult<>();
         if (typeParames != null) {
             var typeArrays = Arrays.stream(typeParames).map(p -> p.getTypeName()).toList();
@@ -245,7 +285,7 @@ public class LogicIdeController {
                     classNames.add(new LogicClassDto(className));
                 } else if (file.isDirectory()) {
                     String subPackageName = packageName + "." + fileName;
-                    List<LogicClassDto> subClassNames = getAllClassNames(subPackageName);
+                    List<LogicClassDto> subClassNames = ClassUtils.getAllClassNames(subPackageName);
                     classNames.addAll(subClassNames);
                 }
             }
@@ -253,40 +293,5 @@ public class LogicIdeController {
         return classNames;
     }
 
-    public List<LogicClassDto> getAllClassNames(String basePackage) {
-        List<LogicClassDto> classNames = new ArrayList<>();
-        ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
-        MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory(resourcePatternResolver);
 
-        ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
-        scanner.addIncludeFilter(new AssignableTypeFilter(Object.class)); // 替换成你想要的类型
-
-        String packageSearchPath = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX +
-                basePackage.replace('.', '/') + "/**/*.class";
-
-        org.springframework.core.io.Resource[] resources = new org.springframework.core.io.Resource[0];
-        try {
-            resources = resourcePatternResolver.getResources(packageSearchPath);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        for (org.springframework.core.io.Resource resource : resources) {
-            if (resource.isReadable()) {
-                MetadataReader metadataReader = null;
-                try {
-                    metadataReader = metadataReaderFactory.getMetadataReader(resource);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                String className = metadataReader.getClassMetadata().getClassName();
-                classNames.add(new LogicClassDto(className));
-            }
-        }
-
-        // 打印类路径
-        for (var classPath : classNames) {
-            log.debug("className: " + classPath.getValue());
-        }
-        return classNames;
-    }
 }
