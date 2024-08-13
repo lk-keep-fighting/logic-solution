@@ -1,5 +1,6 @@
-package com.aims.logic.sdk.dto;
+package com.aims.logic.runtime.contract.dto;
 
+import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
 import com.aims.logic.runtime.contract.dsl.ParamTreeNode;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -11,6 +12,8 @@ import java.util.List;
 @Accessors(chain = true)
 public class LogicClassMethodDto {
     String name;
+    String type = "java";
+    String group = "预声明业务方法";
+    LogicItemTreeNode logicItemTreeNode;
     List<ParamTreeNode> parameters = new ArrayList<>();
-//    List<TypeAnnotationTreeNode> parameters = new ArrayList<>();
 }

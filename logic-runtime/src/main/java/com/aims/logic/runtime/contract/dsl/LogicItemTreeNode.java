@@ -5,12 +5,14 @@ import com.aims.logic.runtime.contract.enums.ConceptEnum;
 import com.aims.logic.runtime.contract.enums.LogicItemTransactionScope;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
 @Getter
 @Setter
+@Accessors(chain = true)
 public class LogicItemTreeNode extends BaseLASL {
     public LogicItemTreeNode() {
         concept = ConceptEnum.LogicItem;
@@ -26,6 +28,9 @@ public class LogicItemTreeNode extends BaseLASL {
      */
     String bizId;
     String url;
+    /**
+     * 方法格式为方法名(参数名称1，参数2名称2)
+     */
     String method;
     String headers;
     /**
@@ -38,6 +43,11 @@ public class LogicItemTreeNode extends BaseLASL {
     List<ParamTreeNode> params;
     String timeout;
     String nextId;
+
+    // 设置方法的值，方法格式为方法名(参数名称1，参数2名称2)
+    public void setMethod(String methodName, String[] paramNames) {
+        this.method = methodName + "(" + StringUtils.join(paramNames, ",") + ")";
+    }
 
     public String getTimeout() {
         return StringUtils.isBlank(timeout) ? "5000" : timeout;
