@@ -1,4 +1,4 @@
-package com.aims.logic.sdk.dto;
+package com.aims.logic.runtime.contract.dto;
 
 import lombok.Data;
 

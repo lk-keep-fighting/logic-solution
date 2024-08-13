@@ -77,7 +77,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
     @Override
     public JSONObject setEnv(JSONObject customEnv, boolean isOverride) {
         this.envJson = JsonUtil.jsonMerge(customEnv, RuntimeUtil.getEnvJson());
-        this.envObject = RuntimeUtil.toEnvObject(envJson);
+        this.envObject = RuntimeUtil.toEnvObject(envJson); 
         if (isOverride) {
             RuntimeUtil.setEnv(this.envJson.clone());
         }
