@@ -10,7 +10,7 @@ import com.aims.logic.runtime.contract.dto.LogicClassDto;
 import com.aims.logic.runtime.contract.dto.LogicClassMethodDto;
 import com.aims.logic.runtime.contract.parser.TypeAnnotationParser;
 import com.aims.logic.runtime.util.ClassUtils;
-import com.aims.logic.sdk.annotation.LogicItemJavaMethod;
+import com.aims.logic.sdk.annotation.LogicItem;
 import com.aims.logic.sdk.dto.DataFilterInput;
 import com.aims.logic.sdk.dto.FormQueryInput;
 import com.aims.logic.sdk.entity.LogicAssetEntity;
@@ -181,19 +181,19 @@ public class LogicIdeController {
     }
 
     @GetMapping("/api/ide/asset/v1/logic-item/readFromCode")
-    public ApiResult<List<LogicClassMethodDto>> logicItemJava() throws ClassNotFoundException {
+    public ApiResult<Map<String, List<LogicClassMethodDto>>> logicItemJava() throws ClassNotFoundException {
         List<LogicClassDto> classDtos = new ArrayList<>();
-        List<LogicClassMethodDto> methodDtos = new ArrayList<>();
+        Map<String, List<LogicClassMethodDto>> methodsByGroup = new HashMap<>();
         for (String name : ScanPackageNames) {
             var res = ClassUtils.getAllClassNames(name);
             classDtos.addAll(res);
         }
         classDtos.forEach(c -> {
             try {
-                ClassUtils.getMethodsByAnnotation(c.getValue(), LogicItemJavaMethod.class)
+                ClassUtils.getMethodsByAnnotation(c.getValue(), LogicItem.class)
                         .forEach(m -> {
                             var dto = new LogicClassMethodDto().setName(m.getName());
-                            var anno = m.getAnnotation(LogicItemJavaMethod.class);
+                            var anno = m.getAnnotation(LogicItem.class);
                             dto.setName(anno.name());
                             dto.setGroup(anno.group());
                             LogicItemTreeNode logicItemTreeNode = new LogicItemTreeNode()
@@ -201,7 +201,7 @@ public class LogicIdeController {
                                     .setType(anno.type());
                             var paramNames = discoverer.getParameterNames(m);
                             logicItemTreeNode.setMethod(m.getName(), paramNames);
-                            logicItemTreeNode.setBody("return {}");
+                            logicItemTreeNode.setBody("return _par;");
                             logicItemTreeNode.setUrl(c.getValue());
                             var paramTypes = m.getGenericParameterTypes();
                             if (paramNames != null) {
@@ -210,15 +210,16 @@ public class LogicIdeController {
                                         .collect(Collectors.toList());
                                 logicItemTreeNode.setParams(pars);
                             }
-                            dto.setLogicItemTreeNode(logicItemTreeNode);
-                            methodDtos.add(dto);
+                            dto.setLogicItem(logicItemTreeNode);
+                            methodsByGroup.computeIfAbsent(anno.group(), k -> new ArrayList<>());
+                            methodsByGroup.get(anno.group()).add(dto);
                         });
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
         });
 
-        return new ApiResult<List<LogicClassMethodDto>>().setData(methodDtos);
+        return new ApiResult<Map<String, List<LogicClassMethodDto>>>().setData(methodsByGroup);
     }
 
     private ParamTreeNode createParamTreeNode(String paramName, Type paramType) {
