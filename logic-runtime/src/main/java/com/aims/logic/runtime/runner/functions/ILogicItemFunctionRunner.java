@@ -15,4 +15,12 @@ public interface ILogicItemFunctionRunner {
      * @return
      */
     String getItemType();
+
+    /**
+     * 加载优先级，节点类型相同，数值大的可以覆盖数值小的
+     * 可以通过这种方式覆盖默认实现
+     *
+     * @return
+     */
+    int getPriority(String env);
 }

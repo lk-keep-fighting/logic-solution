@@ -12,5 +12,3 @@ spring:
 #      static-locations: classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/,classpath:/public/,classpath:/public/web
 logic:
   config-dir: /Users/lk/Documents/Dev/aims/xuanwu-logic/logic-solution/logic-configs
-  ide:
-    scan-package-name: com.aims.logic.sdk

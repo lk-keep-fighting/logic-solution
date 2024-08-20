@@ -1,4 +1,4 @@
-package com.aims.logic.runtime.runner.functions.impl;
+package com.aims.logic.sdk.functions;
 
 import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
 import com.aims.logic.runtime.contract.dto.LogicItemRunResult;
@@ -8,12 +8,12 @@ import com.aims.logic.runtime.runner.functions.ILogicItemFunctionRunner;
 import com.aims.logic.runtime.service.LogicRunnerService;
 import com.alibaba.fastjson2.JSONObject;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 /**
  * @author liukun
  */
-@Service
+@Component
 public class SubLogicFunction implements ILogicItemFunctionRunner {
     LogicRunnerService runnerService;
 
@@ -54,5 +54,10 @@ public class SubLogicFunction implements ILogicItemFunctionRunner {
     @Override
     public String getItemType() {
         return "sub-logic";
+    }
+
+    @Override
+    public int getPriority(String env) {
+        return 1;
     }
 }
