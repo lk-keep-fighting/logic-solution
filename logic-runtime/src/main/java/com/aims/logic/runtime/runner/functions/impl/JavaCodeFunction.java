@@ -157,4 +157,9 @@ public class JavaCodeFunction implements ILogicItemFunctionRunner {
         return "java";
     }
 
+    @Override
+    public int getPriority(String env) {
+        return 0;
+    }
+
 }

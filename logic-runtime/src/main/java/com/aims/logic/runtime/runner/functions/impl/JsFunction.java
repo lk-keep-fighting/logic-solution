@@ -66,4 +66,9 @@ public class JsFunction implements ILogicItemFunctionRunner {
     public String getItemType() {
         return "js";
     }
+
+    @Override
+    public int getPriority(String env) {
+        return 0;
+    }
 }

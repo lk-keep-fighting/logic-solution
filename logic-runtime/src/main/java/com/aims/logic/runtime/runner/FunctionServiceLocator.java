@@ -17,6 +17,14 @@ public class FunctionServiceLocator implements ApplicationContextAware {
         var list = applicationContext.getBeansOfType(ILogicItemFunctionRunner.class);
         for (ILogicItemFunctionRunner f : list.values()) {
             var itemType = f.getItemType();
+            var func = Functions.get(itemType);
+            if (func != null) {//判断优先级
+                if (func.getPriority(itemType) >= f.getPriority(itemType)) {
+                    continue;
+                } else {
+                    Functions.functions.remove(itemType);
+                }
+            }
             Functions.functions.put(itemType, f);
         }
     }
