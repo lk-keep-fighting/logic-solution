@@ -19,12 +19,12 @@ import com.aims.logic.sdk.util.MapUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.sql.PreparedStatement;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -104,7 +104,6 @@ public class BaseServiceImpl<T extends BaseEntity, TKey> implements BaseService<
         return false;
     }
 
-    //todo: 数据库自增生成的id暂时无法获取，当前只能获取代码自动生成的id
     @Override
     public String insertAndGetId(T entity) {
         if (entity != null) {
@@ -118,28 +117,51 @@ public class BaseServiceImpl<T extends BaseEntity, TKey> implements BaseService<
         return null;
     }
 
-    //todo: 数据库自增生成的id暂时无法获取，当前只能获取代码自动生成的id
     @Override
     public String insertAndGetId(Map<String, Object> valuesMap) {
         String idValue = null;
+        String idSqlColumnName;
         if (valuesMap != null && !valuesMap.isEmpty()) {
             var idField = getTableIdFieldByAnnotation();
             if (idField != null) {
                 var idType = idField.getAnnotation(TableId.class).type();
+                idSqlColumnName = getFieldColumnName(idField);
+
                 if (idType == IdType.ASSIGN_ID) {
-                    var clm = getFieldColumnName(idField);
                     idValue = String.valueOf(idWorker.nextId());
-                    valuesMap.put(clm, idValue);
+                    valuesMap.put(idSqlColumnName, idValue);
+                } else if (idType == IdType.UUID) {
+                    idValue = UUID.randomUUID().toString();
+                    valuesMap.put(idSqlColumnName, idValue);
                 } else {
                     idValue = valuesMap.get(idField.getName()).toString();
                 }
+            } else {
+                idSqlColumnName = null;
             }
             StringBuilder sql = new StringBuilder();
-            sql.append("INSERT INTO ").append(this.getTableNameByAnnotation()).append(" (").append(valuesMap.keySet().stream().collect(Collectors.joining(",")) + ") VALUES (");
+            sql.append("INSERT INTO ").append(this.getTableNameByAnnotation()).append(" (").append(String.join(",", valuesMap.keySet())).append(") VALUES (");
             valuesMap.keySet().forEach(k -> sql.append("?").append(","));
             sql.deleteCharAt(sql.length() - 1);
             sql.append(")");
-            jdbcTemplate.update(sql.toString(), valuesMap.values().toArray());
+            if (idValue == null || idValue.equals("0")) {
+                // 创建KeyHolder来存储主键
+                KeyHolder keyHolder = new GeneratedKeyHolder();
+                jdbcTemplate.update(connection -> {
+                    PreparedStatement ps = connection.prepareStatement(sql.toString(), new String[]{idSqlColumnName});
+                    var valuesArray = valuesMap.values().toArray();
+                    for (int i = 0; i < valuesArray.length; i++) {
+                        ps.setObject(i + 1, valuesArray[i]);
+                    }
+                    return ps;
+                }, keyHolder);
+                idValue = String.valueOf(keyHolder.getKey());
+            } else {
+                jdbcTemplate.update(sql.toString(), valuesMap.values().toArray());
+            }
+
+        } else {
+            throw new IllegalArgumentException("插入值为空：valuesMap is null or empty");
         }
         return idValue;
     }
