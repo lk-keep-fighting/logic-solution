@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 public class LogicBakServiceImpl extends BaseServiceImpl<LogicBakEntity, String> implements LogicBakService {
 
     public LogicBakServiceImpl() {
-        this.entityClass = new LogicBakEntity().getClass();
+//        this.entityClass = new LogicBakEntity().getClass();
     }
 
     @Override

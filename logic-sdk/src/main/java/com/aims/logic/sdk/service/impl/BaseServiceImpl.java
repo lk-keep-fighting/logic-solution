@@ -16,6 +16,8 @@ import com.aims.logic.sdk.entity.BaseEntity;
 import com.aims.logic.sdk.service.BaseService;
 import com.aims.logic.sdk.util.IdWorker;
 import com.aims.logic.sdk.util.MapUtils;
+import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.util.ParameterizedTypeImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -33,6 +35,11 @@ public class BaseServiceImpl<T extends BaseEntity, TKey> implements BaseService<
 
     public BaseServiceImpl() {
         idWorker = new IdWorker();
+        this.entityClass = (Class<?>) (JSONObject.from(getClass().getGenericSuperclass()).to(ParameterizedTypeImpl.class)).getActualTypeArguments()[0];
+
+        if (this.entityClass == null) {
+            throw new RuntimeException("Unable to get generic type");
+        }
     }
 
     @Autowired
@@ -177,6 +184,7 @@ public class BaseServiceImpl<T extends BaseEntity, TKey> implements BaseService<
                     valuesMap.put(clm, idWorker.nextId());
                 }
             }
+            valuesMap.entrySet().removeIf(e -> e.getValue() == null);
             StringBuilder sql = new StringBuilder();
             sql.append("INSERT INTO ").append(this.getTableNameByAnnotation()).append(" (").append(valuesMap.keySet().stream().collect(Collectors.joining(",")) + ") VALUES (");
             valuesMap.keySet().forEach(k -> sql.append("?").append(","));

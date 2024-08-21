@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 public class LogicLogServiceImpl extends BaseServiceImpl<LogicLogEntity, String> implements LogicLogService {
 
     public LogicLogServiceImpl() {
-        this.entityClass = new LogicLogEntity().getClass();
+//        this.entityClass = new LogicLogEntity().getClass();
     }
 
     public void clearLog() {

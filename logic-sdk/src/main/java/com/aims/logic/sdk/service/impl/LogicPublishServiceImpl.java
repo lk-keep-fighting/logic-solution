@@ -8,6 +8,6 @@ import org.springframework.stereotype.Service;
 public class LogicPublishServiceImpl extends BaseServiceImpl<LogicPublishedEntity, Long> implements LogicPublishService {
 
     public LogicPublishServiceImpl() {
-        this.entityClass = new LogicPublishedEntity().getClass();
+//        this.entityClass = new LogicPublishedEntity().getClass();
     }
 }

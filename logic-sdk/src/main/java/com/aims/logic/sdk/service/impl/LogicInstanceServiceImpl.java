@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 public class LogicInstanceServiceImpl extends BaseServiceImpl<LogicInstanceEntity, String> implements LogicInstanceService {
 
     public LogicInstanceServiceImpl() {
-        this.entityClass = new LogicInstanceEntity().getClass();
+//        this.entityClass = new LogicInstanceEntity().getClass();
     }
 
     @Override
