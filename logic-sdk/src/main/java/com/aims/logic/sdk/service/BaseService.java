@@ -12,6 +12,10 @@ public interface BaseService<T, TKey> {
 
     boolean insert(T entity);
 
+    String insertAndGetId(T entity);
+
+    String insertAndGetId(Map<String, Object> valuesMap);
+
     boolean insert(Map<String, Object> valuesMap);
 
     int removeById(TKey id);
@@ -25,5 +29,6 @@ public interface BaseService<T, TKey> {
     Page<T> selectPage(FormQueryInput input);
 
     List<Map<String, Object>> selectBySql(String sql);
+
     Page<Map<String, Object>> selectPageByInput(QueryInput input);
 }

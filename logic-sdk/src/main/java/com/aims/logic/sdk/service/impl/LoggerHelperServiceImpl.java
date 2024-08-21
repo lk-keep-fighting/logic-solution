@@ -94,8 +94,8 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
                     .setNextId(nextId)
                     .setNextName(nextName)
                     .setEnv(env);
-            instanceService.insert(newIns);
-            logicLog.setInstanceId(newIns.getId());
+            var newInsId = instanceService.insertAndGetId(newIns);
+            logicLog.setInstanceId(newInsId);
         }
     }
 
