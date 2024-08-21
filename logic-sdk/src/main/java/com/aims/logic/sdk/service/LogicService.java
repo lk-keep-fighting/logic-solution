@@ -5,7 +5,7 @@ import com.aims.logic.sdk.entity.LogicEntity;
 import java.util.List;
 import java.util.Map;
 
-public interface LogicService extends BaseService<LogicEntity> {
+public interface LogicService extends BaseService<LogicEntity, String> {
     /**
      * 编辑并备份
      *

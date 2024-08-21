@@ -4,30 +4,35 @@ import com.aims.logic.runtime.contract.logger.LogicLog;
 import com.aims.logic.runtime.util.RuntimeUtil;
 import com.aims.logic.sdk.entity.LogicInstanceEntity;
 import com.aims.logic.sdk.entity.LogicLogEntity;
-import com.aims.logic.sdk.mapper.LogicLogMapper;
+import com.aims.logic.sdk.service.LoggerHelperService;
 import com.aims.logic.sdk.service.LogicInstanceService;
+import com.aims.logic.sdk.service.LogicLogService;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @Service
-public class LoggerServiceImpl {
-    private final LogicLogMapper logMapper;
+public class LoggerHelperServiceImpl implements LoggerHelperService {
     private final LogicInstanceService instanceService;
+    private final LogicLogService logicLogService;
+    private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public LoggerServiceImpl(LogicLogMapper _logMapper,
-                             LogicInstanceService _instanceService) {
-        this.logMapper = _logMapper;
+    public LoggerHelperServiceImpl(
+            LogicInstanceService _instanceService,
+            LogicLogService _logicLogService,
+            JdbcTemplate _jdbcTemplate
+    ) {
         this.instanceService = _instanceService;
+        this.logicLogService = _logicLogService;
+        this.jdbcTemplate = _jdbcTemplate;
     }
 
     /**
@@ -43,12 +48,11 @@ public class LoggerServiceImpl {
     }
 
     public void updateInstanceStatus(String instanceId, boolean success, String msg) {
-        UpdateWrapper updateWrapper = new UpdateWrapper();
-        updateWrapper.eq("id", instanceId);
-        updateWrapper.set("success", success);
+        Map<String, Object> valuesMap = new HashMap<>();
+        valuesMap.put("success", success);
         var msg255 = msg == null ? null : msg.length() > 255 ? msg.substring(0, 255) : msg;
-        updateWrapper.set("message", msg255);
-        instanceService.update(null, updateWrapper);
+        valuesMap.put("message", msg255);
+        instanceService.updateById(instanceId, valuesMap);
     }
 
     /**
@@ -62,18 +66,18 @@ public class LoggerServiceImpl {
         var nextName = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getName();
         var msg255 = logicLog.getMsg() == null ? null : logicLog.getMsg().length() > 255 ? logicLog.getMsg().substring(0, 255) : logicLog.getMsg();
         if (logicLog.getInstanceId() != null) {
-            LambdaUpdateWrapper<LogicInstanceEntity> updateWrapper = new LambdaUpdateWrapper<>();
-            updateWrapper.set(LogicInstanceEntity::getSuccess, logicLog.isSuccess())
-                    .set(LogicInstanceEntity::getMessage, msg255)
-                    .set(LogicInstanceEntity::getReturnData, logicLog.getReturnDataStr())
-                    .set(LogicInstanceEntity::getParamsJson, logicLog.getParamsJson() == null ? null : logicLog.getParamsJson().toJSONString())
-                    .set(LogicInstanceEntity::getVarsJson, logicLog.getVarsJson() == null ? null : logicLog.getVarsJson().toJSONString())
-                    .set(LogicInstanceEntity::getVarsJsonEnd, logicLog.getVarsJson_end() == null ? null : logicLog.getVarsJson_end().toJSONString())
-                    .set(LogicInstanceEntity::getIsOver, logicLog.isOver()).set(LogicInstanceEntity::getNextId, nextId)
-                    .set(LogicInstanceEntity::getNextName, nextName)
-                    .set(LogicInstanceEntity::getEnv, env)
-                    .eq(LogicInstanceEntity::getId, logicLog.getInstanceId());
-            instanceService.update(updateWrapper);
+            Map<String, Object> valueMaps = new HashMap<>();
+            valueMaps.put("success", logicLog.isSuccess());
+            valueMaps.put("message", msg255);
+            valueMaps.put("returnData", logicLog.getReturnDataStr());
+            valueMaps.put("paramsJson", logicLog.getParamsJson() == null ? null : logicLog.getParamsJson().toJSONString());
+            valueMaps.put("varsJson", logicLog.getVarsJson() == null ? null : logicLog.getVarsJson().toJSONString());
+            valueMaps.put("varsJsonEnd", logicLog.getVarsJson_end() == null ? null : logicLog.getVarsJson_end().toJSONString());
+            valueMaps.put("isOver", logicLog.isOver());
+            valueMaps.put("nextId", nextId);
+            valueMaps.put("nextName", nextName);
+            valueMaps.put("env", env);
+            instanceService.updateById(logicLog.getInstanceId(), valueMaps);
         } else {
             LogicInstanceEntity newIns = new LogicInstanceEntity()
                     .setSuccess(logicLog.isSuccess())
@@ -90,7 +94,7 @@ public class LoggerServiceImpl {
                     .setNextId(nextId)
                     .setNextName(nextName)
                     .setEnv(env);
-            instanceService.save(newIns);
+            instanceService.insert(newIns);
             logicLog.setInstanceId(newIns.getId());
         }
     }
@@ -135,7 +139,7 @@ public class LoggerServiceImpl {
                     .setEnv(RuntimeUtil.getEnvObject().getNODE_ENV())
                     .setHost(requestHost)
                     .setClientId(requestClientId);
-            logMapper.insert(logEntity);
+            logicLogService.insert(logEntity);
         } catch (Exception e) {
             log.error("添加logicLog日志异常:{}", e.getMessage());
             e.printStackTrace();
@@ -143,22 +147,22 @@ public class LoggerServiceImpl {
 
     }
 
-    public List<LogicLogEntity> queryLogs(String logicId) {
-        QueryWrapper<LogicLogEntity> wrapper = new QueryWrapper<>();
-        wrapper.eq("logicId", logicId);
-        wrapper.orderByDesc("id");
-        return logMapper.selectList(wrapper);
-    }
+//    public List<LogicLogEntity> queryLogs(String logicId) {
+//        QueryWrapper<LogicLogEntity> wrapper = new QueryWrapper<>();
+//        wrapper.eq("logicId", logicId);
+//        wrapper.orderByDesc("id");
+//        return logMapper.selectList(wrapper);
+//    }
 
-    public List<LogicLogEntity> queryBizLogs(String logicId, String bizId) {
-        QueryWrapper<LogicLogEntity> wrapper = new QueryWrapper<>();
-        wrapper.eq("logicId", logicId);
-        wrapper.eq("bizId", bizId);
-        wrapper.orderByDesc("serverTime");
-        return logMapper.selectList(wrapper);
-    }
+//    public List<LogicLogEntity> queryBizLogs(String logicId, String bizId) {
+//        QueryWrapper<LogicLogEntity> wrapper = new QueryWrapper<>();
+//        wrapper.eq("logicId", logicId);
+//        wrapper.eq("bizId", bizId);
+//        wrapper.orderByDesc("serverTime");
+//        return logMapper.selectList(wrapper);
+//    }
 
     public void clearLog() {
-        logMapper.clearLog();
+        jdbcTemplate.update("truncate logic_log");
     }
 }

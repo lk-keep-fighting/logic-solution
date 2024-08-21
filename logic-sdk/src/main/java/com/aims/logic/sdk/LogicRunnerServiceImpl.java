@@ -18,12 +18,11 @@ import com.aims.logic.runtime.util.JsonUtil;
 import com.aims.logic.runtime.util.RuntimeUtil;
 import com.aims.logic.runtime.util.StringConcurrencyUtil;
 import com.aims.logic.sdk.entity.LogicInstanceEntity;
+import com.aims.logic.sdk.service.LoggerHelperService;
 import com.aims.logic.sdk.service.LogicInstanceService;
-import com.aims.logic.sdk.service.impl.LoggerServiceImpl;
 import com.aims.logic.sdk.util.TransactionalUtils;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,7 +38,7 @@ import java.util.Objects;
 @Slf4j
 @Service
 public class LogicRunnerServiceImpl implements LogicRunnerService {
-    private final LoggerServiceImpl logService;
+    private final LoggerHelperService logService;
     private final LogicInstanceService insService;
     private final LogicConfigStoreService configStoreService;
     private final LogicAppConfig appConfig;
@@ -51,7 +50,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
     private JSONObject envJson = null;
 
     @Autowired
-    public LogicRunnerServiceImpl(LoggerServiceImpl logService,
+    public LogicRunnerServiceImpl(LoggerHelperService logService,
                                   LogicInstanceService insService,
                                   LogicConfigStoreService _configStoreService,
                                   TransactionalUtils transactionalUtils,
@@ -253,7 +252,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
 
     @Override
     public void clearCompletedInstance() {
-        insService.remove(new QueryWrapper<LogicInstanceEntity>().eq("isOver", true));
+        insService.deleteCompletedBizInstance();
     }
 
     /**
@@ -580,31 +579,22 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
             LogicInstanceEntity insEntity = insService.getInstance(logicId, bizId);
             if (insEntity != null) {
                 insEntity.setParamsJson(JSONObject.toJSONString(parsMap));
-                return insService.updateById(insEntity);
+                return insService.updateById(insEntity.getId(), insEntity) > 0;
             }
         }
         return false;
     }
 
-    public boolean deleteBizInstance(String logicId, String bizId) {
+    public int deleteBizInstance(String logicId, String bizId) {
         LogicInstanceEntity insEntity = insService.getInstance(logicId, bizId);
         if (insEntity != null) {
-            return insService.removeById(insEntity);
+            return insService.removeById(insEntity.getId());
         }
         log.info("要删除的业务实例logicId:{},bizId:{}不存在！", logicId, bizId);
-        return false;
+        return 0;
     }
 
-    public boolean deleteCompletedBizInstanceByLogicId(String logicId) {
-        QueryWrapper<LogicInstanceEntity> queryWrapper = new QueryWrapper<LogicInstanceEntity>();
-        queryWrapper.eq("logicId", logicId)
-                .eq("isOver", true);
-        return insService.remove(queryWrapper);
-    }
-
-    public boolean deleteCompletedBizInstance() {
-        QueryWrapper<LogicInstanceEntity> queryWrapper = new QueryWrapper<LogicInstanceEntity>();
-        queryWrapper.eq("isOver", true);
-        return insService.remove(queryWrapper);
+    public int deleteCompletedBizInstanceByLogicId(String logicId) {
+        return insService.deleteCompletedBizInstanceByLogicId(logicId);
     }
 }

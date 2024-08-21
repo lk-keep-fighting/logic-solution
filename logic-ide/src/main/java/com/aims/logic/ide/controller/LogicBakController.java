@@ -2,9 +2,9 @@ package com.aims.logic.ide.controller;
 
 import com.aims.logic.ide.controller.dto.ApiResult;
 import com.aims.logic.sdk.dto.FormQueryInput;
+import com.aims.logic.sdk.dto.Page;
 import com.aims.logic.sdk.entity.LogicBakEntity;
 import com.aims.logic.sdk.service.LogicBakService;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,14 +25,14 @@ public class LogicBakController {
     }
 
     @DeleteMapping("/api/ide/logic-bak/delete/{id}")
-    public ApiResult<Boolean> deleteLogic(@PathVariable String id) {
+    public ApiResult deleteLogic(@PathVariable String id) {
         var res = logicBakService.removeById(id);
-        return new ApiResult<Boolean>().setData(res);
+        return new ApiResult().setData(res);
     }
 
     @GetMapping("/api/ide/logic-bak/{id}")
     public ApiResult<LogicBakEntity> getLogic(@PathVariable String id) {
-        var entity = logicBakService.getById(id);
+        var entity = logicBakService.selectById(id);
         return new ApiResult<LogicBakEntity>().setData(entity);
     }
 }
