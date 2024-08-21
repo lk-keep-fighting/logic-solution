@@ -2,16 +2,18 @@ package com.aims.logic.sdk.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 
 @Component
 @Slf4j
 public class TransactionalUtils {
+    //    @Autowired
+//    private DataSourceTransactionManager dataSourceTransactionManager;
     @Autowired
-    private DataSourceTransactionManager dataSourceTransactionManager;
+    private PlatformTransactionManager dataSourceTransactionManager;
 
     //开启事务
     public TransactionStatus newTran() {
