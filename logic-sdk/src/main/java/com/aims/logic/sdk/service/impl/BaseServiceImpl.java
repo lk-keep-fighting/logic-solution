@@ -104,6 +104,46 @@ public class BaseServiceImpl<T extends BaseEntity, TKey> implements BaseService<
         return false;
     }
 
+    //todo: 数据库自增生成的id暂时无法获取，当前只能获取代码自动生成的id
+    @Override
+    public String insertAndGetId(T entity) {
+        if (entity != null) {
+            try {
+                var valuesMap = MapUtils.beanToMap(entity);
+                return this.insertAndGetId(valuesMap);
+            } catch (Exception e) {
+                log.error("insertAndGetId error", e);
+            }
+        }
+        return null;
+    }
+
+    //todo: 数据库自增生成的id暂时无法获取，当前只能获取代码自动生成的id
+    @Override
+    public String insertAndGetId(Map<String, Object> valuesMap) {
+        String idValue = null;
+        if (valuesMap != null && !valuesMap.isEmpty()) {
+            var idField = getTableIdFieldByAnnotation();
+            if (idField != null) {
+                var idType = idField.getAnnotation(TableId.class).type();
+                if (idType == IdType.ASSIGN_ID) {
+                    var clm = getFieldColumnName(idField);
+                    idValue = String.valueOf(idWorker.nextId());
+                    valuesMap.put(clm, idValue);
+                } else {
+                    idValue = valuesMap.get(idField.getName()).toString();
+                }
+            }
+            StringBuilder sql = new StringBuilder();
+            sql.append("INSERT INTO ").append(this.getTableNameByAnnotation()).append(" (").append(valuesMap.keySet().stream().collect(Collectors.joining(",")) + ") VALUES (");
+            valuesMap.keySet().forEach(k -> sql.append("?").append(","));
+            sql.deleteCharAt(sql.length() - 1);
+            sql.append(")");
+            jdbcTemplate.update(sql.toString(), valuesMap.values().toArray());
+        }
+        return idValue;
+    }
+
     @Override
     public boolean insert(Map<String, Object> valuesMap) {
         if (valuesMap != null && !valuesMap.isEmpty()) {
@@ -120,10 +160,6 @@ public class BaseServiceImpl<T extends BaseEntity, TKey> implements BaseService<
             valuesMap.keySet().forEach(k -> sql.append("?").append(","));
             sql.deleteCharAt(sql.length() - 1);
             sql.append(")");
-//            InsertInput input = new InsertInput();
-//            input.setDataModel(new DataModel().setMainTable(this.getTableNameByAnnotation()));
-//            input.setValues(JSONArray.of(JSONObject.from(valuesMap)));
-//            sql = InsertBuilder.buildParamBatchInsertSqlByInput(input);
             return jdbcTemplate.update(sql.toString(), valuesMap.values().toArray()) > 0;
         }
         return false;

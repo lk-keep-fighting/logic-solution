@@ -19,7 +19,7 @@ public class TestLogicItemAnnotation {
         return input;
     }
 
-    @LogicItem(name = "测试数组参数", group = "公共组件")
+    @LogicItem(name = "测试数组参数", group = "公共组件2")
     public Array testArrayArgs(Array input) {
         return input;
     }
@@ -29,7 +29,7 @@ public class TestLogicItemAnnotation {
         return input;
     }
 
-    @LogicItem(name = "测试数值参数", group = "测试组件")
+    @LogicItem(name = "测试数值参数", group = "测试组件2")
     public BigDecimal testBigDecimalArgs(BigDecimal input) {
         return input;
     }

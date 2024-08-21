@@ -33,6 +33,12 @@ mybatis-plus:
 logic:
   config-dir: /Users/lk/Documents/Dev/aims/xuanwu-logic/logic-solution/logic-configs
   scan-package-names: com.aims.logic.service.demo
+  item:
+    groups:
+      - name: 公共组件
+        shape: ExtShape1
+      - name: 测试组件
+        shape: ExtShape2
   # com.aims.datamodel,
 data-model:
   config-dir: /Users/lk/Documents/Dev/aims/xuanwu-logic/logic-solution/data-model-configs
