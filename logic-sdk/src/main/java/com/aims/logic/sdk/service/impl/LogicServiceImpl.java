@@ -40,7 +40,7 @@ public class LogicServiceImpl extends BaseServiceImpl<LogicEntity, String> imple
     ) {
         logicBakService = _logicBakService;
         logicPublishService = _logicPublishService;
-        this.entityClass = new LogicEntity().getClass();
+//        this.entityClass = new LogicEntity().getClass();
     }
 
     /**
