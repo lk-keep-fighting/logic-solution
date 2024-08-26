@@ -8,7 +8,7 @@ import com.aims.logic.runtime.contract.enums.LogicItemTransactionScope;
 import com.aims.logic.runtime.contract.enums.LogicItemType;
 import com.aims.logic.runtime.contract.logger.LogicLog;
 import com.aims.logic.runtime.env.LogicAppConfig;
-import com.aims.logic.runtime.env.LogicAppEnvObject;
+import com.aims.logic.runtime.env.LogicEnvObject;
 import com.aims.logic.runtime.runner.FunctionContext;
 import com.aims.logic.runtime.runner.Functions;
 import com.aims.logic.runtime.runner.LogicRunner;
@@ -46,7 +46,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
     /**
      * 私有环境变量，若为null则使用全局环境变量
      */
-    private LogicAppEnvObject envObject = null;
+    private LogicEnvObject envObject = null;
     private JSONObject envJson = null;
 
     @Autowired
@@ -91,7 +91,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
     }
 
     @Override
-    public LogicAppEnvObject getEnv() {
+    public LogicEnvObject getEnv() {
         if (this.envObject == null)
             return RuntimeUtil.getEnvObject();
         return this.envObject;

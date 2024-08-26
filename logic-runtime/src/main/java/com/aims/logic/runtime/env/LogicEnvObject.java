@@ -11,7 +11,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class LogicAppEnvObject {
+public class LogicEnvObject {
     /**
      * 当前环境标识
      */
@@ -42,7 +42,7 @@ public class LogicAppEnvObject {
     /**
      * 已发布的集成开发环境，具有相应的ide、runtime服务，可用于远程发布和调试
      */
-    private List<PublishedIdeHost> PUBLISHED_IDE_HOSTS;
+    private List<LogicEnvPublishedIdeHost> PUBLISHED_IDE_HOSTS;
 
     public LogicItemTransactionScope getDefaultTranScope() {
         if (DEFAULT_TRAN_SCOPE == null || StringUtils.isEmpty(DEFAULT_TRAN_SCOPE.getValue()))

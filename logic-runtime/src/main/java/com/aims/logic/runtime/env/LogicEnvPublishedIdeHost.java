@@ -3,7 +3,7 @@ package com.aims.logic.runtime.env;
 import lombok.Data;
 
 @Data
-public class PublishedIdeHost {
+public class LogicEnvPublishedIdeHost {
     String name;
     String url;
 }
