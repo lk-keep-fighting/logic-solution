@@ -104,8 +104,8 @@ public class LogicServiceImpl extends BaseServiceImpl<LogicEntity, String> imple
     }
 
     @Override
-    public String pubToLocalFromEntityJson(String jsonStr, String source) {
-        var logicEntity = JSONObject.parseObject(jsonStr, LogicEntity.class);
+    public String pubToLocalFromEntityJson(JSONObject jsonObject, String source) {
+        var logicEntity = jsonObject.to(LogicEntity.class);
         if (logicEntity != null) {
             String path = RuntimeUtil.saveLogicConfigToFile(logicEntity.getId(), logicEntity.getConfigJson());
             LogicPublishedEntity publishedEntity = new LogicPublishedEntity();
@@ -129,8 +129,7 @@ public class LogicServiceImpl extends BaseServiceImpl<LogicEntity, String> imple
             logicPublishService.insert(publishedEntity);
             return path;
         } else {
-            log.error("json格式有误");
-            log.error(jsonStr);
+            log.error("发布的logicEntity为null");
             throw new RuntimeException("json格式有误");
         }
     }

@@ -6,6 +6,7 @@ import com.aims.logic.sdk.dto.FormQueryInput;
 import com.aims.logic.sdk.dto.Page;
 import com.aims.logic.sdk.service.LogicPublishService;
 import com.aims.logic.sdk.service.LogicService;
+import com.alibaba.fastjson2.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,7 +29,7 @@ public class PublishController {
     }
 
     @PostMapping("/api/ide/publish/logic/to-local-from-entity-json")
-    public ApiResult<String> publishConfigToLocalFromEntityJson(@RequestBody String configJson, HttpServletRequest request) {
+    public ApiResult<String> publishConfigToLocalFromEntityJson(@RequestBody JSONObject configJson, HttpServletRequest request) {
         try {
             String path = logicService.pubToLocalFromEntityJson(configJson, request.getRemoteAddr());
             return new ApiResult<String>().setData(path);
