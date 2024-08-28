@@ -145,6 +145,7 @@ public class LogicIdeController {
     public ApiResult<List<LogicClassMethodDto>> classMethods(@PathVariable String fullClassPath) throws ClassNotFoundException {
         List<LogicClassMethodDto> methodDtos = ClassUtils.getMethods(fullClassPath).stream()
                 .map(m -> {
+                    log.info("开始解析方法:{}", m.getName());
                     var dto = new LogicClassMethodDto().setName(m.getName());
                     var paramNames = discoverer.getParameterNames(m);
                     var paramTypes = m.getGenericParameterTypes();
@@ -204,6 +205,7 @@ public class LogicIdeController {
     }
 
     private ParamTreeNode createParamTreeNode(String paramName, Type paramType) {
+        log.debug("解析参数:" + paramName + ",参数类型：" + paramType);
         ParamTreeNode p = new ParamTreeNode(paramName)
                 .setTypeAnnotation(TypeAnnotationParser.createTypeAnnotationTreeNode(paramType));
         if (paramType instanceof Class<?> clazz) {//通过NotNull注解判断是否必填
