@@ -20,10 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -98,9 +95,17 @@ public class JavaCodeFunction implements ILogicItemFunctionRunner {
                             paramClass = DataType.getJavaClass(paramTypeAnno.getTypeNamespace());
                             obj = JSONObject.parseObject(JSON.toJSONString(paramsJson.get(paramName)), paramClass);
                             break;
+//                        case enumType:
+//                            paramClass = ClassLoaderUtils.loadClass(classWrapper.getPackageName() + "." + classWrapper.getShortRawName());
+//                            obj = Arrays.stream(paramClass.getEnumConstants()).filter(v -> v.equals(paramsJson.get(paramName))).findFirst().orElse(null);
+//                            break;
                         default:
                             paramClass = ClassLoaderUtils.loadClass(classWrapper.getPackageName() + "." + classWrapper.getShortRawName());
-                            obj = JSONObject.parseObject(JSON.toJSONString(paramsJson.get(paramName)), paramClass);
+                            if (paramClass.isEnum()) {
+                                obj = Arrays.stream(paramClass.getEnumConstants()).filter(v -> v.toString().equals(paramsJson.get(paramName))).findFirst().orElse(null);
+                            } else{
+                                obj = JSONObject.parseObject(JSON.toJSONString(paramsJson.get(paramName)), paramClass);
+                            }
                     }
                 }
                 if (paramClass == null) {
