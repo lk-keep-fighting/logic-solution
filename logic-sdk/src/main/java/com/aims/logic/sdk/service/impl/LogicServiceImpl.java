@@ -117,6 +117,7 @@ public class LogicServiceImpl extends BaseServiceImpl<LogicEntity, String> imple
                     .setPublishTime(LocalDateTime.now())
                     .setSource(source)
                     .setTarget("file");
+            this.removeById(logicEntity.getId());
             this.insert(logicEntity);
             LogicBakEntity bak = new LogicBakEntity();
             bak.setId(logicEntity.getId())
