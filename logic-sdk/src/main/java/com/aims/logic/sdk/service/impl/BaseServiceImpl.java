@@ -92,7 +92,7 @@ public class BaseServiceImpl<T extends BaseEntity, TKey> implements BaseService<
                 return (T) MapUtils.mapToBean(jdbcTemplate.queryForMap(sql), entityClass);
             } catch (Exception e) {
                 log.error("selectById error", e);
-                return null;
+                throw new RuntimeException(e);
             }
         }
         return null;
@@ -100,28 +100,24 @@ public class BaseServiceImpl<T extends BaseEntity, TKey> implements BaseService<
 
     @Override
     public boolean insert(T entity) {
-        if (entity != null) {
-            try {
-                var valuesMap = MapUtils.beanToMap(entity);
-                return this.insert(valuesMap);
-            } catch (Exception e) {
-                log.error("insert error", e);
-            }
+        try {
+            var valuesMap = MapUtils.beanToMap(entity);
+            return this.insert(valuesMap);
+        } catch (Exception e) {
+            log.error("insert error", e);
+            throw new RuntimeException(e);
         }
-        return false;
     }
 
     @Override
     public String insertAndGetId(T entity) {
-        if (entity != null) {
-            try {
-                var valuesMap = MapUtils.beanToMap(entity);
-                return this.insertAndGetId(valuesMap);
-            } catch (Exception e) {
-                log.error("insertAndGetId error", e);
-            }
+        try {
+            var valuesMap = MapUtils.beanToMap(entity);
+            return this.insertAndGetId(valuesMap);
+        } catch (Exception e) {
+            log.error("insertAndGetId error", e);
+            throw new RuntimeException(e);
         }
-        return null;
     }
 
     @Override
@@ -133,15 +129,16 @@ public class BaseServiceImpl<T extends BaseEntity, TKey> implements BaseService<
             if (idField != null) {
                 var idType = idField.getAnnotation(TableId.class).type();
                 idSqlColumnName = getFieldColumnName(idField);
-
-                if (idType == IdType.ASSIGN_ID) {
-                    idValue = String.valueOf(idWorker.nextId());
-                    valuesMap.put(idSqlColumnName, idValue);
-                } else if (idType == IdType.UUID) {
-                    idValue = UUID.randomUUID().toString();
-                    valuesMap.put(idSqlColumnName, idValue);
-                } else {
-                    idValue = valuesMap.get(idField.getName()).toString();
+                var idObj = valuesMap.get(idField.getName());
+                idValue = idObj == null ? null : String.valueOf(idObj);
+                if (idValue == null) {//当id传入了值则不自动生成
+                    if (idType == IdType.ASSIGN_ID) {
+                        idValue = String.valueOf(idWorker.nextId());
+                        valuesMap.put(idSqlColumnName, idValue);
+                    } else if (idType == IdType.UUID) {
+                        idValue = UUID.randomUUID().toString();
+                        valuesMap.put(idSqlColumnName, idValue);
+                    }
                 }
             } else {
                 idSqlColumnName = null;
@@ -179,9 +176,11 @@ public class BaseServiceImpl<T extends BaseEntity, TKey> implements BaseService<
             var idField = getTableIdFieldByAnnotation();
             if (idField != null) {
                 var idType = idField.getAnnotation(TableId.class).type();
-                if (idType == IdType.ASSIGN_ID) {
-                    var clm = getFieldColumnName(idField);
-                    valuesMap.put(clm, idWorker.nextId());
+                if (valuesMap.get(idField.getName()) == null) {//未传入主键值，则自动生成
+                    if (idType == IdType.ASSIGN_ID) {
+                        var clm = getFieldColumnName(idField);
+                        valuesMap.put(clm, idWorker.nextId());
+                    }
                 }
             }
             valuesMap.entrySet().removeIf(e -> e.getValue() == null);
@@ -240,7 +239,7 @@ public class BaseServiceImpl<T extends BaseEntity, TKey> implements BaseService<
             return this.updateById(id, valuesMap);
         } catch (Exception e) {
             log.error("updateById error", e);
-            return 0;
+            throw new RuntimeException(e);
         }
 
     }

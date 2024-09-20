@@ -396,11 +396,9 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                     logService.addLogicLog(logicLog);
                     return LogicRunResult.fromLogicLog(logicLog);
                 }
-//                runner.refreshStatus(itemRes.isSuccess(), nextItem);
             } catch (Exception e) {
                 var msg = e.toString();
                 log.error("[{}]bizId:{},节点执行catch到意外的异常：{},begin rollback", logicId, bizId, msg);
-//                log.error("完整exception：", e);
                 e.printStackTrace();
                 if (!curTranStatus.isCompleted()) {
                     transactionalUtils.rollback(curTranStatus);
