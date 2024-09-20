@@ -1,5 +1,6 @@
 package com.aims.logic.sdk.entity;
 
+import com.aims.logic.sdk.annotation.IdType;
 import com.aims.logic.sdk.annotation.TableField;
 import com.aims.logic.sdk.annotation.TableId;
 import com.aims.logic.sdk.annotation.TableName;
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 @Accessors(chain = true)
 @TableName("logic")
 public class LogicEntity extends BaseEntity {
-    @TableId
+    @TableId(type = IdType.ASSIGN_ID)
     String id;
     String name;
     String version;

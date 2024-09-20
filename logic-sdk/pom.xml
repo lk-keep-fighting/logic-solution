@@ -9,7 +9,7 @@
     </parent>
     <groupId>com.aims.logic</groupId>
     <artifactId>logic-sdk</artifactId>
-    <version>0.3.3-SNAPSHOT</version>
+    <version>0.3.5-SNAPSHOT</version>
     <name>logic-sdk</name>
     <description>logic-sdk</description>
     <properties>
@@ -41,7 +41,7 @@
         <dependency>
             <groupId>com.aims.datamodel</groupId>
             <artifactId>data-model-core</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
+            <version>0.1.2-SNAPSHOT</version>
         </dependency>
         <!--        <dependency>-->
         <!--            <groupId>com.alibaba.compileflow</groupId>-->
