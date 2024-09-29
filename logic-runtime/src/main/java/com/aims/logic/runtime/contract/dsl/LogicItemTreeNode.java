@@ -56,6 +56,7 @@ public class LogicItemTreeNode extends BaseLASL {
     /**
      * 事务范围
      * EveryJavaNode-每个java节点开启事务
+     * EveryJavaNode2-每个java节点开启事务但报错不会中断
      * EveryRequest-每次请求交互开启事务，即每个交互点
      * off-关闭事务
      */

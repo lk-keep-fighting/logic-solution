@@ -7,10 +7,7 @@ import com.aims.logic.runtime.contract.dto.LogicItemRunResult;
 import com.aims.logic.runtime.runner.FunctionContext;
 import com.aims.logic.runtime.runner.Functions;
 import com.aims.logic.runtime.runner.functions.ILogicItemFunctionRunner;
-import com.aims.logic.runtime.util.ClassLoaderUtils;
-import com.aims.logic.runtime.util.ClassWrapper;
-import com.aims.logic.runtime.util.DataType;
-import com.aims.logic.runtime.util.SpringContextUtil;
+import com.aims.logic.runtime.util.*;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
@@ -103,7 +100,7 @@ public class JavaCodeFunction implements ILogicItemFunctionRunner {
                             paramClass = ClassLoaderUtils.loadClass(classWrapper.getPackageName() + "." + classWrapper.getShortRawName());
                             if (paramClass.isEnum()) {
                                 obj = Arrays.stream(paramClass.getEnumConstants()).filter(v -> v.toString().equals(paramsJson.get(paramName))).findFirst().orElse(null);
-                            } else{
+                            } else {
                                 obj = JSONObject.parseObject(JSON.toJSONString(paramsJson.get(paramName)), paramClass);
                             }
                     }
@@ -120,23 +117,23 @@ public class JavaCodeFunction implements ILogicItemFunctionRunner {
             try {
                 var obj = method.invoke(SpringContextUtil.getBean(clazz), paramsArrayFromJsObj.toArray());
                 res.setData(obj);
-            } catch (InvocationTargetException e) {
-                if (e.getTargetException() instanceof LogicBizException) {
+            } catch (InvocationTargetException e) {//主动抛出业务异常
+                if (e.getTargetException() instanceof LogicBizException || RuntimeUtil.AppConfig.BIZ_ERROR_CLASSES.contains(e.getTargetException().getClass().getName())) {
                     var bizEx = e.getTargetException();
-                    var errMsg = String.format(">>执行java方法[%s]抛出业务异常：%s", methodName, bizEx.getMessage());
+                    var errMsg = String.format(">>[%s]：%s", methodName, bizEx.getMessage());
                     log.error("[{}]bizId:{},{}", ctx.getLogicId(), ctx.getBizId(), errMsg);
                     return res.setSuccess(false)
-                            .setMsg(bizEx.getMessage())
+                            .setMsg(e.getTargetException().getMessage())
                             .setItemInstance(itemDsl);
                 } else {
-                    var errMsg = String.format(">>执行java方法[%s]报错：%s", methodName, e.getTargetException().getMessage());
+                    var errMsg = String.format(">>java方法[%s]代码报错：%s", methodName, e.getTargetException().getMessage());
                     log.error("[{}]bizId:{},{}", ctx.getLogicId(), ctx.getBizId(), errMsg);
                     return res.setSuccess(false)
                             .setMsg(errMsg)
                             .setItemInstance(itemDsl);
                 }
             } catch (Exception e) {
-                var errMsg = String.format(">>执行java方法[%s]异常：%s", methodName, e.getMessage());
+                var errMsg = String.format(">>java方法[%s]异常：%s", methodName, e.getMessage());
                 log.error("[{}]bizId:{},{}", ctx.getLogicId(), ctx.getBizId(), errMsg);
                 return res.setSuccess(false)
                         .setMsg(errMsg)
