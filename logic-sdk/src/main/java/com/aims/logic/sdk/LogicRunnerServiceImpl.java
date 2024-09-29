@@ -462,8 +462,9 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                     log.info("[{}]bizId:{},节点执行失败，begin rollback，success=false,msg:{}, in runItemWithEveryJavaNodeTran", logicId, bizId, itemRes.getMsg());
                     transactionalUtils.rollback(curTranStatus);
                     log.info("[{}]bizId:{},节点执行失败，rollback ok，事务组:{}", logicId, bizId, ctx.getCurTranGroupId());
-                    logService.updateInstanceStatus(logicLog.getInstanceId(), false, itemRes.getMsg());
-                    logService.addLogicLog(logicLog);
+//                    logService.updateInstanceStatus(logicLog.getInstanceId(), false, itemRes.getMsg());
+//                    logService.addLogicLog(logicLog);
+                    logService.addOrUpdateInstance(logicLog);
                 }
             } catch (Exception e) {
                 var msg = e.toString();
