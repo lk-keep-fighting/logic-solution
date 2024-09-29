@@ -10,8 +10,6 @@ import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 @Component
 @Slf4j
 public class TransactionalUtils {
-    //    @Autowired
-//    private DataSourceTransactionManager dataSourceTransactionManager;
     @Autowired
     private PlatformTransactionManager dataSourceTransactionManager;
 
@@ -25,11 +23,13 @@ public class TransactionalUtils {
 
     //提交事务
     public void commit(TransactionStatus transaction) {
-        dataSourceTransactionManager.commit(transaction);
+        if (!transaction.isCompleted())
+            dataSourceTransactionManager.commit(transaction);
     }
 
     //回滚事务
     public void rollback(TransactionStatus transaction) {
-        dataSourceTransactionManager.rollback(transaction);
+        if (!transaction.isCompleted())
+            dataSourceTransactionManager.rollback(transaction);
     }
 }

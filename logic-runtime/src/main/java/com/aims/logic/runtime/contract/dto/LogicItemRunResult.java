@@ -2,7 +2,6 @@ package com.aims.logic.runtime.contract.dto;
 
 import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
 import com.aims.logic.runtime.contract.logger.LogicItemLog;
-import com.alibaba.fastjson2.JSONObject;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -15,6 +14,7 @@ public class LogicItemRunResult {
     }
 
     boolean success = true;
+
     /**
      * 消息
      */
