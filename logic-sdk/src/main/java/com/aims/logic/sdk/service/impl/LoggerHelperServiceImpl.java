@@ -4,6 +4,7 @@ import com.aims.logic.runtime.contract.logger.LogicLog;
 import com.aims.logic.runtime.util.RuntimeUtil;
 import com.aims.logic.sdk.entity.LogicInstanceEntity;
 import com.aims.logic.sdk.entity.LogicLogEntity;
+import com.aims.logic.sdk.event.LogicRunnerEventListener;
 import com.aims.logic.sdk.service.LoggerHelperService;
 import com.aims.logic.sdk.service.LogicInstanceService;
 import com.aims.logic.sdk.service.LogicLogService;
@@ -15,6 +16,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -23,16 +25,19 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
     private final LogicInstanceService instanceService;
     private final LogicLogService logicLogService;
     private final JdbcTemplate jdbcTemplate;
+    private List<LogicRunnerEventListener> eventListener;
 
     @Autowired
     public LoggerHelperServiceImpl(
             LogicInstanceService _instanceService,
             LogicLogService _logicLogService,
-            JdbcTemplate _jdbcTemplate
+            JdbcTemplate _jdbcTemplate,
+            List<LogicRunnerEventListener>_eventListener
     ) {
         this.instanceService = _instanceService;
         this.logicLogService = _logicLogService;
         this.jdbcTemplate = _jdbcTemplate;
+        this.eventListener = _eventListener;
     }
 
     /**
@@ -54,17 +59,26 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
         valuesMap.put("message", msg255);
         instanceService.updateById(instanceId, valuesMap);
     }
+    public void triggerEventListener(LogicLog logicLog) {
+        if(logicLog.isOver()){
+            for (LogicRunnerEventListener listener : eventListener) {
+                listener.onBizCompleted(logicLog.getLogicId(), logicLog.getBizId(), logicLog.getReturnData());
+            }
+        }
+    }
 
     /**
      * 新增或更新运行实例日志
      *
      * @param logicLog
      */
+
     public void addOrUpdateInstance(LogicLog logicLog) {
         String env = RuntimeUtil.getEnvObject().getNODE_ENV();
         var nextId = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getId();
         var nextName = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getName();
         var msg255 = logicLog.getMsg() == null ? null : logicLog.getMsg().length() > 255 ? logicLog.getMsg().substring(0, 255) : logicLog.getMsg();
+        triggerEventListener(logicLog);
         if (logicLog.getInstanceId() != null) {
             Map<String, Object> valueMaps = new HashMap<>();
             valueMaps.put("success", logicLog.isSuccess());

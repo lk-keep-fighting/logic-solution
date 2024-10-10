@@ -9,7 +9,7 @@
     </parent>
     <groupId>com.aims.logic</groupId>
     <artifactId>logic-ide</artifactId>
-    <version>0.2.1-SNAPSHOT</version>
+    <version>0.2.2-SNAPSHOT</version>
     <name>logic-ide</name>
     <description>logic-ide</description>
     <properties>
@@ -19,7 +19,7 @@
         <dependency>
             <groupId>com.aims.logic</groupId>
             <artifactId>logic-sdk</artifactId>
-            <version>0.3.7-SNAPSHOT</version>
+            <version>0.3.8-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
