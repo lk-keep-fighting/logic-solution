@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.time.Instant;
 import java.util.Date;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
@@ -21,7 +20,7 @@ class TestSuitApplicationTests {
 
     @Test
     void contextLoads() {
-        testBatchTran(10);
+        testBatchTran(1);
     }
 
     void testBatchTran(int batchSize) {

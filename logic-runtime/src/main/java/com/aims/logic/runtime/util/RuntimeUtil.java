@@ -2,7 +2,7 @@ package com.aims.logic.runtime.util;
 
 import com.aims.logic.runtime.contract.enums.KeepBizVersionEnum;
 import com.aims.logic.runtime.env.LogicAppConfig;
-import com.aims.logic.runtime.env.LogicAppEnvObject;
+import com.aims.logic.runtime.env.LogicEnvObject;
 import com.aims.logic.runtime.store.LogicConfigStoreService;
 import com.alibaba.fastjson2.JSONObject;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 public class RuntimeUtil {
     public static LogicConfigStoreService logicConfigStoreService;// = new LogicConfigStoreServiceImpl();
     private static JSONObject ENVs;
-    private static LogicAppEnvObject ENVObject = null;
+    private static LogicEnvObject ENVObject = null;
     public static LogicAppConfig AppConfig;
 
     /**
@@ -21,7 +21,7 @@ public class RuntimeUtil {
      *
      * @return 返回强类型环境变量
      */
-    public static LogicAppEnvObject getEnvObject() {
+    public static LogicEnvObject getEnvObject() {
         return ENVObject;
     }
 
@@ -33,13 +33,13 @@ public class RuntimeUtil {
     public static void setEnv(JSONObject env) {
         ENVs = env;
         if (ENVs != null)
-            ENVObject = ENVs.toJavaObject(LogicAppEnvObject.class);
+            ENVObject = ENVs.toJavaObject(LogicEnvObject.class);
 
     }
 
-    public static LogicAppEnvObject toEnvObject(JSONObject env) {
+    public static LogicEnvObject toEnvObject(JSONObject env) {
         if (env != null)
-            return env.toJavaObject(LogicAppEnvObject.class);
+            return env.toJavaObject(LogicEnvObject.class);
         else return null;
     }
 
@@ -66,6 +66,13 @@ public class RuntimeUtil {
         String url = String.format("http://%s:%s", request.getServerName(), request.getServerPort());
         System.out.println("读取本机Host:" + url);
         return url;
+    }
+
+    public static HttpServletRequest getRequest() {
+        if (RequestContextHolder.getRequestAttributes() == null)
+            return null;
+        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        return requestAttributes.getRequest();
     }
 
     /**

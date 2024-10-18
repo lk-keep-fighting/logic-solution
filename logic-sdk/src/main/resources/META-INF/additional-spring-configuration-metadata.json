@@ -4,5 +4,6 @@
       "name": "logic.config-dir",
       "type": "java.lang.String",
       "description": "配置目录所在的绝对路径."
-  }
-] }
+    }
+  ]
+}

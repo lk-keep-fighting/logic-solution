@@ -16,6 +16,18 @@
  */
 package com.aims.logic.runtime.util;
 
+import com.aims.logic.runtime.contract.dto.LogicClassDto;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
+import org.springframework.core.type.classreading.MetadataReader;
+import org.springframework.core.type.classreading.MetadataReaderFactory;
+import org.springframework.core.type.classreading.SimpleMetadataReaderFactory;
+import org.springframework.core.type.filter.AssignableTypeFilter;
+
+import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -26,6 +38,7 @@ import java.util.List;
 /**
  * @author yusu
  */
+@Slf4j
 public class ClassUtils {
 
     public static <T> T newInstance(String className) throws Exception {
@@ -91,6 +104,48 @@ public class ClassUtils {
     public static List<Method> getMethods(Class<?> clazz) {
         var methods = clazz.getMethods();
         return Arrays.stream(methods).toList();
+    }
+
+    public static List<Method> getMethodsByAnnotation(String fullClassPath, Class<?> annotationClass) throws ClassNotFoundException {
+        var methods = getMethods(fullClassPath);
+        return methods.stream().filter(method -> method.isAnnotationPresent((Class<? extends Annotation>) annotationClass)).toList();
+    }
+
+    public static List<LogicClassDto> getAllClassNames(String basePackage) {
+        List<LogicClassDto> classNames = new ArrayList<>();
+        ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
+        MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory(resourcePatternResolver);
+
+        ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
+        scanner.addIncludeFilter(new AssignableTypeFilter(Object.class)); // 替换成你想要的类型
+
+        String packageSearchPath = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX +
+                basePackage.replace('.', '/') + "/**/*.class";
+
+        org.springframework.core.io.Resource[] resources = new org.springframework.core.io.Resource[0];
+        try {
+            resources = resourcePatternResolver.getResources(packageSearchPath);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        for (org.springframework.core.io.Resource resource : resources) {
+            if (resource.isReadable()) {
+                MetadataReader metadataReader = null;
+                try {
+                    metadataReader = metadataReaderFactory.getMetadataReader(resource);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                String className = metadataReader.getClassMetadata().getClassName();
+                classNames.add(new LogicClassDto(className));
+            }
+        }
+
+        // 打印类路径
+        for (var classPath : classNames) {
+            log.debug("className: " + classPath.getValue());
+        }
+        return classNames;
     }
 
 }

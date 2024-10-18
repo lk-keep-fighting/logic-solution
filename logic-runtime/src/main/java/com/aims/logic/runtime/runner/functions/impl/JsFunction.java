@@ -31,8 +31,8 @@ public class JsFunction implements ILogicItemFunctionRunner {
         engine.put("_var", ctx.get_var());
         engine.put("_env", ctx.get_env());
         engine.put("_par", JSONObject.from(ctx.get_par()));
-//        engine.put("_ret", ctx.get_ret());
         engine.put("_lastRet", ctx.get_lastRet());
+        engine.put("_last", ctx.get_last());
         try {
             String processedCode = script.toString().replaceAll("^//.*", "");
             engine.eval(String.format("function fn(){ %s }", processedCode));
@@ -65,5 +65,10 @@ public class JsFunction implements ILogicItemFunctionRunner {
     @Override
     public String getItemType() {
         return "js";
+    }
+
+    @Override
+    public int getPriority(String env) {
+        return 0;
     }
 }

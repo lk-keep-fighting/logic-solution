@@ -4,13 +4,10 @@ import com.aims.logic.runtime.util.RuntimeUtil;
 import com.aims.logic.sdk.entity.LogicBakEntity;
 import com.aims.logic.sdk.entity.LogicEntity;
 import com.aims.logic.sdk.entity.LogicPublishedEntity;
-import com.aims.logic.sdk.mapper.LogicBakMapper;
-import com.aims.logic.sdk.mapper.LogicMapper;
-import com.aims.logic.sdk.mapper.LogicPublishedMapper;
+import com.aims.logic.sdk.service.LogicBakService;
 import com.aims.logic.sdk.service.LogicService;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import lombok.extern.log4j.Log4j2;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -22,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,13 +28,20 @@ import java.util.Map;
  */
 @Service
 @Log4j2
-public class LogicServiceImpl extends BaseServiceImpl<LogicMapper, LogicEntity> implements LogicService {
+public class LogicServiceImpl extends BaseServiceImpl<LogicEntity, String> implements LogicService {
+
+    public LogicBakService logicBakService;
+    public LogicPublishServiceImpl logicPublishService;
+
     @Autowired
-    private LogicMapper logicMapper;
-    @Autowired
-    private LogicBakMapper logicBakMapper;
-    @Autowired
-    private LogicPublishedMapper logicPublishedMapper;
+    public LogicServiceImpl(
+            LogicBakService _logicBakService,
+            LogicPublishServiceImpl _logicPublishService
+    ) {
+        logicBakService = _logicBakService;
+        logicPublishService = _logicPublishService;
+//        this.entityClass = new LogicEntity().getClass();
+    }
 
     /**
      * 编辑逻辑，并向logic_bak插入备份数据
@@ -47,24 +52,23 @@ public class LogicServiceImpl extends BaseServiceImpl<LogicMapper, LogicEntity> 
      */
     @Override
     public int editAndBak(String id, LogicEntity input) {
-        UpdateWrapper<LogicEntity> wrapper = new UpdateWrapper<LogicEntity>()
-                .eq("id", id)
-                .set("updateTime", input.getUpdateTime() == null ? LocalDateTime.now() : input.getUpdateTime());
+        Map<String, Object> valuesMap = new HashMap<>();
+        valuesMap.put("updateTime", input.getUpdateTime() == null ? LocalDateTime.now() : input.getUpdateTime());
         if (input.getName() != null) {
-            wrapper.set("name", input.getName());
+            valuesMap.put("name", input.getName());
         }
         if (input.getModule() != null) {
-            wrapper.set("module", input.getModule());
+            valuesMap.put("module", input.getModule());
         }
         if (input.getVersion() != null) {
-            wrapper.set("version", input.getVersion());
+            valuesMap.put("version", input.getVersion());
         }
         if (input.getConfigJson() != null) {
-            wrapper.set("configJson", input.getConfigJson());
+            valuesMap.put("configJson", input.getConfigJson());
         }
-        var uptRows = logicMapper.update(null, wrapper);
+        var uptRows = this.updateById(id, valuesMap);
         if (uptRows > 0) {
-            var fullLogicEntity = logicMapper.selectById(id);
+            var fullLogicEntity = selectById(id);
             LogicBakEntity bak = new LogicBakEntity();
             bak.setId(fullLogicEntity.getId());
             bak.setName(fullLogicEntity.getName());
@@ -72,7 +76,7 @@ public class LogicServiceImpl extends BaseServiceImpl<LogicMapper, LogicEntity> 
             bak.setVersion(fullLogicEntity.getVersion());
             bak.setConfigJson(fullLogicEntity.getConfigJson());
             bak.setUpdateTime(fullLogicEntity.getUpdateTime());
-            logicBakMapper.insert(bak);
+            logicBakService.insert(bak);
         }
         return uptRows;
     }
@@ -80,7 +84,7 @@ public class LogicServiceImpl extends BaseServiceImpl<LogicMapper, LogicEntity> 
 
     @Override
     public String pubToLocal(String id) {
-        var logicEntity = baseMapper.selectById(id);
+        var logicEntity = selectById(id);
         if (logicEntity != null) {
             var config = logicEntity.getConfigJson();
             String path = RuntimeUtil.saveLogicConfigToFile(id, config);
@@ -92,7 +96,7 @@ public class LogicServiceImpl extends BaseServiceImpl<LogicMapper, LogicEntity> 
                     .setConfigJson(logicEntity.getConfigJson())
                     .setPublishTime(LocalDateTime.now())
                     .setTarget("local");
-            logicPublishedMapper.insert(publishedEntity);
+            logicPublishService.insert(publishedEntity);
             return path;
         } else {
             throw new RuntimeException("未找到逻辑：" + id);
@@ -100,8 +104,8 @@ public class LogicServiceImpl extends BaseServiceImpl<LogicMapper, LogicEntity> 
     }
 
     @Override
-    public String pubToLocalFromEntityJson(String jsonStr, String source) {
-        var logicEntity = JSONObject.parseObject(jsonStr, LogicEntity.class);
+    public String pubToLocalFromEntityJson(JSONObject jsonObject, String source) {
+        var logicEntity = jsonObject.to(LogicEntity.class);
         if (logicEntity != null) {
             String path = RuntimeUtil.saveLogicConfigToFile(logicEntity.getId(), logicEntity.getConfigJson());
             LogicPublishedEntity publishedEntity = new LogicPublishedEntity();
@@ -113,7 +117,8 @@ public class LogicServiceImpl extends BaseServiceImpl<LogicMapper, LogicEntity> 
                     .setPublishTime(LocalDateTime.now())
                     .setSource(source)
                     .setTarget("file");
-            logicEntity.insertOrUpdate();
+            this.removeById(logicEntity.getId());
+            this.insert(logicEntity);
             LogicBakEntity bak = new LogicBakEntity();
             bak.setId(logicEntity.getId())
                     .setName(logicEntity.getName())
@@ -121,12 +126,11 @@ public class LogicServiceImpl extends BaseServiceImpl<LogicMapper, LogicEntity> 
                     .setVersion(logicEntity.getVersion())
                     .setConfigJson(logicEntity.getConfigJson())
                     .setUpdateTime(logicEntity.getUpdateTime());
-            logicBakMapper.insert(bak);
-            logicPublishedMapper.insert(publishedEntity);
+            logicBakService.insert(bak);
+            logicPublishService.insert(publishedEntity);
             return path;
         } else {
-            log.error("json格式有误");
-            log.error(jsonStr);
+            log.error("发布的logicEntity为null");
             throw new RuntimeException("json格式有误");
         }
     }
@@ -135,7 +139,7 @@ public class LogicServiceImpl extends BaseServiceImpl<LogicMapper, LogicEntity> 
 
     @Override
     public String pubToIdeHost(String id, String url) {
-        var logicEntity = baseMapper.selectById(id);
+        var logicEntity = selectById(id);
         if (logicEntity != null) {
             var config = JSON.toJSONString(logicEntity);
             var body = RequestBody.create(config, MediaType.parse("application/json; charset=utf-8"));
@@ -159,7 +163,7 @@ public class LogicServiceImpl extends BaseServiceImpl<LogicMapper, LogicEntity> 
                     .setConfigJson(logicEntity.getConfigJson())
                     .setPublishTime(LocalDateTime.now())
                     .setTarget(url);
-            logicPublishedMapper.insert(publishedEntity);
+            logicPublishService.insert(publishedEntity);
             return url;
         } else {
             log.error("未找到要发布的逻辑：" + id);
@@ -170,8 +174,9 @@ public class LogicServiceImpl extends BaseServiceImpl<LogicMapper, LogicEntity> 
     @Override
     public List<Map<String, Object>> getModuleList() {
         List<Map<String, Object>> res = new ArrayList<>();
-        logicMapper.getModuleList().forEach(m -> {
-            res.add(Map.of("label", m, "id", m));
+        var list = jdbcTemplate.queryForList("select distinct module from logic where module is not null");
+        list.forEach(m -> {
+            res.add(Map.of("label", m.get("module"), "id", m.get("module")));
         });
         return res;
     }

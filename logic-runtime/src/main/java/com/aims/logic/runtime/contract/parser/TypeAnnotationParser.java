@@ -97,7 +97,13 @@ public class TypeAnnotationParser {
                         .setTypeName(arrClazz.getName())
                         .setTypeNamespace(arrClazz.getName())
                         .setDefaultValue("[]");
-            } else {
+            } else if (clazz.isEnum()) {
+                return new TypeAnnotationTreeNode()
+                        .setTypeKind(TypeKindEnum.reference)
+                        .setTypeName(paramType.getTypeName())
+                        .setTypeNamespace(paramType.getTypeName());
+            }
+            else {
                 List<StructurePropertyTreeNode> properties = Arrays.stream(clazz.getDeclaredFields())
                         .map(f -> new StructurePropertyTreeNode()
                                 .setName(f.getName())
