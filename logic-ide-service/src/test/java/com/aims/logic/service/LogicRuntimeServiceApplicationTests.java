@@ -5,9 +5,7 @@ import com.aims.logic.sdk.LogicRunnerServiceImpl;
 import com.aims.logic.service.demo.dto.TestInput;
 import com.aims.logic.service.demo.entity.TestEntity;
 import com.alibaba.fastjson2.JSONObject;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDateTime;

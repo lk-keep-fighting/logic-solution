@@ -1,27 +1,49 @@
 package com.aims.logic.sdk.service.impl;
 
 import com.aims.logic.sdk.entity.LogicInstanceEntity;
-import com.aims.logic.sdk.mapper.LogicInstanceMapper;
 import com.aims.logic.sdk.service.LogicInstanceService;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.aims.logic.sdk.util.MapUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
-
 @Service
-public class LogicInstanceServiceImpl extends BaseServiceImpl<LogicInstanceMapper, LogicInstanceEntity> implements LogicInstanceService {
-    @Override
-    public LogicInstanceEntity getInstance(String logicId, String bizId) {
-        QueryWrapper<LogicInstanceEntity> q = new QueryWrapper<>();
-        q.allEq(Map.of("logicId", logicId, "bizId", bizId));
-        return this.getOne(q);
+@Slf4j
+public class LogicInstanceServiceImpl extends BaseServiceImpl<LogicInstanceEntity, String> implements LogicInstanceService {
+
+    public LogicInstanceServiceImpl() {
+//        this.entityClass = new LogicInstanceEntity().getClass();
     }
 
-//    @Override
-//    public long clearCompletedInstanceOver(String logicId, String bizId) {
-//        QueryWrapper<LogicInstanceEntity> q = new QueryWrapper<>();
-//        q.allEq(Map.of("logicId", logicId, "bizId", bizId, "isOver", true));
-//        return this.remove(q);
-//    }
+    @Override
+    public LogicInstanceEntity getInstance(String logicId, String bizId) {
+        if (logicId == null || bizId == null) {
+            return null;
+        }
+        StringBuilder sql = new StringBuilder();
+        sql.append("select * from logic_instance where logicId = '").append(logicId);
+        sql.append("' and bizId = '").append(bizId).append("' order by version desc limit 1");
+        try {
+            var res = jdbcTemplate.queryForMap(sql.toString());
+            return MapUtils.mapToBean(res, LogicInstanceEntity.class);
+        } catch (Exception e) {
+            log.error("LogicInstanceServiceImpl.getInstance error: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    @Override
+    public int deleteCompletedBizInstanceByLogicId(String logicId) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("delete from logic_instance where logicId = '").append(logicId)
+                .append("' and isOver = true");
+        return jdbcTemplate.update(sql.toString());
+    }
+
+    @Override
+    public int deleteCompletedBizInstance() {
+        StringBuilder sql = new StringBuilder();
+        sql.append("delete from logic_instance where isOver = true");
+        return jdbcTemplate.update(sql.toString());
+    }
+
 }

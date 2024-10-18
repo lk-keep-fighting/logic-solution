@@ -12,6 +12,9 @@ spring:
     url: jdbc:mysql://localhost:3306/logic_demo?useUnicode=true&characterEncoding=gbk&autoReconnect=true&failOverReadOnly=false
     username: root
     password: 12#$qwER
+#    url: jdbc:mysql://192.168.51.15:21900/dev_hs_wms?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true
+#    username: dba
+#    password: 1234*Qwer@xYz
 #    url: jdbc:mysql://192.168.153.92:30010/biz_simulator?useUnicode=true&characterEncoding=gbk&autoReconnect=true&failOverReadOnly=false
 #    username: root
 #    password: pxc.aims.com
@@ -29,7 +32,15 @@ mybatis-plus:
       static-locations: classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/,classpath:/public/,classpath:/public/web
 logic:
   config-dir: /Users/lk/Documents/Dev/aims/xuanwu-logic/logic-solution/logic-configs
-  scan-package-names: com.aims.datamodel,com.aims.logic.service.demo
+  biz-error-classes: com.aims.logic.sdk.exception.BizException
+  scan-package-names: com.aims.logic.service.demo
+  item:
+    groups:
+      - name: 公共组件
+        shape: ExtShape1
+      - name: 测试组件
+        shape: ExtShape2
+  # com.aims.datamodel,
 data-model:
   config-dir: /Users/lk/Documents/Dev/aims/xuanwu-logic/logic-solution/data-model-configs
 logging:

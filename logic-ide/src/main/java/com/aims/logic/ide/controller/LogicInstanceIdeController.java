@@ -2,14 +2,15 @@ package com.aims.logic.ide.controller;
 
 import com.aims.logic.ide.controller.dto.ApiResult;
 import com.aims.logic.sdk.dto.FormQueryInput;
+import com.aims.logic.sdk.dto.Page;
 import com.aims.logic.sdk.entity.LogicInstanceEntity;
 import com.aims.logic.sdk.service.LogicInstanceService;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class LogicInstanceIdeController {
@@ -28,34 +29,34 @@ public class LogicInstanceIdeController {
     }
 
     @PostMapping("/api/ide/logic-instance/edit/{id}/version")
-    public ApiResult<Boolean> editLogicVersion(@PathVariable String id, @RequestBody LogicInstanceEntity entity) {
-        UpdateWrapper<LogicInstanceEntity> wrapper = new UpdateWrapper();
-        wrapper.eq("id", id).set("version", entity.getVersion());
-        return new ApiResult<Boolean>().setData(this.instanceService.update(null, wrapper));
+    public ApiResult editLogicVersion(@PathVariable String id, @RequestBody LogicInstanceEntity entity) {
+        Map<String, Object> valuesMap = new HashMap<>();
+        valuesMap.put("version", entity.getVersion());
+        return new ApiResult().setData(instanceService.updateById(id, valuesMap));
     }
 
     @PostMapping("/api/ide/logic-instance/edit/{id}/paramsJson")
-    public ApiResult<Boolean> editLogicParamsJson(@PathVariable String id, @RequestBody LogicInstanceEntity entity) {
-        UpdateWrapper<LogicInstanceEntity> wrapper = new UpdateWrapper();
-        wrapper.eq("id", id).set("paramsJson", entity.getParamsJson());
-        return new ApiResult<Boolean>().setData(this.instanceService.update(null, wrapper));
+    public ApiResult editLogicParamsJson(@PathVariable String id, @RequestBody LogicInstanceEntity entity) {
+        Map<String, Object> valuesMap = new HashMap<>();
+        valuesMap.put("paramsJson", entity.getParamsJson());
+        return new ApiResult().setData(this.instanceService.updateById(id, valuesMap));
     }
 
     @DeleteMapping("/api/ide/logic-instance/delete/{id}")
-    public ApiResult<Boolean> deleteLogic(@PathVariable String id) {
+    public ApiResult deleteLogic(@PathVariable String id) {
         var res = instanceService.removeById(id);
-        return new ApiResult<Boolean>().setData(res);
+        return new ApiResult().setData(res);
     }
 
     @DeleteMapping("/api/ide/logic-instance/batch-delete")
-    public ApiResult<Boolean> deleteLogic(@RequestBody List<String> ids) {
+    public ApiResult deleteLogic(@RequestBody List<String> ids) {
         var res = instanceService.removeByIds(ids);
-        return new ApiResult<Boolean>().setData(res);
+        return new ApiResult().setData(res);
     }
 
     @GetMapping("/api/ide/logic-instance/{id}")
     public ApiResult<LogicInstanceEntity> getLogic(@PathVariable String id) {
-        var entity = instanceService.getById(id);
+        var entity = instanceService.selectById(id);
         return new ApiResult<LogicInstanceEntity>().setData(entity);
     }
 }

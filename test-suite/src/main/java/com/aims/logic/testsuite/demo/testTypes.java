@@ -1,10 +1,7 @@
 package com.aims.logic.testsuite.demo;
 
-import com.aims.logic.testsuite.demo.dto.AllPrimitiveType;
-import com.aims.logic.testsuite.demo.dto.TestInput;
-import com.aims.logic.testsuite.demo.dto.TestInput2;
+import com.aims.logic.testsuite.demo.dto.*;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -25,6 +22,7 @@ public class testTypes {
             return x + "-" + y;
         });
     }
+
     public String strs() {
         return "测试同名方法2";
     }
@@ -48,6 +46,14 @@ public class testTypes {
         if (input != null)
             return input.stream().max(Comparator.comparingInt(TestInput::getI)).orElse(null);
         else return new TestInput().setArr(strs);
+    }
+
+    public String parametricType(ParametricType<TestInput> inputParametricType) {
+        return inputParametricType.getValue().getStr();
+    }
+
+    public String enumType(EnumType enumType) {
+        return enumType.getValue();
     }
 
 //    public String func1(JSONObject obj) {

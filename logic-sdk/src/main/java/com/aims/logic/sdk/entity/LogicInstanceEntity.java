@@ -1,21 +1,19 @@
 package com.aims.logic.sdk.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.aims.logic.sdk.annotation.IdType;
+import com.aims.logic.sdk.annotation.TableField;
+import com.aims.logic.sdk.annotation.TableId;
+import com.aims.logic.sdk.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Data
 @Accessors(chain = true)
 @TableName("logic_instance")
-public class LogicInstanceEntity extends Model<LogicInstanceEntity> {
+public class LogicInstanceEntity extends BaseEntity {
     @TableId(type = IdType.ASSIGN_ID)
     private String id;
     @TableField("logicId")

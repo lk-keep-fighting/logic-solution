@@ -67,7 +67,8 @@ public class LogicItemRunner {
                     LogicItemLog().
                     setName(dsl.getName()).
                     setConfigInstance(ret.getItemInstance()).
-                    setConfig(dsl)
+                    setConfig(dsl).
+                    setMsg(ret.getMsg())
 //                .setParamsJson(JSONObject.from(dsl.getBody()))
                     .setReturnData(ret.getData())
                     .setSuccess(ret.isSuccess()));

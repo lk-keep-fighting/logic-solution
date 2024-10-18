@@ -2,8 +2,8 @@ package com.aims.logic.sdk.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 
@@ -11,7 +11,7 @@ import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 @Slf4j
 public class TransactionalUtils {
     @Autowired
-    private DataSourceTransactionManager dataSourceTransactionManager;
+    private PlatformTransactionManager dataSourceTransactionManager;
 
     //开启事务
     public TransactionStatus newTran() {
@@ -23,11 +23,13 @@ public class TransactionalUtils {
 
     //提交事务
     public void commit(TransactionStatus transaction) {
-        dataSourceTransactionManager.commit(transaction);
+        if (!transaction.isCompleted())
+            dataSourceTransactionManager.commit(transaction);
     }
 
     //回滚事务
     public void rollback(TransactionStatus transaction) {
-        dataSourceTransactionManager.rollback(transaction);
+        if (!transaction.isCompleted())
+            dataSourceTransactionManager.rollback(transaction);
     }
 }

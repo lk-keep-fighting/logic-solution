@@ -4,7 +4,9 @@ public enum LogicItemTransactionScope {
     off("off"),
 //    on("on"),
     def("def"),
+    @Deprecated
     everyJavaNode("everyJavaNode"),
+    everyNode2("everyNode2"),
     everyNode("everyNode"),
     everyRequest("everyRequest");
     final String value;

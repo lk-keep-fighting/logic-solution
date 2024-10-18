@@ -7,10 +7,7 @@ import com.aims.logic.runtime.contract.dto.LogicItemRunResult;
 import com.aims.logic.runtime.runner.FunctionContext;
 import com.aims.logic.runtime.runner.Functions;
 import com.aims.logic.runtime.runner.functions.ILogicItemFunctionRunner;
-import com.aims.logic.runtime.util.ClassLoaderUtils;
-import com.aims.logic.runtime.util.ClassWrapper;
-import com.aims.logic.runtime.util.DataType;
-import com.aims.logic.runtime.util.SpringContextUtil;
+import com.aims.logic.runtime.util.*;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
@@ -20,10 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -77,10 +71,17 @@ public class JavaCodeFunction implements ILogicItemFunctionRunner {
                                 obj = paramsJson.getJSONObject(paramName).to(TypeReference.mapType(Map.class, keyClazz, valClazz));
                                 paramClass = obj.getClass();
                                 cls.add(paramClass);
-                            } else {//List
+                            } else if (paramTypeAnno.getTypeName().equals(List.class.getTypeName())) {
                                 paramClass = ClassLoaderUtils.loadClass(classWrapper.getPackageName() + "." + classWrapper.getShortRawName());
                                 var TypeParClazz = ClassLoaderUtils.loadClass(classWrapper.getParameterizedType().get(0).getName());
                                 obj = JSONArray.parseArray(JSONObject.toJSONString(paramsJson.get(paramName)), TypeParClazz);
+                            } else {//泛型
+                                var parTypes = classWrapper.getParameterizedType();
+                                var parametricType = ClassLoaderUtils.loadClass(classWrapper.getPackageName() + "." + classWrapper.getShortRawName());
+                                var value = parTypes.get(0);
+                                var valueClazz = ClassLoaderUtils.loadClass(value.getName());
+                                obj = paramsJson.getJSONObject(paramName).to(TypeReference.parametricType(parametricType, valueClazz));
+                                paramClass = obj.getClass();
                             }
                             break;
                         case primitiveArray:
@@ -91,9 +92,17 @@ public class JavaCodeFunction implements ILogicItemFunctionRunner {
                             paramClass = DataType.getJavaClass(paramTypeAnno.getTypeNamespace());
                             obj = JSONObject.parseObject(JSON.toJSONString(paramsJson.get(paramName)), paramClass);
                             break;
+//                        case enumType:
+//                            paramClass = ClassLoaderUtils.loadClass(classWrapper.getPackageName() + "." + classWrapper.getShortRawName());
+//                            obj = Arrays.stream(paramClass.getEnumConstants()).filter(v -> v.equals(paramsJson.get(paramName))).findFirst().orElse(null);
+//                            break;
                         default:
                             paramClass = ClassLoaderUtils.loadClass(classWrapper.getPackageName() + "." + classWrapper.getShortRawName());
-                            obj = JSONObject.parseObject(JSON.toJSONString(paramsJson.get(paramName)), paramClass);
+                            if (paramClass.isEnum()) {
+                                obj = Arrays.stream(paramClass.getEnumConstants()).filter(v -> v.toString().equals(paramsJson.get(paramName))).findFirst().orElse(null);
+                            } else {
+                                obj = JSONObject.parseObject(JSON.toJSONString(paramsJson.get(paramName)), paramClass);
+                            }
                     }
                 }
                 if (paramClass == null) {
@@ -108,23 +117,23 @@ public class JavaCodeFunction implements ILogicItemFunctionRunner {
             try {
                 var obj = method.invoke(SpringContextUtil.getBean(clazz), paramsArrayFromJsObj.toArray());
                 res.setData(obj);
-            } catch (InvocationTargetException e) {
-                if (e.getTargetException() instanceof LogicBizException) {
+            } catch (InvocationTargetException e) {//主动抛出业务异常
+                if (e.getTargetException() instanceof LogicBizException || RuntimeUtil.AppConfig.BIZ_ERROR_CLASSES.contains(e.getTargetException().getClass().getName())) {
                     var bizEx = e.getTargetException();
-                    var errMsg = String.format(">>执行java方法[%s]抛出业务异常：%s", methodName, bizEx.getMessage());
+                    var errMsg = String.format(">>[%s]：%s", methodName, bizEx.getMessage());
                     log.error("[{}]bizId:{},{}", ctx.getLogicId(), ctx.getBizId(), errMsg);
                     return res.setSuccess(false)
-                            .setMsg(bizEx.getMessage())
+                            .setMsg(e.getTargetException().getMessage())
                             .setItemInstance(itemDsl);
                 } else {
-                    var errMsg = String.format(">>执行java方法[%s]报错：%s", methodName, e.getTargetException().getMessage());
+                    var errMsg = String.format(">>java方法[%s]代码报错：%s", methodName, e.getTargetException().getMessage());
                     log.error("[{}]bizId:{},{}", ctx.getLogicId(), ctx.getBizId(), errMsg);
                     return res.setSuccess(false)
                             .setMsg(errMsg)
                             .setItemInstance(itemDsl);
                 }
             } catch (Exception e) {
-                var errMsg = String.format(">>执行java方法[%s]异常：%s", methodName, e.getMessage());
+                var errMsg = String.format(">>java方法[%s]异常：%s", methodName, e.getMessage());
                 log.error("[{}]bizId:{},{}", ctx.getLogicId(), ctx.getBizId(), errMsg);
                 return res.setSuccess(false)
                         .setMsg(errMsg)
@@ -142,12 +151,17 @@ public class JavaCodeFunction implements ILogicItemFunctionRunner {
     }
 
     private Method findMethod(Class<?> clazz, String methodName, Class<?>... parameterTypes) throws NoSuchMethodException {
-        return clazz.getDeclaredMethod(methodName, parameterTypes);
+        return clazz.getMethod(methodName, parameterTypes);
     }
 
     @Override
     public String getItemType() {
         return "java";
+    }
+
+    @Override
+    public int getPriority(String env) {
+        return 0;
     }
 
 }

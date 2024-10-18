@@ -5,7 +5,6 @@ import com.aims.logic.runtime.contract.dto.LogicItemRunResult;
 import com.aims.logic.runtime.runner.FunctionContext;
 import com.aims.logic.runtime.runner.Functions;
 import com.aims.logic.runtime.runner.functions.ILogicItemFunctionRunner;
-import com.aims.logic.runtime.service.LogicRunnerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +17,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @Service
 public class SwitchFunction implements ILogicItemFunctionRunner {
 
-    public SwitchFunction(LogicRunnerService runnerService) {
+    public SwitchFunction() {
     }
 
     @Override
@@ -33,7 +32,7 @@ public class SwitchFunction implements ILogicItemFunctionRunner {
             AtomicReference<String> nextId = new AtomicReference<>("");
             AtomicReference<String> defNextId = new AtomicReference<>("");
             itemDsl.getBranches().forEach(b -> {
-                if (b.getWhen() != null) {
+                if (b.getWhen() != null && !b.getWhen().isEmpty()) {
                     if (b.getWhen().equals(res)) {
                         nextId.set(b.getNextId());
                         log.info("[{}]bizId:{},命中：{}", ctx.getLogicId(), ctx.getBizId(), b.getWhen());
@@ -57,5 +56,10 @@ public class SwitchFunction implements ILogicItemFunctionRunner {
     @Override
     public String getItemType() {
         return "switch";
+    }
+
+    @Override
+    public int getPriority(String env) {
+        return 0;
     }
 }

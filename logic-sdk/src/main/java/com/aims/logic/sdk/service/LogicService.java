@@ -1,11 +1,12 @@
 package com.aims.logic.sdk.service;
 
 import com.aims.logic.sdk.entity.LogicEntity;
+import com.alibaba.fastjson2.JSONObject;
 
 import java.util.List;
 import java.util.Map;
 
-public interface LogicService extends BaseService<LogicEntity> {
+public interface LogicService extends BaseService<LogicEntity, String> {
     /**
      * 编辑并备份
      *
@@ -31,7 +32,7 @@ public interface LogicService extends BaseService<LogicEntity> {
      * @param source  发布源
      * @return
      */
-    String pubToLocalFromEntityJson(String jsonStr, String source);
+    String pubToLocalFromEntityJson(JSONObject jsonStr, String source);
 
     String pubToIdeHost(String id, String url);
 

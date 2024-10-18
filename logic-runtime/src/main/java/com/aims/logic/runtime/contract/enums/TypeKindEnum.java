@@ -8,5 +8,6 @@ public enum TypeKindEnum {
     typeParam,
     function,
     union,
-    anonymousStructure
+    anonymousStructure,
+    enumType
 }

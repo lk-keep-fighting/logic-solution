@@ -40,4 +40,5 @@ public class LogicItemLog {
     // 存储返回值副本，防止returnData存在嵌套对象时被后面的日志覆盖
 //    private String returnDataStr;
     private boolean success;
+    private String msg;
 }

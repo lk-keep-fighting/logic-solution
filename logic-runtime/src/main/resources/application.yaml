@@ -1,0 +1,4 @@
+logic:
+  config-dir:
+  scan-package-names:
+  biz-error-classes: com.aims.logic.sdk.exception.BizException

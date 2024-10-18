@@ -16,3 +16,8 @@ mybatis-plus:
 logic:
   config-dir: /Users/lk/Documents/Dev/aims/xuanwu-logic/logic-solution/test-suite/test-case-configs
   scan-package-names: com.aims.logic.testsuite
+  biz-error-classes: com.aims.logic.testsuite.demo.exception.CustomException
+  item:
+    groups:
+      - name: 公共组件
+        shape: ExtShape1

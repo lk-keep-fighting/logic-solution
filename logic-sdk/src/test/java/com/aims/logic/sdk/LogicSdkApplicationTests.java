@@ -2,7 +2,6 @@ package com.aims.logic.sdk;
 
 import com.aims.logic.runtime.service.LogicRunnerService;
 import com.alibaba.fastjson2.JSONObject;
-import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -13,7 +12,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @SpringBootApplication(scanBasePackages = "com.aims")
 @SpringBootConfiguration
 @EnableTransactionManagement
-@MapperScan("com.aims.logic.sdk.mapper")
+//@MapperScan("com.aims.logic.sdk.mapper")
 public class LogicSdkApplicationTests {
     @Autowired
     private LogicRunnerService runner;

@@ -110,4 +110,9 @@ public class HttpFunction implements ILogicItemFunctionRunner {
     public String getItemType() {
         return "http";
     }
+
+    @Override
+    public int getPriority(String env) {
+        return 0;
+    }
 }
