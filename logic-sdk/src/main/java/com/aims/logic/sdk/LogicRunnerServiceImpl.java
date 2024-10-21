@@ -430,6 +430,15 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         return LogicRunResult.fromLogicLog(logicLog);
     }
 
+    /**
+     * 业务异常不中断
+     * @param instanceId
+     * @param logicId
+     * @param bizId
+     * @param runner
+     * @param nextItem
+     * @return
+     */
     private LogicRunResult runBizInstanceWithEveryNodeTran2(String instanceId, String logicId, String bizId, LogicRunner
             runner, LogicItemTreeNode nextItem) {
         log.info("[{}]bizId:{}-runItemWithEveryJavaNodeTran2-insId:{}", logicId, bizId, instanceId);
@@ -462,9 +471,11 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                     log.info("[{}]bizId:{},节点执行失败，begin rollback，success=false,msg:{}, in runItemWithEveryJavaNodeTran", logicId, bizId, itemRes.getMsg());
                     transactionalUtils.rollback(curTranStatus);
                     log.info("[{}]bizId:{},节点执行失败，rollback ok，事务组:{}", logicId, bizId, ctx.getCurTranGroupId());
-//                    logService.updateInstanceStatus(logicLog.getInstanceId(), false, itemRes.getMsg());
-//                    logService.addLogicLog(logicLog);
                     logService.addOrUpdateInstance(logicLog);
+                }
+                //代码报错时会中断执行
+                if (itemRes.isNeedInterrupt()) {
+                    return LogicRunResult.fromLogicLog(logicLog);
                 }
             } catch (Exception e) {
                 var msg = e.toString();

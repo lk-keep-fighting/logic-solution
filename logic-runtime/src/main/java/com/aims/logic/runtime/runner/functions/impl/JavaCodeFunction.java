@@ -117,7 +117,7 @@ public class JavaCodeFunction implements ILogicItemFunctionRunner {
             try {
                 var obj = method.invoke(SpringContextUtil.getBean(clazz), paramsArrayFromJsObj.toArray());
                 res.setData(obj);
-            } catch (InvocationTargetException e) {//主动抛出业务异常
+            } catch (InvocationTargetException e) {//主动抛出业务异常，不中断
                 if (e.getTargetException() instanceof LogicBizException || RuntimeUtil.AppConfig.BIZ_ERROR_CLASSES.contains(e.getTargetException().getClass().getName())) {
                     var bizEx = e.getTargetException();
                     var errMsg = String.format(">>[%s]：%s", methodName, bizEx.getMessage());
@@ -129,6 +129,7 @@ public class JavaCodeFunction implements ILogicItemFunctionRunner {
                     var errMsg = String.format(">>java方法[%s]代码报错：%s", methodName, e.getTargetException().getMessage());
                     log.error("[{}]bizId:{},{}", ctx.getLogicId(), ctx.getBizId(), errMsg);
                     return res.setSuccess(false)
+                            .setNeedInterrupt(true)
                             .setMsg(errMsg)
                             .setItemInstance(itemDsl);
                 }
@@ -136,6 +137,7 @@ public class JavaCodeFunction implements ILogicItemFunctionRunner {
                 var errMsg = String.format(">>java方法[%s]异常：%s", methodName, e.getMessage());
                 log.error("[{}]bizId:{},{}", ctx.getLogicId(), ctx.getBizId(), errMsg);
                 return res.setSuccess(false)
+                        .setNeedInterrupt(true)
                         .setMsg(errMsg)
                         .setItemInstance(itemDsl);
             }
@@ -145,6 +147,7 @@ public class JavaCodeFunction implements ILogicItemFunctionRunner {
             log.error("[{}]bizId:{},>>>java节点意外的异常:{}", ctx.getLogicId(), ctx.getBizId(), msg);
             e.printStackTrace();
             return new LogicItemRunResult().setSuccess(false)
+                    .setNeedInterrupt(true)
                     .setMsg("!!java节点意外的异常:" + msg)
                     .setItemInstance(itemDsl);
         }

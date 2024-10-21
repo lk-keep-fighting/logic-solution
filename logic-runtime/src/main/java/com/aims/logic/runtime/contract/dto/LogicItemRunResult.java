@@ -14,6 +14,7 @@ public class LogicItemRunResult {
     }
 
     boolean success = true;
+    boolean needInterrupt = false;
 
     /**
      * 消息
