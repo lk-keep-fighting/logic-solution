@@ -1,10 +1,9 @@
 package com.aims.logic.ide.configuration;
 
-import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-@Configuration
+//@Configuration
 public class LogicSdkMvcConfig implements WebMvcConfigurer {
 //    private String staticPath = "/Users/lk/Documents/Dev/aims/xuanwu-logic/logic-solution/logic-sdk/web";
 //
@@ -15,6 +14,6 @@ public class LogicSdkMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addViewController("/logic").setViewName("/index.html");
+//        registry.addViewController("/logic").setViewName("/logic/index.html");
     }
 }
