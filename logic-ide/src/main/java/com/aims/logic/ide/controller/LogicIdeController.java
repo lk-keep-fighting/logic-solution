@@ -1,5 +1,6 @@
 package com.aims.logic.ide.controller;
 
+import com.aims.logic.ide.configuration.LogicIdeConfig;
 import com.aims.logic.ide.controller.dto.ApiResult;
 import com.aims.logic.ide.controller.dto.ListData;
 import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
@@ -8,6 +9,7 @@ import com.aims.logic.runtime.contract.dsl.ParamTreeNode;
 import com.aims.logic.runtime.contract.dsl.basic.TypeAnnotationTreeNode;
 import com.aims.logic.runtime.contract.dto.LogicClassDto;
 import com.aims.logic.runtime.contract.dto.LogicClassMethodDto;
+import com.aims.logic.runtime.contract.dto.LogicItemGroupDto;
 import com.aims.logic.runtime.contract.parser.TypeAnnotationParser;
 import com.aims.logic.runtime.util.ClassUtils;
 import com.aims.logic.sdk.annotation.LogicItem;
@@ -38,6 +40,8 @@ public class LogicIdeController {
 
     @Value("${logic.scan-package-names}")
     private List<String> ScanPackageNames;
+    @Autowired
+    LogicIdeConfig logicIdeConfig;
 
     @Autowired
     public LogicIdeController(
@@ -165,7 +169,15 @@ public class LogicIdeController {
     @GetMapping("/api/ide/asset/v1/logic-item/readFromCode")
     public ApiResult<Map<String, List<LogicClassMethodDto>>> logicItemJava() throws ClassNotFoundException {
         List<LogicClassDto> classDtos = new ArrayList<>();
-        Map<String, List<LogicClassMethodDto>> methodsByGroup = new HashMap<>();
+        LinkedHashMap<String, List<LogicClassMethodDto>> methodsByGroup = new LinkedHashMap<>();
+        Map<String, String> groupShapeMap = new HashMap<>();
+        if (!logicIdeConfig.getLogicItemGroups().isEmpty()) {
+            logicIdeConfig.getLogicItemGroups().stream().sorted(Comparator.comparing(LogicItemGroupDto::getOrder)).forEach(g -> {
+                var groupName = g.getName();
+                methodsByGroup.put(groupName, new ArrayList<>());
+                groupShapeMap.put(groupName, g.getShape());
+            });
+        }
         for (String name : ScanPackageNames) {
             var res = ClassUtils.getAllClassNames(name);
             classDtos.addAll(res);
@@ -178,6 +190,12 @@ public class LogicIdeController {
                             var anno = m.getAnnotation(LogicItem.class);
                             dto.setName(anno.name());
                             dto.setGroup(anno.group());
+                            var shape = anno.shape();
+                            if (shape.isEmpty()) {//如果未指定，则获取当前分组指定的形状
+                                shape = groupShapeMap.get(dto.getGroup());
+                            }
+                            dto.setShape(shape);
+                            dto.setOrder(anno.order());
                             LogicItemTreeNode logicItemTreeNode = new LogicItemTreeNode()
                                     .setName(anno.name())
                                     .setType(anno.type());

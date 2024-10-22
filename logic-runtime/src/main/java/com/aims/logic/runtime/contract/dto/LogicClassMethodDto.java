@@ -14,6 +14,8 @@ public class LogicClassMethodDto {
     String name;
     String type = "java";
     String group = "预声明业务方法";
+    String shape = "";
+    String order = "";
     LogicItemTreeNode logicItem;
     List<ParamTreeNode> parameters = new ArrayList<>();
 }
