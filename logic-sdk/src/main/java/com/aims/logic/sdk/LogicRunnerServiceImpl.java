@@ -432,6 +432,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
 
     /**
      * 业务异常不中断
+     *
      * @param instanceId
      * @param logicId
      * @param bizId
@@ -461,13 +462,16 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 runner.refreshStatus(true, nextItem);
                 logicLog.setVarsJson_end(runner.getFnCtx().get_var())
                         .setOver(runner.getRunnerStatus() == RunnerStatusEnum.End)
-                        .setNextItem(nextItem)
                         .setSuccess(itemRes.isSuccess()).setMsg(itemRes.getMsg());
                 if (itemRes.isSuccess()) {
+                    //执行成功正常指定下一个节点
+                    logicLog.setNextItem(nextItem);
                     logService.addOrUpdateInstance(logicLog);
                     log.info("[{}]bizId:{},begin commit in runItemWithEveryJavaNodeTran-itemResIsSuccess=true", logicId, bizId);
                     commitCurTranIfNextIsNewGroup(curTranStatus, runner.getFnCtx(), curItem);
                 } else {
+                    //执行失败，下一次继续执行当前节点
+                    logicLog.setNextItem(curItem);
                     log.info("[{}]bizId:{},节点执行失败，begin rollback，success=false,msg:{}, in runItemWithEveryJavaNodeTran", logicId, bizId, itemRes.getMsg());
                     transactionalUtils.rollback(curTranStatus);
                     log.info("[{}]bizId:{},节点执行失败，rollback ok，事务组:{}", logicId, bizId, ctx.getCurTranGroupId());
@@ -475,7 +479,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 }
                 //代码报错时会中断执行
                 if (itemRes.isNeedInterrupt()) {
-                    return LogicRunResult.fromLogicLog(logicLog);
+                    break;
                 }
             } catch (Exception e) {
                 var msg = e.toString();
