@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 public class LogicInstanceServiceImpl extends BaseServiceImpl<LogicInstanceEntity, String> implements LogicInstanceService {
 
     public LogicInstanceServiceImpl() {
-//        this.entityClass = new LogicInstanceEntity().getClass();
     }
 
     @Override
@@ -26,7 +25,7 @@ public class LogicInstanceServiceImpl extends BaseServiceImpl<LogicInstanceEntit
             var res = jdbcTemplate.queryForMap(sql.toString());
             return MapUtils.mapToBean(res, LogicInstanceEntity.class);
         } catch (Exception e) {
-            log.error("LogicInstanceServiceImpl.getInstance error: {}", e.getMessage());
+            log.warn("获取实例失败，getInstance error: {},logicId:{},bizId:{}", e.getMessage(), logicId, bizId);
             return null;
         }
     }
