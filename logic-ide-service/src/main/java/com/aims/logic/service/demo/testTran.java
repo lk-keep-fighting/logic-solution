@@ -7,8 +7,11 @@ import com.aims.logic.service.demo.mapper.TestDetailMapper;
 import com.aims.logic.service.demo.mapper.TestMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.concurrent.ThreadPoolExecutor;
 
 @Component
 public class testTran {
@@ -19,6 +22,27 @@ public class testTran {
 
     public int insert(String id) {
         return testMapper.insert(new TestEntity().setId(id));
+    }
+
+    public int update(String id, String name) {
+        return testMapper.updateById(new TestEntity().setId(id).setName(name));
+    }
+
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public TestEntity get(String id, String name, int sleepMillis) throws InterruptedException {
+        var res = testMapper.selectById(id);
+        System.out.println(id + "--before update:" + res.getName());
+        testMapper.updateById(new TestEntity().setId(id).setName(name));
+        ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0, null, null);
+        executor.execute(() -> {
+            try {
+                Thread.sleep(sleepMillis);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println(id + "--after update:" + testMapper.selectById(id).getName());
+        });
+        return testMapper.selectById(id);
     }
 
     public int throwError() {
