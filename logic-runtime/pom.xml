@@ -5,11 +5,12 @@
     <parent>
         <groupId>com.aims.logic</groupId>
         <artifactId>logic-solution</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
-    <groupId>com.aims.logic</groupId>
     <artifactId>logic-runtime</artifactId>
-    <version>0.1.6-SNAPSHOT</version>
+    <version>${logic-runtime.version}</version>
+    <!--    <version>0.1.7</version>-->
+    <!--    <version>0.1.7-SNAPSHOT</version>-->
     <name>logic-runtime</name>
     <description>logic-runtime</description>
     <properties>

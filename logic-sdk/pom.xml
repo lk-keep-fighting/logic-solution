@@ -5,18 +5,18 @@
     <parent>
         <groupId>com.aims.logic</groupId>
         <artifactId>logic-solution</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
-    <groupId>com.aims.logic</groupId>
     <artifactId>logic-sdk</artifactId>
-    <version>0.4.1-SNAPSHOT</version>
+    <version>${logic-sdk.version}</version>
+    <!--    <version>0.4.2-SNAPSHOT</version>-->
     <name>logic-sdk</name>
     <description>logic-sdk</description>
     <properties>
         <java.version>17</java.version>
     </properties>
     <dependencies>
-<!--        <dependency>-->
+        <!--        <dependency>-->
         <!--            <groupId>com.mybatis-flex</groupId>-->
         <!--            <artifactId>mybatis-flex-spring-boot-starter</artifactId>-->
         <!--            <version>1.9.6</version>-->
@@ -31,7 +31,7 @@
         <dependency>
             <groupId>com.aims.logic</groupId>
             <artifactId>logic-runtime</artifactId>
-            <version>0.1.6-SNAPSHOT</version>
+            <version>${logic-runtime.version}</version>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
@@ -41,7 +41,8 @@
         <dependency>
             <groupId>com.aims.datamodel</groupId>
             <artifactId>data-model-core</artifactId>
-            <version>0.1.4-SNAPSHOT</version>
+            <version>0.1</version>
+            <!--            <version>0.1.4-SNAPSHOT</version>-->
         </dependency>
         <!--        <dependency>-->
         <!--            <groupId>com.alibaba.compileflow</groupId>-->
