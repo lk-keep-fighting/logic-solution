@@ -222,6 +222,11 @@ public class LogicIdeController {
         return new ApiResult<Map<String, List<LogicClassMethodDto>>>().setData(methodsByGroup);
     }
 
+    @PostMapping("/api/ide/remote-runtimes")
+    public ApiResult remoteRuntimeList() {
+        return new ApiResult().setData(logicIdeConfig.getRemoteRuntimes());
+    }
+
     private ParamTreeNode createParamTreeNode(String paramName, Type paramType) {
         log.debug("解析参数:" + paramName + ",参数类型：" + paramType);
         ParamTreeNode p = new ParamTreeNode(paramName)
