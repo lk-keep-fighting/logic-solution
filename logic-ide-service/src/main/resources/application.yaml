@@ -34,6 +34,13 @@ logic:
   config-dir: /Users/lk/Documents/Dev/aims/xuanwu-logic/logic-solution/logic-configs
   biz-error-classes: com.aims.logic.sdk.exception.BizException
   scan-package-names: com.aims.logic.service.demo
+  remote-runtimes:
+    - name: wms
+      title: wms开发环境【51.38】
+      url: http://192.168.51.38:18080
+    - name: 203
+      title: 青龙iot开发环境【53.203】
+      url: http://192.168.53.203:8080
   logic-item-groups:
     - name: 公共组件
       order: 3
@@ -44,7 +51,6 @@ logic:
     - name: 业务组件2
       order: 2
       shape: ExtShape2
-  # com.aims.datamodel,
 data-model:
   config-dir: /Users/lk/Documents/Dev/aims/xuanwu-logic/logic-solution/data-model-configs
 logging:
