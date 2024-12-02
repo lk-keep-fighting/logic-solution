@@ -34,7 +34,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
-@RequestMapping("/papi/")
+@RequestMapping("/api/ide/papi/")
 @Slf4j
 @RestController
 public class LogicApiProxyController {
@@ -45,14 +45,14 @@ public class LogicApiProxyController {
     @GetMapping(value = "/**", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public void proxy(HttpServletRequest request, HttpServletResponse response) throws IOException, URISyntaxException {
         // String url = URLDecoder.decode(request.getRequestURL().toString(), "UTF-8");
-        var matchProxy = logicIdeConfig.getRemoteRuntimes().stream().filter(url -> request.getServletPath().startsWith("/papi/" + url.getName() + "/")).findFirst().orElse(null);
+        var matchProxy = logicIdeConfig.getRemoteRuntimes().stream().filter(url -> request.getServletPath().startsWith("/api/ide/papi/" + url.getName() + "/")).findFirst().orElse(null);
         if (matchProxy == null) {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body("未发现代理api的配置");
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body("未发现RemoteRuntimes的配置");
         }
         URI uri = new URI(request.getRequestURI());
         String path = uri.getPath();
         String query = request.getQueryString();
-        path = path.substring(request.getContextPath().length() + ("/papi/" + matchProxy.getName()).length());
+        path = path.substring(request.getContextPath().length() + ("/api/ide/papi/" + matchProxy.getName()).length());
         String target = matchProxy.getUrl() + path;
         if (query != null && !query.equals("") && !query.equals("null")) {
             target = target + "?" + query;
@@ -104,12 +104,12 @@ public class LogicApiProxyController {
     @DeleteMapping(value = "/**", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity handleRequest(HttpServletRequest request) throws IOException, URISyntaxException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
         String method = request.getMethod();
-        var matchProxy = logicIdeConfig.getRemoteRuntimes().stream().filter(url -> request.getServletPath().startsWith("/papi/" + url.getName() + "/")).findFirst().orElse(null);
+        var matchProxy = logicIdeConfig.getRemoteRuntimes().stream().filter(url -> request.getServletPath().startsWith("/api/ide/papi/" + url.getName() + "/")).findFirst().orElse(null);
         if (matchProxy == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("未发现代理api的配置");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("未发现RemoteRuntime配置");
         }
         String path = getPath(request);
-        path = path.substring(request.getContextPath().length() + ("/papi/" + matchProxy.getName()).length());
+        path = path.substring(request.getContextPath().length() + ("/api/ide/papi/" + matchProxy.getName()).length());
         URI targetUri = new URI(matchProxy.getUrl() + path);
         System.out.println(targetUri);
         HttpHeaders headers = getRequestHeaders(request);
