@@ -21,9 +21,9 @@
         <!--        <logic-sdk.version>0.4.2</logic-sdk.version>-->
         <!--        <logic-ide.version>0.3.4</logic-ide.version>-->
         <revision>0.0.2-SNAPSHOT</revision>
-        <logic-runtime.version>0.1.7-SNAPSHOT</logic-runtime.version>
-        <logic-sdk.version>0.4.2-SNAPSHOT</logic-sdk.version>
-        <logic-ide.version>0.4.0-SNAPSHOT</logic-ide.version>
+        <logic-runtime.version>0.1.8-SNAPSHOT</logic-runtime.version>
+        <logic-sdk.version>0.4.3-SNAPSHOT</logic-sdk.version>
+        <logic-ide.version>0.4.1-SNAPSHOT</logic-ide.version>
     </properties>
     <modules>
         <module>logic-runtime</module>
