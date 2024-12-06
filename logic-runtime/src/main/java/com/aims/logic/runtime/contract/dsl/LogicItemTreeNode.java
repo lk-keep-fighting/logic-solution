@@ -77,4 +77,8 @@ public class LogicItemTreeNode extends BaseLASL {
     switch分支
      */
     List<LogicItemBranch> branches;
+    /*
+    是否异步执行，异步执行将不等待返回结果，默认成功
+     */
+    boolean async = false;
 }
