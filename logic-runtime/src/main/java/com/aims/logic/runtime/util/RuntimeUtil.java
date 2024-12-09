@@ -62,6 +62,7 @@ public class RuntimeUtil {
      */
     public static String getUrl() {
         ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (requestAttributes == null) throw new RuntimeException("获取当前程序Url失败");
         HttpServletRequest request = requestAttributes.getRequest();
         String url = String.format("http://%s:%s", request.getServerName(), request.getServerPort());
         System.out.println("读取本机Host:" + url);
@@ -72,6 +73,7 @@ public class RuntimeUtil {
         if (RequestContextHolder.getRequestAttributes() == null)
             return null;
         ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (requestAttributes == null) throw new RuntimeException("获取当前程序Request对象失败");
         return requestAttributes.getRequest();
     }
 

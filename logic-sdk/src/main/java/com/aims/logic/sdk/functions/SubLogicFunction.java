@@ -32,8 +32,8 @@ public class SubLogicFunction implements ILogicItemFunctionRunner {
             new Thread(() -> {
                 try {
                     log.info("[{}]bizId:{},开始异步执行……", ctx.getLogicId(), ctx.getBizId());
-                    invokeMethod(ctx, itemDsl);
-                    log.info("[{}]bizId:{},异步执行完成。", ctx.getLogicId(), ctx.getBizId());
+                    var res = invokeMethod(ctx, itemDsl);
+                    log.info("[{}]bizId:{},异步执行完成,success：{}，msg:{}。", ctx.getLogicId(), ctx.getBizId(), res.isSuccess(), res.getMsg());
                 } catch (Exception e) {
                     // 处理 invokeMethod 抛出的异常
                     // 例如：logger.error("Error invoking method asynchronously", e);
@@ -70,6 +70,7 @@ public class SubLogicFunction implements ILogicItemFunctionRunner {
             }
 
         } catch (Exception e) {
+            log.error("[{}]bizId:{},复用逻辑执行异常：{}", ctx.getLogicId(), ctx.getBizId(), e.toString());
             return new LogicItemRunResult().setSuccess(false).setData(e.toString()).setMsg(e.toString()).setItemInstance(itemDsl);
         }
     }
