@@ -21,7 +21,6 @@ import com.aims.logic.sdk.service.LogicBakService;
 import com.aims.logic.sdk.service.LogicService;
 import com.alibaba.fastjson2.JSON;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.DefaultParameterNameDiscoverer;
@@ -231,9 +230,9 @@ public class LogicIdeController {
         log.debug("解析参数:" + paramName + ",参数类型：" + paramType);
         ParamTreeNode p = new ParamTreeNode(paramName)
                 .setTypeAnnotation(TypeAnnotationParser.createTypeAnnotationTreeNode(paramType));
-        if (paramType instanceof Class<?> clazz) {//通过NotNull注解判断是否必填
-            p.setRequired(clazz.getAnnotation(NotNull.class) != null);
-        }
+//        if (paramType instanceof Class<?> clazz) {//通过NotNull注解判断是否必填
+//            p.setRequired(clazz.getAnnotation(NotNull.class) != null);
+//        }
         return p;
     }
 
