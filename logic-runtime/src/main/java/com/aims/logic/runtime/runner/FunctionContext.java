@@ -19,7 +19,7 @@ public class FunctionContext {
     private Object _lastRet;
     private LogicItemRunResult _last;
     private LogicTreeNode logic;
-    //    private LogicRunner _logicRunner;
+    private String traceId = null;
     private String logicId = null;
     private String bizId = null;
     private LogicItemTreeNode nextItem;
@@ -28,9 +28,22 @@ public class FunctionContext {
     private String lastTranGroupId;
 
 
-
     public FunctionContext() {
 
+    }
+
+    public void setTraceId(String traceId) {
+        _env.put("TRACE_ID", traceId);
+        this.traceId = traceId;
+    }
+
+    public String getTraceId() {
+        if (this.traceId == null) {//尝试从环境变量获取，如果是复用逻辑，环境变量中会有值
+            if (_env.containsKey("TRACE_ID") && _env.getString("TRACE_ID") != null) {
+                setTraceId(_env.getString("TRACE_ID"));
+            }
+        }
+        return this.traceId;
     }
 
     public boolean isLogOff() {

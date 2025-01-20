@@ -18,8 +18,8 @@
         <java.version>17</java.version>
         <revision>0.0.3-SNAPSHOT</revision>
         <logic-runtime.version>0.1.9-SNAPSHOT</logic-runtime.version>
-        <logic-sdk.version>0.4.3-SNAPSHOT</logic-sdk.version>
-        <logic-ide.version>0.4.2-SNAPSHOT</logic-ide.version>
+        <logic-sdk.version>0.4.4-SNAPSHOT</logic-sdk.version>
+        <logic-ide.version>0.4.3-SNAPSHOT</logic-ide.version>
 <!--        <revision>0.0.3</revision>-->
 <!--        <logic-runtime.version>0.1.9</logic-runtime.version>-->
 <!--        <logic-sdk.version>0.4.3</logic-sdk.version>-->
