@@ -8,6 +8,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import java.util.UUID;
+
 @SpringBootTest(classes = LogicSdkApplicationTests.class)
 @SpringBootApplication(scanBasePackages = "com.aims")
 @SpringBootConfiguration
@@ -19,7 +21,7 @@ public class LogicSdkApplicationTests {
 //    @Autowired
 //    private BizLogicRunner bizLogicRunner;
 
-//    @Test
+    //    @Test
     void contextLoads() {
         JSONObject cusEnv = new JSONObject();
         JSONObject headers = new JSONObject();
@@ -48,6 +50,6 @@ public class LogicSdkApplicationTests {
 
     //    @Test
     void testTran() {
-        runner.runBizByMap("java.demo", "t11", null);
+        runner.runBizByMap("java.demo", "t11", null, UUID.randomUUID().toString());
     }
 }

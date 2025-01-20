@@ -69,6 +69,8 @@ public interface LogicRunnerService {
      */
     LogicRunResult runByMap(String logicId, Map<String, Object> parsMap);
 
+    LogicRunResult runByMap(String logicId, Map<String, Object> parsMap, String traceId);
+
     /**
      * 有状态-入参为json字符串
      *
@@ -101,6 +103,8 @@ public interface LogicRunnerService {
      * @return 逻辑执行结果
      */
     LogicRunResult runBizByMap(String logicId, String bizId, Map<String, Object> parsMap);
+
+    LogicRunResult runBizByMap(String logicId, String bizId, Map<String, Object> parsMap, String traceId);
 
     /**
      * 重试存在异常的业务，通过实例缓存读取入参、临时变量和环境变量

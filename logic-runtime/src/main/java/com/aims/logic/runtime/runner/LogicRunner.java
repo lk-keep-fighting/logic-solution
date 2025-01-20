@@ -207,7 +207,7 @@ public class LogicRunner {
         fnCtx.set_var(JsonUtil.jsonMerge(varsJson, fnCtx.get_var()));
         logicLog.setParamsJson(fnCtx.get_par() == null ? null : JSONObject.from(fnCtx.get_par()))
                 .setVarsJson(fnCtx.get_var() == null ? null : JSONObject.parse(fnCtx.get_var().toJSONString()))
-                .setEnvsJson(fnCtx.get_env());
+                .setEnvsJson(fnCtx.get_env()).setMsgId(fnCtx.getTraceId());
         LogicItemRunResult itemRes = runItem(startNode);
         var nextItem = findNextItem(startNode);
         while (refreshStatus(itemRes.isSuccess(), nextItem) == RunnerStatusEnum.Continue) {

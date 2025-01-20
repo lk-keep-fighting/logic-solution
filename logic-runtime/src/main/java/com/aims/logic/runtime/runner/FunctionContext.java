@@ -32,20 +32,6 @@ public class FunctionContext {
 
     }
 
-    public void setTraceId(String traceId) {
-        _env.put("TRACE_ID", traceId);
-        this.traceId = traceId;
-    }
-
-    public String getTraceId() {
-        if (this.traceId == null) {//尝试从环境变量获取，如果是复用逻辑，环境变量中会有值
-            if (_env.containsKey("TRACE_ID") && _env.getString("TRACE_ID") != null) {
-                setTraceId(_env.getString("TRACE_ID"));
-            }
-        }
-        return this.traceId;
-    }
-
     public boolean isLogOff() {
         if ("off".equals(logic.getLog()))
             return true;
