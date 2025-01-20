@@ -32,7 +32,7 @@ public class TestAutoIdConcurrency {
         System.out.println(">>testAutoIdBatchTran>>开始时间：" + start.getTime());
         var cusEnv = logic.getEnv();
         cusEnv.setLOGIC_CONFIG_MODEL(LogicConfigModelEnum.offline);
-        var offlineLogic = logic.newRunnerService(JSONObject.from(cusEnv));
+        var offlineLogic = logic.newInstance(JSONObject.from(cusEnv));
         offlineLogic.getEnv().setLOGIC_CONFIG_MODEL(LogicConfigModelEnum.offline);
         for (int i = 0; i < batchSize; i++) {
             final String FinalI = String.valueOf(i);
