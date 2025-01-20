@@ -23,13 +23,14 @@ public class LogicLog extends Log {
 
     boolean isLogOff = false;
 
-    public static LogicLog newBizLogBeforeRun(String instanceId, FunctionContext ctx, LogicItemTreeNode nextItem) {
-        return new LogicLog().setInstanceId(instanceId).setBizId(ctx.getBizId()).setLogicId(ctx.getLogicId()).setVersion(ctx.getLogic().getVersion())
+    public static LogicLog newBizLogBeforeRun(String instanceId, FunctionContext ctx, LogicItemTreeNode nextItem, String traceId) {
+        return (LogicLog) new LogicLog().setInstanceId(instanceId).setBizId(ctx.getBizId()).setLogicId(ctx.getLogicId()).setVersion(ctx.getLogic().getVersion())
                 .setParamsJson(JSONObject.from(ctx.get_par()))
                 .setVarsJson(JsonUtil.clone(ctx.get_var()))
                 .setEnvsJson(ctx.get_env())
                 .setNextItem(nextItem)
-                .setLogOff(ctx.isLogOff());
+                .setLogOff(ctx.isLogOff())
+                .setMsgId(traceId);
     }
 
     /**
