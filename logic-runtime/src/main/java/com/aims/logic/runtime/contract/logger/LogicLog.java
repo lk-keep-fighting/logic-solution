@@ -70,7 +70,7 @@ public class LogicLog extends Log {
 
     //    String returnDataStr;
     public String getReturnDataStr() {
-        if (returnData != null) JSONObject.toJSONString(returnData, JSONWriter.Feature.WriteNulls);
+        if (returnData != null) return JSONObject.toJSONString(returnData, JSONWriter.Feature.WriteNulls);
         return null;
     }
 //

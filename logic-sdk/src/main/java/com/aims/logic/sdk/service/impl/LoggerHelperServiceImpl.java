@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -32,7 +33,7 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
             LogicInstanceService _instanceService,
             LogicLogService _logicLogService,
             JdbcTemplate _jdbcTemplate,
-            List<LogicRunnerEventListener>_eventListener
+            List<LogicRunnerEventListener> _eventListener
     ) {
         this.instanceService = _instanceService;
         this.logicLogService = _logicLogService;
@@ -59,8 +60,9 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
         valuesMap.put("message", msg255);
         instanceService.updateById(instanceId, valuesMap);
     }
+
     public void triggerEventListener(LogicLog logicLog) {
-        if(logicLog.isOver()){
+        if (logicLog.isOver()) {
             for (LogicRunnerEventListener listener : eventListener) {
                 listener.onBizCompleted(logicLog.getLogicId(), logicLog.getBizId(), logicLog.getReturnData());
             }
@@ -83,7 +85,7 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
             Map<String, Object> valueMaps = new HashMap<>();
             valueMaps.put("success", logicLog.isSuccess());
             valueMaps.put("message", msg255);
-            valueMaps.put("returnData", logicLog.getReturnDataStr());
+//            valueMaps.put("returnData", logicLog.getReturnDataStr());停用，加快更新速度，可以在logic_log表查看返回值
             valueMaps.put("paramsJson", logicLog.getParamsJson() == null ? null : logicLog.getParamsJson().toJSONString());
             valueMaps.put("varsJson", logicLog.getVarsJson() == null ? null : logicLog.getVarsJson().toJSONString());
             valueMaps.put("varsJsonEnd", logicLog.getVarsJson_end() == null ? null : logicLog.getVarsJson_end().toJSONString());
@@ -143,7 +145,7 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
                     .setMessageId(logicLog.getMsgId())
                     .setBizId(logicLog.getBizId())
                     .setVersion(logicLog.getVersion())
-                    .setItemLogs(JSONArray.toJSONString(logicLog.getItemLogs()))
+                    .setItemLogs(JSONArray.toJSONString((long) logicLog.getItemLogs().size() > 30 ? logicLog.getItemLogs().stream().limit(30).collect(Collectors.toList()) : logicLog.getItemLogs()))
                     .setReturnData(logicLog.getReturnDataStr())
                     .setLogicId(logicLog.getLogicId())
                     .setParamsJson(logicLog.getParamsJson() == null ? null : logicLog.getParamsJson().toJSONString())
