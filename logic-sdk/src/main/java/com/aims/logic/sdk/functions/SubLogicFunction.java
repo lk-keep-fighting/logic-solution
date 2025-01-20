@@ -59,13 +59,13 @@ public class SubLogicFunction implements ILogicItemFunctionRunner {
                 Object bizIdObj = Functions.runJsByContext(ctx, "return " + itemDsl.getBizId());
                 bizId = bizIdObj == null ? bizId : bizIdObj.toString();
             }
-            var newRunner = runnerService.newInstance(ctx.get_env());
+            var newRunnerService = runnerService.newInstance(ctx.get_env());
             var itemRunResult = new LogicItemRunResult().setItemInstance(itemDsl);
             if (bizId == null || "null".equals(bizId)) {
-                var res = newRunner.runByMap(subLogicId, jsonData);
+                var res = newRunnerService.runByMap(subLogicId, jsonData, ctx.getTraceId());
                 return itemRunResult.setSuccess(res.isSuccess()).setMsg(res.getMsg()).setData(res.getData());
             } else {
-                var res = newRunner.runBizByMap(subLogicId, bizId, jsonData);
+                var res = newRunnerService.runBizByMap(subLogicId, bizId, jsonData, ctx.getTraceId());
                 return itemRunResult.setSuccess(res.isSuccess()).setMsg(res.getMsg()).setData(res.getData());
             }
 

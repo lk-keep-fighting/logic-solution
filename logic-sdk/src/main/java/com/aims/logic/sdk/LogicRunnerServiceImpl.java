@@ -129,10 +129,16 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
      */
     @Override
     public LogicRunResult runByMap(String logicId, Map<String, Object> parsMap) {
+        return runByMap(logicId, parsMap, UUID.randomUUID().toString());
+    }
+
+    @Override
+    public LogicRunResult runByMap(String logicId, Map<String, Object> parsMap, String traceId) {
         JSONObject config = RuntimeUtil.readLogicConfig(logicId);
-        var res = new com.aims.logic.runtime.runner.LogicRunner(config, getEnvJson()).run(parsMap);
+        var runner = new com.aims.logic.runtime.runner.LogicRunner(config, getEnvJson());
+        runner.getFnCtx().setTraceId(traceId == null ? UUID.randomUUID().toString() : traceId);
+        var res = runner.run(parsMap);
         logService.addLogicLog(res.getLogicLog());
-//        logService.addOrUpdateInstanceAndAddLogicLog(res.getLogicLog());
         return res;
     }
 
@@ -160,6 +166,10 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         return runBizByMap(logicId, bizId, parsMap);
     }
 
+    @Override
+    public LogicRunResult runBizByMap(String logicId, String bizId, Map<String, Object> parsMap) {
+        return runBizByMap(logicId, bizId, parsMap, UUID.randomUUID().toString());
+    }
 
     /**
      * 执行业务逻辑
@@ -170,12 +180,12 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
      * @return 执行结果
      */
     @Override
-    public LogicRunResult runBizByMap(String logicId, String bizId, Map<String, Object> parsMap) {
+    public LogicRunResult runBizByMap(String logicId, String bizId, Map<String, Object> parsMap, String traceId) {
         String lockKey = logicId + "-" + bizId;
         try {
             StringConcurrencyUtil.lock(lockKey);
             log.info("[{}]bizId:{}-get lock key:{}", logicId, bizId, lockKey);
-            return runBizInstance(logicId, bizId, parsMap);
+            return runBizInstance(logicId, bizId, parsMap, traceId);
         } catch (Exception e) {
             log.error("[{}]bizId:{}-runBizByMap catch逻辑异常:{}", logicId, bizId, e.getMessage());
             throw new RuntimeException(e);
@@ -184,9 +194,6 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
             log.info("[{}]bizId:{}-unlock key:{}", logicId, bizId, lockKey);
         }
     }
-//        synchronized (lockKey.intern()) {
-//            return runBizWithTransaction(logicId, bizId, parsMap);
-//        }
 
     /***
      * 执行前先校验交互点是否正确
@@ -264,7 +271,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
      * @param parsMap
      * @return
      */
-    LogicRunResult runBizInstance(String logicId, String bizId, Map<String, Object> parsMap) {
+    LogicRunResult runBizInstance(String logicId, String bizId, Map<String, Object> parsMap, String traceId) {
         JSONObject cacheVarsJson = null;
         String startId = null;
         String logicVersion = null;
@@ -290,7 +297,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         }
         var runner = new com.aims.logic.runtime.runner.LogicRunner(config, getEnvJson(), parsMap, cacheVarsJson, startId, bizId);
         LogicItemTreeNode nextItem = runner.getStartNode();
-        if (runner.getFnCtx().getTraceId() == null) runner.getFnCtx().setTraceId(UUID.randomUUID().toString());
+        runner.getFnCtx().setTraceId(traceId == null ? UUID.randomUUID().toString() : traceId);
         LogicLog logicLog = LogicLog.newBizLogBeforeRun(instanceId, runner.getFnCtx(), nextItem, runner.getFnCtx().getTraceId());
         if (instanceId == null) {//先生成实例记录
             logService.addOrUpdateInstance(logicLog);
@@ -633,7 +640,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 return new LogicRunResult().setSuccess(false).setMsg(String.format("指定的bizId:%s已完成执行，无法重复执行。", bizId));
             }
         }
-        return runBizInstance(logicId, bizId, parsJson);
+        return runBizInstance(logicId, bizId, parsJson, UUID.randomUUID().toString());
     }
 
     /**
