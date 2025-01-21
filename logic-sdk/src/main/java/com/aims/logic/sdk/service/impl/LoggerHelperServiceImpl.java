@@ -143,6 +143,7 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
                     .setSuccess(logicLog.isSuccess())
                     .setMessage(msg255)
                     .setMessageId(logicLog.getMsgId())
+                    .setServerTime(logicLog.getRequestTime())
                     .setBizId(logicLog.getBizId())
                     .setVersion(logicLog.getVersion())
                     .setItemLogs(JSONArray.toJSONString((long) logicLog.getItemLogs().size() > 30 ? logicLog.getItemLogs().stream().limit(30).collect(Collectors.toList()) : logicLog.getItemLogs()))

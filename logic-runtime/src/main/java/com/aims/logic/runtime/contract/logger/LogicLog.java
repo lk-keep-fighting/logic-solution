@@ -11,6 +11,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Accessors(chain = true)
@@ -21,6 +22,7 @@ public class LogicLog extends Log {
 
     }
 
+    Date requestTime = new Date();
     boolean isLogOff = false;
 
     public static LogicLog newBizLogBeforeRun(String instanceId, FunctionContext ctx, LogicItemTreeNode nextItem, String traceId) {
