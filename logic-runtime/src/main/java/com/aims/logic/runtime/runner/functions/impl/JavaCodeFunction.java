@@ -122,12 +122,14 @@ public class JavaCodeFunction implements ILogicItemFunctionRunner {
                     var bizEx = e.getTargetException();
                     var errMsg = String.format(">>[%s]：%s", methodName, bizEx.getMessage());
                     log.error("[{}]bizId:{},{}", ctx.getLogicId(), ctx.getBizId(), errMsg);
+                    e.printStackTrace();
                     return res.setSuccess(false)
                             .setMsg(e.getTargetException().getMessage())
                             .setItemInstance(itemDsl);
                 } else {
                     var errMsg = String.format(">>java方法[%s]代码报错：%s", methodName, e.getTargetException().getMessage());
                     log.error("[{}]bizId:{},{}", ctx.getLogicId(), ctx.getBizId(), errMsg);
+                    e.printStackTrace();
                     return res.setSuccess(false)
                             .setNeedInterrupt(true)
                             .setMsg(errMsg)
@@ -136,6 +138,7 @@ public class JavaCodeFunction implements ILogicItemFunctionRunner {
             } catch (Exception e) {
                 var errMsg = String.format(">>java方法[%s]异常：%s", methodName, e.getMessage());
                 log.error("[{}]bizId:{},{}", ctx.getLogicId(), ctx.getBizId(), errMsg);
+                e.printStackTrace();
                 return res.setSuccess(false)
                         .setNeedInterrupt(true)
                         .setMsg(errMsg)
