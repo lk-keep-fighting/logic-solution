@@ -45,4 +45,13 @@ public class LogicInstanceServiceImpl extends BaseServiceImpl<LogicInstanceEntit
         return jdbcTemplate.update(sql.toString());
     }
 
+    @Override
+    public int updateInstanceNextId(String logicId, String bizId, String nextId, String nextName, String varsJsonEnd) {
+        if (logicId == null || bizId == null) {
+            throw new RuntimeException("logicId or bizId is null");
+        }
+        StringBuilder sql = new StringBuilder();
+        sql.append(String.format("update logic_instance set nextId='%s',nextName='%s',varsJsonEnd='%s',isOver=0 where logicId = '%s' and bizId = '%s'", nextId, nextName, varsJsonEnd, logicId, bizId));
+        return jdbcTemplate.update(sql.toString());
+    }
 }
