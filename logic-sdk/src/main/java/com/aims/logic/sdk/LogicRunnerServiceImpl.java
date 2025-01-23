@@ -623,6 +623,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
      * @param bizId
      * @return
      */
+    @Override
     public LogicRunResult retryErrorBiz(String logicId, String bizId) {
         JSONObject parsJson = null;
         if (bizId != null && !bizId.isBlank()) {
@@ -641,6 +642,11 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
             }
         }
         return runBizInstance(logicId, bizId, parsJson, UUID.randomUUID().toString());
+    }
+
+    @Override
+    public boolean resetBizInstanceNextId(String logicId, String bizId, String nextId, String nextName, String varsJsonEnd) {
+        return insService.updateInstanceNextId(logicId, bizId, nextId, nextName, varsJsonEnd) > 0;
     }
 
     /**

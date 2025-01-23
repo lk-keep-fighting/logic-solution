@@ -116,6 +116,18 @@ public interface LogicRunnerService {
     LogicRunResult retryErrorBiz(String logicId, String bizId);
 
     /**
+     * 重置实例待执行节点与待执行局部变量
+     *
+     * @param logicId
+     * @param bizId
+     * @param nextId
+     * @param varsJsonEnd
+     * @return
+     */
+
+    boolean resetBizInstanceNextId(String logicId, String bizId, String nextId, String nextName, String varsJsonEnd);
+
+    /**
      * 更新当前业务实例入参
      *
      * @param logicId
