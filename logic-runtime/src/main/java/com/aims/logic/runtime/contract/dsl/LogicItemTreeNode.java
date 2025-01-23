@@ -41,6 +41,10 @@ public class LogicItemTreeNode extends BaseLASL {
      * java等强类型参数声明
      */
     List<ParamTreeNode> params;
+    /**
+     * java等强类型返回值声明
+     */
+    ReturnTreeNode returnType;
     String timeout;
     String nextId;
 
