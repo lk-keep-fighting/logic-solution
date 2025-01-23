@@ -6,6 +6,7 @@ import com.aims.logic.ide.controller.dto.ListData;
 import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
 import com.aims.logic.runtime.contract.dsl.LogicTreeNode;
 import com.aims.logic.runtime.contract.dsl.ParamTreeNode;
+import com.aims.logic.runtime.contract.dsl.ReturnTreeNode;
 import com.aims.logic.runtime.contract.dsl.basic.TypeAnnotationTreeNode;
 import com.aims.logic.runtime.contract.dto.LogicClassDto;
 import com.aims.logic.runtime.contract.dto.LogicClassMethodDto;
@@ -158,6 +159,10 @@ public class LogicIdeController {
                                 .collect(Collectors.toList());
                         dto.setParameters(pars);
                     }
+                    var returnType = createParamTreeNode("返回值", m.getGenericReturnType());
+                    ReturnTreeNode returnTreeNode = new ReturnTreeNode("返回值");
+                    returnTreeNode.setTypeAnnotation(returnType.getTypeAnnotation());
+                    dto.setReturnType(returnTreeNode);
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -209,6 +214,10 @@ public class LogicIdeController {
                                         .collect(Collectors.toList());
                                 logicItemTreeNode.setParams(pars);
                             }
+                            var returnType = createParamTreeNode("返回值", m.getGenericReturnType());
+                            ReturnTreeNode returnTreeNode = new ReturnTreeNode("返回值");
+                            returnTreeNode.setTypeAnnotation(returnType.getTypeAnnotation());
+                            logicItemTreeNode.setReturnType(returnTreeNode);
                             dto.setLogicItem(logicItemTreeNode);
                             methodsByGroup.computeIfAbsent(anno.group(), k -> new ArrayList<>());
                             methodsByGroup.get(anno.group()).add(dto);
