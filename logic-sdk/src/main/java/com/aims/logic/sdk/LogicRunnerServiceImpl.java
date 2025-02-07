@@ -28,6 +28,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -168,7 +170,8 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
 
     @Override
     public LogicRunResult runBizByMap(String logicId, String bizId, Map<String, Object> parsMap) {
-        return runBizByMap(logicId, bizId, parsMap, UUID.randomUUID().toString());
+        String traceId = bizId + "-" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("HHmmss"));
+        return runBizByMap(logicId, bizId, parsMap, traceId);
     }
 
     /**
