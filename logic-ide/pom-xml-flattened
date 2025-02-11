@@ -9,7 +9,7 @@
   </parent>
   <groupId>com.aims.logic</groupId>
   <artifactId>logic-ide</artifactId>
-  <version>0.4.7-SNAPSHOT</version>
+  <version>0.4.8-SNAPSHOT</version>
   <name>logic-ide</name>
   <description>logic-ide</description>
   <licenses>
