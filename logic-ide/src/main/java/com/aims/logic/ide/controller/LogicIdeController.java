@@ -1,13 +1,16 @@
 package com.aims.logic.ide.controller;
 
+import com.aims.logic.ide.configuration.LogicIdeConfig;
 import com.aims.logic.ide.controller.dto.ApiResult;
 import com.aims.logic.ide.controller.dto.ListData;
 import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
 import com.aims.logic.runtime.contract.dsl.LogicTreeNode;
 import com.aims.logic.runtime.contract.dsl.ParamTreeNode;
+import com.aims.logic.runtime.contract.dsl.ReturnTreeNode;
 import com.aims.logic.runtime.contract.dsl.basic.TypeAnnotationTreeNode;
 import com.aims.logic.runtime.contract.dto.LogicClassDto;
 import com.aims.logic.runtime.contract.dto.LogicClassMethodDto;
+import com.aims.logic.runtime.contract.dto.LogicItemGroupDto;
 import com.aims.logic.runtime.contract.parser.TypeAnnotationParser;
 import com.aims.logic.runtime.util.ClassUtils;
 import com.aims.logic.sdk.annotation.LogicItem;
@@ -19,7 +22,6 @@ import com.aims.logic.sdk.service.LogicBakService;
 import com.aims.logic.sdk.service.LogicService;
 import com.alibaba.fastjson2.JSON;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.DefaultParameterNameDiscoverer;
@@ -38,6 +40,8 @@ public class LogicIdeController {
 
     @Value("${logic.scan-package-names}")
     private List<String> ScanPackageNames;
+    @Autowired
+    LogicIdeConfig logicIdeConfig;
 
     @Autowired
     public LogicIdeController(
@@ -155,6 +159,10 @@ public class LogicIdeController {
                                 .collect(Collectors.toList());
                         dto.setParameters(pars);
                     }
+                    var returnType = createParamTreeNode("返回值", m.getGenericReturnType());
+                    ReturnTreeNode returnTreeNode = new ReturnTreeNode("返回值");
+                    returnTreeNode.setTypeAnnotation(returnType.getTypeAnnotation());
+                    dto.setReturnType(returnTreeNode);
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -165,7 +173,15 @@ public class LogicIdeController {
     @GetMapping("/api/ide/asset/v1/logic-item/readFromCode")
     public ApiResult<Map<String, List<LogicClassMethodDto>>> logicItemJava() throws ClassNotFoundException {
         List<LogicClassDto> classDtos = new ArrayList<>();
-        Map<String, List<LogicClassMethodDto>> methodsByGroup = new HashMap<>();
+        LinkedHashMap<String, List<LogicClassMethodDto>> methodsByGroup = new LinkedHashMap<>();
+        Map<String, String> groupShapeMap = new HashMap<>();
+        if (!logicIdeConfig.getLogicItemGroups().isEmpty()) {
+            logicIdeConfig.getLogicItemGroups().stream().sorted(Comparator.comparing(LogicItemGroupDto::getOrder)).forEach(g -> {
+                var groupName = g.getName();
+                methodsByGroup.put(groupName, new ArrayList<>());
+                groupShapeMap.put(groupName, g.getShape());
+            });
+        }
         for (String name : ScanPackageNames) {
             var res = ClassUtils.getAllClassNames(name);
             classDtos.addAll(res);
@@ -178,6 +194,12 @@ public class LogicIdeController {
                             var anno = m.getAnnotation(LogicItem.class);
                             dto.setName(anno.name());
                             dto.setGroup(anno.group());
+                            var shape = anno.shape();
+                            if (shape.isEmpty()) {//如果未指定，则获取当前分组指定的形状
+                                shape = groupShapeMap.get(dto.getGroup());
+                            }
+                            dto.setShape(shape);
+                            dto.setOrder(anno.order());
                             LogicItemTreeNode logicItemTreeNode = new LogicItemTreeNode()
                                     .setName(anno.name())
                                     .setType(anno.type());
@@ -192,6 +214,10 @@ public class LogicIdeController {
                                         .collect(Collectors.toList());
                                 logicItemTreeNode.setParams(pars);
                             }
+                            var returnType = createParamTreeNode("返回值", m.getGenericReturnType());
+                            ReturnTreeNode returnTreeNode = new ReturnTreeNode("返回值");
+                            returnTreeNode.setTypeAnnotation(returnType.getTypeAnnotation());
+                            logicItemTreeNode.setReturnType(returnTreeNode);
                             dto.setLogicItem(logicItemTreeNode);
                             methodsByGroup.computeIfAbsent(anno.group(), k -> new ArrayList<>());
                             methodsByGroup.get(anno.group()).add(dto);
@@ -204,13 +230,18 @@ public class LogicIdeController {
         return new ApiResult<Map<String, List<LogicClassMethodDto>>>().setData(methodsByGroup);
     }
 
+    @PostMapping("/api/ide/remote-runtimes")
+    public ApiResult remoteRuntimeList() {
+        return new ApiResult().setData(logicIdeConfig.getRemoteRuntimes());
+    }
+
     private ParamTreeNode createParamTreeNode(String paramName, Type paramType) {
         log.debug("解析参数:" + paramName + ",参数类型：" + paramType);
         ParamTreeNode p = new ParamTreeNode(paramName)
                 .setTypeAnnotation(TypeAnnotationParser.createTypeAnnotationTreeNode(paramType));
-        if (paramType instanceof Class<?> clazz) {//通过NotNull注解判断是否必填
-            p.setRequired(clazz.getAnnotation(NotNull.class) != null);
-        }
+//        if (paramType instanceof Class<?> clazz) {//通过NotNull注解判断是否必填
+//            p.setRequired(clazz.getAnnotation(NotNull.class) != null);
+//        }
         return p;
     }
 

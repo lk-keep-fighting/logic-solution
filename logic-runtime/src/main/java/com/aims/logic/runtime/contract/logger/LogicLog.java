@@ -11,6 +11,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Accessors(chain = true)
@@ -21,15 +22,17 @@ public class LogicLog extends Log {
 
     }
 
+    Date requestTime = new Date();
     boolean isLogOff = false;
 
-    public static LogicLog newBizLogBeforeRun(String instanceId, FunctionContext ctx, LogicItemTreeNode nextItem) {
-        return new LogicLog().setInstanceId(instanceId).setBizId(ctx.getBizId()).setLogicId(ctx.getLogicId()).setVersion(ctx.getLogic().getVersion())
+    public static LogicLog newBizLogBeforeRun(String instanceId, FunctionContext ctx, LogicItemTreeNode nextItem, String traceId) {
+        return (LogicLog) new LogicLog().setInstanceId(instanceId).setBizId(ctx.getBizId()).setLogicId(ctx.getLogicId()).setVersion(ctx.getLogic().getVersion())
                 .setParamsJson(JSONObject.from(ctx.get_par()))
                 .setVarsJson(JsonUtil.clone(ctx.get_var()))
                 .setEnvsJson(ctx.get_env())
                 .setNextItem(nextItem)
-                .setLogOff(ctx.isLogOff());
+                .setLogOff(ctx.isLogOff())
+                .setMsgId(traceId);
     }
 
     /**
@@ -69,7 +72,7 @@ public class LogicLog extends Log {
 
     //    String returnDataStr;
     public String getReturnDataStr() {
-        if (returnData != null) JSONObject.toJSONString(returnData, JSONWriter.Feature.WriteNulls);
+        if (returnData != null) return JSONObject.toJSONString(returnData, JSONWriter.Feature.WriteNulls);
         return null;
     }
 //

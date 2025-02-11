@@ -19,14 +19,13 @@ public class FunctionContext {
     private Object _lastRet;
     private LogicItemRunResult _last;
     private LogicTreeNode logic;
-    //    private LogicRunner _logicRunner;
+    private String traceId = null;
     private String logicId = null;
     private String bizId = null;
     private LogicItemTreeNode nextItem;
     private String curTranGroupId;
     private String nextTranGroupId;
     private String lastTranGroupId;
-
 
 
     public FunctionContext() {

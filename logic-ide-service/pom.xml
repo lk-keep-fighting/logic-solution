@@ -39,22 +39,16 @@
         <dependency>
             <groupId>com.aims.logic</groupId>
             <artifactId>logic-ide</artifactId>
-            <version>0.2.2-SNAPSHOT</version>
-            <scope>compile</scope>
+            <version>0.4.4-SNAPSHOT</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>com.aims.lowcode.tools</groupId>-->
-<!--            <artifactId>jsonsql-sdk</artifactId>-->
-<!--            <version>0.0.1-SNAPSHOT</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>com.aims.logic</groupId>-->
-<!--            <artifactId>logic-sdk</artifactId>-->
-<!--            <version>0.2.5-SNAPSHOT</version>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.14</version>
         </dependency>
     </dependencies>
 

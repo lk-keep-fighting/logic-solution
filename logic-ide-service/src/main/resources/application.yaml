@@ -3,44 +3,48 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-#    url: jdbc:mysql://192.168.154.11:30020/logic_datadig?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true
-#    username: root
-#    password: bitnami.aims.com
-#    url: jdbc:mysql://192.168.154.11:30020/logic_datadig?useUnicode=true&characterEncoding=gbk&autoReconnect=true&failOverReadOnly=false
-#    username: root
-#    password: bitnami.aims.com
-    url: jdbc:mysql://localhost:3306/logic_demo?useUnicode=true&characterEncoding=gbk&autoReconnect=true&failOverReadOnly=false
+    #    url: jdbc:mysql://192.168.154.11:30020/logic_datadig?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true
+    #    username: root
+    #    password: bitnami.aims.com
+    url: jdbc:mysql://192.168.52.168:3306/lapp_iot?useUnicode=true&characterEncoding=gbk&autoReconnect=true&failOverReadOnly=false
     username: root
-    password: 12#$qwER
-#    url: jdbc:mysql://192.168.51.15:21900/dev_hs_wms?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true
-#    username: dba
-#    password: 1234*Qwer@xYz
-#    url: jdbc:mysql://192.168.153.92:30010/biz_simulator?useUnicode=true&characterEncoding=gbk&autoReconnect=true&failOverReadOnly=false
-#    username: root
-#    password: pxc.aims.com
-#    url: jdbc:mysql://192.168.153.92:30010/HSXN_aims_wms_test?useUnicode=true&characterEncoding=gbk&autoReconnect=true&failOverReadOnly=false
-#    username: root
-#    password: pxc.aims.com
+    password: 1234@qwer
+  #    url: jdbc:mysql://localhost:3306/logic_demo?useUnicode=true&characterEncoding=gbk&autoReconnect=true&failOverReadOnly=false
+  #    username: root
+  #    password: 12#$qwER
   #    url: jdbc:mysql://192.168.51.15:21900/dev_hs_wms?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true
   #    username: dba
   #    password: 1234*Qwer@xYz
-mybatis-plus:
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-  web:
-    resources:
-      static-locations: classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/,classpath:/public/,classpath:/public/web
+  #    url: jdbc:mysql://192.168.153.92:30010/biz_simulator?useUnicode=true&characterEncoding=gbk&autoReconnect=true&failOverReadOnly=false
+  #    username: root
+  #    password: pxc.aims.com
+  #    url: jdbc:mysql://192.168.153.92:30010/HSXN_aims_wms_test?useUnicode=true&characterEncoding=gbk&autoReconnect=true&failOverReadOnly=false
+  #    username: root
+  #    password: pxc.aims.com
+  #    url: jdbc:mysql://192.168.51.15:21900/dev_hs_wms?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true
+  #    username: dba
+  #    password: 1234*Qwer@xYz
 logic:
   config-dir: /Users/lk/Documents/Dev/aims/xuanwu-logic/logic-solution/logic-configs
   biz-error-classes: com.aims.logic.sdk.exception.BizException
   scan-package-names: com.aims.logic.service.demo
-  item:
-    groups:
-      - name: 公共组件
-        shape: ExtShape1
-      - name: 测试组件
-        shape: ExtShape2
-  # com.aims.datamodel,
+  remote-runtimes:
+    - name: wms
+      title: wms开发环境【51.38】
+      url: http://192.168.51.38:18080
+    - name: 203
+      title: 青龙iot开发环境【53.203】
+      url: http://192.168.53.203:8080
+  logic-item-groups:
+    - name: 公共组件
+      order: 3
+      shape: ExtShape3
+    - name: 业务组件1
+      order: 1
+      shape: ExtShape1
+    - name: 业务组件2
+      order: 2
+      shape: ExtShape2
 data-model:
   config-dir: /Users/lk/Documents/Dev/aims/xuanwu-logic/logic-solution/data-model-configs
 logging:

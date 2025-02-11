@@ -5,11 +5,11 @@
     <parent>
         <groupId>com.aims.logic</groupId>
         <artifactId>logic-solution</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
-    <groupId>com.aims.logic</groupId>
     <artifactId>logic-ide</artifactId>
-    <version>0.2.2-SNAPSHOT</version>
+    <version>${logic-ide.version}</version>
+    <!--    <version>0.3.4-SNAPSHOT</version>-->
     <name>logic-ide</name>
     <description>logic-ide</description>
     <properties>
@@ -19,7 +19,8 @@
         <dependency>
             <groupId>com.aims.logic</groupId>
             <artifactId>logic-sdk</artifactId>
-            <version>0.3.8-SNAPSHOT</version>
+            <version>${logic-sdk.version}</version>
+            <!--            <version>0.4.2-SNAPSHOT</version>-->
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -29,6 +30,14 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
         </dependency>
     </dependencies>
     <repositories>
