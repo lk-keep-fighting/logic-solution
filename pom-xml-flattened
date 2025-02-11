@@ -35,7 +35,7 @@
     </snapshotRepository>
   </distributionManagement>
   <properties>
-    <logic-ide.version>0.4.7-SNAPSHOT</logic-ide.version>
+    <logic-ide.version>0.4.8-SNAPSHOT</logic-ide.version>
     <logic-runtime.version>0.1.11-SNAPSHOT</logic-runtime.version>
     <java.version>17</java.version>
     <logic-sdk.version>0.4.6-SNAPSHOT</logic-sdk.version>

@@ -9,7 +9,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Date;
 import java.util.Random;
-import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -32,7 +31,7 @@ class TestSuitApplicationTests {
         System.out.println(">>testBatchTran>>开始时间：" + start.getTime());
         var cusEnv = logic.getEnv();
         cusEnv.setLOGIC_CONFIG_MODEL(LogicConfigModelEnum.offline);
-        var offlineLogic = logic.newRunnerService(JSONObject.from(cusEnv));
+        var offlineLogic = logic.newInstance(JSONObject.from(cusEnv));
         offlineLogic.getEnv().setLOGIC_CONFIG_MODEL(LogicConfigModelEnum.offline);
         for (int i = 0; i < batchSize; i++) {
             final String FinalI = String.valueOf(i);
