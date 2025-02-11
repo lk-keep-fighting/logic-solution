@@ -17,7 +17,9 @@ public class TransactionalUtils {
     public TransactionStatus newTran() {
         //事务隔离级别属于 mysql
         //传播行为属于 Spring，传播行为是指在 Spring 中，a 方法使用到事务，传到 b 方法中也使用到事务
-        TransactionStatus transaction = dataSourceTransactionManager.getTransaction(new DefaultTransactionAttribute());
+        DefaultTransactionAttribute defaultTransactionAttribute = new DefaultTransactionAttribute();
+//        defaultTransactionAttribute.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
+        TransactionStatus transaction = dataSourceTransactionManager.getTransaction(defaultTransactionAttribute);
         return transaction;
     }
 

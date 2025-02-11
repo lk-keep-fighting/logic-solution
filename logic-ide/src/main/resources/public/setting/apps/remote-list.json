@@ -1,0 +1,36 @@
+{
+    "id": "remote-list",
+    "title": "远程业务编排工具",
+    "menus": [
+        {
+            "key": "remote-logic-api",
+            "label": "逻辑编排"
+        },
+        {
+            "key": "remote-logic-instance",
+            "label": "运行实例"
+        },
+        {
+            "key": "remote-logic-logs",
+            "label": "运行日志"
+        },
+        {
+            "key": "remote-versions",
+            "label": "版本管理",
+            "children": [
+                {
+                    "key": "remote-logic-bak",
+                    "label": "版本记录"
+                },
+                {
+                    "key": "remote-logic-pub-record",
+                    "label": "发布记录"
+                }
+            ]
+        },
+        {
+            "key": "remote-logic-manager",
+            "label": "系统管理"
+        }
+    ]
+}

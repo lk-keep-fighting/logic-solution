@@ -1,5 +1,6 @@
 package com.aims.logic.testsuite.demo;
 
+import com.aims.logic.sdk.annotation.LogicItem;
 import com.aims.logic.testsuite.demo.dto.*;
 import org.springframework.stereotype.Component;
 
@@ -10,6 +11,7 @@ import java.util.List;
 
 @Component
 public class testTypes {
+    @LogicItem(name = "输入对象返回对象")
     public TestInput func1(TestInput2 input) {
         return input.getInputs().stream().max(Comparator.comparingInt(TestInput::getI)).orElse(null);
     }
@@ -17,6 +19,7 @@ public class testTypes {
     //    public TestInput func2(TestInput2 input2) {
 //        return input2.getInputs().stream().max((a, b) -> a.getI() - b.getI()).orElse(null);
 //    }
+    @LogicItem(name = "输入数组返回字符串")
     public String strs(String[] strings) {
         return Arrays.stream(strings).reduce("", (x, y) -> {
             return x + "-" + y;

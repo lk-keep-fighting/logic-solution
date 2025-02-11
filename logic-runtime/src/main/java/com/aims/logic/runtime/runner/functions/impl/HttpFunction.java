@@ -32,47 +32,47 @@ public class HttpFunction implements ILogicItemFunctionRunner {
     public LogicItemRunResult invoke(FunctionContext ctx, Object item) {
         var itemDsl = ((LogicItemTreeNode) item);
         var itemRes = new LogicItemRunResult();
-        Object data = Functions.runJsByContext(ctx, itemDsl.getBody());
-        var customHeaders = Functions.runJsByContext(ctx, itemDsl.getHeaders());
-        var method = itemDsl.getMethod().isEmpty() ? "post" : itemDsl.getMethod();
-        var url = (String) Functions.runJsByContext(ctx, itemDsl.getUrl());
-        if (url != null && url.startsWith(("/"))) {
-            url = RuntimeUtil.getUrl() + url;
-        }
-        OkHttpClient client = httpClient.newBuilder()
-                .connectTimeout(Integer.parseInt(itemDsl.getTimeout()), TimeUnit.MILLISECONDS)
-                .readTimeout(Integer.parseInt(itemDsl.getTimeout()), TimeUnit.MILLISECONDS)
-                .writeTimeout(Integer.parseInt(itemDsl.getTimeout()), TimeUnit.MILLISECONDS)
-                .build();
-        Map<String, String> headerMap = new HashMap<>();
-        if (customHeaders != null) {
-            JSONObject cusHeadersJson = (JSONObject) JSON.toJSON(customHeaders);
-            if (cusHeadersJson != null) {
-                cusHeadersJson.forEach((k, v) -> headerMap.put(k, (String) v));
-            }
-        }
-
-        String jsonData = data == null ? "{}" : JSON.toJSONString(data);
-        if (!headerMap.containsKey("content-type")) {//默认json请求
-            headerMap.put("content-type", "application/json");
-        }
-        Headers headers = Headers.of(headerMap);
-        itemDsl.setMethod(method);
-        itemDsl.setHeaders(JSONObject.from(headerMap).toJSONString());
-        itemDsl.setBody(jsonData);
-        itemDsl.setUrl(url);
-        itemDsl.setTimeout(itemDsl.getTimeout());
-        Request req;
-        var reqBuilder = new Request.Builder().url(url).headers(headers);
-        if ("get".equalsIgnoreCase(method)) {
-            req = reqBuilder.get().build();
-        } else {
-            RequestBody body = RequestBody.create(jsonData, MediaType.parse("application/json; charset=utf-8"));
-            req = reqBuilder
-                    .method(method, body).build();
-        }
-        log.debug("[{}]bizId:{},>>http fn,method:{},url:{},data:{},headers:{}", ctx.getLogicId(), ctx.getBizId(), method, url, jsonData, headers);
         try {
+            Object data = Functions.runJsByContext(ctx, itemDsl.getBody());
+            var customHeaders = Functions.runJsByContext(ctx, itemDsl.getHeaders());
+            var method = itemDsl.getMethod().isEmpty() ? "post" : itemDsl.getMethod();
+            var url = (String) Functions.runJsByContext(ctx, itemDsl.getUrl());
+            if (url != null && url.startsWith(("/"))) {
+                url = RuntimeUtil.getUrl() + url;
+            }
+            OkHttpClient client = httpClient.newBuilder()
+                    .connectTimeout(Integer.parseInt(itemDsl.getTimeout()), TimeUnit.MILLISECONDS)
+                    .readTimeout(Integer.parseInt(itemDsl.getTimeout()), TimeUnit.MILLISECONDS)
+                    .writeTimeout(Integer.parseInt(itemDsl.getTimeout()), TimeUnit.MILLISECONDS)
+                    .build();
+            Map<String, String> headerMap = new HashMap<>();
+            if (customHeaders != null) {
+                JSONObject cusHeadersJson = (JSONObject) JSON.toJSON(customHeaders);
+                if (cusHeadersJson != null) {
+                    cusHeadersJson.forEach((k, v) -> headerMap.put(k, (String) v));
+                }
+            }
+
+            String jsonData = data == null ? "{}" : JSON.toJSONString(data);
+            if (!headerMap.containsKey("content-type")) {//默认json请求
+                headerMap.put("content-type", "application/json");
+            }
+            Headers headers = Headers.of(headerMap);
+            itemDsl.setMethod(method);
+            itemDsl.setHeaders(JSONObject.from(headerMap).toJSONString());
+            itemDsl.setBody(jsonData);
+            itemDsl.setUrl(url);
+            itemDsl.setTimeout(itemDsl.getTimeout());
+            Request req;
+            var reqBuilder = new Request.Builder().url(url).headers(headers);
+            if ("get".equalsIgnoreCase(method)) {
+                req = reqBuilder.get().build();
+            } else {
+                RequestBody body = RequestBody.create(jsonData, MediaType.parse("application/json; charset=utf-8"));
+                req = reqBuilder
+                        .method(method, body).build();
+            }
+            log.debug("[{}]bizId:{},>>http fn,method:{},url:{},data:{},headers:{}", ctx.getLogicId(), ctx.getBizId(), method, url, jsonData, headers);
             Object repData = null;
             try (var rep = client.newCall(req).execute()) {
                 if (!rep.isSuccessful()) {

@@ -1,9 +1,10 @@
 package com.aims.logic.ide.controller;
 
-import com.aims.logic.runtime.service.LogicRunnerService;
-import com.aims.logic.runtime.util.StringConcurrencyUtil;
 import com.aims.logic.ide.controller.dto.ApiResult;
+import com.aims.logic.runtime.service.LogicRunnerService;
 import com.aims.logic.runtime.util.RuntimeUtil;
+import com.aims.logic.runtime.util.StringConcurrencyUtil;
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,13 +23,21 @@ public class LogicRuntimeController {
 
 
     @PostMapping("/api/runtime/logic/v1/run-api/{id}")
-    public ApiResult run(@RequestHeader Map<String, String> headers, @RequestBody(required = false) JSONObject body, @PathVariable String id, @RequestParam(value = "debug", required = false, defaultValue = "false") boolean debug) {
+    public ApiResult run(@RequestHeader Map<String, String> headers, @RequestBody(required = false) String body, @PathVariable String id, @RequestParam(value = "debug", required = false, defaultValue = "false") boolean debug) {
         ApiResult res;
         try {
             JSONObject headerJson = JSONObject.from(headers);
             JSONObject customEnv = new JSONObject();
             customEnv.put("HEADERS", headerJson);
-            var rep = runner.newInstance(customEnv).runByMap(id, body);
+            JSONObject bodyObject;
+            if (body == null) {
+                bodyObject = new JSONObject();
+            } else if (JSON.isValidArray(body)) {
+                bodyObject = JSONObject.of("body", JSON.parseArray(body));
+            } else {
+                bodyObject = JSONObject.parseObject(body);
+            }
+            var rep = runner.newInstance(customEnv).runByMap(id, bodyObject);
             res = ApiResult.fromLogicRunResult(rep);
             if (debug) {
                 res.setDebug(rep.getLogicLog());
@@ -39,14 +48,34 @@ public class LogicRuntimeController {
         return res;
     }
 
+    @PostMapping("/api/runtime/logic/v1/runGetData/{logicId}")
+    public Object runByJsonDirect(@PathVariable String logicId, @RequestBody(required = false) String json) {
+        JSONObject pars = null;
+        if (json == null) {
+            pars = new JSONObject();
+        } else if (JSON.isValidArray(json)) {
+            pars = JSONObject.of("body", JSON.parseArray(json));
+        } else pars = JSONObject.parseObject(json);
+        var res = runner.runByMap(logicId, pars);
+        return res.getData();
+    }
+
     @PostMapping("/api/runtime/logic/v1/run-biz/{id}/{bizId}")
-    public ApiResult runBiz(@RequestHeader Map<String, String> headers, @RequestBody(required = false) JSONObject body, @PathVariable String id, @PathVariable String bizId, @RequestParam(value = "debug", required = false, defaultValue = "false") boolean debug) {
+    public ApiResult runBiz(@RequestHeader Map<String, String> headers, @RequestBody(required = false) String body, @PathVariable String id, @PathVariable String bizId, @RequestParam(value = "debug", required = false, defaultValue = "false") boolean debug) {
         ApiResult res;
         try {
             JSONObject headerJson = JSONObject.from(headers);
             JSONObject customEnv = new JSONObject();
             customEnv.put("HEADERS", headerJson);
-            var rep = runner.newInstance(customEnv).runBizByMap(id, bizId, body);
+            JSONObject bodyObject;
+            if (body == null) {
+                bodyObject = new JSONObject();
+            } else if (JSON.isValidArray(body)) {
+                bodyObject = JSONObject.of("body", JSON.parseArray(body));
+            } else {
+                bodyObject = JSONObject.parseObject(body);
+            }
+            var rep = runner.newInstance(customEnv).runBizByMap(id, bizId, bodyObject);
             res = ApiResult.fromLogicRunResult(rep);
             if (debug) {
                 res.setDebug(rep.getLogicLog());
@@ -55,6 +84,20 @@ public class LogicRuntimeController {
             res = ApiResult.fromException(e);
         }
 
+        return res;
+    }
+
+    @PostMapping("/api/runtime/logic/v1/resetBiz/{id}/{bizId}")
+    public ApiResult resetBizNext(@RequestHeader Map<String, String> headers, @RequestBody(required = false) JSONObject bodyObj, @PathVariable String id, @PathVariable String bizId, @RequestParam(value = "debug", required = false, defaultValue = "false") boolean debug) {
+        ApiResult res = new ApiResult();
+        try {
+            var nextId = bodyObj.get("startNodeId").toString();
+            var nextName = bodyObj.get("startNodeName").toString();
+            var varsJsonEnd = bodyObj.get("varsJson").toString();
+            runner.resetBizInstanceNextId(id, bizId, nextId, nextName, varsJsonEnd);
+        } catch (Exception e) {
+            res = ApiResult.fromException(e);
+        }
         return res;
     }
 

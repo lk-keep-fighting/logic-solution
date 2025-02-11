@@ -6,6 +6,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Component
 public final class SpringContextUtil implements ApplicationContextAware {
 
@@ -32,5 +35,22 @@ public final class SpringContextUtil implements ApplicationContextAware {
             return null;
         }
         return applicationContext.getBean(beanName, clazz);
+    }
+
+    /**
+     * 获取所有的 Bean
+     *
+     * @return Bean名称与类型
+     */
+    public static Map<String, Class<?>> getAllBeansAsMap() {
+        Map<String, Class<?>> beanMap = new HashMap<>();
+        String[] beanNames = applicationContext.getBeanDefinitionNames();
+        for (String beanName : beanNames) {
+            Class<?> beanClass = applicationContext.getType(beanName);
+            if (beanClass != null) {
+                beanMap.put(beanName, beanClass);
+            }
+        }
+        return beanMap;
     }
 }

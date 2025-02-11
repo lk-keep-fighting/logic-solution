@@ -37,7 +37,8 @@ public class LogicLogController {
     }
 
     @DeleteMapping("/api/ide/logic-logs/clear")
-    public void clearLogicLog() {
+    public ApiResult clearLogicLog() {
         logicLogService.clearLog();
+        return new ApiResult().setData(true);
     }
 }

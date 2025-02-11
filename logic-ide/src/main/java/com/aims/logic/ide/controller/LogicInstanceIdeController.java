@@ -59,4 +59,10 @@ public class LogicInstanceIdeController {
         var entity = instanceService.selectById(id);
         return new ApiResult<LogicInstanceEntity>().setData(entity);
     }
+
+    @GetMapping("/api/ide/logic-instance/{logicId}/{bizId}")
+    public ApiResult<LogicInstanceEntity> getLogicByBizId(@PathVariable String logicId, @PathVariable String bizId) {
+        var res = instanceService.getInstance(logicId, bizId);
+        return new ApiResult<LogicInstanceEntity>().setData(res);
+    }
 }

@@ -13,4 +13,8 @@ public @interface LogicItem {
     String type() default "java";
 
     String group() default "java";
+
+    String shape() default "";
+
+    String order() default "";
 }
