@@ -14,9 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.aims.logic.runtime.util;
+package com.aims.logic.ide.util;
 
-import com.aims.logic.runtime.contract.dto.LogicClassDto;
+import com.aims.logic.ide.controller.dto.MethodDto;
+import com.aims.logic.ide.controller.dto.MethodSourceCodeDto;
+import com.aims.logic.ide.controller.dto.LogicClassDto;
+import com.aims.logic.runtime.util.ClassLoaderUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -101,6 +104,31 @@ public class ClassUtils {
         return getMethods(clazz);
     }
 
+    public static List<MethodDto> getMethodsAndSourceCode(String fullClassPath) throws ClassNotFoundException {
+        var clazz = ClassLoaderUtils.loadClass(fullClassPath);
+        var methods = getMethods(clazz);
+        List<MethodDto> methodDtos = new ArrayList<>();
+        // 推导源码路径
+        String sourceFilePath = ClassLoaderUtils.getResource(clazz.getName().replace('.', '/') + ".class")
+                .getPath()
+                .replace("target/classes", "src/main/java")
+                .replace(".class", ".java");
+        for (int i = 0; i < methods.size(); i++) {
+            // 读取方法的源码
+            MethodSourceCodeDto methodSource = null;
+            try {
+                methodSource = SourceCodeReader.readMethodSource(
+                        sourceFilePath, clazz.getSimpleName(), methods.get(i).getName()
+                );
+            } catch (Exception e) {
+                log.warn("读取{}源码失败: {}", methods.get(i).getName(), e.getMessage());
+            }
+            methodDtos.add(new MethodDto(methods.get(i), methodSource));
+        }
+
+        return methodDtos;
+    }
+
     public static List<Method> getMethods(Class<?> clazz) {
         var methods = clazz.getMethods();
         return Arrays.stream(methods).toList();
@@ -109,6 +137,11 @@ public class ClassUtils {
     public static List<Method> getMethodsByAnnotation(String fullClassPath, Class<?> annotationClass) throws ClassNotFoundException {
         var methods = getMethods(fullClassPath);
         return methods.stream().filter(method -> method.isAnnotationPresent((Class<? extends Annotation>) annotationClass)).toList();
+    }
+
+    public static List<MethodDto> getMethodsAndSourceCodeByAnnotation(String fullClassPath, Class<?> annotationClass) throws Exception {
+        var methodDtos = getMethodsAndSourceCode(fullClassPath);
+        return methodDtos.stream().filter(dto -> dto.getMethod().isAnnotationPresent((Class<? extends Annotation>) annotationClass)).toList();
     }
 
     public static List<LogicClassDto> getAllClassNames(String basePackage) {

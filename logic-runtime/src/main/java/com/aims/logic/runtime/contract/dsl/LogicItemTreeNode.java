@@ -70,6 +70,14 @@ public class LogicItemTreeNode extends BaseLASL {
      */
     String tranGroupId;
     /*
+    源代码
+     */
+    String sourceCode;
+    /*
+    git信息
+     */
+    String gitInfo;
+    /*
     条件分支表达式
      */
     String condition;
@@ -85,4 +93,5 @@ public class LogicItemTreeNode extends BaseLASL {
     是否异步执行，异步执行将不等待返回结果，默认成功
      */
     boolean async = false;
+    String memo;
 }

@@ -1,4 +1,4 @@
-package com.aims.logic.runtime.contract.dto;
+package com.aims.logic.ide.controller.dto;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
