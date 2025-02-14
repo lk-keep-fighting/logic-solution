@@ -9,7 +9,7 @@
   </parent>
   <groupId>com.aims.logic</groupId>
   <artifactId>logic-ide</artifactId>
-  <version>0.4.10-SNAPSHOT</version>
+  <version>0.4.11-SNAPSHOT</version>
   <name>logic-ide</name>
   <description>logic-ide</description>
   <licenses>
@@ -36,6 +36,11 @@
       <groupId>com.aims.logic</groupId>
       <artifactId>logic-sdk</artifactId>
       <version>${logic-sdk.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.javaparser</groupId>
+      <artifactId>javaparser-core</artifactId>
+      <version>3.25.5</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>

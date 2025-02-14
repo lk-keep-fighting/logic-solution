@@ -3,16 +3,16 @@ package com.aims.logic.ide.controller;
 import com.aims.logic.ide.configuration.LogicIdeConfig;
 import com.aims.logic.ide.controller.dto.ApiResult;
 import com.aims.logic.ide.controller.dto.ListData;
+import com.aims.logic.ide.util.ClassUtils;
 import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
 import com.aims.logic.runtime.contract.dsl.LogicTreeNode;
 import com.aims.logic.runtime.contract.dsl.ParamTreeNode;
 import com.aims.logic.runtime.contract.dsl.ReturnTreeNode;
 import com.aims.logic.runtime.contract.dsl.basic.TypeAnnotationTreeNode;
-import com.aims.logic.runtime.contract.dto.LogicClassDto;
-import com.aims.logic.runtime.contract.dto.LogicClassMethodDto;
-import com.aims.logic.runtime.contract.dto.LogicItemGroupDto;
+import com.aims.logic.ide.controller.dto.LogicClassDto;
+import com.aims.logic.ide.controller.dto.LogicClassMethodDto;
+import com.aims.logic.ide.controller.dto.LogicItemGroupDto;
 import com.aims.logic.runtime.contract.parser.TypeAnnotationParser;
-import com.aims.logic.runtime.util.ClassUtils;
 import com.aims.logic.sdk.annotation.LogicItem;
 import com.aims.logic.sdk.dto.DataFilterInput;
 import com.aims.logic.sdk.dto.FormQueryInput;
@@ -146,9 +146,10 @@ public class LogicIdeController {
     private static final DefaultParameterNameDiscoverer discoverer = new DefaultParameterNameDiscoverer();
 
     @GetMapping("/api/ide/asset/v1/java/class/{fullClassPath}/methods")
-    public ApiResult<List<LogicClassMethodDto>> classMethods(@PathVariable String fullClassPath) throws ClassNotFoundException {
-        List<LogicClassMethodDto> methodDtos = ClassUtils.getMethods(fullClassPath).stream()
-                .map(m -> {
+    public ApiResult<List<LogicClassMethodDto>> classMethods(@PathVariable String fullClassPath) throws Exception {
+        List<LogicClassMethodDto> methodDtos = ClassUtils.getMethodsAndSourceCode(fullClassPath).stream()
+                .map(mdto -> {
+                    var m = mdto.getMethod();
                     log.info("开始解析方法:{}", m.getName());
                     var dto = new LogicClassMethodDto().setName(m.getName());
                     var paramNames = discoverer.getParameterNames(m);
@@ -163,6 +164,10 @@ public class LogicIdeController {
                     ReturnTreeNode returnTreeNode = new ReturnTreeNode("返回值");
                     returnTreeNode.setTypeAnnotation(returnType.getTypeAnnotation());
                     dto.setReturnType(returnTreeNode);
+                    if (mdto.getSourceCodeDto() != null) {
+                        mdto.getSourceCodeDto().readGitInfo();
+                    }
+                    dto.setCodeInfo(mdto.getSourceCodeDto());
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -188,11 +193,12 @@ public class LogicIdeController {
         }
         classDtos.forEach(c -> {
             try {
-                ClassUtils.getMethodsByAnnotation(c.getValue(), LogicItem.class)
-                        .forEach(m -> {
-                            var dto = new LogicClassMethodDto().setName(m.getName());
-                            var anno = m.getAnnotation(LogicItem.class);
+                ClassUtils.getMethodsAndSourceCodeByAnnotation(c.getValue(), LogicItem.class)
+                        .forEach(methodDto -> {
+                            var dto = new LogicClassMethodDto().setName(methodDto.getMethod().getName());
+                            var anno = methodDto.getMethod().getAnnotation(LogicItem.class);
                             dto.setName(anno.name());
+                            dto.setCodeInfo(methodDto.getSourceCodeDto());
                             dto.setGroup(anno.group());
                             var shape = anno.shape();
                             if (shape.isEmpty()) {//如果未指定，则获取当前分组指定的形状
@@ -202,19 +208,22 @@ public class LogicIdeController {
                             dto.setOrder(anno.order());
                             LogicItemTreeNode logicItemTreeNode = new LogicItemTreeNode()
                                     .setName(anno.name())
+                                    .setMemo(anno.memo())
+                                    .setSourceCode(methodDto.getSourceCodeDto().getSourceCode())
+                                    .setGitInfo(methodDto.getSourceCodeDto().readGitInfo().getMemo())
                                     .setType(anno.type());
-                            var paramNames = discoverer.getParameterNames(m);
-                            logicItemTreeNode.setMethod(m.getName(), paramNames);
+                            var paramNames = discoverer.getParameterNames(methodDto.getMethod());
+                            logicItemTreeNode.setMethod(methodDto.getMethod().getName(), paramNames);
                             logicItemTreeNode.setBody("return _par;");
                             logicItemTreeNode.setUrl(c.getValue());
-                            var paramTypes = m.getGenericParameterTypes();
+                            var paramTypes = methodDto.getMethod().getGenericParameterTypes();
                             if (paramNames != null) {
                                 var pars = IntStream.range(0, paramTypes.length)
                                         .mapToObj(i -> createParamTreeNode(paramNames[i], paramTypes[i]))
                                         .collect(Collectors.toList());
                                 logicItemTreeNode.setParams(pars);
                             }
-                            var returnType = createParamTreeNode("返回值", m.getGenericReturnType());
+                            var returnType = createParamTreeNode("返回值", methodDto.getMethod().getGenericReturnType());
                             ReturnTreeNode returnTreeNode = new ReturnTreeNode("返回值");
                             returnTreeNode.setTypeAnnotation(returnType.getTypeAnnotation());
                             logicItemTreeNode.setReturnType(returnTreeNode);
@@ -223,6 +232,8 @@ public class LogicIdeController {
                             methodsByGroup.get(anno.group()).add(dto);
                         });
             } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         });
