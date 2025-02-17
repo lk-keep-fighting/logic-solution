@@ -209,9 +209,15 @@ public class LogicIdeController {
                             LogicItemTreeNode logicItemTreeNode = new LogicItemTreeNode()
                                     .setName(anno.name())
                                     .setMemo(anno.memo())
-                                    .setSourceCode(methodDto.getSourceCodeDto().getSourceCode())
-                                    .setGitInfo(methodDto.getSourceCodeDto().readGitInfo().getMemo())
                                     .setType(anno.type());
+                            if (methodDto.getSourceCodeDto() != null) {
+                                try {
+                                    logicItemTreeNode.setSourceCode(methodDto.getSourceCodeDto().getSourceCode())
+                                            .setGitInfo(methodDto.getSourceCodeDto().readGitInfo().getMemo());
+                                } catch (Exception ex) {
+                                    log.error("获取源码或git信息失败", ex);
+                                }
+                            }
                             var paramNames = discoverer.getParameterNames(methodDto.getMethod());
                             logicItemTreeNode.setMethod(methodDto.getMethod().getName(), paramNames);
                             logicItemTreeNode.setBody("return _par;");
