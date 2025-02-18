@@ -23,21 +23,13 @@ public class LogicRuntimeController {
 
 
     @PostMapping("/api/runtime/logic/v1/run-api/{id}")
-    public ApiResult run(@RequestHeader Map<String, String> headers, @RequestBody(required = false) String body, @PathVariable String id, @RequestParam(value = "debug", required = false, defaultValue = "false") boolean debug) {
+    public ApiResult run(@RequestHeader Map<String, String> headers, @RequestBody(required = false) JSONObject body, @PathVariable String id, @RequestParam(value = "debug", required = false, defaultValue = "false") boolean debug) {
         ApiResult res;
         try {
             JSONObject headerJson = JSONObject.from(headers);
             JSONObject customEnv = new JSONObject();
             customEnv.put("HEADERS", headerJson);
-            JSONObject bodyObject;
-            if (body == null) {
-                bodyObject = new JSONObject();
-            } else if (JSON.isValidArray(body)) {
-                bodyObject = JSONObject.of("body", JSON.parseArray(body));
-            } else {
-                bodyObject = JSONObject.parseObject(body);
-            }
-            var rep = runner.newInstance(customEnv).runByMap(id, bodyObject);
+            var rep = runner.newInstance(customEnv).runByMap(id, body);
             res = ApiResult.fromLogicRunResult(rep);
             if (debug) {
                 res.setDebug(rep.getLogicLog());
@@ -45,6 +37,24 @@ public class LogicRuntimeController {
         } catch (Exception e) {
             res = ApiResult.fromException(e);
         }
+        return res;
+    }
+    @PostMapping("/api/runtime/logic/v1/run-biz/{id}/{bizId}")
+    public ApiResult runBiz(@RequestHeader Map<String, String> headers, @RequestBody(required = false) JSONObject body, @PathVariable String id, @PathVariable String bizId, @RequestParam(value = "debug", required = false, defaultValue = "false") boolean debug) {
+        ApiResult res;
+        try {
+            JSONObject headerJson = JSONObject.from(headers);
+            JSONObject customEnv = new JSONObject();
+            customEnv.put("HEADERS", headerJson);
+            var rep = runner.newInstance(customEnv).runBizByMap(id, bizId, body);
+            res = ApiResult.fromLogicRunResult(rep);
+            if (debug) {
+                res.setDebug(rep.getLogicLog());
+            }
+        } catch (Exception e) {
+            res = ApiResult.fromException(e);
+        }
+
         return res;
     }
 
@@ -60,32 +70,6 @@ public class LogicRuntimeController {
         return res.getData();
     }
 
-    @PostMapping("/api/runtime/logic/v1/run-biz/{id}/{bizId}")
-    public ApiResult runBiz(@RequestHeader Map<String, String> headers, @RequestBody(required = false) String body, @PathVariable String id, @PathVariable String bizId, @RequestParam(value = "debug", required = false, defaultValue = "false") boolean debug) {
-        ApiResult res;
-        try {
-            JSONObject headerJson = JSONObject.from(headers);
-            JSONObject customEnv = new JSONObject();
-            customEnv.put("HEADERS", headerJson);
-            JSONObject bodyObject;
-            if (body == null) {
-                bodyObject = new JSONObject();
-            } else if (JSON.isValidArray(body)) {
-                bodyObject = JSONObject.of("body", JSON.parseArray(body));
-            } else {
-                bodyObject = JSONObject.parseObject(body);
-            }
-            var rep = runner.newInstance(customEnv).runBizByMap(id, bizId, bodyObject);
-            res = ApiResult.fromLogicRunResult(rep);
-            if (debug) {
-                res.setDebug(rep.getLogicLog());
-            }
-        } catch (Exception e) {
-            res = ApiResult.fromException(e);
-        }
-
-        return res;
-    }
 
     @PostMapping("/api/runtime/logic/v1/resetBiz/{id}/{bizId}")
     public ApiResult resetBizNext(@RequestHeader Map<String, String> headers, @RequestBody(required = false) JSONObject bodyObj, @PathVariable String id, @PathVariable String bizId, @RequestParam(value = "debug", required = false, defaultValue = "false") boolean debug) {
