@@ -193,12 +193,11 @@ public class LogicIdeController {
         }
         classDtos.forEach(c -> {
             try {
-                ClassUtils.getMethodsAndSourceCodeByAnnotation(c.getValue(), LogicItem.class)
-                        .forEach(methodDto -> {
-                            var dto = new LogicClassMethodDto().setName(methodDto.getMethod().getName());
-                            var anno = methodDto.getMethod().getAnnotation(LogicItem.class);
+                ClassUtils.getMethodsByAnnotation(c.getValue(), LogicItem.class)
+                        .forEach(method -> {
+                            var dto = new LogicClassMethodDto().setName(method.getName());
+                            var anno = method.getAnnotation(LogicItem.class);
                             dto.setName(anno.name());
-                            dto.setCodeInfo(methodDto.getSourceCodeDto());
                             dto.setGroup(anno.group());
                             var shape = anno.shape();
                             if (shape.isEmpty()) {//如果未指定，则获取当前分组指定的形状
@@ -210,26 +209,18 @@ public class LogicIdeController {
                                     .setName(anno.name())
                                     .setMemo(anno.memo())
                                     .setType(anno.type());
-                            if (methodDto.getSourceCodeDto() != null) {
-                                try {
-                                    logicItemTreeNode.setSourceCode(methodDto.getSourceCodeDto().getSourceCode())
-                                            .setGitInfo(methodDto.getSourceCodeDto().readGitInfo().getMemo());
-                                } catch (Exception ex) {
-                                    log.error("获取源码或git信息失败", ex);
-                                }
-                            }
-                            var paramNames = discoverer.getParameterNames(methodDto.getMethod());
-                            logicItemTreeNode.setMethod(methodDto.getMethod().getName(), paramNames);
+                            var paramNames = discoverer.getParameterNames(method);
+                            logicItemTreeNode.setMethod(method.getName(), paramNames);
                             logicItemTreeNode.setBody("return _par;");
                             logicItemTreeNode.setUrl(c.getValue());
-                            var paramTypes = methodDto.getMethod().getGenericParameterTypes();
+                            var paramTypes = method.getGenericParameterTypes();
                             if (paramNames != null) {
                                 var pars = IntStream.range(0, paramTypes.length)
                                         .mapToObj(i -> createParamTreeNode(paramNames[i], paramTypes[i]))
                                         .collect(Collectors.toList());
                                 logicItemTreeNode.setParams(pars);
                             }
-                            var returnType = createParamTreeNode("返回值", methodDto.getMethod().getGenericReturnType());
+                            var returnType = createParamTreeNode("返回值", method.getGenericReturnType());
                             ReturnTreeNode returnTreeNode = new ReturnTreeNode("返回值");
                             returnTreeNode.setTypeAnnotation(returnType.getTypeAnnotation());
                             logicItemTreeNode.setReturnType(returnTreeNode);
