@@ -104,6 +104,27 @@ public class ClassUtils {
         return getMethods(clazz);
     }
 
+    public static MethodSourceCodeDto getMethodSourceCode(String fullClassPath, String methodName) throws ClassNotFoundException {
+        var clazz = ClassLoaderUtils.loadClass(fullClassPath);
+        // 推导源码路径
+        String sourceFilePath = ClassLoaderUtils.getResource(clazz.getName().replace('.', '/') + ".class")
+                .getPath()
+                .replace("target/classes", "src/main/java")
+                .replace(".class", ".java");
+        // 读取方法的源码
+        MethodSourceCodeDto methodSource = null;
+        try {
+            methodSource = SourceCodeReader.readMethodSource(
+                    sourceFilePath, clazz.getSimpleName(), methodName
+            );
+            return methodSource;
+
+        } catch (Exception e) {
+            log.warn("读取{}源码失败: {}", methodName, e.getMessage());
+        }
+        return methodSource;
+    }
+
     public static List<MethodDto> getMethodsAndSourceCode(String fullClassPath) throws ClassNotFoundException {
         var clazz = ClassLoaderUtils.loadClass(fullClassPath);
         var methods = getMethods(clazz);
