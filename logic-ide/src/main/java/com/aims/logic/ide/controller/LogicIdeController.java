@@ -164,10 +164,10 @@ public class LogicIdeController {
                     ReturnTreeNode returnTreeNode = new ReturnTreeNode("返回值");
                     returnTreeNode.setTypeAnnotation(returnType.getTypeAnnotation());
                     dto.setReturnType(returnTreeNode);
-                    if (mdto.getSourceCodeDto() != null) {
-                        mdto.getSourceCodeDto().readGitInfo();
-                    }
-                    dto.setCodeInfo(mdto.getSourceCodeDto());
+//                    if (mdto.getSourceCodeDto() != null) {
+//                        mdto.getSourceCodeDto().readGitInfo();
+//                    }
+//                    dto.setCodeInfo(mdto.getSourceCodeDto());
                     return dto;
                 })
                 .collect(Collectors.toList());
