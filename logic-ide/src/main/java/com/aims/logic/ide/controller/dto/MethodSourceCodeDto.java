@@ -1,11 +1,13 @@
 package com.aims.logic.ide.controller.dto;
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+@Slf4j
 @Data
 public class MethodSourceCodeDto {
     public MethodSourceCodeDto() {
@@ -51,10 +53,10 @@ public class MethodSourceCodeDto {
                 if (exitCode == 0) {
                     gitInfo.setMemo(gitInfoBuilder.toString());
                 } else {
-                    throw new RuntimeException("Failed to read git info. Exit code: " + exitCode);
+                    log.warn("无法读取git信息 Exit code:{} ", exitCode);
                 }
             } catch (IOException | InterruptedException e) {
-                throw new RuntimeException("Error reading git info", e);
+                log.warn("读取git信息异常:{} ", e.getMessage());
             }
         }
         return gitInfo;
