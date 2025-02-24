@@ -23,6 +23,12 @@ public class LogicLog {
 
     }
 
+    /*
+    逻辑日志唯一编号
+    当此逻辑为复用逻辑时，id由父逻辑传入进行串联，追踪当前为父逻辑的那一次调用
+     */
+    String id;
+
     String msgId;
     boolean success = true;
     String msg;
@@ -30,14 +36,15 @@ public class LogicLog {
 
     boolean isLogOff = false;
 
-    public static LogicLog newBizLogBeforeRun(String instanceId, FunctionContext ctx, LogicItemTreeNode nextItem, String traceId) {
+    public static LogicLog newBizLogBeforeRun(String instanceId, FunctionContext ctx, LogicItemTreeNode nextItem, String traceId, String logicLogId) {
         return new LogicLog().setInstanceId(instanceId).setBizId(ctx.getBizId()).setLogicId(ctx.getLogicId()).setVersion(ctx.getLogic().getVersion())
                 .setParamsJson(JSONObject.from(ctx.get_par()))
                 .setVarsJson(JsonUtil.clone(ctx.get_var()))
                 .setEnvsJson(ctx.get_env())
                 .setNextItem(nextItem)
                 .setLogOff(ctx.isLogOff())
-                .setMsgId(traceId);
+                .setMsgId(traceId)
+                .setId(logicLogId);
     }
 
     /**

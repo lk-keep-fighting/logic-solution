@@ -186,7 +186,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
     @Override
     public LogicRunResult runBizByMap(String logicId, String bizId, Map<String, Object> parsMap) {
         String traceId = bizId + "-" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"));
-        return runBizByMap(logicId, bizId, parsMap, traceId);
+        return runBizByMap(logicId, bizId, parsMap, traceId, null);
     }
 
     /**
@@ -198,12 +198,12 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
      * @return 执行结果
      */
     @Override
-    public LogicRunResult runBizByMap(String logicId, String bizId, Map<String, Object> parsMap, String traceId) {
+    public LogicRunResult runBizByMap(String logicId, String bizId, Map<String, Object> parsMap, String traceId, String logicLogId) {
         String lockKey = logicId + "-" + bizId;
         try {
             BizLockUtil.lock(lockKey);
             log.info("[{}]bizId:{}-get lock key:{}", logicId, bizId, lockKey);
-            return runBiz(logicId, bizId, parsMap, traceId, false);
+            return runBiz(logicId, bizId, parsMap, traceId, logicLogId);
         } catch (Exception e) {
             log.error("[{}]bizId:{}-runBizByMap catch逻辑异常:{}", logicId, bizId, e.getMessage());
             throw new RuntimeException(e);
@@ -288,10 +288,10 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
      * @param bizId   业务标识
      * @param parsMap 入参
      * @param traceId 链路标识
-     * @param isRetry 是否为重试异常业务
+     * @param logicLogId
      * @return
      */
-    LogicRunResult runBiz(String logicId, String bizId, Map<String, Object> parsMap, String traceId, Boolean isRetry) {
+    LogicRunResult runBiz(String logicId, String bizId, Map<String, Object> parsMap, String traceId, String logicLogId) {
         JSONObject cacheVarsJson = null;
         String startId = null;
         String logicVersion = null;
@@ -320,8 +320,8 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         var runner = new com.aims.logic.runtime.runner.LogicRunner(config, getEnvJson(), parsMap, cacheVarsJson, startId, bizId);
         LogicItemTreeNode nextItem = runner.getStartNode();
         runner.getFnCtx().setTraceId(traceId == null ? UUID.randomUUID().toString() : traceId);
-        runner.getFnCtx().setIsRetry(isRetry);
-        LogicLog logicLog = LogicLog.newBizLogBeforeRun(instanceId, runner.getFnCtx(), nextItem, runner.getFnCtx().getTraceId());
+//        runner.getFnCtx().setIsRetry(isRetry);
+        LogicLog logicLog = LogicLog.newBizLogBeforeRun(instanceId, runner.getFnCtx(), nextItem, runner.getFnCtx().getTraceId(), logicLogId);
         logicLog.setParentLogicId(this.parentLogicId).setParentBizId(this.parentBizId);
         if (instanceId == null) {//先生成实例记录
             logService.addInstance(logicLog);
@@ -664,7 +664,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         try {
             BizLockUtil.lock(lockKey);
             log.info("[{}]bizId:{}-get lock key:{}", logicId, bizId, lockKey);
-            return runBiz(logicId, bizId, parsJson, UUID.randomUUID().toString(), true);
+            return runBiz(logicId, bizId, parsJson, UUID.randomUUID().toString(), null);
         } catch (Exception e) {
             log.error("[{}]bizId:{}-runBizByMap catch逻辑异常:{}", logicId, bizId, e.getMessage());
             throw new RuntimeException(e);

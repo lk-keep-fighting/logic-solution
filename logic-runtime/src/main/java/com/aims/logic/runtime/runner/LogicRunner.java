@@ -7,6 +7,7 @@ import com.aims.logic.runtime.contract.dto.LogicRunResult;
 import com.aims.logic.runtime.contract.dto.RunnerStatusEnum;
 import com.aims.logic.runtime.contract.logger.LogicLog;
 import com.aims.logic.runtime.contract.parser.TypeAnnotationParser;
+import com.aims.logic.runtime.util.IdWorker;
 import com.aims.logic.runtime.util.JsonUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
@@ -227,7 +228,10 @@ public class LogicRunner {
         return res;
     }
 
+    IdWorker idWorker = new IdWorker(1, 1);
+
     public LogicItemRunResult runItem(LogicItemTreeNode item) {
+        item.setObjectId(String.valueOf(idWorker.nextId()));
         var itemRes = new LogicItemRunner(item).run(fnCtx);
         fnCtx.set_last(itemRes);
         fnCtx.set_lastRet(itemRes.getData());

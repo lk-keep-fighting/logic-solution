@@ -218,6 +218,7 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
                     .setEnv(RuntimeUtil.getEnvObject().getNODE_ENV())
                     .setHost(requestHost)
                     .setClientId(requestClientId);
+            if (logicLog.getId() != null) logEntity.setId(logicLog.getId().toString());
             logicLogService.insert(logEntity);
         } catch (Exception e) {
             log.error("添加logicLog日志异常:{}", e.getMessage());

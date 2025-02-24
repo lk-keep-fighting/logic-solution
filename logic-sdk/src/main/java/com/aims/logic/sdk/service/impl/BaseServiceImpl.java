@@ -14,7 +14,7 @@ import com.aims.logic.sdk.dto.FormQueryInput;
 import com.aims.logic.sdk.dto.Page;
 import com.aims.logic.sdk.entity.BaseEntity;
 import com.aims.logic.sdk.service.BaseService;
-import com.aims.logic.sdk.util.IdWorker;
+import com.aims.logic.runtime.util.IdWorker;
 import com.aims.logic.sdk.util.MapUtils;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.util.ParameterizedTypeImpl;
