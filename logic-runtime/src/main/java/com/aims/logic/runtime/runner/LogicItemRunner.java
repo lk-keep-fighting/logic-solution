@@ -8,6 +8,8 @@ import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.JSONWriter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDateTime;
+
 @Slf4j
 public class LogicItemRunner {
     final LogicItemTreeNode dsl;
@@ -18,10 +20,12 @@ public class LogicItemRunner {
 
     public LogicItemRunResult run(FunctionContext ctx) {
         LogicItemRunResult ret = new LogicItemRunResult();
+        LogicItemLog itemLog = new LogicItemLog().
+                setName(dsl.getName());
         log.info("[{}]bizId:{},执行节点[{}]", ctx.getLogicId(), ctx.getBizId(), this.dsl.getName());
         log.debug("[{}]bizId:{},上下文 {}", ctx.getLogicId(), ctx.getBizId(), JSONObject.toJSONString(ctx, JSONWriter.Feature.WriteNulls));
         var itemType = this.dsl.getType();
-//        var originConfig = JSON.copy(this.dsl);
+        itemLog.setBeginTime(LocalDateTime.now());
         switch (itemType) {
             case "end":
                 ret = Functions.get(itemType).invoke(ctx, this.dsl.getScript() != null ? this.dsl.getScript() : "return _ret");
@@ -63,15 +67,13 @@ public class LogicItemRunner {
         if (ctx.isLogOff()) {
             log.info("[{}]关闭了日志", ctx.getLogicId());
         } else {
-            ret.setItemLog(new
-                    LogicItemLog().
-                    setName(dsl.getName()).
-                    setConfigInstance(ret.getItemInstance()).
-                    setConfig(dsl).
-                    setMsg(ret.getMsg())
-//                .setParamsJson(JSONObject.from(dsl.getBody()))
+            itemLog.setConfigInstance(ret.getItemInstance())
+                    .setEndTime(LocalDateTime.now())
+                    .setConfig(dsl)
+                    .setMsg(ret.getMsg())
                     .setReturnData(ret.getData())
-                    .setSuccess(ret.isSuccess()));
+                    .setSuccess(ret.isSuccess());
+            ret.setItemLog(itemLog);
         }
         return ret;
     }

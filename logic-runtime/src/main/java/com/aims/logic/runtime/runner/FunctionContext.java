@@ -22,11 +22,33 @@ public class FunctionContext {
     private String traceId = null;
     private String logicId = null;
     private String bizId = null;
+//    /**
+//     * 当前编排一级子逻辑运行时使用的统一的随机bizId
+//     * 用于标识一次业务实例运行，实例模式下必须生成，
+//     * 否则一个bizId的子逻辑可能只会执行一次，循环调用的话就无法执行多次
+//     */
+//    private String subLogicRandomBizId = null;
+    /**
+     * 是否为重试执行
+     */
+    private Boolean isRetry = false;
     private LogicItemTreeNode nextItem;
     private String curTranGroupId;
     private String nextTranGroupId;
     private String lastTranGroupId;
 
+
+    public String getSubLogicRandomBizId() {
+        if (_var.get("__subLogicRandomBizId") == null)
+            return buildSubLogicRandomBizId();
+        return _var.get("__subLogicRandomBizId").toString();
+    }
+
+    public String buildSubLogicRandomBizId() {
+        var subLogicRandomBizId = logicId + "_" + System.currentTimeMillis();
+        _var.put("__subLogicRandomBizId", subLogicRandomBizId);
+        return subLogicRandomBizId;
+    }
 
     public FunctionContext() {
 

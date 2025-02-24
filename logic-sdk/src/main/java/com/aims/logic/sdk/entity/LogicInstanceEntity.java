@@ -21,6 +21,12 @@ public class LogicInstanceEntity extends BaseEntity {
     private String version;
     @TableField("bizId")
     private String bizId;
+    // 父逻辑id
+    @TableField("parentLogicId")
+    private String parentLogicId;
+    // 父业务标识
+    @TableField("parentBizId")
+    private String parentBizId;
     @TableField("nextId")
     private String nextId;
     @TableField("nextName")
@@ -36,6 +42,10 @@ public class LogicInstanceEntity extends BaseEntity {
     @TableField("returnData")
     private String returnData;
     private Boolean success;
+    // 是否运行中
+    @TableField("isRunning")
+    private Boolean isRunning;
+    // 实例是否结束
     @TableField("isOver")
     private Boolean isOver;
     private String message;
@@ -44,5 +54,15 @@ public class LogicInstanceEntity extends BaseEntity {
     @TableField("serverTime")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime serverTime;
+    @TableField("startTime")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS", timezone = "GMT+8")
+    private LocalDateTime startTime;
+    @TableField("stopTime")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS", timezone = "GMT+8")
+    private LocalDateTime stopTime;
+    // 耗时，单位毫秒
+    @TableField("duration")
+    private Long duration;
+
     private String env;
 }
