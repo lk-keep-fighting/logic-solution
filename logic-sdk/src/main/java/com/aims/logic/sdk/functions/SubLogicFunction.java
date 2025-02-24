@@ -55,22 +55,22 @@ public class SubLogicFunction implements ILogicItemFunctionRunner {
             itemDsl.setBody(jsonData == null ? null : jsonData.toJSONString());
             Object bizIdObj = Functions.runJsByContext(ctx, "return " + itemDsl.getBizId());
             bizId = bizIdObj == null ? null : bizIdObj.toString();
-            var newRunnerService = runnerService.newInstance(ctx.get_env(), ctx.getLogicId(),ctx.getBizId());
+            var newRunnerService = runnerService.newInstance(ctx.get_env(), ctx.getLogicId(), ctx.getBizId());
 
             var itemRunResult = new LogicItemRunResult().setItemInstance(itemDsl);
             if (StringUtils.isNotBlank(ctx.getBizId())) {//父流程为实例模式，子逻辑必须为实例模式，判断是否需要公用bizId
                 if (bizId == null || "null".equals(bizId)) {//不共用bizId
-                    bizId = ctx.getSubLogicRandomBizId();//从上下文生成一个，并缓存在上下文中，防止出现异常时重试
+                    bizId = itemDsl.getObjectId().toString();//ctx.getSubLogicRandomBizId();//从上下文生成一个，并缓存在上下文中，防止出现异常时重试
                     itemDsl.setBizId(bizId);//记录运行时配置
 //                    if (ctx.getIsRetry()) {
 //                        var res = newRunnerService.retryErrorBiz(subLogicId, bizId);
 //                        itemRunResult.setSuccess(res.isSuccess()).setMsg(res.getMsg()).setData(res.getData());
 //                    } else {
-                    var res = newRunnerService.runBizByMap(subLogicId, bizId, jsonData, ctx.getTraceId());
+                    var res = newRunnerService.runBizByMap(subLogicId, bizId, jsonData, ctx.getTraceId(), itemDsl.getObjectId());
                     itemRunResult.setSuccess(res.isSuccess()).setMsg(res.getMsg()).setData(res.getData());
 //                    }
                 } else {
-                    var res = newRunnerService.runBizByMap(subLogicId, bizId, jsonData, ctx.getTraceId());
+                    var res = newRunnerService.runBizByMap(subLogicId, bizId, jsonData, ctx.getTraceId(), itemDsl.getObjectId());
                     itemRunResult.setSuccess(res.isSuccess()).setMsg(res.getMsg()).setData(res.getData());
                 }
             } else {

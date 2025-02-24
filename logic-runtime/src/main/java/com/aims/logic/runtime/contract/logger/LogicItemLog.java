@@ -17,6 +17,7 @@ public class LogicItemLog {
         success = true;
     }
 
+    Long id;
     private String name;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime beginTime;

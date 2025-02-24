@@ -94,4 +94,9 @@ public class LogicItemTreeNode extends BaseLASL {
      */
     boolean async = false;
     String memo;
+    /*
+    节点执行时实例化的对象唯一编号
+    用于循环调用时的链路追踪
+     */
+    String objectId;
 }

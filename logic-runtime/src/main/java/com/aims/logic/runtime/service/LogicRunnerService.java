@@ -41,9 +41,10 @@ public interface LogicRunnerService {
 
     /**
      * 传入自定义环境变量创建逻辑运行器，并指定父逻辑编号
-     * @param env 自定义环境变量
+     *
+     * @param env           自定义环境变量
      * @param parentLogicId 父逻辑编号
-     * @param parentBizId 父业务标识
+     * @param parentBizId   父业务标识
      * @return 返回逻辑运行器
      */
 
@@ -114,7 +115,7 @@ public interface LogicRunnerService {
      */
     LogicRunResult runBizByMap(String logicId, String bizId, Map<String, Object> parsMap);
 
-    LogicRunResult runBizByMap(String logicId, String bizId, Map<String, Object> parsMap, String traceId);
+    public LogicRunResult runBizByMap(String logicId, String bizId, Map<String, Object> parsMap, String traceId, String logicLogId);
 
     /**
      * 重试存在异常的业务，通过实例缓存读取入参、临时变量和环境变量
