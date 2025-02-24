@@ -10,23 +10,28 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Accessors(chain = true)
 @Getter
 @Setter
-public class LogicLog extends Log {
+public class LogicLog {
     public LogicLog() {
 
     }
 
-    Date requestTime = new Date();
+    String msgId;
+    boolean success = true;
+    String msg;
+    Error error;
+
     boolean isLogOff = false;
 
     public static LogicLog newBizLogBeforeRun(String instanceId, FunctionContext ctx, LogicItemTreeNode nextItem, String traceId) {
-        return (LogicLog) new LogicLog().setInstanceId(instanceId).setBizId(ctx.getBizId()).setLogicId(ctx.getLogicId()).setVersion(ctx.getLogic().getVersion())
+        return new LogicLog().setInstanceId(instanceId).setBizId(ctx.getBizId()).setLogicId(ctx.getLogicId()).setVersion(ctx.getLogic().getVersion())
                 .setParamsJson(JSONObject.from(ctx.get_par()))
                 .setVarsJson(JsonUtil.clone(ctx.get_var()))
                 .setEnvsJson(ctx.get_env())
@@ -56,6 +61,14 @@ public class LogicLog extends Log {
      */
     String instanceId;
     String logicId;
+    /**
+     * 父逻辑编号
+     */
+    String parentLogicId;
+    /**
+     * 父业务标识
+     */
+    String parentBizId;
     String version;
     /**
      * 业务标识
@@ -69,6 +82,25 @@ public class LogicLog extends Log {
      * 整个逻辑是否已结束，没有后续交互节点
      */
     boolean isOver = false;
+
+    boolean isRunning = true;
+
+    public void setIsRunning(boolean isRunning) {
+        this.isRunning = isRunning;
+        if (!isRunning) {
+            this.stopTime = LocalDateTime.now();
+        }
+    }
+
+    LocalDateTime startTime = LocalDateTime.now();
+    LocalDateTime stopTime;
+
+    public long getDuration() {
+        if (stopTime == null) {
+            return 0;
+        }
+        return ChronoUnit.MILLIS.between(startTime, stopTime);
+    }
 
     //    String returnDataStr;
     public String getReturnDataStr() {

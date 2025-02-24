@@ -3,7 +3,7 @@ package com.aims.logic.ide.controller;
 import com.aims.logic.ide.controller.dto.ApiResult;
 import com.aims.logic.runtime.service.LogicRunnerService;
 import com.aims.logic.runtime.util.RuntimeUtil;
-import com.aims.logic.runtime.util.StringConcurrencyUtil;
+import com.aims.logic.sdk.util.BizLockUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import org.springframework.web.bind.annotation.*;
@@ -143,6 +143,6 @@ public class LogicRuntimeController {
 
     @GetMapping("/api/runtime/lockKeys")
     public ApiResult lockKeys() {
-        return new ApiResult().setData(StringConcurrencyUtil.getLockKeys());
+        return new ApiResult().setData(BizLockUtil.getLockKeys());
     }
 }

@@ -40,6 +40,16 @@ public interface LogicRunnerService {
     LogicRunnerService newInstance(JSONObject env);
 
     /**
+     * 传入自定义环境变量创建逻辑运行器，并指定父逻辑编号
+     * @param env 自定义环境变量
+     * @param parentLogicId 父逻辑编号
+     * @param parentBizId 父业务标识
+     * @return 返回逻辑运行器
+     */
+
+    LogicRunnerService newInstance(JSONObject env, String parentLogicId, String parentBizId);
+
+    /**
      * 无状态-入参为json字符串
      *
      * @param logicId        逻辑编号
