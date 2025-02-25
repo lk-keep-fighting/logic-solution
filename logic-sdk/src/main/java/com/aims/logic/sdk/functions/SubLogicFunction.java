@@ -74,8 +74,13 @@ public class SubLogicFunction implements ILogicItemFunctionRunner {
                     itemRunResult.setSuccess(res.isSuccess()).setMsg(res.getMsg()).setData(res.getData());
                 }
             } else {
-                var res = newRunnerService.runByMap(subLogicId, jsonData, ctx.getTraceId());
-                itemRunResult.setSuccess(res.isSuccess()).setMsg(res.getMsg()).setData(res.getData());
+                if (bizId == null || "null".equals(bizId)) {
+                    var res = newRunnerService.runByMap(subLogicId, jsonData, ctx.getTraceId(), itemDsl.getObjectId());
+                    itemRunResult.setSuccess(res.isSuccess()).setMsg(res.getMsg()).setData(res.getData());
+                } else {
+                    var res = newRunnerService.runBizByMap(subLogicId, bizId, jsonData, ctx.getTraceId(), itemDsl.getObjectId());
+                    itemRunResult.setSuccess(res.isSuccess()).setMsg(res.getMsg()).setData(res.getData());
+                }
             }
             ctx.buildSubLogicRandomBizId();//运行完成后生成下一个随机bizId，不同的逻辑不能公用bizId
             return itemRunResult;

@@ -146,15 +146,16 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
      */
     @Override
     public LogicRunResult runByMap(String logicId, Map<String, Object> parsMap) {
-        return runByMap(logicId, parsMap, UUID.randomUUID().toString());
+        return runByMap(logicId, parsMap, UUID.randomUUID().toString(), null);
     }
 
     @Override
-    public LogicRunResult runByMap(String logicId, Map<String, Object> parsMap, String traceId) {
+    public LogicRunResult runByMap(String logicId, Map<String, Object> parsMap, String traceId, String objectId) {
         JSONObject config = RuntimeUtil.readLogicConfig(logicId);
         var runner = new com.aims.logic.runtime.runner.LogicRunner(config, getEnvJson());
         runner.getFnCtx().setTraceId(traceId == null ? UUID.randomUUID().toString() : traceId);
         var res = runner.run(parsMap);
+        res.getLogicLog().setId(objectId);
         logService.addLogicLog(res.getLogicLog());
         return res;
     }
@@ -284,10 +285,10 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
     /**
      * 执行业务实例
      *
-     * @param logicId 逻辑编号
-     * @param bizId   业务标识
-     * @param parsMap 入参
-     * @param traceId 链路标识
+     * @param logicId    逻辑编号
+     * @param bizId      业务标识
+     * @param parsMap    入参
+     * @param traceId    链路标识
      * @param logicLogId
      * @return
      */

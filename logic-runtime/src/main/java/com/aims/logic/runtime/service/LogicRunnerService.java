@@ -80,7 +80,7 @@ public interface LogicRunnerService {
      */
     LogicRunResult runByMap(String logicId, Map<String, Object> parsMap);
 
-    LogicRunResult runByMap(String logicId, Map<String, Object> parsMap, String traceId);
+    public LogicRunResult runByMap(String logicId, Map<String, Object> parsMap, String traceId, String objectId);
 
     /**
      * 有状态-入参为json字符串
