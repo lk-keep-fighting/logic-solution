@@ -15,6 +15,11 @@ public class testList {
         return list;
     }
 
+    @LogicItem(name = "测试字符串数组", group = "测试数组")
+    public List<String> listString(List<String> list) {
+        return list;
+    }
+
     public Map<String, ListType> mapList(Map<String, ListType> map) {
         return map;
     }
