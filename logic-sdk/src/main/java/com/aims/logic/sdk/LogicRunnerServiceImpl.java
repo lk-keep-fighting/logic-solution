@@ -14,6 +14,7 @@ import com.aims.logic.runtime.runner.Functions;
 import com.aims.logic.runtime.runner.LogicRunner;
 import com.aims.logic.runtime.service.LogicRunnerService;
 import com.aims.logic.runtime.store.LogicConfigStoreService;
+import com.aims.logic.runtime.util.IdWorker;
 import com.aims.logic.runtime.util.JsonUtil;
 import com.aims.logic.runtime.util.RuntimeUtil;
 import com.aims.logic.sdk.entity.LogicInstanceEntity;
@@ -28,8 +29,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -59,6 +58,8 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
      * 父业务标识
      */
     private String parentBizId = null;
+
+    IdWorker idWorker = new IdWorker();
 
     @Autowired
     public LogicRunnerServiceImpl(LoggerHelperService logService,
@@ -146,7 +147,8 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
      */
     @Override
     public LogicRunResult runByMap(String logicId, Map<String, Object> parsMap) {
-        return runByMap(logicId, parsMap, UUID.randomUUID().toString(), null);
+        String traceId = String.valueOf(idWorker.nextId());
+        return runByMap(logicId, parsMap, traceId, traceId);
     }
 
     @Override
@@ -186,8 +188,9 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
 
     @Override
     public LogicRunResult runBizByMap(String logicId, String bizId, Map<String, Object> parsMap) {
-        String traceId = bizId + "-" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"));
-        return runBizByMap(logicId, bizId, parsMap, traceId, null);
+        String traceId = String.valueOf(idWorker.nextId());
+//        String traceId = bizId + "-" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"));
+        return runBizByMap(logicId, bizId, parsMap, traceId, traceId);
     }
 
     /**
