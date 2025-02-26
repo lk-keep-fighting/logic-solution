@@ -1,10 +1,12 @@
 package com.aims.logic.runtime.service;
 
 import com.aims.logic.runtime.contract.dto.LogicRunResult;
+import com.aims.logic.runtime.contract.dto.LongtimeRunningBizDto;
 import com.aims.logic.runtime.env.LogicEnvObject;
 import com.alibaba.fastjson2.JSONObject;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 public interface LogicRunnerService {
     /**
@@ -125,6 +127,21 @@ public interface LogicRunnerService {
      * @return
      */
     LogicRunResult retryErrorBiz(String logicId, String bizId);
+
+    /**
+     * 重试超时运行的业务
+     * @param timeout 超时时间，单位秒
+     * @return
+     */
+
+    List<LogicRunResult> retryLongtimeRunningBiz(int timeout);
+
+    /**
+     * 查询超时运行的业务
+     * @param timeout 超时时间，单位秒
+     * @return
+     */
+    List<LongtimeRunningBizDto> queryLongtimeRunningBiz(int timeout);
 
     /**
      * 重置实例待执行节点与待执行局部变量

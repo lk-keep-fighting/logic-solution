@@ -13,10 +13,9 @@ public interface LoggerHelperService {
      */
     void addOrUpdateInstanceAndAddLogicLog(LogicLog logicLog);
 
+    void startBizRunning(LogicLog logicLog);
 
     void stopBizRunning(LogicLog logicLog);
-
-    void updateBizResult(String instanceId, boolean success, String msg);
 
     /**
      * 新增或更新运行实例日志
