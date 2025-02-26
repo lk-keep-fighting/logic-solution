@@ -3,6 +3,7 @@ package com.aims.logic.sdk;
 import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
 import com.aims.logic.runtime.contract.dto.LogicItemRunResult;
 import com.aims.logic.runtime.contract.dto.LogicRunResult;
+import com.aims.logic.runtime.contract.dto.LongtimeRunningBizDto;
 import com.aims.logic.runtime.contract.dto.RunnerStatusEnum;
 import com.aims.logic.runtime.contract.enums.LogicItemTransactionScope;
 import com.aims.logic.runtime.contract.enums.LogicItemType;
@@ -29,10 +30,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author liukun
@@ -334,6 +333,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         if (tranScope == null || tranScope.equals(LogicItemTransactionScope.def))
             tranScope = RuntimeUtil.getEnvObject().getDefaultTranScope();
         log.info("[{}]bizId:{},tranScope:{}", logicId, bizId, tranScope);
+        logService.startBizRunning(logicLog);
         LogicRunResult res = null;
         switch (tranScope) {
             case everyRequest:
@@ -652,7 +652,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         if (bizId != null && !bizId.isBlank()) {
             LogicInstanceEntity insEntity = insService.getInstance(logicId, bizId);
             if (insEntity != null) {
-                if (insEntity.getSuccess()) {
+                if (!(!insEntity.getSuccess() || insEntity.getIsRunning())) {
                     return new LogicRunResult().setSuccess(false).
                             setMsg(String.format("业务[%s]没有发生异常，不可重试！", bizId));
                 }
@@ -676,7 +676,28 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
             BizLockUtil.unlock(lockKey);
             log.info("[{}]bizId:{}-unlock key:{}", logicId, bizId, lockKey);
         }
-//        return runBizInstance(logicId, bizId, parsJson, UUID.randomUUID().toString());
+    }
+
+    @Override
+    public List<LogicRunResult> retryLongtimeRunningBiz(int timeout) {
+        List<LogicRunResult> res = new ArrayList<>();
+        var list = queryLongtimeRunningBiz(timeout);
+        if (list != null)
+            list.forEach(insEntity -> {
+                res.add(retryErrorBiz(insEntity.getLogicId(), insEntity.getBizId()));
+            });
+        return res;
+    }
+
+    @Override
+    public List<LongtimeRunningBizDto> queryLongtimeRunningBiz(int timeout) {
+        var list = insService.queryLongtimeRunningBiz(timeout);
+        if (list == null)
+            return null;
+        return list.stream().map(insEntity -> new LongtimeRunningBizDto()
+                .setLogicId(insEntity.getLogicId())
+                .setBizId(insEntity.getBizId())
+                .setStartTime(insEntity.getStartTime())).collect(Collectors.toList());
     }
 
     @Override

@@ -2,9 +2,11 @@ package com.aims.logic.sdk.service.impl;
 
 import com.aims.logic.sdk.entity.LogicInstanceEntity;
 import com.aims.logic.sdk.service.LogicInstanceService;
-import com.aims.logic.sdk.util.MapUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @Slf4j
@@ -22,13 +24,24 @@ public class LogicInstanceServiceImpl extends BaseServiceImpl<LogicInstanceEntit
         sql.append("select * from logic_instance where logicId = '").append(logicId);
         sql.append("' and bizId = '").append(bizId).append("' order by version desc limit 1");
         try {
-            var res = jdbcTemplate.queryForMap(sql.toString());
-            return MapUtils.mapToBean(res, LogicInstanceEntity.class);
+            return jdbcTemplate.queryForObject(sql.toString(), new BeanPropertyRowMapper<>(LogicInstanceEntity.class));
         } catch (Exception e) {
             log.warn("获取实例失败，getInstance error: {},logicId:{},bizId:{}", e.getMessage(), logicId, bizId);
             return null;
         }
     }
+
+    @Override
+    public List<LogicInstanceEntity> queryLongtimeRunningBiz(int timeout) {
+        String sql = String.format("SELECT * FROM logic_instance WHERE isRunning=true AND startTime<=NOW()-INTERVAL %s SECOND", timeout);
+        try {
+            return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(LogicInstanceEntity.class));
+        } catch (Exception e) {
+            log.warn("获取实例失败，queryLongtimeRunningBiz error: {}", e.getMessage());
+            return null;
+        }
+    }
+
 
     @Override
     public int deleteCompletedBizInstanceByLogicId(String logicId) {

@@ -55,8 +55,28 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
     }
 
 
-    //    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
+    public void startBizRunning(LogicLog logicLog) {
+        triggerEventListener(logicLog);
+        String env = RuntimeUtil.getEnvObject().getNODE_ENV();
+        var nextId = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getId();
+        var nextName = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getName();
+        Map<String, Object> valueMaps = new HashMap<>();
+        valueMaps.put("message", null);
+        valueMaps.put("paramsJson", logicLog.getParamsJson() == null ? null : logicLog.getParamsJson().toJSONString());
+        valueMaps.put("varsJson", logicLog.getVarsJson() == null ? null : logicLog.getVarsJson().toJSONString());
+        valueMaps.put("varsJsonEnd", logicLog.getVarsJson() == null ? null : logicLog.getVarsJson().toJSONString());
+        valueMaps.put("isRunning", logicLog.isRunning());
+        valueMaps.put("startTime", logicLog.getStartTime());
+        valueMaps.put("stopTime", null);
+        valueMaps.put("duration", -1);
+        valueMaps.put("nextId", nextId);
+        valueMaps.put("nextName", nextName);
+        valueMaps.put("env", env);
+        instanceService.updateById(logicLog.getInstanceId(), valueMaps);
+    }
+
     public void stopBizRunning(LogicLog logicLog) {
+        triggerEventListener(logicLog);
         logicLog.setIsRunning(false);
         Map<String, Object> valuesMap = new HashMap<>();
         valuesMap.put("isRunning", false);
@@ -68,14 +88,6 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
         instanceService.updateById(logicLog.getInstanceId(), valuesMap);
     }
 
-    public void updateBizResult(String instanceId, boolean success, String msg) {
-        Map<String, Object> valuesMap = new HashMap<>();
-        valuesMap.put("success", success);
-        valuesMap.put("isRunning", false);
-        var msg255 = msg == null ? null : msg.length() > 255 ? msg.substring(0, 255) : msg;
-        valuesMap.put("message", msg255);
-        instanceService.updateById(instanceId, valuesMap);
-    }
 
     public void triggerEventListener(LogicLog logicLog) {
         if (logicLog.isOver()) {
@@ -92,28 +104,8 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
      */
 
     public void addOrUpdateInstance(LogicLog logicLog) {
-        String env = RuntimeUtil.getEnvObject().getNODE_ENV();
-        var nextId = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getId();
-        var nextName = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getName();
-        var msg255 = logicLog.getMsg() == null ? null : logicLog.getMsg().length() > 255 ? logicLog.getMsg().substring(0, 255) : logicLog.getMsg();
-        triggerEventListener(logicLog);
         if (logicLog.getInstanceId() != null) {
-            Map<String, Object> valueMaps = new HashMap<>();
-            valueMaps.put("success", logicLog.isSuccess());
-            valueMaps.put("message", msg255);
-//            valueMaps.put("returnData", logicLog.getReturnDataStr());停用，加快更新速度，可以在logic_log表查看返回值
-            valueMaps.put("paramsJson", logicLog.getParamsJson() == null ? null : logicLog.getParamsJson().toJSONString());
-            valueMaps.put("varsJson", logicLog.getVarsJson() == null ? null : logicLog.getVarsJson().toJSONString());
-            valueMaps.put("varsJsonEnd", logicLog.getVarsJson_end() == null ? null : logicLog.getVarsJson_end().toJSONString());
-            valueMaps.put("isOver", logicLog.isOver());
-            valueMaps.put("isRunning", logicLog.isRunning());
-            valueMaps.put("startTime", logicLog.getStartTime());
-            valueMaps.put("stopTime", logicLog.getStopTime());
-            valueMaps.put("duration", logicLog.getDuration());
-            valueMaps.put("nextId", nextId);
-            valueMaps.put("nextName", nextName);
-            valueMaps.put("env", env);
-            instanceService.updateById(logicLog.getInstanceId(), valueMaps);
+            updateInstance(logicLog);
         } else {
             addInstance(logicLog);
         }
@@ -136,7 +128,7 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
         valueMaps.put("isRunning", logicLog.isRunning());
         valueMaps.put("startTime", logicLog.getStartTime());
         valueMaps.put("stopTime", logicLog.getStopTime());
-        valueMaps.put("duration", logicLog.getDuration());
+        valueMaps.put("duration", logicLog.getDurationUntilNow());
         valueMaps.put("nextId", nextId);
         valueMaps.put("nextName", nextName);
         valueMaps.put("env", env);
@@ -148,7 +140,6 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
         var nextId = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getId();
         var nextName = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getName();
         var msg255 = logicLog.getMsg() == null ? null : logicLog.getMsg().length() > 255 ? logicLog.getMsg().substring(0, 255) : logicLog.getMsg();
-        triggerEventListener(logicLog);
         LogicInstanceEntity newIns = new LogicInstanceEntity()
                 .setSuccess(logicLog.isSuccess())
                 .setMessage(msg255)

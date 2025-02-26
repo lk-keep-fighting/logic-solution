@@ -39,6 +39,7 @@ public class LogicRuntimeController {
         }
         return res;
     }
+
     @PostMapping("/api/runtime/logic/v1/run-biz/{id}/{bizId}")
     public ApiResult runBiz(@RequestHeader Map<String, String> headers, @RequestBody(required = false) JSONObject body, @PathVariable String id, @PathVariable String bizId, @RequestParam(value = "debug", required = false, defaultValue = "false") boolean debug) {
         ApiResult res;
@@ -93,6 +94,12 @@ public class LogicRuntimeController {
             res.setDebug(rep.getLogicLog());
         }
         return res;
+    }
+
+    @PostMapping("/api/runtime/logic/v1/retry-longtime-running-biz")
+    public ApiResult retryLongtimeRunningBiz(@RequestParam(value = "timeout", required = false, defaultValue = "30") int timeout) {
+        var rep = runner.retryLongtimeRunningBiz(timeout);
+        return ApiResult.ok(rep);
     }
 
     @PostMapping("/api/runtime/logic/v1/biz/{id}/{startCode}/{bizId}")

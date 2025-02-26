@@ -109,6 +109,15 @@ public class LogicLog {
         return ChronoUnit.MILLIS.between(startTime, stopTime);
     }
 
+    /**
+     * 获取当前逻辑运行时长，直到现在
+     *
+     * @return
+     */
+    public long getDurationUntilNow() {
+        return ChronoUnit.MILLIS.between(startTime, LocalDateTime.now());
+    }
+
     //    String returnDataStr;
     public String getReturnDataStr() {
         if (returnData != null) return JSONObject.toJSONString(returnData, JSONWriter.Feature.WriteNulls);
