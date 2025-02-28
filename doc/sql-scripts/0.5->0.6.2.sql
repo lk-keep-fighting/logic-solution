@@ -12,4 +12,6 @@ ALTER TABLE `logic_instance` ADD COLUMN `stopTime` datetime(3) NULL DEFAULT NULL
 
 ALTER TABLE `logic_instance` ADD COLUMN `duration` bigint NULL DEFAULT NULL COMMENT '持续时间' AFTER `stopTime`;
 
+ALTER TABLE `logic_log` MODIFY COLUMN `serverTime` datetime(3) NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '服务器时间' AFTER `nextName`;
+
 SET FOREIGN_KEY_CHECKS=1;

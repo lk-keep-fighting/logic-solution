@@ -5,13 +5,13 @@
  Source Server Type    : MySQL
  Source Server Version : 80200 (8.2.0)
  Source Host           : localhost:3306
- Source Schema         : logic_demo_0_6
+ Source Schema         : logic_demo_0_5
 
  Target Server Type    : MySQL
  Target Server Version : 80200 (8.2.0)
  File Encoding         : 65001
 
- Date: 25/02/2025 13:36:27
+ Date: 28/02/2025 09:32:13
 */
 
 SET NAMES utf8mb4;
@@ -94,13 +94,13 @@ CREATE TABLE `logic_log` (
   `message` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '返回消息',
   `nextId` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '待执行节点编号',
   `nextName` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '待执行节点名称',
-  `serverTime` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '服务器时间',
+  `serverTime` datetime(3) DEFAULT CURRENT_TIMESTAMP(3) COMMENT '服务器时间',
   `paramsJson` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '当前请求的参数记录',
   `varsJson` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '开始执行时的局部变量',
   `varsJsonEnd` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '执行完成后的局部变量，用于下一个交互的执行',
   `returnData` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '返回数据',
   `isOver` tinyint(1) DEFAULT '0' COMMENT '是否已经执行到最后一个节点',
-  `itemLogs` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '执行过程日志',
+  `itemLogs` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '执行过程日志',
   `messageId` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '消息唯一标识',
   PRIMARY KEY (`id`,`version`) USING BTREE,
   KEY `logicId_bizId` (`logicId`,`bizId`) USING BTREE

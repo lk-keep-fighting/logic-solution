@@ -6,7 +6,6 @@ import com.aims.logic.runtime.contract.dto.LogicRunResult;
 import com.aims.logic.runtime.contract.dto.LongtimeRunningBizDto;
 import com.aims.logic.runtime.contract.dto.RunnerStatusEnum;
 import com.aims.logic.runtime.contract.enums.LogicItemTransactionScope;
-import com.aims.logic.runtime.contract.enums.LogicItemType;
 import com.aims.logic.runtime.contract.logger.LogicLog;
 import com.aims.logic.runtime.env.LogicAppConfig;
 import com.aims.logic.runtime.env.LogicEnvObject;
@@ -21,8 +20,8 @@ import com.aims.logic.runtime.util.RuntimeUtil;
 import com.aims.logic.sdk.entity.LogicInstanceEntity;
 import com.aims.logic.sdk.service.LoggerHelperService;
 import com.aims.logic.sdk.service.LogicInstanceService;
-import com.aims.logic.sdk.util.BizLockUtil;
 import com.aims.logic.sdk.util.TransactionalUtils;
+import com.aims.logic.sdk.util.lock.BizLock;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import lombok.extern.slf4j.Slf4j;
@@ -59,18 +58,21 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
     private String parentBizId = null;
 
     IdWorker idWorker = new IdWorker();
+    BizLock bizLock;
 
     @Autowired
     public LogicRunnerServiceImpl(LoggerHelperService logService,
                                   LogicInstanceService insService,
                                   LogicConfigStoreService _configStoreService,
                                   TransactionalUtils transactionalUtils,
-                                  LogicAppConfig appConfig) {
+                                  LogicAppConfig appConfig,
+                                  BizLock bizLock) {
         this.logService = logService;
         this.insService = insService;
         this.configStoreService = _configStoreService;
         this.appConfig = appConfig;
         this.transactionalUtils = transactionalUtils;
+        this.bizLock = bizLock;
         RuntimeUtil.AppConfig = appConfig;
         RuntimeUtil.logicConfigStoreService = configStoreService;
         RuntimeUtil.initEnv();
@@ -115,7 +117,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
 
     @Override
     public LogicRunnerService newInstance(JSONObject env, String parentLogicId, String parentBizId) {
-        var ins = new LogicRunnerServiceImpl(logService, insService, configStoreService, transactionalUtils, appConfig);
+        var ins = new LogicRunnerServiceImpl(logService, insService, configStoreService, transactionalUtils, appConfig, bizLock);
         ins.setEnv(env, true);
         ins.parentLogicId = parentLogicId;
         ins.parentBizId = parentBizId;
@@ -203,16 +205,20 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
     @Override
     public LogicRunResult runBizByMap(String logicId, String bizId, Map<String, Object> parsMap, String traceId, String logicLogId) {
         String lockKey = logicId + "-" + bizId;
-        try {
-            BizLockUtil.lock(lockKey);
-            log.info("[{}]bizId:{}-get lock key:{}", logicId, bizId, lockKey);
-            return runBiz(logicId, bizId, parsMap, traceId, logicLogId);
-        } catch (Exception e) {
-            log.error("[{}]bizId:{}-runBizByMap catch逻辑异常:{}", logicId, bizId, e.getMessage());
-            throw new RuntimeException(e);
-        } finally {
-            BizLockUtil.unlock(lockKey);
-            log.info("[{}]bizId:{}-unlock key:{}", logicId, bizId, lockKey);
+        if (bizLock.spinLock(lockKey)) {
+            try {
+                log.info("[{}]bizId:{}-get lock key:{}", logicId, bizId, lockKey);
+                return runBiz(logicId, bizId, parsMap, traceId, logicLogId);
+            } catch (Exception e) {
+                log.error("[{}]bizId:{}-runBizByMap catch逻辑异常:{}", logicId, bizId, e.getMessage());
+                throw new RuntimeException(e);
+            } finally {
+                bizLock.unlock(lockKey);
+                log.info("[{}]bizId:{}-unlock key:{}", logicId, bizId, lockKey);
+            }
+        } else {
+            log.info("[{}]bizId:{}-get lock key:{} fail", logicId, bizId, lockKey);
+            return new LogicRunResult().setSuccess(false).setMsg("获取锁失败");
         }
     }
 
@@ -564,7 +570,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                     break;
                 }
             }
-
+            logicLog.setSuccess(itemRes.isSuccess());
             //本次交互完成，没有错误则提交，否则本次交互全部回滚，只更新实例success状态和消息
             if (itemRes.isSuccess()) {
                 logicLog.setVarsJson_end(runner.getFnCtx().get_var())
@@ -602,21 +608,23 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
      */
     private LogicRunResult runBizInstanceWithoutTran(LogicRunner runner, LogicItemTreeNode nextItem, LogicLog logicLog) {
         LogicItemRunResult itemRes = null;
-        if (LogicItemType.start.compareType(nextItem.getType())) {//如果为开始节点，业务实例先入库，记录本次请求，避免后续失败数据丢失
-            itemRes = runner.runItem(nextItem);
-            nextItem = runner.findNextItem(nextItem);
-            logicLog.addItemLog(itemRes);
-            logicLog.setNextItem(nextItem);
-            logService.updateInstance(logicLog);
-            runner.refreshStatus(true, nextItem);
-        }
+//        if (LogicItemType.start.compareType(nextItem.getType())) {//如果为开始节点，业务实例先入库，记录本次请求，避免后续失败数据丢失
+//            itemRes = runner.runItem(nextItem);
+//            nextItem = runner.findNextItem(nextItem);
+//            logicLog.addItemLog(itemRes);
+//            logicLog.setNextItem(nextItem);
+//            logService.updateInstance(logicLog);
+//            runner.refreshStatus(true, nextItem);
+//        }
         try {
             while (runner.getRunnerStatus() == RunnerStatusEnum.Continue) {
+                logicLog.setNextItem(nextItem);
                 itemRes = runner.runItem(nextItem);
                 nextItem = runner.findNextItem(nextItem);
                 logicLog.addItemLog(itemRes);
                 if (itemRes.isSuccess()) {
                     runner.refreshStatus(true, nextItem);
+                    logicLog.setVarsJson_end(runner.getFnCtx().get_var());
                 } else {
                     runner.refreshStatus(false, nextItem);
                     logicLog.setOver(false)
@@ -627,7 +635,6 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
             logicLog.setOver(false)
                     .setSuccess(false).setMsg(e.getMessage());
         }
-        logicLog.setVarsJson_end(runner.getFnCtx().get_var());
         if (logicLog.isSuccess())
             logicLog.setOver(runner.refreshStatus(itemRes.isSuccess(), nextItem) == RunnerStatusEnum.End)
                     .setNextItem(nextItem).setMsg(itemRes.getMsg());
@@ -666,14 +673,14 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         }
         String lockKey = logicId + "-" + bizId;
         try {
-            BizLockUtil.lock(lockKey);
+            bizLock.spinLock(lockKey);
             log.info("[{}]bizId:{}-get lock key:{}", logicId, bizId, lockKey);
             return runBiz(logicId, bizId, parsJson, UUID.randomUUID().toString(), null);
         } catch (Exception e) {
             log.error("[{}]bizId:{}-runBizByMap catch逻辑异常:{}", logicId, bizId, e.getMessage());
             throw new RuntimeException(e);
         } finally {
-            BizLockUtil.unlock(lockKey);
+            bizLock.unlock(lockKey);
             log.info("[{}]bizId:{}-unlock key:{}", logicId, bizId, lockKey);
         }
     }

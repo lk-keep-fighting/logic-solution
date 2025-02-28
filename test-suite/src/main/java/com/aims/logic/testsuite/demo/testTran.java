@@ -11,7 +11,6 @@ import com.aims.logic.testsuite.demo.mapper.TestDetailMapper;
 import com.aims.logic.testsuite.demo.mapper.TestMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -24,10 +23,18 @@ public class testTran {
     @Autowired
     TestDetailMapper testDetailMapperMapper;
 
-    @Transactional(rollbackFor = Exception.class)
+//    @Transactional(rollbackFor = Exception.class)
     @LogicItem(name = "插入测试", group = "测试事务", memo = "很简单的插入id值，用于测试插入id重复时报错是否会回滚上游事务")
     public int insert(String id) {
         return testMapper.insert(new TestEntity().setId(id));
+    }
+    @LogicItem(name = "根据id读取", group = "测试事务", memo = "")
+    public TestEntity getById(String id) {
+        return testMapper.selectById(id);
+    }
+    @LogicItem(name = "根据id删除-与插入同类", group = "测试事务", memo = "")
+    public int deleteById(String id) {
+        return testMapper.deleteById(id);
     }
 
     public int insertDto(TestEntity entity) {

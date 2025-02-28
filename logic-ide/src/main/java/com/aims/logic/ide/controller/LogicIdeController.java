@@ -147,9 +147,9 @@ public class LogicIdeController {
 
     @GetMapping("/api/ide/asset/v1/java/class/{fullClassPath}/methods")
     public ApiResult<List<LogicClassMethodDto>> classMethods(@PathVariable String fullClassPath) throws Exception {
-        List<LogicClassMethodDto> methodDtos = ClassUtils.getMethodsAndSourceCode(fullClassPath).stream()
-                .map(mdto -> {
-                    var m = mdto.getMethod();
+        List<LogicClassMethodDto> methodDtos = ClassUtils.getMethods(fullClassPath).stream()
+                .map(m -> {
+//                    var m = mdto.getMethod();
                     log.info("开始解析方法:{}", m.getName());
                     var dto = new LogicClassMethodDto().setName(m.getName());
                     var paramNames = discoverer.getParameterNames(m);

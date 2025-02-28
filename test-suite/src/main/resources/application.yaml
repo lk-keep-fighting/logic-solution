@@ -21,3 +21,17 @@ logic:
     groups:
       - name: 公共组件
         shape: ExtShape1
+  biz-lock:
+    type: redis  # 可选值：memory, redis
+    spin-lock:
+      wait-time: 0
+      retry-times: 1
+    redis: # type为redis时必填
+      host: 192.168.53.205  # 地址
+      port: 6379  # 端口号
+      database: 1  # 数据库索引（默认为0）
+      expire: 30
+logging:
+  config:
+    level: debug
+
