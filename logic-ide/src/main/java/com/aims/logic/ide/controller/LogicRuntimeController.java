@@ -3,7 +3,7 @@ package com.aims.logic.ide.controller;
 import com.aims.logic.ide.controller.dto.ApiResult;
 import com.aims.logic.runtime.service.LogicRunnerService;
 import com.aims.logic.runtime.util.RuntimeUtil;
-import com.aims.logic.sdk.util.BizLockUtil;
+import com.aims.logic.sdk.util.lock.BizLock;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import org.springframework.web.bind.annotation.*;
@@ -16,9 +16,11 @@ import java.util.Map;
 @RestController
 public class LogicRuntimeController {
     private final LogicRunnerService runner;
+    BizLock bizLock;
 
-    public LogicRuntimeController(LogicRunnerService _runner) {
+    public LogicRuntimeController(LogicRunnerService _runner, BizLock _bizLock) {
         this.runner = _runner;
+        this.bizLock = _bizLock;
     }
 
 
@@ -150,6 +152,6 @@ public class LogicRuntimeController {
 
     @GetMapping("/api/runtime/lockKeys")
     public ApiResult lockKeys() {
-        return new ApiResult().setData(BizLockUtil.getLockKeys());
+        return new ApiResult().setData(this.bizLock.getLockKeys());
     }
 }

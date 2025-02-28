@@ -9,7 +9,7 @@
   </parent>
   <groupId>com.aims.logic</groupId>
   <artifactId>logic-solution</artifactId>
-  <version>2025022601-SNAPSHOT</version>
+  <version>2025022801</version>
   <packaging>pom</packaging>
   <name>logic-solution</name>
   <description>logic-solution</description>
@@ -35,11 +35,11 @@
     </snapshotRepository>
   </distributionManagement>
   <properties>
-    <logic-ide.version>0.6.1.2025022601-SNAPSHOT</logic-ide.version>
-    <logic-runtime.version>0.6.1.2025022601-SNAPSHOT</logic-runtime.version>
+    <logic-ide.version>0.6.2.2025022801</logic-ide.version>
+    <logic-runtime.version>0.6.2.2025022801</logic-runtime.version>
     <java.version>17</java.version>
-    <logic-sdk.version>0.6.1.2025022601-SNAPSHOT</logic-sdk.version>
-    <revision>2025022601-SNAPSHOT</revision>
+    <logic-sdk.version>0.6.2.2025022801</logic-sdk.version>
+    <revision>2025022801</revision>
   </properties>
   <dependencies>
     <dependency>
