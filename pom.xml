@@ -18,9 +18,9 @@
         <java.version>17</java.version>
         <revision>25030404</revision>
         <!--        <revision>20250218-SNAPSHOT</revision>-->
-        <logic-runtime.version>0.6.2.${revision}</logic-runtime.version>
-        <logic-sdk.version>0.6.2.${revision}</logic-sdk.version>
-        <logic-ide.version>0.6.2.${revision}</logic-ide.version>
+        <logic-runtime.version>0.6.3.${revision}</logic-runtime.version>
+        <logic-sdk.version>0.6.3.${revision}</logic-sdk.version>
+        <logic-ide.version>0.6.3.${revision}</logic-ide.version>
     </properties>
     <modules>
         <module>logic-runtime</module>
