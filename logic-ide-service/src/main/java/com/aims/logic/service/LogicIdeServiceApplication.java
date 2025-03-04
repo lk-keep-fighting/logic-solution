@@ -1,6 +1,5 @@
 package com.aims.logic.service;
 
-import com.aims.logic.runtime.util.SpringContextUtil;
 import com.aims.logic.service.classLoader.DynamicBeanRegistrar;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.SpringBootConfiguration;
@@ -18,12 +17,13 @@ public class LogicIdeServiceApplication {
     private static final String DYNAMIC_LIBS_PATH = "/Users/lk/Documents/Dev/aims/xuanwu-logic/logic-solution/logic-ide-service/dynamic-libs"; // 自定义文件夹路径
 
     public static void main(String[] args) throws Exception {
-        var context = SpringApplication.run(LogicIdeServiceApplication.class);
+//        var context = SpringApplication.run(LogicIdeServiceApplication.class);
+        solution1();
 //        DynamicComponentLoader dynamicComponentLoader = new DynamicComponentLoader(context);
 //        dynamicComponentLoader.loadJar(DYNAMIC_LIBS_PATH + "/test-case-0.0.1-SNAPSHOT.jar");
     }
 
-    private void solution1() throws IOException {
+    private static void solution1() throws IOException {
         // 1. 扫描 dynamic-libs 文件夹中的 JAR 包
         File libFolder = new File(DYNAMIC_LIBS_PATH);
         if (!libFolder.exists() || !libFolder.isDirectory()) {
@@ -60,7 +60,7 @@ public class LogicIdeServiceApplication {
                             String className = entry.getName().replace('/', '.').replace(".class", "");
                             try {
                                 Class<?> clazz = finalClassLoader.loadClass(className);
-                                DynamicBeanRegistrar.registerBean(SpringContextUtil.getApplicationContext(), clazz);
+                                DynamicBeanRegistrar.registerBean(context, clazz);
                                 System.out.println("加载类: " + clazz.getName());
                                 // 在这里可以将类注册到 Spring 容器
                             } catch (ClassNotFoundException e) {

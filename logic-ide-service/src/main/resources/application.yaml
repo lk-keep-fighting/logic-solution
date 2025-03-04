@@ -27,7 +27,7 @@ spring:
 logic:
   config-dir: /Users/lk/Documents/Dev/aims/xuanwu-logic/logic-solution/logic-configs
   biz-error-classes: com.aims.logic.sdk.exception.BizException
-  scan-package-names: com.aims.logic.test.testcase.demo
+  scan-package-names: com.aims.plugin.demo
   remote-runtimes:
     - name: wms
       title: wms开发环境【51.38】

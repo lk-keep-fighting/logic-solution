@@ -22,7 +22,7 @@ logic:
       - name: 公共组件
         shape: ExtShape1
   biz-lock:
-    type: redis  # 可选值：memory, redis
+    type: memory  # 可选值：memory, redis
     spin-lock:
       wait-time: 0
       retry-times: 1
