@@ -5,11 +5,11 @@
   <parent>
     <groupId>com.aims.logic</groupId>
     <artifactId>logic-solution</artifactId>
-    <version>25030403</version>
+    <version>25030501</version>
   </parent>
   <groupId>com.aims.logic</groupId>
   <artifactId>logic-ide</artifactId>
-  <version>0.6.2.25030403</version>
+  <version>0.6.3.25030501</version>
   <name>logic-ide</name>
   <description>logic-ide</description>
   <licenses>
