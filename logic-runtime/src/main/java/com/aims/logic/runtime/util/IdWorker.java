@@ -1,4 +1,4 @@
-package com.aims.logic.sdk.util;
+package com.aims.logic.runtime.util;
 
 
 import java.lang.management.ManagementFactory;

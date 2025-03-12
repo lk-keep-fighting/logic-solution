@@ -16,14 +16,11 @@
     <packaging>pom</packaging>
     <properties>
         <java.version>17</java.version>
-        <revision>0.0.3-SNAPSHOT</revision>
-        <logic-runtime.version>0.1.11-SNAPSHOT</logic-runtime.version>
-        <logic-sdk.version>0.4.6-SNAPSHOT</logic-sdk.version>
-        <logic-ide.version>0.4.9-SNAPSHOT</logic-ide.version>
-<!--        <revision>0.0.3</revision>-->
-<!--        <logic-runtime.version>0.1.9</logic-runtime.version>-->
-<!--        <logic-sdk.version>0.4.3</logic-sdk.version>-->
-<!--        <logic-ide.version>0.4.2</logic-ide.version>-->
+        <revision>25031101</revision>
+        <!--        <revision>20250218-SNAPSHOT</revision>-->
+        <logic-runtime.version>0.6.4.${revision}</logic-runtime.version>
+        <logic-sdk.version>0.6.4.${revision}</logic-sdk.version>
+        <logic-ide.version>0.6.4.${revision}</logic-ide.version>
     </properties>
     <modules>
         <module>logic-runtime</module>

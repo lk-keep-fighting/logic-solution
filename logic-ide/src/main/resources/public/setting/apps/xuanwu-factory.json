@@ -29,6 +29,10 @@
             ]
         },
         {
+            "key": "component-manager",
+            "label": "组件管理"
+        },
+        {
             "key": "logic-manager",
             "label": "系统管理"
         }

@@ -1,0 +1,29 @@
+package com.aims.logic.sdk.util.lock;
+
+import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
+
+@Data
+@Component
+@ConfigurationProperties(prefix = "logic.biz-lock")
+public class BizLockProperties {
+    private String type = "memory"; // 默认使用内存锁
+    private SpinLock spinLock = new SpinLock();
+    private Redis redis = new Redis();
+
+    @Data
+    public static class Redis {
+        private String host = "localhost";
+        private int port = 6379;
+        private String password;
+        private int database = 0;
+        private int expire = 100;
+    }
+
+    @Data
+    public static class SpinLock {
+        private int retryTimes = 0;
+        private long waitTime = 0L;
+    }
+}

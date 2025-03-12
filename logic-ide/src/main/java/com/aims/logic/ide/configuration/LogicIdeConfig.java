@@ -1,6 +1,6 @@
 package com.aims.logic.ide.configuration;
 
-import com.aims.logic.runtime.contract.dto.LogicItemGroupDto;
+import com.aims.logic.ide.controller.dto.LogicItemGroupDto;
 import lombok.Getter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;

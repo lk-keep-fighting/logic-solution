@@ -8,10 +8,14 @@ import org.springframework.stereotype.Service;
 public class LogicLogServiceImpl extends BaseServiceImpl<LogicLogEntity, String> implements LogicLogService {
 
     public LogicLogServiceImpl() {
-//        this.entityClass = new LogicLogEntity().getClass();
     }
-
+    @Override
     public void clearLog() {
         jdbcTemplate.update("truncate logic_log");
+    }
+
+    @Override
+    public void deleteLogBeforeDays(int days) {
+        jdbcTemplate.update("delete from logic_log where serverTime < now() - interval ? day", days);
     }
 }

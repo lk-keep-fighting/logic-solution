@@ -3,15 +3,15 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    #    url: jdbc:mysql://192.168.154.11:30020/logic_datadig?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true
-    #    username: root
-    #    password: bitnami.aims.com
-    url: jdbc:mysql://192.168.52.168:3306/lapp_iot?useUnicode=true&characterEncoding=gbk&autoReconnect=true&failOverReadOnly=false
+      #    url: jdbc:mysql://192.168.154.11:30020/logic_datadig?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true
+      #    username: root
+      #    password: bitnami.aims.com
+      #    url: jdbc:mysql://192.168.52.168:3306/lapp_iot?useUnicode=true&characterEncoding=gbk&autoReconnect=true&failOverReadOnly=false
+      #    username: root
+      #    password: 1234@qwer
+    url: jdbc:mysql://localhost:3306/logic_demo?useUnicode=true&characterEncoding=gbk&autoReconnect=true&failOverReadOnly=false
     username: root
-    password: 1234@qwer
-  #    url: jdbc:mysql://localhost:3306/logic_demo?useUnicode=true&characterEncoding=gbk&autoReconnect=true&failOverReadOnly=false
-  #    username: root
-  #    password: 12#$qwER
+    password: 12#$qwER
   #    url: jdbc:mysql://192.168.51.15:21900/dev_hs_wms?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true
   #    username: dba
   #    password: 1234*Qwer@xYz
@@ -27,7 +27,7 @@ spring:
 logic:
   config-dir: /Users/lk/Documents/Dev/aims/xuanwu-logic/logic-solution/logic-configs
   biz-error-classes: com.aims.logic.sdk.exception.BizException
-  scan-package-names: com.aims.logic.service.demo
+  scan-package-names: com.aims.plugin.demo
   remote-runtimes:
     - name: wms
       title: wms开发环境【51.38】

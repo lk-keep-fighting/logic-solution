@@ -7,6 +7,7 @@ import com.aims.logic.runtime.contract.dto.LogicRunResult;
 import com.aims.logic.runtime.contract.dto.RunnerStatusEnum;
 import com.aims.logic.runtime.contract.logger.LogicLog;
 import com.aims.logic.runtime.contract.parser.TypeAnnotationParser;
+import com.aims.logic.runtime.util.IdWorker;
 import com.aims.logic.runtime.util.JsonUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
@@ -227,7 +228,10 @@ public class LogicRunner {
         return res;
     }
 
+    IdWorker idWorker = new IdWorker(1, 1);
+
     public LogicItemRunResult runItem(LogicItemTreeNode item) {
+        item.setObjectId(String.valueOf(idWorker.nextId()));
         var itemRes = new LogicItemRunner(item).run(fnCtx);
         fnCtx.set_last(itemRes);
         fnCtx.set_lastRet(itemRes.getData());
@@ -238,13 +242,18 @@ public class LogicRunner {
         return itemRes;
     }
 
+    // 定义常量
+    private static final String TYPE_WAIT_FOR_CONTINUE = "wait-for-continue";
+    private static final String TYPE_START = "start";
+
     public RunnerStatusEnum refreshStatus(Boolean isCurItemSuccess, LogicItemTreeNode nextItem) {
         fnCtx.setNextItem(nextItem);
         if (!isCurItemSuccess) {
             this.setRunnerStatus(RunnerStatusEnum.Error);
         } else {
             if (nextItem != null && !nextItem.getId().isBlank()) {
-                if (Objects.equals(nextItem.getType(), "wait-for-continue")) {//发现下一个交互节点，本次执行结束
+                String type = nextItem.getType();
+                if (TYPE_WAIT_FOR_CONTINUE.equals(type) || TYPE_START.equals(type)) {
                     this.setRunnerStatus(RunnerStatusEnum.WaitForContinue);
                 } else {
                     this.setRunnerStatus(RunnerStatusEnum.Continue);
