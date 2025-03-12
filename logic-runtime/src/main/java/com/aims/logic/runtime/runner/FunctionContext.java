@@ -21,12 +21,29 @@ public class FunctionContext {
     private LogicTreeNode logic;
     private String traceId = null;
     private String logicId = null;
+//    private String logicLogId = null;
     private String bizId = null;
+//    /**
+//     * 是否为重试执行
+//     */
+//    private Boolean isRetry = false;
     private LogicItemTreeNode nextItem;
     private String curTranGroupId;
     private String nextTranGroupId;
     private String lastTranGroupId;
 
+
+    public String getSubLogicRandomBizId() {
+        if (_var.get("__subLogicRandomBizId") == null)
+            return buildSubLogicRandomBizId();
+        return _var.get("__subLogicRandomBizId").toString();
+    }
+
+    public String buildSubLogicRandomBizId() {
+        var subLogicRandomBizId = logicId + "_" + System.currentTimeMillis();
+        _var.put("__subLogicRandomBizId", subLogicRandomBizId);
+        return subLogicRandomBizId;
+    }
 
     public FunctionContext() {
 

@@ -5,11 +5,11 @@
   <parent>
     <groupId>com.aims.logic</groupId>
     <artifactId>logic-solution</artifactId>
-    <version>0.0.3-SNAPSHOT</version>
+    <version>25031101</version>
   </parent>
   <groupId>com.aims.logic</groupId>
   <artifactId>logic-sdk</artifactId>
-  <version>0.4.6-SNAPSHOT</version>
+  <version>0.6.4.25031101</version>
   <name>logic-sdk</name>
   <description>logic-sdk</description>
   <licenses>
@@ -58,6 +58,12 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-jdbc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.redisson</groupId>
+      <artifactId>redisson</artifactId>
+      <version>3.15.2</version>
+      <scope>compile</scope>
     </dependency>
   </dependencies>
   <repositories>

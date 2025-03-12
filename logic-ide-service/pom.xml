@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.aims.logic</groupId>
         <artifactId>logic-solution</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
     <artifactId>logic-ide-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
@@ -39,7 +39,7 @@
         <dependency>
             <groupId>com.aims.logic</groupId>
             <artifactId>logic-ide</artifactId>
-            <version>0.4.4-SNAPSHOT</version>
+            <version>${logic-ide.version}</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>

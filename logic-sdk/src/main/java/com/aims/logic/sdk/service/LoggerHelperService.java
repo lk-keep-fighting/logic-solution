@@ -13,13 +13,20 @@ public interface LoggerHelperService {
      */
     void addOrUpdateInstanceAndAddLogicLog(LogicLog logicLog);
 
-    void updateInstanceStatus(String instanceId, boolean success, String msg);
+    void startBizRunning(LogicLog logicLog);
+
+    void stopBizRunning(LogicLog logicLog);
+
     /**
      * 新增或更新运行实例日志
      *
      * @param logicLog
      */
     void addOrUpdateInstance(LogicLog logicLog);
+
+    String addInstance(LogicLog logicLog);
+
+    void updateInstance(LogicLog logicLog);
 
     /**
      * 新增执行日志logic_log日志
@@ -28,7 +35,7 @@ public interface LoggerHelperService {
      */
     void addLogicLog(LogicLog logicLog);
 
-//    List<LogicLogEntity> queryLogs(String logicId);
+    //    List<LogicLogEntity> queryLogs(String logicId);
 //
 //    List<LogicLogEntity> queryBizLogs(String logicId, String bizId) ;
     void clearLog();

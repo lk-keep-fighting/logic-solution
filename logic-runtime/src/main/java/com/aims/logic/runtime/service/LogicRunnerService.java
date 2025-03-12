@@ -1,10 +1,12 @@
 package com.aims.logic.runtime.service;
 
 import com.aims.logic.runtime.contract.dto.LogicRunResult;
+import com.aims.logic.runtime.contract.dto.LongtimeRunningBizDto;
 import com.aims.logic.runtime.env.LogicEnvObject;
 import com.alibaba.fastjson2.JSONObject;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 public interface LogicRunnerService {
     /**
@@ -40,6 +42,17 @@ public interface LogicRunnerService {
     LogicRunnerService newInstance(JSONObject env);
 
     /**
+     * 传入自定义环境变量创建逻辑运行器，并指定父逻辑编号
+     *
+     * @param env           自定义环境变量
+     * @param parentLogicId 父逻辑编号
+     * @param parentBizId   父业务标识
+     * @return 返回逻辑运行器
+     */
+
+    LogicRunnerService newInstance(JSONObject env, String parentLogicId, String parentBizId);
+
+    /**
      * 无状态-入参为json字符串
      *
      * @param logicId        逻辑编号
@@ -69,7 +82,7 @@ public interface LogicRunnerService {
      */
     LogicRunResult runByMap(String logicId, Map<String, Object> parsMap);
 
-    LogicRunResult runByMap(String logicId, Map<String, Object> parsMap, String traceId);
+    public LogicRunResult runByMap(String logicId, Map<String, Object> parsMap, String traceId, String objectId);
 
     /**
      * 有状态-入参为json字符串
@@ -104,7 +117,7 @@ public interface LogicRunnerService {
      */
     LogicRunResult runBizByMap(String logicId, String bizId, Map<String, Object> parsMap);
 
-    LogicRunResult runBizByMap(String logicId, String bizId, Map<String, Object> parsMap, String traceId);
+    public LogicRunResult runBizByMap(String logicId, String bizId, Map<String, Object> parsMap, String traceId, String logicLogId);
 
     /**
      * 重试存在异常的业务，通过实例缓存读取入参、临时变量和环境变量
@@ -114,6 +127,21 @@ public interface LogicRunnerService {
      * @return
      */
     LogicRunResult retryErrorBiz(String logicId, String bizId);
+
+    /**
+     * 重试超时运行的业务
+     * @param timeout 超时时间，单位秒
+     * @return
+     */
+
+    List<LogicRunResult> retryLongtimeRunningBiz(int timeout);
+
+    /**
+     * 查询超时运行的业务
+     * @param timeout 超时时间，单位秒
+     * @return
+     */
+    List<LongtimeRunningBizDto> queryLongtimeRunningBiz(int timeout);
 
     /**
      * 重置实例待执行节点与待执行局部变量
