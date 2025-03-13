@@ -2,26 +2,25 @@ package com.aims.logic.runtime.util;
 
 import com.aims.logic.runtime.contract.enums.KeepBizVersionEnum;
 import com.aims.logic.runtime.env.LogicAppConfig;
-import com.aims.logic.runtime.env.LogicEnvObject;
+import com.aims.logic.runtime.env.LogicSysEnvDto;
 import com.aims.logic.runtime.store.LogicConfigStoreService;
 import com.alibaba.fastjson2.JSONObject;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.http.HttpServletRequest;
+import java.net.InetAddress;
 
 public class RuntimeUtil {
     public static LogicConfigStoreService logicConfigStoreService;// = new LogicConfigStoreServiceImpl();
     private static JSONObject ENVs;
-    private static LogicEnvObject ENVObject = null;
+    private static LogicSysEnvDto ENVObject = null;
     public static LogicAppConfig AppConfig;
+
 
     /**
      * 获取强类型的环境变量，主要用于系统变量的方便读取
      *
      * @return 返回强类型环境变量
      */
-    public static LogicEnvObject getEnvObject() {
+    public static LogicSysEnvDto getEnvObject() {
         return ENVObject;
     }
 
@@ -33,14 +32,15 @@ public class RuntimeUtil {
     public static void setEnv(JSONObject env) {
         ENVs = env;
         if (ENVs != null)
-            ENVObject = ENVs.toJavaObject(LogicEnvObject.class);
+            ENVObject = ENVs.toJavaObject(LogicSysEnvDto.class);
 
     }
 
-    public static LogicEnvObject toEnvObject(JSONObject env) {
+    public static LogicSysEnvDto toEnvObject(JSONObject env) {
         if (env != null)
-            return env.toJavaObject(LogicEnvObject.class);
-        else return null;
+            return env.toJavaObject(LogicSysEnvDto.class);
+        else
+            return null;
     }
 
     /**
@@ -61,21 +61,31 @@ public class RuntimeUtil {
      * @return http://ip:port
      */
     public static String getUrl() {
-        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (requestAttributes == null) throw new RuntimeException("获取当前程序Url失败");
-        HttpServletRequest request = requestAttributes.getRequest();
-        String url = String.format("http://%s:%s", request.getServerName(), request.getServerPort());
-        System.out.println("读取本机Host:" + url);
-        return url;
+        try {
+            var host = InetAddress.getLocalHost();
+            if (host == null) {
+                throw new RuntimeException("获取当前程序Url失败");
+            }
+
+            String address = host.getHostAddress();
+            String url = String.format("http://%s:%s", address, AppConfig.SERVER_PORT);
+
+            System.out.println("读取本机Host:" + url);
+            return url;
+        } catch (Exception e) {
+            throw new RuntimeException("获取当前程序Url失败: " + e.getMessage());
+        }
     }
 
-    public static HttpServletRequest getRequest() {
-        if (RequestContextHolder.getRequestAttributes() == null)
-            return null;
-        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (requestAttributes == null) throw new RuntimeException("获取当前程序Request对象失败");
-        return requestAttributes.getRequest();
-    }
+//    public static String getHeader(String headerName) {
+//        if (RequestContextHolder.getRequestAttributes() == null)
+//            return null;
+//        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder
+//                .getRequestAttributes();
+//        if (requestAttributes == null)
+//            throw new RuntimeException("获取当前程序Request对象失败");
+//        return requestAttributes.getRequest().getHeader(headerName);
+//    }
 
     /**
      * 根据逻辑编号读取逻辑配置
@@ -97,9 +107,9 @@ public class RuntimeUtil {
     public static JSONObject readLogicConfig(String logicId, String version) {
         if (RuntimeUtil.getEnvObject().getKEEP_BIZ_VERSION() == KeepBizVersionEnum.off)
             return logicConfigStoreService.readLogicConfig(logicId, null);
-        else return logicConfigStoreService.readLogicConfig(logicId, version);
+        else
+            return logicConfigStoreService.readLogicConfig(logicId, version);
     }
-
 
     /**
      * 保存配置到本地
@@ -120,7 +130,8 @@ public class RuntimeUtil {
         JSONObject envIdx = FileUtil.readOrCreateFile(FileUtil.ENV_DIR, "index.json", "{\"env\":\"dev\"}");
         String _env = envIdx.get("env").toString();
         String envFileName = String.format("env.%s.json", _env);
-        String defEnvFile = "{\"NODE_ENV\":\"" + _env + "\",\"LOGIC_CONFIG_MODEL\":\"online\",\"KEEP_BIZ_VERSION\":\"off\",\"IDE_HOST\":\"\",\"JWT\":{},\"LOG\":\"on\",\"DEFAULT_TRAN_SCOPE\":\"off\"}";
+        String defEnvFile = "{\"NODE_ENV\":\"" + _env
+                + "\",\"LOGIC_CONFIG_MODEL\":\"online\",\"KEEP_BIZ_VERSION\":\"off\",\"IDE_HOST\":\"\",\"JWT\":{},\"LOG\":\"on\",\"DEFAULT_TRAN_SCOPE\":\"off\"}";
         return FileUtil.readOrCreateFile(FileUtil.ENV_DIR, envFileName, defEnvFile);
     }
 
