@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
-
 @RestController
 public class PublishController {
     @Autowired
@@ -29,9 +27,10 @@ public class PublishController {
     }
 
     @PostMapping("/api/ide/publish/logic/to-local-from-entity-json")
-    public ApiResult<String> publishConfigToLocalFromEntityJson(@RequestBody JSONObject configJson, HttpServletRequest request) {
+    public ApiResult<String> publishConfigToLocalFromEntityJson(@RequestBody JSONObject configJson) {
         try {
-            String path = logicService.pubToLocalFromEntityJson(configJson, request.getRemoteAddr());
+//            String path = logicService.pubToLocalFromEntityJson(configJson, request.getRemoteAddr());
+            String path = logicService.pubToLocalFromEntityJson(configJson, "");
             return new ApiResult<String>().setData(path);
         } catch (Exception e) {
             return new ApiResult<String>().setCode(500).setMsg(e.getMessage());
