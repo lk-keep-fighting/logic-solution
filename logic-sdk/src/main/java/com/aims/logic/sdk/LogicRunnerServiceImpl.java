@@ -8,7 +8,7 @@ import com.aims.logic.runtime.contract.dto.RunnerStatusEnum;
 import com.aims.logic.runtime.contract.enums.LogicItemTransactionScope;
 import com.aims.logic.runtime.contract.logger.LogicLog;
 import com.aims.logic.runtime.env.LogicAppConfig;
-import com.aims.logic.runtime.env.LogicEnvObject;
+import com.aims.logic.runtime.env.LogicSysEnvDto;
 import com.aims.logic.runtime.runner.FunctionContext;
 import com.aims.logic.runtime.runner.Functions;
 import com.aims.logic.runtime.runner.LogicRunner;
@@ -46,7 +46,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
     /**
      * 私有环境变量，若为null则使用全局环境变量
      */
-    private LogicEnvObject envObject = null;
+//    private LogicSysEnvDto envObject = null;
     private JSONObject envJson = null;
     /**
      * 父逻辑编号
@@ -88,11 +88,13 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
      */
     @Override
     public JSONObject setEnv(JSONObject customEnv, boolean isOverride) {
-        this.envJson = JsonUtil.jsonMerge(customEnv, RuntimeUtil.getEnvJson());
-        this.envObject = RuntimeUtil.toEnvObject(envJson);
-        if (isOverride) {
-            RuntimeUtil.setEnv(this.envJson.clone());
-        }
+        if (isOverride) this.envJson = customEnv;
+        else
+            this.envJson = JsonUtil.jsonMerge(RuntimeUtil.getEnvJson(), customEnv);
+//        this.envObject = RuntimeUtil.toEnvObject(envJson);
+//        if (isOverride) {
+//            RuntimeUtil.setEnv(this.envJson.clone());
+//        }
         return this.envJson;
     }
 
@@ -104,11 +106,16 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
     }
 
     @Override
-    public LogicEnvObject getEnv() {
-        if (this.envObject == null)
-            return RuntimeUtil.getEnvObject();
-        return this.envObject;
+    public LogicSysEnvDto getEnv() {
+        return RuntimeUtil.toEnvObject(this.envJson);
     }
+
+//    @Override
+//    public LogicSysEnvDto getEnv() {
+//        if (this.envObject == null)
+//            return RuntimeUtil.getEnvObject();
+//        return this.envObject;
+//    }
 
     @Override
     public LogicRunnerService newInstance(JSONObject env) {
@@ -149,13 +156,13 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
     @Override
     public LogicRunResult runByMap(String logicId, Map<String, Object> parsMap) {
         String traceId = String.valueOf(idWorker.nextId());
-        return runByMap(logicId, parsMap, traceId, traceId);
+        return runByMap(logicId, parsMap, traceId, traceId, null);
     }
 
     @Override
-    public LogicRunResult runByMap(String logicId, Map<String, Object> parsMap, String traceId, String objectId) {
+    public LogicRunResult runByMap(String logicId, Map<String, Object> parsMap, String traceId, String objectId, JSONObject globalVars) {
         JSONObject config = RuntimeUtil.readLogicConfig(logicId);
-        var runner = new com.aims.logic.runtime.runner.LogicRunner(config, getEnvJson());
+        var runner = new com.aims.logic.runtime.runner.LogicRunner(config, getEnvJson(), globalVars);
         runner.getFnCtx().setTraceId(traceId == null ? UUID.randomUUID().toString() : traceId);
         var res = runner.run(parsMap);
         res.getLogicLog().setId(objectId);
@@ -191,7 +198,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
     public LogicRunResult runBizByMap(String logicId, String bizId, Map<String, Object> parsMap) {
         String traceId = String.valueOf(idWorker.nextId());
 //        String traceId = bizId + "-" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"));
-        return runBizByMap(logicId, bizId, parsMap, traceId, traceId);
+        return runBizByMap(logicId, bizId, parsMap, traceId, traceId, null);
     }
 
     /**
@@ -203,12 +210,12 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
      * @return 执行结果
      */
     @Override
-    public LogicRunResult runBizByMap(String logicId, String bizId, Map<String, Object> parsMap, String traceId, String logicLogId) {
+    public LogicRunResult runBizByMap(String logicId, String bizId, Map<String, Object> parsMap, String traceId, String logicLogId, JSONObject globalVars) {
         String lockKey = logicId + "-" + bizId;
         if (bizLock.spinLock(lockKey)) {
             try {
                 log.info("[{}]bizId:{}-get lock key:{}", logicId, bizId, lockKey);
-                return runBiz(logicId, bizId, parsMap, traceId, logicLogId);
+                return runBiz(logicId, bizId, parsMap, traceId, logicLogId, globalVars);
             } catch (Exception e) {
                 log.error("[{}]bizId:{}-runBizByMap catch逻辑异常:{}", logicId, bizId, e.getMessage());
                 throw new RuntimeException(e);
@@ -268,7 +275,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         if (config == null) {
             throw new RuntimeException("未发现指定的逻辑：" + logicId);
         }
-        var runner = new com.aims.logic.runtime.runner.LogicRunner(config, getEnvJson(), bizId);
+        var runner = new com.aims.logic.runtime.runner.LogicRunner(config, getEnvJson(), parsMap, new JSONObject(), new JSONObject(), startId, bizId);
         verifyCode(insEntity, runner, verifyCode);
         var res = runner
                 .run(startId, parsMap, JSON.isValid(cacheVarsJson) ? JSON.parseObject(cacheVarsJson) : null);
@@ -300,7 +307,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
      * @param logicLogId
      * @return
      */
-    LogicRunResult runBiz(String logicId, String bizId, Map<String, Object> parsMap, String traceId, String logicLogId) {
+    LogicRunResult runBiz(String logicId, String bizId, Map<String, Object> parsMap, String traceId, String logicLogId, JSONObject globalVars) {
         JSONObject cacheVarsJson = null;
         String startId = null;
         String logicVersion = null;
@@ -326,7 +333,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
             log.error("未发现指定的逻辑logicId:{},bizId:{}未执行", logicId, bizId);
             return new LogicRunResult().setSuccess(false).setMsg("未发现指定的逻辑：" + logicId);
         }
-        var runner = new com.aims.logic.runtime.runner.LogicRunner(config, getEnvJson(), parsMap, cacheVarsJson, startId, bizId);
+        var runner = new com.aims.logic.runtime.runner.LogicRunner(config, getEnvJson(), parsMap, cacheVarsJson, globalVars, startId, bizId);
         LogicItemTreeNode nextItem = runner.getStartNode();
         runner.getFnCtx().setTraceId(traceId == null ? UUID.randomUUID().toString() : traceId);
 //        runner.getFnCtx().setIsRetry(isRetry);
@@ -675,7 +682,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         try {
             bizLock.spinLock(lockKey);
             log.info("[{}]bizId:{}-get lock key:{}", logicId, bizId, lockKey);
-            return runBiz(logicId, bizId, parsJson, UUID.randomUUID().toString(), null);
+            return runBiz(logicId, bizId, parsJson, UUID.randomUUID().toString(), null, null);
         } catch (Exception e) {
             log.error("[{}]bizId:{}-runBizByMap catch逻辑异常:{}", logicId, bizId, e.getMessage());
             throw new RuntimeException(e);

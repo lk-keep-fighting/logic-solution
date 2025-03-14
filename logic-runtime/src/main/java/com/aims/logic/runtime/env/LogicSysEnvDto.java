@@ -11,18 +11,11 @@ import java.util.List;
 
 @Getter
 @Setter
-public class LogicEnvObject {
+public class LogicSysEnvDto {
     /**
      * 当前环境标识
      */
     private String NODE_ENV;
-
-//    /**
-//     * 获取当前环境标识的枚举类型
-//     */
-//    public EnvEnum getNodeEnvEnum() {
-//        return EnvEnum.valueOf(NODE_ENV);
-//    }
 
     /**
      * 逻辑配置模式

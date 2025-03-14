@@ -16,34 +16,43 @@ public class FunctionContext {
     private Map<String, Object> _par = new HashMap<>();
     private JSONObject _var = new JSONObject();
     private JSONObject _env = new JSONObject();
+    private JSONObject _global;
     private Object _lastRet;
     private LogicItemRunResult _last;
     private LogicTreeNode logic;
     private String traceId = null;
     private String logicId = null;
-//    private String logicLogId = null;
     private String bizId = null;
-//    /**
-//     * 是否为重试执行
-//     */
-//    private Boolean isRetry = false;
     private LogicItemTreeNode nextItem;
     private String curTranGroupId;
     private String nextTranGroupId;
     private String lastTranGroupId;
 
 
-    public String getSubLogicRandomBizId() {
-        if (_var.get("__subLogicRandomBizId") == null)
-            return buildSubLogicRandomBizId();
-        return _var.get("__subLogicRandomBizId").toString();
+    public JSONObject get_global() {
+        if (_var.getJSONObject("__global") == null) {
+            _var.put("__global", new JSONObject());
+        }
+        return _var.getJSONObject("__global");
     }
 
-    public String buildSubLogicRandomBizId() {
-        var subLogicRandomBizId = logicId + "_" + System.currentTimeMillis();
-        _var.put("__subLogicRandomBizId", subLogicRandomBizId);
-        return subLogicRandomBizId;
+    public void set_global(JSONObject global) {
+        if (_var.getJSONObject("__global") == null)
+            _var.put("__global", new JSONObject());
+        _var.getJSONObject("__global").putAll(global);
     }
+
+//    public String getSubLogicRandomBizId() {
+//        if (_var.get("__subLogicRandomBizId") == null)
+//            return buildSubLogicRandomBizId();
+//        return _var.get("__subLogicRandomBizId").toString();
+//    }
+
+//    public String buildSubLogicRandomBizId() {
+//        var subLogicRandomBizId = logicId + "_" + System.currentTimeMillis();
+//        _var.put("__subLogicRandomBizId", subLogicRandomBizId);
+//        return subLogicRandomBizId;
+//    }
 
     public FunctionContext() {
 

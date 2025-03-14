@@ -58,31 +58,32 @@ public class SubLogicFunction implements ILogicItemFunctionRunner {
             var newRunnerService = runnerService.newInstance(ctx.get_env(), ctx.getLogicId(), ctx.getBizId());
 
             var itemRunResult = new LogicItemRunResult().setItemInstance(itemDsl);
+            JSONObject globalEnd;
             if (StringUtils.isNotBlank(ctx.getBizId())) {//父流程为实例模式，子逻辑必须为实例模式，判断是否需要公用bizId
                 if (bizId == null || "null".equals(bizId)) {//不共用bizId
                     bizId = itemDsl.getObjectId().toString();//ctx.getSubLogicRandomBizId();//从上下文生成一个，并缓存在上下文中，防止出现异常时重试
                     itemDsl.setBizId(bizId);//记录运行时配置
-//                    if (ctx.getIsRetry()) {
-//                        var res = newRunnerService.retryErrorBiz(subLogicId, bizId);
-//                        itemRunResult.setSuccess(res.isSuccess()).setMsg(res.getMsg()).setData(res.getData());
-//                    } else {
-                    var res = newRunnerService.runBizByMap(subLogicId, bizId, jsonData, ctx.getTraceId(), itemDsl.getObjectId());
+                    var res = newRunnerService.runBizByMap(subLogicId, bizId, jsonData, ctx.getTraceId(), itemDsl.getObjectId(), ctx.get_global());
                     itemRunResult.setSuccess(res.isSuccess()).setMsg(res.getMsg()).setData(res.getData());
-//                    }
+                    globalEnd = res.getLogicLog().getGlobalVars();
                 } else {
-                    var res = newRunnerService.runBizByMap(subLogicId, bizId, jsonData, ctx.getTraceId(), itemDsl.getObjectId());
+                    var res = newRunnerService.runBizByMap(subLogicId, bizId, jsonData, ctx.getTraceId(), itemDsl.getObjectId(), ctx.get_global());
                     itemRunResult.setSuccess(res.isSuccess()).setMsg(res.getMsg()).setData(res.getData());
+                    globalEnd = res.getLogicLog().getGlobalVars();
                 }
             } else {
                 if (bizId == null || "null".equals(bizId)) {
-                    var res = newRunnerService.runByMap(subLogicId, jsonData, ctx.getTraceId(), itemDsl.getObjectId());
+                    var res = newRunnerService.runByMap(subLogicId, jsonData, ctx.getTraceId(), itemDsl.getObjectId(), ctx.get_global());
                     itemRunResult.setSuccess(res.isSuccess()).setMsg(res.getMsg()).setData(res.getData());
+                    globalEnd = res.getLogicLog().getGlobalVars();
                 } else {
-                    var res = newRunnerService.runBizByMap(subLogicId, bizId, jsonData, ctx.getTraceId(), itemDsl.getObjectId());
+                    var res = newRunnerService.runBizByMap(subLogicId, bizId, jsonData, ctx.getTraceId(), itemDsl.getObjectId(), ctx.get_global());
                     itemRunResult.setSuccess(res.isSuccess()).setMsg(res.getMsg()).setData(res.getData());
+                    globalEnd = res.getLogicLog().getGlobalVars();
                 }
             }
-            ctx.buildSubLogicRandomBizId();//运行完成后生成下一个随机bizId，不同的逻辑不能公用bizId
+//            ctx.buildSubLogicRandomBizId();//运行完成后生成下一个随机bizId，不同的逻辑不能公用bizId
+            ctx.set_global(globalEnd);
             return itemRunResult;
 
         } catch (Exception e) {
