@@ -50,6 +50,6 @@ public class LogicSdkApplicationTests {
 
     //    @Test
     void testTran() {
-        runner.runBizByMap("java.demo", "t11", null, UUID.randomUUID().toString(), null);
+        runner.runBizByMap("java.demo", "t11", null, UUID.randomUUID().toString(), null, null);
     }
 }

@@ -13,4 +13,7 @@ public class LogicAppConfig {
     @Value("${logic.biz-error-classes:LogicBizException}")
     public List<String> BIZ_ERROR_CLASSES;
 
+    @Value("${server.port}")
+    public String SERVER_PORT;
+
 }

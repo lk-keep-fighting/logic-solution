@@ -34,7 +34,7 @@ public class LogicItemController {
             items.add(startItem);
             items.add(itemConfig);
             logicConfig.setItems(items);
-            LogicRunner runner = new LogicRunner(JSONObject.from(logicConfig), new JSONObject());
+            LogicRunner runner = new LogicRunner(JSONObject.from(logicConfig), new JSONObject(), new JSONObject());
             var ret = runner.run(par);
             res = ApiResult.fromLogicRunResult(ret);
         } catch (Exception e) {

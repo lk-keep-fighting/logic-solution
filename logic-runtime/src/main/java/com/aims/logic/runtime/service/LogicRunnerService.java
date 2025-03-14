@@ -2,7 +2,7 @@ package com.aims.logic.runtime.service;
 
 import com.aims.logic.runtime.contract.dto.LogicRunResult;
 import com.aims.logic.runtime.contract.dto.LongtimeRunningBizDto;
-import com.aims.logic.runtime.env.LogicEnvObject;
+import com.aims.logic.runtime.env.LogicSysEnvDto;
 import com.alibaba.fastjson2.JSONObject;
 
 import java.util.List;
@@ -30,7 +30,7 @@ public interface LogicRunnerService {
      *
      * @return
      */
-    LogicEnvObject getEnv();
+    LogicSysEnvDto getEnv();
 
     /**
      * 传入自定义环境变量创建逻辑运行器
@@ -82,7 +82,7 @@ public interface LogicRunnerService {
      */
     LogicRunResult runByMap(String logicId, Map<String, Object> parsMap);
 
-    public LogicRunResult runByMap(String logicId, Map<String, Object> parsMap, String traceId, String objectId);
+    public LogicRunResult runByMap(String logicId, Map<String, Object> parsMap, String traceId, String objectId, JSONObject globalVars);
 
     /**
      * 有状态-入参为json字符串
@@ -117,7 +117,7 @@ public interface LogicRunnerService {
      */
     LogicRunResult runBizByMap(String logicId, String bizId, Map<String, Object> parsMap);
 
-    public LogicRunResult runBizByMap(String logicId, String bizId, Map<String, Object> parsMap, String traceId, String logicLogId);
+    LogicRunResult runBizByMap(String logicId, String bizId, Map<String, Object> parsMap, String traceId, String logicLogId, JSONObject globalVars);
 
     /**
      * 重试存在异常的业务，通过实例缓存读取入参、临时变量和环境变量
@@ -130,6 +130,7 @@ public interface LogicRunnerService {
 
     /**
      * 重试超时运行的业务
+     *
      * @param timeout 超时时间，单位秒
      * @return
      */
@@ -138,6 +139,7 @@ public interface LogicRunnerService {
 
     /**
      * 查询超时运行的业务
+     *
      * @param timeout 超时时间，单位秒
      * @return
      */
@@ -186,7 +188,7 @@ public interface LogicRunnerService {
      * @param parsMap    入参Map
      * @return
      */
-
+    @Deprecated
     LogicRunResult runBizByVerifyCode(String logicId, String bizId, String verifyCode, Map<String, Object> parsMap);
 
     void clearLog();
