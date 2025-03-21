@@ -56,7 +56,7 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
 
 
     public void startBizRunning(LogicLog logicLog) {
-        triggerEventListener(logicLog);
+//        triggerEventListener(logicLog);
         String env = RuntimeUtil.getEnvObject().getNODE_ENV();
         var nextId = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getId();
         var nextName = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getName();
@@ -76,7 +76,7 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
     }
 
     public void stopBizRunning(LogicLog logicLog) {
-        triggerEventListener(logicLog);
+//        triggerEventListener(logicLog);
         logicLog.setIsRunning(false);
         Map<String, Object> valuesMap = new HashMap<>();
         valuesMap.put("isRunning", false);
