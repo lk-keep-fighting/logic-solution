@@ -2,11 +2,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.2</version>
-    </parent>
+    <!--    <parent>-->
+    <!--        <groupId>org.springframework.boot</groupId>-->
+    <!--        <artifactId>spring-boot-starter-parent</artifactId>-->
+    <!--        <version>2.7.2</version>-->
+    <!--    </parent>-->
     <groupId>com.aims.logic</groupId>
     <artifactId>logic-solution</artifactId>
     <version>${revision}</version>
@@ -16,11 +16,13 @@
     <packaging>pom</packaging>
     <properties>
         <java.version>17</java.version>
-        <revision>25031101</revision>
+        <revision>0.7.4.25032401</revision>
         <!--        <revision>20250218-SNAPSHOT</revision>-->
-        <logic-runtime.version>0.6.4.${revision}</logic-runtime.version>
-        <logic-sdk.version>0.6.4.${revision}</logic-sdk.version>
-        <logic-ide.version>0.6.4.${revision}</logic-ide.version>
+        <logic-runtime.version>${revision}</logic-runtime.version>
+        <logic-sdk.version>${revision}</logic-sdk.version>
+        <logic-ide.version>${revision}</logic-ide.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
     </properties>
     <modules>
         <module>logic-runtime</module>
@@ -49,13 +51,21 @@
     </repositories>
     <dependencies>
         <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.32</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
+            <version>2.7.2</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+            <version>2.7.2</version>
         </dependency>
     </dependencies>
     <build>
@@ -87,6 +97,18 @@
                     </execution>
                 </executions>
             </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-compiler-plugin</artifactId>-->
+<!--                <version>3.11.0</version>-->
+<!--                <configuration>-->
+<!--                    <source>17</source> &lt;!&ndash; 指定源代码的 Java 版本 &ndash;&gt;-->
+<!--                    <target>17</target> &lt;!&ndash; 指定目标字节码的 Java 版本 &ndash;&gt;-->
+<!--                    <compilerArgs>-->
+<!--                        <arg>-parameters</arg> &lt;!&ndash; 启用参数名称传递 &ndash;&gt;-->
+<!--                    </compilerArgs>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
         </plugins>
     </build>
 </project>

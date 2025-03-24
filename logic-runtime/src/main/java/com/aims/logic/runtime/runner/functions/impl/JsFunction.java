@@ -30,6 +30,7 @@ public class JsFunction implements ILogicItemFunctionRunner {
         ScriptEngine engine = manager.getEngineByName("js");
         engine.put("_var", ctx.get_var());
         engine.put("_env", ctx.get_env());
+        engine.put("_global", ctx.get_global());
         engine.put("_par", JSONObject.from(ctx.get_par()));
         engine.put("_lastRet", ctx.get_lastRet());
         engine.put("_last", ctx.get_last());
