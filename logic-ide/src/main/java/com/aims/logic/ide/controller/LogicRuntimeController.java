@@ -29,7 +29,7 @@ public class LogicRuntimeController {
         ApiResult res;
         try {
             JSONObject headerJson = JSONObject.from(headers);
-            JSONObject customEnv = new JSONObject();
+            JSONObject customEnv = runner.getEnvJson();// new JSONObject();
             customEnv.put("HEADERS", headerJson);
             var rep = runner.newInstance(customEnv).runByMap(id, body);
             res = ApiResult.fromLogicRunResult(rep);
@@ -47,7 +47,7 @@ public class LogicRuntimeController {
         ApiResult res;
         try {
             JSONObject headerJson = JSONObject.from(headers);
-            JSONObject customEnv = new JSONObject();
+            JSONObject customEnv = runner.getEnvJson();// new JSONObject();
             customEnv.put("HEADERS", headerJson);
             var rep = runner.newInstance(customEnv).runBizByMap(id, bizId, body);
             res = ApiResult.fromLogicRunResult(rep);
