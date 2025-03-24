@@ -5,19 +5,13 @@
   <parent>
     <groupId>com.aims.logic</groupId>
     <artifactId>logic-solution</artifactId>
-    <version>25031101</version>
+    <version>0.7.4.25032401</version>
   </parent>
   <groupId>com.aims.logic</groupId>
   <artifactId>logic-ide</artifactId>
-  <version>0.6.4.25031101</version>
+  <version>0.7.4.25032401</version>
   <name>logic-ide</name>
   <description>logic-ide</description>
-  <licenses>
-    <license>
-      <name>Apache License, Version 2.0</name>
-      <url>https://www.apache.org/licenses/LICENSE-2.0</url>
-    </license>
-  </licenses>
   <distributionManagement>
     <repository>
       <id>nexus-releases</id>
@@ -45,19 +39,7 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpclient</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpclient</artifactId>
+      <version>2.7.2</version>
     </dependency>
     <dependency>
       <groupId>org.redisson</groupId>
@@ -72,4 +54,15 @@
       <url>https://nexus.aimstek.cn/repository/maven-public</url>
     </repository>
   </repositories>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.1</version>
+        <configuration>
+          <parameters>true</parameters>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

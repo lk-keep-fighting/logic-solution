@@ -43,19 +43,19 @@ public class LogicRunner {
         }
     }
 
-    public LogicRunner(JSONObject _config, JSONObject _env) {
+    public LogicRunner(JSONObject _config, JSONObject _env, JSONObject globalVars) {
         init(_config, _env, null);
+        if (globalVars != null)
+            fnCtx.set_global(globalVars);
     }
 
-    public LogicRunner(JSONObject _config, JSONObject _env, String bizId) {
-        init(_config, _env, bizId);
-    }
-
-    public LogicRunner(JSONObject _config, JSONObject _env, Map<String, Object> paramsMap, JSONObject varsJson, String runItemId, String bizId) {
+    public LogicRunner(JSONObject _config, JSONObject _env, Map<String, Object> paramsMap, JSONObject varsJson, JSONObject globalVars, String runItemId, String bizId) {
         init(_config, _env, bizId);
         this.setStartNode(getStartItem(runItemId));
         fnCtx.set_par(paramsMap);
         fnCtx.set_var(JsonUtil.jsonMerge(varsJson, fnCtx.get_var()));
+        if (globalVars != null)
+            fnCtx.set_global(globalVars);
         logicLog.setParamsJson(fnCtx.get_par() == null ? null : JSONObject.from(fnCtx.get_par()))
                 .setVarsJson(fnCtx.get_var() == null ? null : fnCtx.get_var().clone());
     }

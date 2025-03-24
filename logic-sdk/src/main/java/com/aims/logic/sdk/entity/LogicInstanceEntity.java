@@ -14,6 +14,11 @@ import java.time.LocalDateTime;
 @Accessors(chain = true)
 @TableName("logic_instance")
 public class LogicInstanceEntity extends BaseEntity {
+
+    public LogicInstanceEntity() {
+        createTime = LocalDateTime.now();
+    }
+
     @TableId(type = IdType.ASSIGN_ID)
     private String id;
     @TableField("logicId")
@@ -51,6 +56,12 @@ public class LogicInstanceEntity extends BaseEntity {
     private String message;
     @TableField("messageId")
     private String messageId;
+    /**
+     * 创建时间
+     */
+    @TableField("createTime")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private LocalDateTime createTime;
     @TableField("serverTime")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime serverTime;
@@ -63,6 +74,7 @@ public class LogicInstanceEntity extends BaseEntity {
     // 耗时，单位毫秒
     @TableField("duration")
     private Long duration;
-
+    @TableField("retryTimes")
+    private int retryTimes = 0;
     private String env;
 }

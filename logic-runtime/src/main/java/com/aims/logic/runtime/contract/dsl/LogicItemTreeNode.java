@@ -20,6 +20,9 @@ public class LogicItemTreeNode extends BaseLASL {
 
     String id;
     String name;
+    /**
+     * 节点代码
+     */
     String code;
     String type;
     String script;

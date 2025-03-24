@@ -53,6 +53,20 @@ public class LogicItemRunner {
             case "js":
                 ret = Functions.get(itemType).invoke(ctx, this.dsl.getScript() != null ? this.dsl.getScript() : "");
                 break;
+            case "assign-global":
+                var globalVar = this.dsl.getUrl();
+                var globalValue = this.dsl.getBody();
+                ret = Functions.get("js").invoke(ctx, String.format("_global.%s = %s", globalVar, globalValue));
+                // 获取变量赋值过后的值
+                ret.setData(Functions.get("js").invoke(ctx, String.format("return _global.%s", globalVar)).getData());
+                break;
+            case "assign-local":
+                var localVar = this.dsl.getUrl();
+                var localValue = this.dsl.getBody();
+                ret = Functions.get("js").invoke(ctx, String.format("_var.%s = %s", localVar, localValue));
+                // 获取变量赋值过后的值
+                ret.setData(Functions.get("js").invoke(ctx, String.format("return _var.%s", localVar)).getData());
+                break;
             case "start":
             default:
                 var func = Functions.get(itemType);

@@ -63,6 +63,11 @@ public class LogicLog {
      * 执行结束后当前的具备变量值
      */
     JSONObject varsJson_end;
+
+    public JSONObject getGlobalVars() {
+        return varsJson_end.getJSONObject("__global");
+    }
+
     /**
      * 业务实例流水号
      */

@@ -12,5 +12,7 @@ public class LongtimeRunningBizDto {
     private String logicId;
     private String bizId;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS", timezone = "GMT+8")
+    private LocalDateTime createTime;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS", timezone = "GMT+8")
     private LocalDateTime startTime;
 }

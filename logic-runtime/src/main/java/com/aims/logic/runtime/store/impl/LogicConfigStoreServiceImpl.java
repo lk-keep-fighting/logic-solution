@@ -9,7 +9,6 @@ import com.alibaba.fastjson2.JSONObject;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.Headers;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import org.springframework.stereotype.Service;
@@ -83,13 +82,13 @@ public class LogicConfigStoreServiceImpl implements LogicConfigStoreService {
                 url = String.format("%s/api/ide/logic/%s/config/%s", onlineHost, logicId, version);
                 log.info("online-从[{}]读取配置logicId:[{}]-version:[{}]", url, logicId, version);
             }
-            String token = "";
-            if (RuntimeUtil.getRequest() != null && RuntimeUtil.getRequest().getHeader("Authorization") != null) {
-                token = RuntimeUtil.getRequest().getHeader("Authorization");
-            }
-            var defaultHeaders = Headers.of("Authorization", token);
+//            String token = "";
+//            if (RuntimeUtil.getHeader("Authorization") != null) {
+//                token = RuntimeUtil.getHeader("Authorization");
+//            }
+//            var defaultHeaders = Headers.of("Authorization", token);
             Request request = new Request.Builder()
-                    .url(url).headers(defaultHeaders)
+                    .url(url)
                     .build();
             try (var rep = client.newCall(request).execute()) {
                 if (rep.isSuccessful()) {
