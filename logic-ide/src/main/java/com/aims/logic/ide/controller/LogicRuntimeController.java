@@ -145,6 +145,18 @@ public class LogicRuntimeController {
         return new ApiResult().setData(RuntimeUtil.getEnvJson());
     }
 
+    /**
+     * 修改内存中的环境变量，不会覆盖配置文件，重启后会重新从配置文件加载
+     *
+     * @param customEnv
+     * @return
+     */
+    @PostMapping("/api/runtime/env/merge")
+    public ApiResult setEnv(@RequestBody JSONObject customEnv) {
+        RuntimeUtil.mergeEnv(customEnv);
+        return new ApiResult().setData(RuntimeUtil.getEnvJson());
+    }
+
     @GetMapping("/api/runtime/state")
     public ApiResult state() {
         return new ApiResult().setData(RuntimeUtil.logicConfigStoreService.getLogicConfigCache().stats());

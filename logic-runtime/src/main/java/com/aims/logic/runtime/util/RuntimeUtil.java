@@ -36,6 +36,18 @@ public class RuntimeUtil {
 
     }
 
+    /**
+     * 合并环境变量，内部会进行合并操作，将丢失传入对象的引用
+     * 若需保持引用，请使用setEnv
+     * @param customEnv
+     */
+    public static void mergeEnv(JSONObject customEnv) {
+        ENVs = JsonUtil.jsonMerge(customEnv, ENVs);
+        if (ENVs != null)
+            ENVObject = ENVs.toJavaObject(LogicSysEnvDto.class);
+
+    }
+
     public static LogicSysEnvDto toEnvObject(JSONObject env) {
         if (env != null)
             return env.toJavaObject(LogicSysEnvDto.class);
