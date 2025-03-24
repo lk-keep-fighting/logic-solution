@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -42,6 +43,25 @@ public class LogicInstanceServiceImpl extends BaseServiceImpl<LogicInstanceEntit
         }
     }
 
+    @Override
+    public List<LogicInstanceEntity> queryUncompletedBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning) {
+        String sql = null;
+        if (isRunning == null) isRunning = false;
+        if (createTimeFrom == null && createTimeTo == null)
+            sql = String.format("SELECT * FROM logic_instance WHERE isOver=false and isRunning=%s", isRunning);
+        else if (createTimeFrom == null)
+            sql = String.format("SELECT * FROM logic_instance WHERE isOver=false and isRunning=%s AND createTime <= '%s'", isRunning, createTimeTo);
+        else if (createTimeTo == null)
+            sql = String.format("SELECT * FROM logic_instance WHERE isOver=false and isRunning=%s AND createTime >= '%s'", isRunning, createTimeFrom);
+        else
+            sql = String.format("SELECT * FROM logic_instance WHERE isOver=false and isRunning=%s AND createTime between '%s' AND  '%s'", isRunning, createTimeFrom, createTimeTo);
+        try {
+            return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(LogicInstanceEntity.class));
+        } catch (Exception e) {
+            log.warn("获取实例失败，queryUncompletedBiz error: {}", e.getMessage());
+            return null;
+        }
+    }
 
     @Override
     public int deleteCompletedBizInstanceByLogicId(String logicId) {
