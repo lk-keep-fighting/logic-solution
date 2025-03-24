@@ -2,9 +2,11 @@ package com.aims.logic.runtime.service;
 
 import com.aims.logic.runtime.contract.dto.LogicRunResult;
 import com.aims.logic.runtime.contract.dto.LongtimeRunningBizDto;
+import com.aims.logic.runtime.contract.dto.UnCompletedBizDto;
 import com.aims.logic.runtime.env.LogicSysEnvDto;
 import com.alibaba.fastjson2.JSONObject;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -145,6 +147,8 @@ public interface LogicRunnerService {
      */
     List<LongtimeRunningBizDto> queryLongtimeRunningBiz(int timeout);
 
+    List<UnCompletedBizDto> queryUncompletedBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning);
+
     /**
      * 重置实例待执行节点与待执行局部变量
      *
@@ -176,7 +180,7 @@ public interface LogicRunnerService {
      * @param parsJsonString 入参json
      * @return
      */
-
+    @Deprecated
     LogicRunResult runBizByVerifyCode(String logicId, String bizId, String verifyCode, String parsJsonString);
 
     /**

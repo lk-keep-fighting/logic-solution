@@ -1,10 +1,7 @@
 package com.aims.logic.sdk;
 
 import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
-import com.aims.logic.runtime.contract.dto.LogicItemRunResult;
-import com.aims.logic.runtime.contract.dto.LogicRunResult;
-import com.aims.logic.runtime.contract.dto.LongtimeRunningBizDto;
-import com.aims.logic.runtime.contract.dto.RunnerStatusEnum;
+import com.aims.logic.runtime.contract.dto.*;
 import com.aims.logic.runtime.contract.enums.LogicItemTransactionScope;
 import com.aims.logic.runtime.contract.logger.LogicLog;
 import com.aims.logic.runtime.env.LogicAppConfig;
@@ -29,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -237,6 +235,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
      * @param parsJsonString
      * @return
      */
+    @Deprecated
     @Override
     public LogicRunResult runBizByVerifyCode(String logicId, String bizId, String verifyCode, String parsJsonString) {
         JSONObject pars = parsJsonString == null ? null : JSONObject.parseObject(parsJsonString);
@@ -663,8 +662,9 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
     @Override
     public LogicRunResult retryErrorBiz(String logicId, String bizId) {
         JSONObject parsJson = null;
+        LogicInstanceEntity insEntity;
         if (bizId != null && !bizId.isBlank()) {
-            LogicInstanceEntity insEntity = insService.getInstance(logicId, bizId);
+            insEntity = insService.getInstance(logicId, bizId);
             if (insEntity != null) {
                 if (!(!insEntity.getSuccess() || insEntity.getIsRunning())) {
                     return new LogicRunResult().setSuccess(false).
@@ -677,18 +677,23 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
             if (insEntity != null && insEntity.getIsOver()) {
                 return new LogicRunResult().setSuccess(false).setMsg(String.format("指定的bizId:%s已完成执行，无法重复执行。", bizId));
             }
-        }
-        String lockKey = logicId + "-" + bizId;
-        try {
-            bizLock.spinLock(lockKey);
-            log.info("[{}]bizId:{}-get lock key:{}", logicId, bizId, lockKey);
-            return runBiz(logicId, bizId, parsJson, UUID.randomUUID().toString(), null, null);
-        } catch (Exception e) {
-            log.error("[{}]bizId:{}-runBizByMap catch逻辑异常:{}", logicId, bizId, e.getMessage());
-            throw new RuntimeException(e);
-        } finally {
-            bizLock.unlock(lockKey);
-            log.info("[{}]bizId:{}-unlock key:{}", logicId, bizId, lockKey);
+            String lockKey = logicId + "-" + bizId;
+            try {
+                bizLock.spinLock(lockKey);
+                log.info("[{}]bizId:{}-get lock key:{}", logicId, bizId, lockKey);
+                return runBiz(logicId, bizId, parsJson, UUID.randomUUID().toString(), null, null);
+            } catch (Exception e) {
+                log.error("[{}]bizId:{}-runBizByMap catch逻辑异常:{}", logicId, bizId, e.getMessage());
+                throw new RuntimeException(e);
+            } finally {
+                bizLock.unlock(lockKey);
+                Map<String, Object> vals = new HashMap<>();
+                vals.put("retryTimes", insEntity.getRetryTimes() + 1);
+                insService.updateById(insEntity.getId(), vals);
+                log.info("[{}]bizId:{}-unlock key:{}", logicId, bizId, lockKey);
+            }
+        } else {
+            return new LogicRunResult().setSuccess(false).setMsg(String.format("业务逻辑[%s]的实例[%s]不存在，不可重试！", logicId, bizId));
         }
     }
 
@@ -712,6 +717,18 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 .setLogicId(insEntity.getLogicId())
                 .setBizId(insEntity.getBizId())
                 .setStartTime(insEntity.getStartTime())).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<UnCompletedBizDto> queryUncompletedBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning) {
+        var list = insService.queryUncompletedBiz(createTimeFrom, createTimeTo, isRunning);
+        if (list == null)
+            return null;
+        return list.stream().map(insEntity -> new UnCompletedBizDto()
+                .setLogicId(insEntity.getLogicId())
+                .setBizId(insEntity.getBizId())
+                .setCreateTime(insEntity.getCreateTime())
+                .setIsRunning(insEntity.getIsRunning())).collect(Collectors.toList());
     }
 
     @Override
