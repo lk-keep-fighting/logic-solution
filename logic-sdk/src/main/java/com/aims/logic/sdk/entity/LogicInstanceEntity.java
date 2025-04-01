@@ -77,4 +77,6 @@ public class LogicInstanceEntity extends BaseEntity {
     @TableField("retryTimes")
     private int retryTimes = 0;
     private String env;
+    @TableField("isAsync")
+    private Boolean isAsync;
 }

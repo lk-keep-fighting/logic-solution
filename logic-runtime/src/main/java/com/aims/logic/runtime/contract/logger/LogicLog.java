@@ -78,6 +78,10 @@ public class LogicLog {
      */
     String parentLogicId;
     /**
+     * 是否异步执行
+     */
+    Boolean isAsync;
+    /**
      * 父业务标识
      */
     String parentBizId;

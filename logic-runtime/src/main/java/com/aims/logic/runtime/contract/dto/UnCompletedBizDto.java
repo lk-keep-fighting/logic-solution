@@ -13,5 +13,9 @@ public class UnCompletedBizDto {
     private String bizId;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS", timezone = "GMT+8")
     private LocalDateTime createTime;
-    private  Boolean isRunning;
+    private Boolean isRunning;
+    private Boolean isSuccess;
+    private Boolean isAsync;
+    private String parentLogicId;
+    private String parentBizId;
 }

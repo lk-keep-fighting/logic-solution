@@ -55,7 +55,7 @@ public class SubLogicFunction implements ILogicItemFunctionRunner {
             itemDsl.setBody(jsonData == null ? null : jsonData.toJSONString());
             Object bizIdObj = Functions.runJsByContext(ctx, "return " + itemDsl.getBizId());
             subLogicBizId = bizIdObj == null ? null : bizIdObj.toString();
-            var newRunnerService = runnerService.newInstance(ctx.get_env(), ctx.getLogicId(), ctx.getBizId());
+            var newRunnerService = runnerService.newInstance(ctx.get_env(), ctx.getLogicId(), ctx.getBizId(), itemDsl.isAsync());
 
             var itemRunResult = new LogicItemRunResult().setItemInstance(itemDsl);
             JSONObject globalEnd;

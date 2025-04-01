@@ -70,6 +70,7 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
         valueMaps.put("stopTime", null);
         valueMaps.put("duration", -1);
         valueMaps.put("nextId", nextId);
+        valueMaps.put("isAsync", logicLog.getIsAsync());
         valueMaps.put("nextName", nextName);
         valueMaps.put("env", env);
         instanceService.updateById(logicLog.getInstanceId(), valueMaps);

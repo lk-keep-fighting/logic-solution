@@ -52,7 +52,7 @@ public interface LogicRunnerService {
      * @return 返回逻辑运行器
      */
 
-    LogicRunnerService newInstance(JSONObject env, String parentLogicId, String parentBizId);
+    LogicRunnerService newInstance(JSONObject env, String parentLogicId, String parentBizId, boolean isAsync);
 
     /**
      * 无状态-入参为json字符串
@@ -149,6 +149,14 @@ public interface LogicRunnerService {
 
     List<UnCompletedBizDto> queryUncompletedBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning);
 
+    /**
+     * 查询未完成实例，参数为null则不根据此条件筛选
+     * @param createTimeFrom
+     * @param createTimeTo
+     * @param isRunning
+     * @param isSuccess
+     * @return
+     */
     List<UnCompletedBizDto> queryUncompletedBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning, Boolean isSuccess);
 
     /**

@@ -2,6 +2,7 @@ package com.aims.logic.testsuite;
 
 import com.aims.logic.runtime.service.LogicRunnerService;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -13,8 +14,8 @@ public class TestQuerySDK {
     @Autowired
     LogicRunnerService logic;
 
-//    @Test
-    void contextLoads() {
+    @Test
+    public void contextLoads() {
         var res = logic.queryUncompletedBiz(null, null, null);
         assert !res.isEmpty();
         res = logic.queryUncompletedBiz(null, LocalDateTime.now(), null);
