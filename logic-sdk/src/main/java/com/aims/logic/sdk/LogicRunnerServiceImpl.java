@@ -1,5 +1,6 @@
 package com.aims.logic.sdk;
 
+import com.aims.logic.runtime.LogicBizException;
 import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
 import com.aims.logic.runtime.contract.dto.*;
 import com.aims.logic.runtime.contract.enums.LogicItemTransactionScope;
@@ -223,7 +224,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
             }
         } else {
             log.info("[{}]bizId:{}-get lock key:{} fail", logicId, bizId, lockKey);
-            return new LogicRunResult().setSuccess(false).setMsg("获取锁失败");
+            return new LogicRunResult().setSuccess(false).setMsg("获取锁失败").setLogicLog(new LogicLog());
         }
     }
 
@@ -322,7 +323,8 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
 //                startTime = insEntity.getStartTime();
                 if (insEntity.getIsOver()) {
                     log.error("指定的logicId:{},bizId:{}已完成，无法重复执行", logicId, bizId);
-                    return new LogicRunResult().setSuccess(false).setMsg(String.format("指定的bizId:%s已完成执行，无法重复执行。", bizId));
+                    throw new LogicBizException(String.format("指定的bizId:%s已完成执行，无法重复执行。", bizId));
+//                    return new LogicRunResult().setSuccess(false).setMsg(String.format("指定的bizId:%s已完成执行，无法重复执行。", bizId)).setLogicLog(new LogicLog());
                 }
             }
 
@@ -721,7 +723,12 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
 
     @Override
     public List<UnCompletedBizDto> queryUncompletedBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning) {
-        var list = insService.queryUncompletedBiz(createTimeFrom, createTimeTo, isRunning);
+        return queryUncompletedBiz(createTimeFrom, createTimeTo, isRunning, null);
+    }
+
+    @Override
+    public List<UnCompletedBizDto> queryUncompletedBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning, Boolean isSuccess) {
+        var list = insService.queryUncompletedBiz(createTimeFrom, createTimeTo, isRunning, isSuccess);
         if (list == null)
             return null;
         return list.stream().map(insEntity -> new UnCompletedBizDto()

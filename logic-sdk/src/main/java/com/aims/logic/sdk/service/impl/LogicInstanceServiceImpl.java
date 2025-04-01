@@ -45,16 +45,26 @@ public class LogicInstanceServiceImpl extends BaseServiceImpl<LogicInstanceEntit
 
     @Override
     public List<LogicInstanceEntity> queryUncompletedBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning) {
+        return queryUncompletedBiz(createTimeFrom, createTimeTo, isRunning, null);
+    }
+
+    @Override
+    public List<LogicInstanceEntity> queryUncompletedBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning, Boolean isSuccess) {
         String sql = null;
-        if (isRunning == null) isRunning = false;
         if (createTimeFrom == null && createTimeTo == null)
-            sql = String.format("SELECT * FROM logic_instance WHERE isOver=false and isRunning=%s", isRunning);
+            sql = String.format("SELECT * FROM logic_instance WHERE isOver=false ");
         else if (createTimeFrom == null)
-            sql = String.format("SELECT * FROM logic_instance WHERE isOver=false and isRunning=%s AND createTime <= '%s'", isRunning, createTimeTo);
+            sql = String.format("SELECT * FROM logic_instance WHERE isOver=false AND createTime <= '%s'", createTimeTo);
         else if (createTimeTo == null)
-            sql = String.format("SELECT * FROM logic_instance WHERE isOver=false and isRunning=%s AND createTime >= '%s'", isRunning, createTimeFrom);
+            sql = String.format("SELECT * FROM logic_instance WHERE isOver=false AND createTime >= '%s'", createTimeFrom);
         else
-            sql = String.format("SELECT * FROM logic_instance WHERE isOver=false and isRunning=%s AND createTime between '%s' AND  '%s'", isRunning, createTimeFrom, createTimeTo);
+            sql = String.format("SELECT * FROM logic_instance WHERE isOver=false AND createTime between '%s' AND  '%s'", createTimeFrom, createTimeTo);
+        if (isRunning != null) {
+            sql += String.format(" and isRunning=%s", isRunning);
+        }
+        if (isSuccess != null) {
+            sql += String.format(" and success=%s", isSuccess);
+        }
         try {
             return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(LogicInstanceEntity.class));
         } catch (Exception e) {
