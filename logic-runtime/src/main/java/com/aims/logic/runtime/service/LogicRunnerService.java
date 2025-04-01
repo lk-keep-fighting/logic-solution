@@ -149,6 +149,8 @@ public interface LogicRunnerService {
 
     List<UnCompletedBizDto> queryUncompletedBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning);
 
+    List<UnCompletedBizDto> queryUncompletedBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning, Boolean isSuccess);
+
     /**
      * 重置实例待执行节点与待执行局部变量
      *
@@ -170,6 +172,23 @@ public interface LogicRunnerService {
      * @return
      */
     boolean updateBizInstanceParams(String logicId, String bizId, Object... pars);
+
+    /**
+     * 删除业务实例
+     *
+     * @param logicId
+     * @param bizId
+     * @return
+     */
+    int deleteBizInstance(String logicId, String bizId);
+
+    /**
+     * 根据logicId删除已完成业务实例
+     *
+     * @param logicId
+     * @return
+     */
+    int deleteCompletedBizInstanceByLogicId(String logicId);
 
     /**
      * 先校验验证码，再执行业务逻辑

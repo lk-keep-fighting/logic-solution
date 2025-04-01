@@ -12,6 +12,8 @@ public interface LogicInstanceService extends BaseService<LogicInstanceEntity, S
 
     List<LogicInstanceEntity> queryUncompletedBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning);
 
+    List<LogicInstanceEntity> queryUncompletedBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning, Boolean isSuccess);
+
     int deleteCompletedBizInstanceByLogicId(String logicId);
 
     int deleteCompletedBizInstance();

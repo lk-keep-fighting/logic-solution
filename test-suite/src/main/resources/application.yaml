@@ -3,13 +3,12 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/logic_v0_7?useUnicode=true&characterEncoding=gbk&autoReconnect=true&failOverReadOnly=false
+    url: jdbc:mysql://localhost:3306/logic_test?useUnicode=true&characterEncoding=gbk&autoReconnect=true&failOverReadOnly=false
     username: root
     password: 12#$qwER
-#    driver-class-name: com.mysql.cj.jdbc.Driver
-#    url: jdbc:mysql://192.168.153.92:30010/hs_wms_xn?useUnicode=true&characterEncoding=gbk&autoReconnect=true&failOverReadOnly=false
+#    url: jdbc:mysql://localhost:3306/logic_v0_7?useUnicode=true&characterEncoding=gbk&autoReconnect=true&failOverReadOnly=false
 #    username: root
-#    password: pxc.aims.com
+#    password: 12#$qwER
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

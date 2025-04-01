@@ -24,6 +24,7 @@
         <dependency>
             <groupId>com.aims.logic</groupId>
             <artifactId>logic-ide</artifactId>
+            <!--            <version>0.7.5.25033102</version>-->
             <version>${logic-ide.version}</version>
         </dependency>
         <dependency>

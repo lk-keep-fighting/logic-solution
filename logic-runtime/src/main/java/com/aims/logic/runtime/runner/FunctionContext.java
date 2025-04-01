@@ -42,17 +42,17 @@ public class FunctionContext {
         _var.getJSONObject("__global").putAll(global);
     }
 
-//    public String getSubLogicRandomBizId() {
-//        if (_var.get("__subLogicRandomBizId") == null)
-//            return buildSubLogicRandomBizId();
-//        return _var.get("__subLogicRandomBizId").toString();
-//    }
+    public String getSubLogicRandomBizId() {
+        if (_var.get("__subLogicRandomBizId") == null)
+            return buildSubLogicRandomBizId();
+        return _var.get("__subLogicRandomBizId").toString();
+    }
 
-//    public String buildSubLogicRandomBizId() {
-//        var subLogicRandomBizId = logicId + "_" + System.currentTimeMillis();
-//        _var.put("__subLogicRandomBizId", subLogicRandomBizId);
-//        return subLogicRandomBizId;
-//    }
+    public String buildSubLogicRandomBizId() {
+        var subLogicRandomBizId = logicId + "_" + System.currentTimeMillis();
+        _var.put("__subLogicRandomBizId", subLogicRandomBizId);
+        return subLogicRandomBizId;
+    }
 
     public FunctionContext() {
 
