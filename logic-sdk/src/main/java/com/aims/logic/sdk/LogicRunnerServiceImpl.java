@@ -51,6 +51,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
      * 父逻辑编号
      */
     private String parentLogicId = null;
+    private boolean isAsync = false;
     /**
      * 父业务标识
      */
@@ -118,13 +119,14 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
 
     @Override
     public LogicRunnerService newInstance(JSONObject env) {
-        return newInstance(env, null, null);
+        return newInstance(env, null, null, false);
     }
 
     @Override
-    public LogicRunnerService newInstance(JSONObject env, String parentLogicId, String parentBizId) {
+    public LogicRunnerService newInstance(JSONObject env, String parentLogicId, String parentBizId, boolean isAsync) {
         var ins = new LogicRunnerServiceImpl(logService, insService, configStoreService, transactionalUtils, appConfig, bizLock);
         ins.setEnv(env, true);
+        ins.isAsync = isAsync;
         ins.parentLogicId = parentLogicId;
         ins.parentBizId = parentBizId;
         return ins;
@@ -339,7 +341,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         runner.getFnCtx().setTraceId(traceId == null ? UUID.randomUUID().toString() : traceId);
 //        runner.getFnCtx().setIsRetry(isRetry);
         LogicLog logicLog = LogicLog.newBizLogBeforeRun(instanceId, runner.getFnCtx(), nextItem, runner.getFnCtx().getTraceId(), logicLogId);
-        logicLog.setParentLogicId(this.parentLogicId).setParentBizId(this.parentBizId);
+        logicLog.setParentLogicId(this.parentLogicId).setParentBizId(this.parentBizId).setIsAsync(this.isAsync);
         if (instanceId == null) {//先生成实例记录
             logService.addInstance(logicLog);
         }
@@ -718,7 +720,10 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         return list.stream().map(insEntity -> new LongtimeRunningBizDto()
                 .setLogicId(insEntity.getLogicId())
                 .setBizId(insEntity.getBizId())
-                .setStartTime(insEntity.getStartTime())).collect(Collectors.toList());
+                .setStartTime(insEntity.getStartTime())
+                .setIsAsync(insEntity.getIsAsync())
+                .setParentBizId(insEntity.getParentBizId())
+                .setParentLogicId(insEntity.getParentLogicId())).collect(Collectors.toList());
     }
 
     @Override
@@ -735,7 +740,11 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 .setLogicId(insEntity.getLogicId())
                 .setBizId(insEntity.getBizId())
                 .setCreateTime(insEntity.getCreateTime())
-                .setIsRunning(insEntity.getIsRunning())).collect(Collectors.toList());
+                .setIsRunning(insEntity.getIsRunning())
+                .setIsSuccess(insEntity.getSuccess())
+                .setIsAsync(insEntity.getIsAsync())
+                .setParentLogicId(insEntity.getParentLogicId())
+                .setParentBizId(insEntity.getParentBizId())).collect(Collectors.toList());
     }
 
     @Override
