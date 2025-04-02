@@ -376,52 +376,55 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
     }
 
     private TransactionStatus beginNewTranIfNewGroup(TransactionStatus lastTran, FunctionContext ctx, LogicItemTreeNode curItem) {
-        if (ctx.getCurTranGroupId() == null || ctx.getLastTranGroupId() == null) {
-            log.info("[{}]bizId:{}-当前节点：{}-{},begin开启事务组：{}", ctx.getLogicId(), ctx.getBizId(), curItem.getType(), curItem.getName(), ctx.getCurTranGroupId());
-            if (lastTran != null) {
-                if (lastTran.isNewTransaction()) {
-                    return lastTran;
-                } else if (!lastTran.isCompleted()) {
-                    transactionalUtils.commit(lastTran);
-                }
-            }
-            return transactionalUtils.newTran();
+        boolean needNewTran = ctx.getCurTranGroupId() == null ||
+                ctx.getLastTranGroupId() == null ||
+                !ctx.getCurTranGroupId().equals(ctx.getLastTranGroupId());
+
+        String logMsg = needNewTran ? "begin开启事务组" : "begin复用事务组";
+        String tranGroupId = needNewTran ? ctx.getCurTranGroupId() : ctx.getLastTranGroupId();
+
+        log.info("[{}]bizId:{}-当前节点：{}-{},{}: {}",
+                ctx.getLogicId(), ctx.getBizId(),
+                curItem.getType(), curItem.getName(),
+                logMsg, tranGroupId);
+
+        if (!needNewTran) {
+            return lastTran;
         }
-        if (!ctx.getCurTranGroupId().equals(ctx.getLastTranGroupId())) {
-            log.info("[{}]bizId:{}-当前节点：{}-{},begin开启事务组：{}", ctx.getLogicId(), ctx.getBizId(), curItem.getType(), curItem.getName(), ctx.getCurTranGroupId());
-            if (lastTran != null) {
-                if (lastTran.isNewTransaction()) {
-                    return lastTran;
-                } else if (!lastTran.isCompleted()) {
-                    transactionalUtils.commit(lastTran);
-                }
+
+        if (lastTran != null) {
+            if (!lastTran.isCompleted()) {
+                transactionalUtils.commit(lastTran);
             }
-            return transactionalUtils.newTran();
         }
-        log.info("[{}]bizId:{}-当前节点：{}-{},begin复用事务组：{}", ctx.getLogicId(), ctx.getBizId(), curItem.getType(), curItem.getName(), ctx.getLastTranGroupId());
-        return lastTran;
+
+        return transactionalUtils.newTran();
     }
 
     private void commitCurTranIfNextIsNewGroup(TransactionStatus curTran, FunctionContext ctx, LogicItemTreeNode curItem) {
-        if (ctx.getCurTranGroupId() == null || ctx.getNextTranGroupId() == null) {
-            log.info("[{}]bizId:{}-当前节点：{}-{},commit 提交事务组：{}", ctx.getLogicId(), ctx.getBizId(), curItem.getType(), curItem.getName(), ctx.getCurTranGroupId());
-            if (!curTran.isCompleted()) {
-                transactionalUtils.commit(curTran);
-            } else {
-                log.info("[{}]bizId:{},commit 未执行，isCompleted=true", ctx.getLogicId(), ctx.getBizId());
-            }
+        boolean needCommit = ctx.getCurTranGroupId() == null ||
+                ctx.getNextTranGroupId() == null ||
+                !ctx.getCurTranGroupId().equals(ctx.getNextTranGroupId());
+
+        if (!needCommit) {
+            log.info("[{}]bizId:{}-当前节点：{}-{},commit 未提交，保留当前事务组：{}",
+                    ctx.getLogicId(), ctx.getBizId(),
+                    curItem.getType(), curItem.getName(),
+                    ctx.getLastTranGroupId());
             return;
         }
-        if (!ctx.getCurTranGroupId().equals(ctx.getNextTranGroupId())) {
-            log.info("[{}]bizId:{}-当前节点：{}-{},commit 提交事务组：{}", ctx.getLogicId(), ctx.getBizId(), curItem.getType(), curItem.getName(), ctx.getCurTranGroupId());
-            if (!curTran.isCompleted()) {
-                transactionalUtils.commit(curTran);
-            } else {
-                log.info("[{}]bizId:{},commit 未执行，isCompleted=true", ctx.getLogicId(), ctx.getBizId());
-            }
-            return;
+
+        log.info("[{}]bizId:{}-当前节点：{}-{},commit 提交事务组：{}",
+                ctx.getLogicId(), ctx.getBizId(),
+                curItem.getType(), curItem.getName(),
+                ctx.getCurTranGroupId());
+
+        if (!curTran.isCompleted()) {
+            transactionalUtils.commit(curTran);
+        } else {
+            log.info("[{}]bizId:{},commit 未执行，isCompleted=true",
+                    ctx.getLogicId(), ctx.getBizId());
         }
-        log.info("[{}]bizId:{}-当前节点：{}-{},commit 未提交，保留当前事务组：{}", ctx.getLogicId(), ctx.getBizId(), curItem.getType(), curItem.getName(), ctx.getLastTranGroupId());
     }
 
     /***
