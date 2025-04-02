@@ -31,6 +31,5 @@ logic:
       database: 1  # 数据库索引（默认为0）
       expire: 30
 logging:
-  config:
-    level: debug
-
+  level:
+    root: info
