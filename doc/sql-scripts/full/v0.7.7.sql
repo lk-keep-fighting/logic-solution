@@ -5,13 +5,13 @@
  Source Server Type    : MySQL
  Source Server Version : 80200 (8.2.0)
  Source Host           : localhost:3306
- Source Schema         : logic_test
+ Source Schema         : logic_v0_7
 
  Target Server Type    : MySQL
  Target Server Version : 80200 (8.2.0)
  File Encoding         : 65001
 
- Date: 01/04/2025 18:20:08
+ Date: 07/04/2025 17:51:17
 */
 
 SET NAMES utf8mb4;
@@ -36,22 +36,15 @@ CREATE TABLE `logic` (
 -- ----------------------------
 DROP TABLE IF EXISTS `logic_bak`;
 CREATE TABLE `logic_bak` (
-  `aid` varchar(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `aid` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `version` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `module` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `configJson` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `updateTime` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`aid`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- ----------------------------
--- Table structure for logic_data_type
--- ----------------------------
-DROP TABLE IF EXISTS `logic_data_type`;
-CREATE TABLE `logic_data_type` (
-  `id` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL
+  PRIMARY KEY (`aid`) USING BTREE,
+  KEY `logicid_version_idx` (`id`,`version`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------
@@ -59,7 +52,7 @@ CREATE TABLE `logic_data_type` (
 -- ----------------------------
 DROP TABLE IF EXISTS `logic_instance`;
 CREATE TABLE `logic_instance` (
-  `id` varchar(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `logicId` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '逻辑编号',
   `version` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '逻辑版本',
   `bizId` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '业务实例标识',
@@ -70,10 +63,10 @@ CREATE TABLE `logic_instance` (
   `message` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '消息',
   `messageId` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '消息标识',
   `paramsJson` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '缓存前序流程的入参值',
-  `envsJson` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '缓存前序流程的环境变量值',
   `varsJson` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '开始执行时的局部变量值',
+  `envsJson` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '开始执行时的环境变量值',
   `varsJsonEnd` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '执行结束时局部变量值，为下次交互时的恢复变量值',
-  `returnData` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '最近一次返回数据',
+  `returnData` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '最近一次返回数据',
   `env` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '环境',
   `success` tinyint(1) DEFAULT NULL COMMENT '最近一次是否成功',
   `isOver` tinyint(1) DEFAULT '0' COMMENT '是否结束',
@@ -86,7 +79,7 @@ CREATE TABLE `logic_instance` (
   `retryTimes` int DEFAULT '0' COMMENT '重试次数',
   `isAsync` tinyint(1) DEFAULT '0' COMMENT '是否为异步调起',
   PRIMARY KEY (`id`) USING BTREE,
-  KEY `idx_logicId_bizId` (`logicId`,`bizId`) USING BTREE
+  KEY `idx_logicId_bizId` (`logicId`,`bizId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------
@@ -113,34 +106,8 @@ CREATE TABLE `logic_log` (
   `isOver` tinyint(1) DEFAULT '0' COMMENT '是否已经执行到最后一个节点',
   `itemLogs` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '执行过程日志',
   `messageId` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '消息唯一标识',
-  PRIMARY KEY (`id`,`version`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- ----------------------------
--- Table structure for logic_method
--- ----------------------------
-DROP TABLE IF EXISTS `logic_method`;
-CREATE TABLE `logic_method` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `methodName` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `fullClassName` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `paramType` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `returnType` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `version` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- ----------------------------
--- Table structure for logic_method_param
--- ----------------------------
-DROP TABLE IF EXISTS `logic_method_param`;
-CREATE TABLE `logic_method_param` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `flag` varchar(1) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '0-返回参数，1-入参',
-  `fullClassName` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `methodId` bigint DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`,`version`) USING BTREE,
+  KEY `logicId_bizId` (`logicId`,`bizId`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------
@@ -158,6 +125,6 @@ CREATE TABLE `logic_published` (
   `source` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '发布来源',
   `target` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '发布目标',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=74 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=79 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 SET FOREIGN_KEY_CHECKS = 1;
