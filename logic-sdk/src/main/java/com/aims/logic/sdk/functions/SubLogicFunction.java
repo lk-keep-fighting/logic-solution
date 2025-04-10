@@ -91,6 +91,7 @@ public class SubLogicFunction implements ILogicItemFunctionRunner {
 
         } catch (Exception e) {
             log.error("[{}]bizId:{},复用逻辑执行异常：{}", ctx.getLogicId(), ctx.getBizId(), e.toString());
+            e.printStackTrace();
             return new LogicItemRunResult().setSuccess(false).setData(e.toString()).setMsg(e.toString()).setItemInstance(itemDsl);
         }
     }

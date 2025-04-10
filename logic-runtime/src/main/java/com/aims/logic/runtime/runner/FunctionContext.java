@@ -3,6 +3,7 @@ package com.aims.logic.runtime.runner;
 import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
 import com.aims.logic.runtime.contract.dsl.LogicTreeNode;
 import com.aims.logic.runtime.contract.dto.LogicItemRunResult;
+import com.aims.logic.runtime.contract.enums.LogicItemTransactionScope;
 import com.alibaba.fastjson2.JSONObject;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,6 +18,11 @@ public class FunctionContext {
     private JSONObject _var = new JSONObject();
     private JSONObject _env = new JSONObject();
     private JSONObject _global;
+    /**
+     * 本次交互的事务作用域配置
+     * 从当前交互点读取
+     */
+    private LogicItemTransactionScope tranScope;
     private Object _lastRet;
     private LogicItemRunResult _last;
     private LogicTreeNode logic;
