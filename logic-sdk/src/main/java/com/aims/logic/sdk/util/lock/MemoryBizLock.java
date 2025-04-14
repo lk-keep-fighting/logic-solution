@@ -29,6 +29,11 @@ public class MemoryBizLock implements BizLock {
     }
 
     @Override
+    public boolean isLocked(String key) {
+        return lockCache.asMap().containsKey(key);
+    }
+
+    @Override
     public boolean spinLock(String key) {
         log.debug("自旋锁开始获取 {}", key);
         ReentrantLock lock = lockCache.asMap().computeIfAbsent(key, k -> new ReentrantLock());

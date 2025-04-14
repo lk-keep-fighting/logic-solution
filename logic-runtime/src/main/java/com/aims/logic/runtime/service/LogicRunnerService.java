@@ -151,6 +151,7 @@ public interface LogicRunnerService {
 
     /**
      * 查询未完成实例，参数为null则不根据此条件筛选
+     *
      * @param createTimeFrom
      * @param createTimeTo
      * @param isRunning
@@ -158,6 +159,19 @@ public interface LogicRunnerService {
      * @return
      */
     List<UnCompletedBizDto> queryUncompletedBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning, Boolean isSuccess);
+
+    /**
+     * 查询未完成实例，参数为null则不根据此条件筛选
+     *
+     * @param createTimeFrom  创建开始从……
+     * @param createTimeTo    创建时间到……
+     * @param isRunning       是否运行中
+     * @param isSuccess       是否有异常
+     * @param excludeLogicIds 不包含的逻辑编号
+     * @return
+     */
+
+    List<UnCompletedBizDto> queryUncompletedBizExclude(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning, Boolean isSuccess, List<String> excludeLogicIds);
 
     /**
      * 重置实例待执行节点与待执行局部变量

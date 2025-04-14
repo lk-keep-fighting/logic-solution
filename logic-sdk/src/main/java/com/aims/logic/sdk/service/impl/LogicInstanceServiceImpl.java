@@ -50,6 +50,11 @@ public class LogicInstanceServiceImpl extends BaseServiceImpl<LogicInstanceEntit
 
     @Override
     public List<LogicInstanceEntity> queryUncompletedBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning, Boolean isSuccess) {
+        return queryUncompletedBizExclude(createTimeFrom, createTimeTo, isRunning, isSuccess, null);
+    }
+
+    @Override
+    public List<LogicInstanceEntity> queryUncompletedBizExclude(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning, Boolean isSuccess, List<String> excludeLogicIds) {
         String sql = null;
         if (createTimeFrom == null && createTimeTo == null)
             sql = String.format("SELECT * FROM logic_instance WHERE isOver=false ");
@@ -64,6 +69,9 @@ public class LogicInstanceServiceImpl extends BaseServiceImpl<LogicInstanceEntit
         }
         if (isSuccess != null) {
             sql += String.format(" and success=%s", isSuccess);
+        }
+        if (excludeLogicIds != null && excludeLogicIds.size() > 0) {
+            sql += String.format(" and logicId not in ('%s')", String.join("','", excludeLogicIds));
         }
         try {
             return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(LogicInstanceEntity.class));
