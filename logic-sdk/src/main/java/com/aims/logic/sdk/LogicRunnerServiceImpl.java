@@ -735,7 +735,12 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
 
     @Override
     public List<UnCompletedBizDto> queryUncompletedBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning, Boolean isSuccess) {
-        var list = insService.queryUncompletedBiz(createTimeFrom, createTimeTo, isRunning, isSuccess);
+        return queryUncompletedBizExclude(createTimeFrom, createTimeTo, isRunning, isSuccess, null);
+    }
+
+    @Override
+    public List<UnCompletedBizDto> queryUncompletedBizExclude(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning, Boolean isSuccess, List<String> excludeLogicIds) {
+        var list = insService.queryUncompletedBizExclude(createTimeFrom, createTimeTo, isRunning, isSuccess, excludeLogicIds);
         if (list == null)
             return null;
         return list.stream().map(insEntity -> new UnCompletedBizDto()

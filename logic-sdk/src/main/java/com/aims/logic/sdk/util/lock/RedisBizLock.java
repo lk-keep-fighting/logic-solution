@@ -32,6 +32,13 @@ public class RedisBizLock implements BizLock {
     }
 
     @Override
+    public boolean isLocked(String key) {
+        String lockKey = LOCK_PREFIX + key;
+        RLock lock = redisson.getLock(lockKey);
+        return lock.isLocked();
+    }
+
+    @Override
     public boolean spinLock(String key) {
         String lockKey = LOCK_PREFIX + key;
         RLock lock = redisson.getLock(lockKey);

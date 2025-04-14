@@ -166,4 +166,17 @@ public class LogicRuntimeController {
     public ApiResult lockKeys() {
         return new ApiResult().setData(this.bizLock.getLockKeys());
     }
+
+    @PostMapping("/api/runtime/lockKey/unlock")
+    public ApiResult unlockKey(@RequestBody JSONObject body) {
+        String key = body.getString("key");
+        try {
+            if (this.bizLock.isLocked(key)) {
+                this.bizLock.unlock(key);
+            }
+        } catch (Exception e) {
+            return ApiResult.error(e.getMessage());
+        }
+        return new ApiResult().setData(key);
+    }
 }
