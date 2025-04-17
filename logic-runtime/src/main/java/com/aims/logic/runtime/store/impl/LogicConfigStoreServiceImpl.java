@@ -97,14 +97,17 @@ public class LogicConfigStoreServiceImpl implements LogicConfigStoreService {
                         if (JSON.isValid(res)) {
                             var json = JSON.parseObject(res);
                             logicConfig = json.getJSONObject("data");
+                            if (logicConfig == null)
+                                throw new RuntimeException(String.format("%s的配置在%s中不存在", logicId, url));
                             return saveToCache(logicId, version, logicConfig);
+
                         }
                     }
                 } else {
-                    throw new RuntimeException(String.format("online获取配置失败，逻辑编号:%s,错误：%s,%s", logicId, rep.code(), rep.message()));
+                    throw new RuntimeException(String.format("请求地址%s获取配置失败，逻辑编号:%s,错误：%s,%s", url, logicId, rep.code(), rep.message()));
                 }
             } catch (Exception e) {
-                log.error("online获取配置失败，逻辑编号:{}，错误：{}", logicId, e.getLocalizedMessage());
+                log.error("请求地址{}获取配置异常，逻辑编号:{}，错误：{}", url, logicId, e.getLocalizedMessage());
                 throw new RuntimeException(String.format("online获取配置失败，逻辑编号:%s,错误：%s", logicId, e.getLocalizedMessage()));
             }
         }
