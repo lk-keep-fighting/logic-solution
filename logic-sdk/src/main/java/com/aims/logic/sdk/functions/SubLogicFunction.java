@@ -79,12 +79,13 @@ public class SubLogicFunction implements ILogicItemFunctionRunner {
                     itemRunResult.setSuccess(res.isSuccess()).setMsg(res.getMsg()).setData(res.getData());
                     globalEnd = res.getLogicLog().getGlobalVars();
                 } else {
-                    subLogicBizId = ctx.getSubLogicRandomBizId();
+//                    subLogicBizId = ctx.getSubLogicRandomBizId();
                     var res = newRunnerService.runBizByMap(subLogicId, subLogicBizId, jsonData, ctx.getTraceId(), itemDsl.getObjectId(), ctx.get_global());
                     itemRunResult.setSuccess(res.isSuccess()).setMsg(res.getMsg()).setData(res.getData());
                     globalEnd = res.getLogicLog().getGlobalVars();
                 }
             }
+            itemDsl.setBizId(subLogicBizId);
             ctx.buildSubLogicRandomBizId();//运行完成后生成下一个随机bizId保存在临时变量中
             ctx.set_global(globalEnd);
             return itemRunResult;
