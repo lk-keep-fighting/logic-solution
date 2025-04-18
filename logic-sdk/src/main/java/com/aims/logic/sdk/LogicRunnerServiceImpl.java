@@ -58,7 +58,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
      */
     private String parentBizId = null;
 
-    IdWorker idWorker = new IdWorker();
+    static IdWorker idWorker = new IdWorker(2, 1);
     BizLock bizLock;
 
     @Autowired
@@ -324,17 +324,17 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 instanceId = insEntity.getId().toString();
 //                startTime = insEntity.getStartTime();
                 if (insEntity.getIsOver()) {
-                    log.error("指定的logicId:{},bizId:{}已完成，无法重复执行", logicId, bizId);
-                    throw new LogicBizException(String.format("指定的bizId:%s已完成执行，无法重复执行。", bizId));
-//                    return new LogicRunResult().setSuccess(false).setMsg(String.format("指定的bizId:%s已完成执行，无法重复执行。", bizId)).setLogicLog(new LogicLog());
+                    var msg = String.format("[%s]bizId:%s，业务实例已完成，无法重复执行。", bizId, logicId);
+                    throw new LogicBizException(msg);
                 }
             }
 
         }
         JSONObject config = RuntimeUtil.readLogicConfig(logicId, logicVersion);
         if (config == null) {
-            log.error("未发现指定的逻辑logicId:{},bizId:{}未执行", logicId, bizId);
-            return new LogicRunResult().setSuccess(false).setMsg("未发现指定的逻辑：" + logicId);
+            var msg = String.format("[%s]bizId:%s，未发现指定的逻辑，执行中止。", logicId, bizId);
+            log.error(msg);
+            return new LogicRunResult().setSuccess(false).setMsg(msg);
         }
         var runner = new com.aims.logic.runtime.runner.LogicRunner(config, getEnvJson(), parsMap, cacheVarsJson, globalVars, startId, bizId);
         LogicItemTreeNode startItem = runner.getStartNode();

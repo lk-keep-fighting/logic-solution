@@ -41,7 +41,7 @@ public class MemoryBizLock implements BizLock {
         int retryCount = 0;
         while (retryCount <= spinLock.getRetryTimes()) {
             if (lock.tryLock()) {
-                log.debug("获取锁成功, key: {}, 重试次数: {}", key, retryCount);
+                log.info("获取锁成功, key: {}, 重试次数: {}", key, retryCount);
                 return true;
             }
             retryCount++;
@@ -52,7 +52,7 @@ public class MemoryBizLock implements BizLock {
                 return false;
             }
         }
-        log.warn("获取锁超时, key: {}, 重试次数: {}", key, retryCount);
+        log.error("获取锁超时, key: {}, 重试次数: {}", key, retryCount);
         return false;
     }
 
@@ -71,7 +71,7 @@ public class MemoryBizLock implements BizLock {
             log.info("unlock ok,key:{}", key);
             lock.unlock();
         } else {
-            log.info("unlock error，key缓存已过期，过期配置：60分钟，key {} ", key);
+            log.error("unlock error，key缓存已过期，过期配置：60分钟，key {} ", key);
         }
     }
 
