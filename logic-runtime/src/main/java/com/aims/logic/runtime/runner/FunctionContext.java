@@ -4,6 +4,7 @@ import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
 import com.aims.logic.runtime.contract.dsl.LogicTreeNode;
 import com.aims.logic.runtime.contract.dto.LogicItemRunResult;
 import com.aims.logic.runtime.contract.enums.LogicItemTransactionScope;
+import com.aims.logic.runtime.util.IdWorker;
 import com.alibaba.fastjson2.JSONObject;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,6 +19,7 @@ public class FunctionContext {
     private JSONObject _var = new JSONObject();
     private JSONObject _env = new JSONObject();
     private JSONObject _global;
+    static IdWorker idWorker = new IdWorker(1, 1);
     /**
      * 本次交互的事务作用域配置
      * 从当前交互点读取
@@ -55,7 +57,7 @@ public class FunctionContext {
     }
 
     public String buildSubLogicRandomBizId() {
-        var subLogicRandomBizId = logicId + "_" + System.currentTimeMillis();
+        var subLogicRandomBizId = String.valueOf(idWorker.nextId());// logicId + "_" + System.currentTimeMillis();
         _var.put("__subLogicRandomBizId", subLogicRandomBizId);
         return subLogicRandomBizId;
     }
