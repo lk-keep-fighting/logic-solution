@@ -26,7 +26,6 @@ public class SubLogicFunction implements ILogicItemFunctionRunner {
     }
 
     @Override
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public LogicItemRunResult invoke(FunctionContext ctx, Object item) {
         var itemDsl = ((LogicItemTreeNode) item);
         var itemRunResult = new LogicItemRunResult().setItemInstance(itemDsl);
