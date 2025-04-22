@@ -10,6 +10,8 @@ import com.alibaba.fastjson2.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author liukun
@@ -24,6 +26,7 @@ public class SubLogicFunction implements ILogicItemFunctionRunner {
     }
 
     @Override
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public LogicItemRunResult invoke(FunctionContext ctx, Object item) {
         var itemDsl = ((LogicItemTreeNode) item);
         var itemRunResult = new LogicItemRunResult().setItemInstance(itemDsl);
