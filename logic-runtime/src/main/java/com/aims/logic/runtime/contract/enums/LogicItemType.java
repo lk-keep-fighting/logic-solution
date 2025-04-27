@@ -5,11 +5,13 @@ import lombok.Getter;
 @Getter
 public enum LogicItemType {
     start("start"),
+    wait("wait"),
     waitForContinue("wait-for-continue"),
     switchNode("switch"),
     switchCaseNode("switch-case"),
     switchDefaultNode("switch-default"),
     java("java");
+
 
     final String value;
 

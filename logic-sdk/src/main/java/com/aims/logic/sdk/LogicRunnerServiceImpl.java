@@ -8,6 +8,7 @@ import com.aims.logic.runtime.contract.enums.LogicItemType;
 import com.aims.logic.runtime.contract.logger.LogicLog;
 import com.aims.logic.runtime.env.LogicAppConfig;
 import com.aims.logic.runtime.env.LogicSysEnvDto;
+import com.aims.logic.runtime.exception.BizManuallyStoppedException;
 import com.aims.logic.runtime.runner.FunctionContext;
 import com.aims.logic.runtime.runner.Functions;
 import com.aims.logic.runtime.runner.LogicRunner;
@@ -213,7 +214,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
      */
     @Override
     public LogicRunResult runBizByMap(String logicId, String bizId, Map<String, Object> parsMap, String traceId, String logicLogId, JSONObject globalVars) {
-        String lockKey = logicId + "-" + bizId;
+        String lockKey = bizLock.buildKey(logicId, bizId);
         if (bizLock.spinLock(lockKey)) {
             try {
                 log.info("[{}]bizId:{}-get lock key:{}", logicId, bizId, lockKey);
@@ -470,6 +471,9 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                     logService.updateInstance(logicLog);
                     log.info("[{}]bizId:{},begin commit in runItemWithEveryJavaNodeTran-itemResIsSuccess=true", logicId, bizId);
                     commitCurTranIfNextIsNewGroup(curTranStatus, runner.getFnCtx(), curItem);
+                    if (Objects.equals(curItem.getType(), LogicItemType.wait.getValue()) && bizLock.isStopping(bizLock.buildKey(logicId, bizId))) {
+                        throw new BizManuallyStoppedException(logicId, bizId);
+                    }
                 } else {
                     log.info("[{}]bizId:{},节点执行失败，begin rollback，success=false,msg:{}, in runItemWithEveryJavaNodeTran", logicId, bizId, itemRes.getMsg());
                     transactionalUtils.rollback(curTranStatus);
@@ -531,6 +535,9 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                     logService.updateInstance(logicLog);
                     log.info("[{}]bizId:{},begin commit in runItemWithEveryJavaNodeTran-itemResIsSuccess=true", logicId, bizId);
                     commitCurTranIfNextIsNewGroup(curTranStatus, runner.getFnCtx(), curItem);
+                    if (Objects.equals(itemRes.getItemInstance().getType(), LogicItemType.wait.getValue()) && bizLock.isStopping(logicId + "-" + bizId)) {
+                        throw new BizManuallyStoppedException(logicId, bizId);
+                    }
                 } else {
                     //执行失败，下一次继续执行当前节点
                     logicLog.setNextItem(curItem).setOver(false);
@@ -581,6 +588,9 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                     logicLog.addItemLog(itemRes);
                     if (itemRes.isSuccess()) {
                         runner.updateStatus(itemRes, nextItem);
+                        if (Objects.equals(itemRes.getItemInstance().getType(), LogicItemType.wait.getValue()) && bizLock.isStopping(logicId + "-" + bizId)) {
+                            throw new BizManuallyStoppedException(logicId, bizId);
+                        }
                     } else {
                         break;
                     }
@@ -683,7 +693,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
             if (insEntity != null && insEntity.getIsOver()) {
                 return new LogicRunResult().setSuccess(false).setMsg(String.format("指定的bizId:%s已完成执行，无法重复执行。", bizId));
             }
-            String lockKey = logicId + "-" + bizId;
+            String lockKey = bizLock.buildKey(logicId, bizId);
             try {
                 bizLock.spinLock(lockKey);
                 log.info("[{}]bizId:{}-get lock key:{}", logicId, bizId, lockKey);
@@ -783,6 +793,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         return false;
     }
 
+    @Override
     public int deleteBizInstance(String logicId, String bizId) {
         LogicInstanceEntity insEntity = insService.getInstance(logicId, bizId);
         if (insEntity != null) {
@@ -792,7 +803,13 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         return 0;
     }
 
+    @Override
     public int deleteCompletedBizInstanceByLogicId(String logicId) {
         return insService.deleteCompletedBizInstanceByLogicId(logicId);
+    }
+
+    @Override
+    public void stopBiz(String logicId, String bizId) {
+        bizLock.setBizStopping(bizLock.buildKey(logicId, bizId));
     }
 }

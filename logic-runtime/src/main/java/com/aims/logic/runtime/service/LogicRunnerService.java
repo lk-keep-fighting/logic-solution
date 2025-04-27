@@ -213,6 +213,14 @@ public interface LogicRunnerService {
     int deleteCompletedBizInstanceByLogicId(String logicId);
 
     /**
+     * 停止业务执行,实例会在下一个延时等待节点结束后中止执行，并抛出异常
+     *
+     * @param logicId
+     * @param bizId
+     */
+    void stopBiz(String logicId, String bizId);
+
+    /**
      * 先校验验证码，再执行业务逻辑
      *
      * @param logicId        逻辑编号
