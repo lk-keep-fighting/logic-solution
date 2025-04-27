@@ -39,6 +39,7 @@ public class RuntimeUtil {
     /**
      * 合并环境变量，内部会进行合并操作，将丢失传入对象的引用
      * 若需保持引用，请使用setEnv
+     *
      * @param customEnv
      */
     public static void mergeEnv(JSONObject customEnv) {
@@ -138,7 +139,7 @@ public class RuntimeUtil {
      *
      * @return 环境变量json对象
      */
-    public static JSONObject readEnv() {
+    public static JSONObject readEnvFromFile() {
         JSONObject envIdx = FileUtil.readOrCreateFile(FileUtil.ENV_DIR, "index.json", "{\"env\":\"dev\"}");
         String _env = envIdx.get("env").toString();
         String envFileName = String.format("env.%s.json", _env);
@@ -147,8 +148,21 @@ public class RuntimeUtil {
         return FileUtil.readOrCreateFile(FileUtil.ENV_DIR, envFileName, defEnvFile);
     }
 
+    /**
+     * 保存环境变量到配置文件中
+     *
+     * @param envJson 环境变量json对象
+     * @return 保存后的环境变量json对象
+     */
+    public static void saveEnvToFile(JSONObject envJson) throws Exception {
+        JSONObject envIdx = FileUtil.readOrCreateFile(FileUtil.ENV_DIR, "index.json", "{\"env\":\"dev\"}");
+        String _env = envIdx.get("env").toString();
+        String envFileName = String.format("env.%s.json", _env);
+        FileUtil.writeFile(FileUtil.ENV_DIR, envFileName, envJson.toJSONString());
+    }
+
     public static synchronized void initEnv() {
         if (ENVs == null)
-            setEnv(readEnv());
+            setEnv(readEnvFromFile());
     }
 }

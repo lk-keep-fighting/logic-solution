@@ -19,6 +19,8 @@ public class RedisBizLock implements BizLock {
     private final BizLockProperties properties;
     private final BizLockProperties.SpinLock spinLock;
     private static final String LOCK_PREFIX = "biz_lock:";
+    private static final String LOCK_STOPPING_PREFIX = "biz_stopping:";
+
 
     public RedisBizLock(BizLockProperties properties) {
         this.properties = properties;
@@ -32,10 +34,26 @@ public class RedisBizLock implements BizLock {
     }
 
     @Override
+    public String buildKey(String logicId, String bizId) {
+        return logicId + ":" + bizId;
+    }
+    @Override
     public boolean isLocked(String key) {
         String lockKey = LOCK_PREFIX + key;
         RLock lock = redisson.getLock(lockKey);
         return lock.isLocked();
+    }
+    @Override
+    public boolean isStopping(String key) {
+        return redisson.getBucket(LOCK_STOPPING_PREFIX + key).isExists();
+    }
+
+    @Override
+    public void setBizStopping(String key) {
+        if (isLocked(key))
+            redisson.getBucket(LOCK_STOPPING_PREFIX + key).set(0);
+        else
+            throw new RuntimeException("指定的实例不在运行中，无法停止。");
     }
 
     @Override
@@ -80,12 +98,16 @@ public class RedisBizLock implements BizLock {
     @Override
     public void unlock(String key) {
         String lockKey = LOCK_PREFIX + key;
+        String stoppingBizKey = LOCK_STOPPING_PREFIX + key;
         RLock lock = redisson.getLock(lockKey);
         if (lock.isHeldByCurrentThread()) {
+            redisson.getKeys().delete(lockKey);
+            log.info("delete key ok:{}", key);
+            redisson.getKeys().delete(stoppingBizKey);
             lock.unlock();
-            log.info("unlock ok,key:{}", key);
+            log.info("unlock key ok:{}", key);
         } else {
-            log.info("unlock error，当前线程未持有锁或锁已过期, key:{}", key);
+            log.info("unlock error，redis不存在锁，锁已被删除或已过期, key:{}", key);
         }
     }
 

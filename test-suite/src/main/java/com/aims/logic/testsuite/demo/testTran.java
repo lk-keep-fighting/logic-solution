@@ -11,8 +11,6 @@ import com.aims.logic.testsuite.demo.mapper.TestDetailMapper;
 import com.aims.logic.testsuite.demo.mapper.TestMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -32,7 +30,7 @@ public class testTran {
     }
 
     @LogicItem(name = "根据id读取", group = "测试事务", memo = "")
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+//    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public TestEntity getById(String id) {
         return testMapper.selectById(id);
     }

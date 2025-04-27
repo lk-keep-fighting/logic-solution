@@ -142,7 +142,7 @@ public class LogicRuntimeController {
      */
     @GetMapping("/api/runtime/env")
     public ApiResult env() {
-        return new ApiResult().setData(RuntimeUtil.getEnvJson());
+        return new ApiResult().setData(RuntimeUtil.readEnvFromFile());
     }
 
     /**
@@ -151,9 +151,9 @@ public class LogicRuntimeController {
      * @param customEnv
      * @return
      */
-    @PostMapping("/api/runtime/env/merge")
-    public ApiResult setEnv(@RequestBody JSONObject customEnv) {
-        RuntimeUtil.mergeEnv(customEnv);
+    @PostMapping("/api/runtime/env/set")
+    public ApiResult setEnv(@RequestBody JSONObject customEnv) throws Exception {
+        RuntimeUtil.saveEnvToFile(customEnv);
         return new ApiResult().setData(RuntimeUtil.getEnvJson());
     }
 
@@ -167,15 +167,13 @@ public class LogicRuntimeController {
         return new ApiResult().setData(this.bizLock.getLockKeys());
     }
 
-    @PostMapping("/api/runtime/lockKey/unlock")
-    public ApiResult unlockKey(@RequestBody JSONObject body) {
-        String key = body.getString("key");
+    @DeleteMapping("/api/runtime/lockKey/setBizStopping/{key}")
+    public ApiResult stoppingBiz(@PathVariable String key) {
         try {
-            if (this.bizLock.isLocked(key)) {
-                this.bizLock.unlock(key);
-            }
+            bizLock.setBizStopping(key);
         } catch (Exception e) {
-            return ApiResult.error(e.getMessage());
+            e.printStackTrace();
+            return ApiResult.error(e.toString());
         }
         return new ApiResult().setData(key);
     }
