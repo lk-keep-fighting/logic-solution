@@ -1,5 +1,7 @@
 package com.aims.logic.sdk.service;
 
+import com.aims.logic.sdk.dto.FormQueryInput;
+import com.aims.logic.sdk.dto.Page;
 import com.aims.logic.sdk.entity.LogicEntity;
 import com.alibaba.fastjson2.JSONObject;
 
@@ -35,6 +37,8 @@ public interface LogicService extends BaseService<LogicEntity, String> {
     String pubToLocalFromEntityJson(JSONObject jsonStr, String source);
 
     String pubToIdeHost(String id, String url);
+
+    Page<LogicEntity> selectPageFromRemoteIde(String ideHost, FormQueryInput input);
 
     List<Map<String, Object>> getModuleList();
 }

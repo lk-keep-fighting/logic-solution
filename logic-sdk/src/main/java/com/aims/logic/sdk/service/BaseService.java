@@ -31,4 +31,6 @@ public interface BaseService<T, TKey> {
     List<Map<String, Object>> selectBySql(String sql);
 
     Page<Map<String, Object>> selectPageByInput(QueryInput input);
+
+    Page<T> queryPageByInput(QueryInput input);
 }

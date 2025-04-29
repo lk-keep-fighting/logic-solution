@@ -6,6 +6,7 @@ import com.aims.datamodel.core.sqlbuilder.QueryBuilder;
 import com.aims.datamodel.core.sqlbuilder.input.OrderBy;
 import com.aims.datamodel.core.sqlbuilder.input.OrderByColumn;
 import com.aims.datamodel.core.sqlbuilder.input.QueryInput;
+import com.aims.logic.runtime.util.IdWorker;
 import com.aims.logic.sdk.annotation.IdType;
 import com.aims.logic.sdk.annotation.TableField;
 import com.aims.logic.sdk.annotation.TableId;
@@ -14,12 +15,12 @@ import com.aims.logic.sdk.dto.FormQueryInput;
 import com.aims.logic.sdk.dto.Page;
 import com.aims.logic.sdk.entity.BaseEntity;
 import com.aims.logic.sdk.service.BaseService;
-import com.aims.logic.runtime.util.IdWorker;
 import com.aims.logic.sdk.util.MapUtils;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.util.ParameterizedTypeImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -63,6 +64,25 @@ public class BaseServiceImpl<T extends BaseEntity, TKey> implements BaseService<
         p.setSize(input.getPageSize());
         p.setTotal(count);
         p.setRecords(list);
+        return p;
+    }
+
+    @Override
+    public Page<T> queryPageByInput(QueryInput input) {
+        var sql = QueryBuilder.build(input);
+        var list = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(entityClass));
+        var fromIdex = sql.indexOf("FROM");
+        var countSql = "SELECT COUNT(*) FROM " + sql.substring(fromIdex + 4);
+        var limitIdx = countSql.lastIndexOf("LIMIT");
+        if (limitIdx > 0) {
+            countSql = countSql.substring(0, limitIdx);
+        }
+        var count = jdbcTemplate.queryForObject(countSql, Long.class);
+        var p = new Page<T>();
+        p.setCurrent(input.getPage());
+        p.setSize(input.getPageSize());
+        p.setTotal(count);
+        p.setRecords((List<T>) list);
         return p;
     }
 
@@ -245,7 +265,7 @@ public class BaseServiceImpl<T extends BaseEntity, TKey> implements BaseService<
     }
 
     @Override
-    public Page selectPage(FormQueryInput input) {
+    public Page<T> selectPage(FormQueryInput input) {
         QueryInput queryInput = new QueryInput();
         queryInput.setPage(input.getPage())
                 .setPageSize(input.getPageSize());
@@ -279,7 +299,7 @@ public class BaseServiceImpl<T extends BaseEntity, TKey> implements BaseService<
             orderBy.setColumns(orderByColumns);
             queryInput.setOrderBy(orderBy);
         }
-        return selectPageByInput(queryInput);
+        return queryPageByInput(queryInput);
     }
 
     public List<Map<String, Object>> selectBySql(String sql) {

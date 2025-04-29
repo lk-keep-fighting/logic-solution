@@ -2,7 +2,9 @@ package com.aims.logic.sdk.util;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MapUtils {
@@ -47,5 +49,14 @@ public class MapUtils {
             }
         }
         return object;
+    }
+
+    public static <T> List<T> mapListToBeanList(List<Map<String, Object>> mapList, Class<T> beanClass)
+            throws Exception {
+        List<T> beanList = new ArrayList<>();
+        for (Map<String, Object> map : mapList) {
+            beanList.add(mapToBean(map, beanClass));
+        }
+        return beanList;
     }
 }
