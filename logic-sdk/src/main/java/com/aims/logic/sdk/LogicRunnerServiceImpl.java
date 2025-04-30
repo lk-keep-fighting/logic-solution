@@ -535,7 +535,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                     logService.updateInstance(logicLog);
                     log.info("[{}]bizId:{},begin commit in runItemWithEveryJavaNodeTran-itemResIsSuccess=true", logicId, bizId);
                     commitCurTranIfNextIsNewGroup(curTranStatus, runner.getFnCtx(), curItem);
-                    if (Objects.equals(itemRes.getItemInstance().getType(), LogicItemType.wait.getValue()) && bizLock.isStopping(logicId + "-" + bizId)) {
+                    if (Objects.equals(curItem.getType(), LogicItemType.wait.getValue()) && bizLock.isStopping(logicId + "-" + bizId)) {
                         throw new BizManuallyStoppedException(logicId, bizId);
                     }
                 } else {
@@ -581,14 +581,16 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         if (runner.getRunnerStatus() == RunnerStatusEnum.Continue) {
             TransactionStatus begin = null;
             begin = transactionalUtils.newTran();
+            LogicItemTreeNode curItem;
             while (runner.getRunnerStatus() == RunnerStatusEnum.Continue) {
                 try {
+                    curItem = nextItem;
                     itemRes = runner.runItem(nextItem);
                     nextItem = runner.findNextItem(nextItem);
                     logicLog.addItemLog(itemRes);
                     if (itemRes.isSuccess()) {
                         runner.updateStatus(itemRes, nextItem);
-                        if (Objects.equals(itemRes.getItemInstance().getType(), LogicItemType.wait.getValue()) && bizLock.isStopping(logicId + "-" + bizId)) {
+                        if (Objects.equals(curItem.getType(), LogicItemType.wait.getValue()) && bizLock.isStopping(logicId + "-" + bizId)) {
                             throw new BizManuallyStoppedException(logicId, bizId);
                         }
                     } else {
