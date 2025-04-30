@@ -603,13 +603,13 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                     break;
                 }
             }
-            logicLog.setSuccess(itemRes.isSuccess());
+            logicLog.setSuccess(itemRes.isSuccess())
+                    .setMsg(itemRes.getMsg())
+                    .setVarsJson_end(runner.getFnCtx().get_var());
             //本次交互完成，没有错误则提交，否则本次交互全部回滚，只更新实例success状态和消息
             if (itemRes.isSuccess()) {
-                logicLog.setVarsJson_end(runner.getFnCtx().get_var())
-                        .setOver(runner.updateStatus(itemRes, nextItem) == RunnerStatusEnum.End)
-                        .setNextItem(nextItem)
-                        .setSuccess(itemRes.isSuccess()).setMsg(itemRes.getMsg());
+                logicLog.setOver(runner.updateStatus(itemRes, nextItem) == RunnerStatusEnum.End)
+                        .setNextItem(nextItem);
                 logService.updateInstance(logicLog);
                 transactionalUtils.commit(begin);
             } else {
