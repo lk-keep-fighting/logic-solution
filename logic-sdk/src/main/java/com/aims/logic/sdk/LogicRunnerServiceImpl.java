@@ -362,8 +362,12 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         }
         var tranScope = startItem.getTranScope();
         if (this.parentLogicId != null && tranPropagation != Propagation.REQUIRES_NEW.value()) {//子逻辑默认为每次交互模式，要么全成功要么全失败，继承父逻辑事务，跟随父逻辑提交
-            log.info("[{}]bizId:{},当前为复用逻辑内部，未指定开启新事务，数据将与入口逻辑一起提交。", logicId, bizId);
-            tranScope = LogicItemTransactionScope.everyRequest;
+            if (tranPropagation == Propagation.NOT_SUPPORTED.value()) {//父逻辑关闭了事务，子逻辑也关闭
+                tranScope = LogicItemTransactionScope.off;
+            } else {
+                log.info("[{}]bizId:{},当前为复用逻辑内部，未指定开启新事务，数据将与入口逻辑一起提交。", logicId, bizId);
+                tranScope = LogicItemTransactionScope.everyRequest;
+            }
         } else if (tranScope == null || tranScope.equals(LogicItemTransactionScope.def)) {
             if (LogicItemType.start.equalsTo(startItem.getType()) || LogicItemType.waitForContinue.equalsTo(startItem.getType())) {
                 tranScope = RuntimeUtil.getEnvObject().getDefaultTranScope();
