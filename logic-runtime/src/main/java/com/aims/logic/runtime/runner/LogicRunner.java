@@ -85,7 +85,7 @@ public class LogicRunner {
         this.fnCtx.setBizId(bizId);
         this.fnCtx.setLogicId(logic.getId());
         logicLog.setBizId(bizId).setLogOff(fnCtx.isLogOff());
-        log.info("init-[{}}]bizId:{}", logic.getId(), bizId);
+        log.info("init-[{}]bizId:{}", logic.getId(), bizId);
         log.debug("[{}}]参数声明：_par:{}", logic.getId(), this.fnCtx.get_par());
         log.debug("[{}}]局部变量声明：_var:{}", logic.getId(), this.fnCtx.get_var());
         log.debug("[{}}]环境变量声明：_env:{}", logic.getId(), this.fnCtx.get_env());

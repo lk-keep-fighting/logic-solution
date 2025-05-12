@@ -28,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Propagation;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -58,6 +59,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
      * 父业务标识
      */
     private String parentBizId = null;
+    private int tranPropagation = 0;
 
     static IdWorker idWorker = new IdWorker(2, 1);
     BizLock bizLock;
@@ -121,16 +123,17 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
 
     @Override
     public LogicRunnerService newInstance(JSONObject env) {
-        return newInstance(env, null, null, false);
+        return newInstance(env, null, null, 0, false);
     }
 
     @Override
-    public LogicRunnerService newInstance(JSONObject env, String parentLogicId, String parentBizId, boolean isAsync) {
+    public LogicRunnerService newInstance(JSONObject env, String parentLogicId, String parentBizId, int tranPropagation, boolean isAsync) {
         var ins = new LogicRunnerServiceImpl(logService, insService, configStoreService, transactionalUtils, appConfig, bizLock);
         ins.setEnv(env, true);
         ins.isAsync = isAsync;
         ins.parentLogicId = parentLogicId;
         ins.parentBizId = parentBizId;
+        ins.tranPropagation = tranPropagation;
         return ins;
     }
 
@@ -215,9 +218,14 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
     @Override
     public LogicRunResult runBizByMap(String logicId, String bizId, Map<String, Object> parsMap, String traceId, String logicLogId, JSONObject globalVars) {
         String lockKey = bizLock.buildKey(logicId, bizId);
+        TransactionStatus transactionStatus = null;
         if (bizLock.spinLock(lockKey)) {
             try {
                 log.info("[{}]bizId:{}-get lock key:{}", logicId, bizId, lockKey);
+                if (tranPropagation == Propagation.REQUIRES_NEW.value()) {
+                    log.info("[{}]bizId:{}-复用逻辑开启新全局事务", logicId, bizId);
+                    transactionStatus = transactionalUtils.newRequiresNewTran();
+                }
                 return runBiz(logicId, bizId, parsMap, traceId, logicLogId, globalVars);
             } catch (Exception e) {
                 log.error("[{}]bizId:{}-runBizByMap catch逻辑异常:{}", logicId, bizId, e.getMessage());
@@ -225,6 +233,12 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
             } finally {
                 bizLock.unlock(lockKey);
                 log.info("[{}]bizId:{}-unlock key:{}", logicId, bizId, lockKey);
+                if (transactionStatus != null
+                        && !transactionStatus.isRollbackOnly()
+                        && !transactionStatus.isCompleted()) {
+                    log.info("[{}]bizId:{}-提交全局事务", logicId, bizId);
+                    transactionalUtils.commit(transactionStatus);
+                }
             }
         } else {
             log.info("[{}]bizId:{}-get lock key:{} fail", logicId, bizId, lockKey);
@@ -347,7 +361,10 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
             logService.addInstance(logicLog);
         }
         var tranScope = startItem.getTranScope();
-        if (tranScope == null || tranScope.equals(LogicItemTransactionScope.def)) {
+        if (this.parentLogicId != null && tranPropagation != Propagation.REQUIRES_NEW.value()) {//子逻辑默认为每次交互模式，要么全成功要么全失败，继承父逻辑事务，跟随父逻辑提交
+            log.info("[{}]bizId:{},当前为复用逻辑内部，未指定开启新事务，数据将与入口逻辑一起提交。", logicId, bizId);
+            tranScope = LogicItemTransactionScope.everyRequest;
+        } else if (tranScope == null || tranScope.equals(LogicItemTransactionScope.def)) {
             if (LogicItemType.start.equalsTo(startItem.getType()) || LogicItemType.waitForContinue.equalsTo(startItem.getType())) {
                 tranScope = RuntimeUtil.getEnvObject().getDefaultTranScope();
             } else {
@@ -407,7 +424,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
             }
         }
 
-        return transactionalUtils.newTran();
+        return transactionalUtils.newRequiresNewTran();
     }
 
     private void commitCurTranIfNextIsNewGroup(TransactionStatus curTran, FunctionContext ctx, LogicItemTreeNode curItem) {
