@@ -52,7 +52,7 @@ public interface LogicRunnerService {
      * @return 返回逻辑运行器
      */
 
-    LogicRunnerService newInstance(JSONObject env, String parentLogicId, String parentBizId, boolean isAsync);
+    LogicRunnerService newInstance(JSONObject env, String parentLogicId, String parentBizId, int tranPropagation, boolean isAsync);
 
     /**
      * 无状态-入参为json字符串

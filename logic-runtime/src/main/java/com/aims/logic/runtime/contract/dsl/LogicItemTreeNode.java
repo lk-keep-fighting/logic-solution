@@ -69,6 +69,10 @@ public class LogicItemTreeNode extends BaseLASL {
      */
     LogicItemTransactionScope tranScope;
     /*
+    事务传播属性
+     */
+    int tranPropagation;
+    /*
     事务组id
      */
     String tranGroupId;

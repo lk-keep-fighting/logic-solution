@@ -35,6 +35,11 @@ public class testTran {
         return testMapper.selectById(id);
     }
 
+    @LogicItem(name = "根据id更新", group = "测试事务", memo = "")
+    public int update(TestEntity testEntity) {
+        return testMapper.updateById(testEntity);
+    }
+
     @LogicItem(name = "根据id删除-与插入同类", group = "测试事务", memo = "")
     public int deleteById(String id) {
         return testMapper.deleteById(id);
