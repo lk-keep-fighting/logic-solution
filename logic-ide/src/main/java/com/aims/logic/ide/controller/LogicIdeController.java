@@ -50,8 +50,12 @@ public class LogicIdeController {
 
     @PostMapping("/api/ide/logic/add")
     public ApiResult<Boolean> addLogic(@RequestBody LogicEntity body) {
-        var res = logicService.insert(body);
-        return new ApiResult<Boolean>().setData(res);
+        try {
+            logicService.insert(body);
+            return new ApiResult<Boolean>().setData(true);
+        } catch (Exception ex) {
+            return ApiResult.fromException(ex);
+        }
     }
 
     @PostMapping("/api/ide/logics")
