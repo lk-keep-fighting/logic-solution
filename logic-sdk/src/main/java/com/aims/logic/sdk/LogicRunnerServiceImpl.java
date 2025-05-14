@@ -549,7 +549,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 runner.updateStatus(itemRes, nextItem);
                 logicLog.setVarsJson_end(runner.getFnCtx().get_var())
                         .setOver(runner.getRunnerStatus() == RunnerStatusEnum.End)
-                        .setSuccess(itemRes.isSuccess()).setMsg(itemRes.getMsg());
+                        .setMsg(itemRes.getMsg());
                 if (itemRes.isSuccess()) {
                     //执行成功正常指定下一个节点
                     logicLog.setNextItem(nextItem);
@@ -569,6 +569,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 }
                 //代码报错时会中断执行
                 if (itemRes.isNeedInterrupt()) {
+                    logicLog.setSuccess(false);
                     break;
                 }
             } catch (Exception e) {
