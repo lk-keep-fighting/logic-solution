@@ -18,6 +18,7 @@ import com.aims.logic.runtime.util.IdWorker;
 import com.aims.logic.runtime.util.JsonUtil;
 import com.aims.logic.runtime.util.RuntimeUtil;
 import com.aims.logic.sdk.entity.LogicInstanceEntity;
+import com.aims.logic.sdk.event.LogicRunnerEventListener;
 import com.aims.logic.sdk.service.LoggerHelperService;
 import com.aims.logic.sdk.service.LogicInstanceService;
 import com.aims.logic.sdk.util.TransactionalUtils;
@@ -63,6 +64,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
 
     static IdWorker idWorker = new IdWorker(2, 1);
     BizLock bizLock;
+    List<LogicRunnerEventListener> eventListener;
 
     @Autowired
     public LogicRunnerServiceImpl(LoggerHelperService logService,
@@ -70,13 +72,15 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                                   LogicConfigStoreService _configStoreService,
                                   TransactionalUtils transactionalUtils,
                                   LogicAppConfig appConfig,
-                                  BizLock bizLock) {
+                                  BizLock bizLock,
+                                  List<LogicRunnerEventListener> _eventListener) {
         this.logService = logService;
         this.insService = insService;
         this.configStoreService = _configStoreService;
         this.appConfig = appConfig;
         this.transactionalUtils = transactionalUtils;
         this.bizLock = bizLock;
+        this.eventListener = _eventListener;
         RuntimeUtil.AppConfig = appConfig;
         RuntimeUtil.logicConfigStoreService = configStoreService;
         RuntimeUtil.initEnv();
@@ -128,7 +132,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
 
     @Override
     public LogicRunnerService newInstance(JSONObject env, String parentLogicId, String parentBizId, int tranPropagation, boolean isAsync) {
-        var ins = new LogicRunnerServiceImpl(logService, insService, configStoreService, transactionalUtils, appConfig, bizLock);
+        var ins = new LogicRunnerServiceImpl(logService, insService, configStoreService, transactionalUtils, appConfig, bizLock, eventListener);
         ins.setEnv(env, true);
         ins.isAsync = isAsync;
         ins.parentLogicId = parentLogicId;
@@ -170,9 +174,21 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         JSONObject config = RuntimeUtil.readLogicConfig(logicId);
         var runner = new com.aims.logic.runtime.runner.LogicRunner(config, getEnvJson(), globalVars);
         runner.getFnCtx().setTraceId(traceId == null ? UUID.randomUUID().toString() : traceId);
+        try {
+            eventListener.forEach(listener -> listener.beforeLogicRun(logicId, null, parsMap));
+        } catch (Exception e) {
+            log.error("beforeLogicRun回调异常", e);
+            e.printStackTrace();
+        }
         var res = runner.run(parsMap);
         res.getLogicLog().setId(objectId);
         logService.addLogicLog(res.getLogicLog());
+        try {
+            eventListener.forEach(listener -> listener.afterLogicStop(logicId, null, res.getData()));
+        } catch (Exception e) {
+            log.error("afterLogicStop回调异常", e);
+            e.printStackTrace();
+        }
         return res;
     }
 
@@ -272,8 +288,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
 
     @Override
     public LogicRunResult runBizByVerifyCode(String logicId, String bizId, String
-            verifyCode, Map<String, Object>
-                                                     parsMap) {
+            verifyCode, Map<String, Object> parsMap) {
         if (bizId == null || bizId.isBlank()) throw new RuntimeException("未指定业务标识！");
         if (verifyCode == null || verifyCode.isBlank())
             throw new RuntimeException("未指定期望执行节点！");

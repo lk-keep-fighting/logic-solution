@@ -74,6 +74,13 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
         valueMaps.put("nextName", nextName);
         valueMaps.put("env", env);
         instanceService.updateById(logicLog.getInstanceId(), valueMaps);
+        try {
+            eventListener.forEach(listener -> listener.beforeLogicRun(logicLog.getLogicId(), logicLog.getBizId(), logicLog.getReturnData()));
+        } catch (Exception e) {
+            log.error("beforeLogicRun回调异常", e);
+            e.printStackTrace();
+        }
+
     }
 
     public void stopBizRunning(LogicLog logicLog) {
@@ -87,6 +94,13 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
         var msg255 = logicLog.getMsg() == null ? null : logicLog.getMsg().length() > 255 ? logicLog.getMsg().substring(0, 255) : logicLog.getMsg();
         valuesMap.put("message", msg255);
         instanceService.updateById(logicLog.getInstanceId(), valuesMap);
+        try {
+            eventListener.forEach(listener -> listener.afterLogicStop(logicLog.getLogicId(), logicLog.getBizId(), logicLog.getReturnData()));
+        } catch (Exception e) {
+            log.error("afterLogicStop回调异常", e);
+            e.printStackTrace();
+        }
+
     }
 
 
