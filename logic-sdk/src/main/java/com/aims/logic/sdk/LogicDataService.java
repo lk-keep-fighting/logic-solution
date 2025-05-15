@@ -21,7 +21,7 @@ public interface LogicDataService {
      * @param pageSize
      * @return
      */
-    Page<LogicInstanceEntity> queryBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, long pageNum, long pageSize);
+    Page<LogicInstanceEntity> queryBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, List<String> bizIds, long pageNum, long pageSize);
 
     /**
      * 查询超时运行的业务
@@ -57,4 +57,14 @@ public interface LogicDataService {
 
     List<UnCompletedBizDto> queryUncompletedBizExclude(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning, Boolean isSuccess, List<String> excludeLogicIds);
 
+    /**
+     * 删除业务实例
+     * 为了避免清空表，时间区间和ids至少有一个值，否则无法执行
+     *
+     * @param createTimeFrom
+     * @param createTimeTo
+     * @param ids
+     * @return
+     */
+    int deleteBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, List<String> ids);
 }

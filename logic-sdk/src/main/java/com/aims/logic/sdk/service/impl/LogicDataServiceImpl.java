@@ -1,18 +1,17 @@
 package com.aims.logic.sdk.service.impl;
 
-import com.aims.datamodel.core.dsl.DataModel;
-import com.aims.datamodel.core.dsl.DataViewCondition;
-import com.aims.datamodel.core.sqlbuilder.input.QueryInput;
 import com.aims.logic.runtime.contract.dto.LongtimeRunningBizDto;
 import com.aims.logic.runtime.contract.dto.UnCompletedBizDto;
 import com.aims.logic.sdk.LogicDataService;
 import com.aims.logic.sdk.dto.Page;
 import com.aims.logic.sdk.entity.LogicInstanceEntity;
 import com.aims.logic.sdk.service.LogicInstanceService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,6 +21,8 @@ public class LogicDataServiceImpl implements LogicDataService {
 
     private LogicInstanceService logicInstanceService;
     private LogicInstanceService insService;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
 
     public LogicDataServiceImpl(LogicInstanceService _logicInstanceService,
@@ -31,17 +32,34 @@ public class LogicDataServiceImpl implements LogicDataService {
     }
 
     @Override
-    public Page<LogicInstanceEntity> queryBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, long pageNum, long pageSize) {
-        QueryInput input = new QueryInput();
-        input.setFrom(new DataModel().setMainTable(logicInstanceDataModelId));
-        List<DataViewCondition> cons = new ArrayList<>();
-        DataViewCondition c = new DataViewCondition();
-        c.setColumn("createTime");
-        c.setOperator("BETWEEN");
-        c.setValues(List.of(createTimeFrom, createTimeTo));
-        cons.add(c);
-        input.setConditions(cons);
-        return logicInstanceService.queryPageByInput(input);
+    public Page<LogicInstanceEntity> queryBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, List<String> bizIds, long pageNum, long pageSize) {
+        StringBuilder sql = new StringBuilder("select * from logic_instance where 1=1 ");
+        StringBuilder condition = new StringBuilder();
+        if (createTimeFrom != null) {
+            condition.append(String.format(" and createTime >= '%s'", createTimeFrom));
+        }
+        if (createTimeTo != null) {
+            condition.append(String.format(" and createTime <= '%s'", createTimeTo));
+        }
+        if (bizIds != null && !bizIds.isEmpty()) {
+            condition.append(String.format(" and bizId in ('%s')", String.join("','", bizIds)));
+        }
+        sql.append(condition);
+        if (pageSize != 0) {
+            sql.append(String.format(" limit %d,%d", (pageNum - 1) * pageSize, pageSize));
+        }
+        var list = jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(LogicInstanceEntity.class));
+        var countSql = String.format("select count(*) from logic_instance ");
+        if (!condition.isEmpty()) {
+            countSql += "where 1=1 " + condition;
+        }
+        var count = jdbcTemplate.queryForObject(countSql, Long.class);
+        var p = new Page<LogicInstanceEntity>();
+        p.setCurrent(pageNum);
+        p.setSize(pageSize);
+        p.setTotal(count);
+        p.setRecords(list);
+        return p;
     }
 
     @Override
@@ -83,5 +101,10 @@ public class LogicDataServiceImpl implements LogicDataService {
                 .setIsAsync(insEntity.getIsAsync())
                 .setParentLogicId(insEntity.getParentLogicId())
                 .setParentBizId(insEntity.getParentBizId())).collect(Collectors.toList());
+    }
+
+    @Override
+    public int deleteBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, List<String> ids) {
+        return insService.deleteBiz(createTimeFrom, createTimeTo, ids);
     }
 }

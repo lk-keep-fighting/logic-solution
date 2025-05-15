@@ -20,5 +20,7 @@ public interface LogicInstanceService extends BaseService<LogicInstanceEntity, S
 
     int deleteCompletedBizInstance();
 
+    int deleteBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, List<String> ids);
+
     int updateInstanceNextId(String logicId, String bizId, String nextId, String nextName, String varsJsonEnd);
 }
