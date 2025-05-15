@@ -33,7 +33,6 @@ import org.springframework.transaction.annotation.Propagation;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author liukun
@@ -65,6 +64,8 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
     static IdWorker idWorker = new IdWorker(2, 1);
     BizLock bizLock;
     List<LogicRunnerEventListener> eventListener;
+    @Autowired
+    LogicDataService logicDataService;
 
     @Autowired
     public LogicRunnerServiceImpl(LoggerHelperService logService,
@@ -765,42 +766,44 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
 
     @Override
     public List<LongtimeRunningBizDto> queryLongtimeRunningBiz(int timeout) {
-        var list = insService.queryLongtimeRunningBiz(timeout);
-        if (list == null)
-            return null;
-        return list.stream().map(insEntity -> new LongtimeRunningBizDto()
-                .setLogicId(insEntity.getLogicId())
-                .setBizId(insEntity.getBizId())
-                .setStartTime(insEntity.getStartTime())
-                .setIsAsync(insEntity.getIsAsync())
-                .setParentBizId(insEntity.getParentBizId())
-                .setParentLogicId(insEntity.getParentLogicId())).collect(Collectors.toList());
+        return logicDataService.queryLongtimeRunningBiz(timeout);
+//        var list = insService.queryLongtimeRunningBiz(timeout);
+//        if (list == null)
+//            return null;
+//        return list.stream().map(insEntity -> new LongtimeRunningBizDto()
+//                .setLogicId(insEntity.getLogicId())
+//                .setBizId(insEntity.getBizId())
+//                .setStartTime(insEntity.getStartTime())
+//                .setIsAsync(insEntity.getIsAsync())
+//                .setParentBizId(insEntity.getParentBizId())
+//                .setParentLogicId(insEntity.getParentLogicId())).collect(Collectors.toList());
     }
 
     @Override
     public List<UnCompletedBizDto> queryUncompletedBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning) {
-        return queryUncompletedBiz(createTimeFrom, createTimeTo, isRunning, null);
+        return logicDataService.queryUncompletedBiz(createTimeFrom, createTimeTo, isRunning, null);
     }
 
     @Override
     public List<UnCompletedBizDto> queryUncompletedBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning, Boolean isSuccess) {
-        return queryUncompletedBizExclude(createTimeFrom, createTimeTo, isRunning, isSuccess, null);
+        return logicDataService.queryUncompletedBizExclude(createTimeFrom, createTimeTo, isRunning, isSuccess, null);
     }
 
     @Override
     public List<UnCompletedBizDto> queryUncompletedBizExclude(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning, Boolean isSuccess, List<String> excludeLogicIds) {
-        var list = insService.queryUncompletedBizExclude(createTimeFrom, createTimeTo, isRunning, isSuccess, excludeLogicIds);
-        if (list == null)
-            return null;
-        return list.stream().map(insEntity -> new UnCompletedBizDto()
-                .setLogicId(insEntity.getLogicId())
-                .setBizId(insEntity.getBizId())
-                .setCreateTime(insEntity.getCreateTime())
-                .setIsRunning(insEntity.getIsRunning())
-                .setIsSuccess(insEntity.getSuccess())
-                .setIsAsync(insEntity.getIsAsync())
-                .setParentLogicId(insEntity.getParentLogicId())
-                .setParentBizId(insEntity.getParentBizId())).collect(Collectors.toList());
+        return logicDataService.queryUncompletedBizExclude(createTimeFrom, createTimeTo, isRunning, isSuccess, excludeLogicIds);
+//        var list = insService.queryUncompletedBizExclude(createTimeFrom, createTimeTo, isRunning, isSuccess, excludeLogicIds);
+//        if (list == null)
+//            return null;
+//        return list.stream().map(insEntity -> new UnCompletedBizDto()
+//                .setLogicId(insEntity.getLogicId())
+//                .setBizId(insEntity.getBizId())
+//                .setCreateTime(insEntity.getCreateTime())
+//                .setIsRunning(insEntity.getIsRunning())
+//                .setIsSuccess(insEntity.getSuccess())
+//                .setIsAsync(insEntity.getIsAsync())
+//                .setParentLogicId(insEntity.getParentLogicId())
+//                .setParentBizId(insEntity.getParentBizId())).collect(Collectors.toList());
     }
 
     @Override

@@ -1,13 +1,18 @@
 package com.aims.logic.sdk;
 
+import com.aims.datamodel.core.dsl.DataViewCondition;
+import com.aims.datamodel.core.sqlbuilder.input.QueryInput;
 import com.aims.logic.runtime.service.LogicRunnerService;
 import com.alibaba.fastjson2.JSONObject;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @SpringBootTest(classes = LogicSdkApplicationTests.class)
@@ -52,4 +57,5 @@ public class LogicSdkApplicationTests {
     void testTran() {
         runner.runBizByMap("java.demo", "t11", null, UUID.randomUUID().toString(), null, null);
     }
+
 }

@@ -139,6 +139,7 @@ public interface LogicRunnerService {
 
     List<LogicRunResult> retryLongtimeRunningBiz(int timeout);
 
+
     /**
      * 查询超时运行的业务
      *
@@ -213,6 +214,16 @@ public interface LogicRunnerService {
     int deleteCompletedBizInstanceByLogicId(String logicId);
 
     /**
+     * 清除所有日志
+     */
+    void clearLog();
+
+    /**
+     * 清除已完成业务实例
+     */
+    void clearCompletedInstance();
+
+    /**
      * 停止业务执行,实例会在下一个延时等待节点结束后中止执行，并抛出异常
      *
      * @param logicId
@@ -244,9 +255,6 @@ public interface LogicRunnerService {
     @Deprecated
     LogicRunResult runBizByVerifyCode(String logicId, String bizId, String verifyCode, Map<String, Object> parsMap);
 
-    void clearLog();
-
-    void clearCompletedInstance();
     //
 //    LogicRunResult runBizStepByStep(String logicId, String bizId, JSONObject pars);
 //

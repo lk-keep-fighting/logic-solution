@@ -1,0 +1,60 @@
+package com.aims.logic.sdk;
+
+import com.aims.logic.runtime.contract.dto.LongtimeRunningBizDto;
+import com.aims.logic.runtime.contract.dto.UnCompletedBizDto;
+import com.aims.logic.sdk.dto.Page;
+import com.aims.logic.sdk.entity.LogicInstanceEntity;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+/**
+ * 编排数据管理接口
+ */
+public interface LogicDataService {
+    /**
+     * 根据创建时间查询业务实例
+     *
+     * @param createTimeFrom
+     * @param createTimeTo
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
+    Page<LogicInstanceEntity> queryBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, long pageNum, long pageSize);
+
+    /**
+     * 查询超时运行的业务
+     *
+     * @param timeout 超时时间，单位秒
+     * @return
+     */
+    List<LongtimeRunningBizDto> queryLongtimeRunningBiz(int timeout);
+
+    List<UnCompletedBizDto> queryUncompletedBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning);
+
+    /**
+     * 查询未完成实例，参数为null则不根据此条件筛选
+     *
+     * @param createTimeFrom
+     * @param createTimeTo
+     * @param isRunning
+     * @param isSuccess
+     * @return
+     */
+    List<UnCompletedBizDto> queryUncompletedBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning, Boolean isSuccess);
+
+    /**
+     * 查询未完成实例，参数为null则不根据此条件筛选
+     *
+     * @param createTimeFrom  创建开始从……
+     * @param createTimeTo    创建时间到……
+     * @param isRunning       是否运行中
+     * @param isSuccess       是否有异常
+     * @param excludeLogicIds 不包含的逻辑编号
+     * @return
+     */
+
+    List<UnCompletedBizDto> queryUncompletedBizExclude(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning, Boolean isSuccess, List<String> excludeLogicIds);
+
+}
