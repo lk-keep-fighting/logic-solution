@@ -242,6 +242,9 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 if (tranPropagation == Propagation.REQUIRES_NEW.value()) {
                     log.info("[{}]bizId:{}-复用逻辑开启新全局事务", logicId, bizId);
                     transactionStatus = transactionalUtils.newRequiresNewTran();
+                } else if (tranPropagation == Propagation.NOT_SUPPORTED.value()) {
+                    log.info("[{}]bizId:{}-复用逻辑开启不支持事务", logicId, bizId);
+                    transactionStatus = transactionalUtils.newNotSupportedTran();
                 }
                 return runBiz(logicId, bizId, parsMap, traceId, logicLogId, globalVars);
             } catch (Exception e) {
@@ -376,21 +379,44 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         if (instanceId == null) {//先生成实例记录
             logService.addInstance(logicLog);
         }
-        var tranScope = startItem.getTranScope();
-        if (this.parentLogicId != null && tranPropagation != Propagation.REQUIRES_NEW.value()) {//子逻辑默认为每次交互模式，要么全成功要么全失败，继承父逻辑事务，跟随父逻辑提交
-            if (tranPropagation == Propagation.NOT_SUPPORTED.value()) {//父逻辑关闭了事务，子逻辑也关闭
-                tranScope = LogicItemTransactionScope.off;
-            } else {
-                log.info("[{}]bizId:{},当前为复用逻辑内部，未指定开启新事务，数据将与入口逻辑一起提交。", logicId, bizId);
-                tranScope = LogicItemTransactionScope.everyRequest;
+        LogicItemTransactionScope tranScope = null;
+        if (this.parentLogicId != null) {//复用逻辑，根据传播机制选择事务特性
+            switch (tranPropagation) {
+                case 0://REQUIRED,表现为方法调用，全部成功或失败
+                    tranScope = LogicItemTransactionScope.everyRequest;
+                    break;
+                case 3://REQUIRES_NEW，新事务，按配置的事务特性提交
+                    tranScope = startItem.getTranScope();
+                    break;
+                case 4://NOT_SUPPORTED，不传递事务，使用编排内部的事务，按配置的事务特性提交
+                    tranScope = startItem.getTranScope();
+                    break;
+                default://默认没配置，REQUIRED作为缺省配置
+                    tranScope = LogicItemTransactionScope.everyRequest;
+                    break;
             }
-        } else if (tranScope == null || tranScope.equals(LogicItemTransactionScope.def)) {
+        }
+        if (tranScope == null || tranScope.equals(LogicItemTransactionScope.def)) {
             if (LogicItemType.start.equalsTo(startItem.getType()) || LogicItemType.waitForContinue.equalsTo(startItem.getType())) {
                 tranScope = RuntimeUtil.getEnvObject().getDefaultTranScope();
             } else {
                 tranScope = LogicItemTransactionScope.everyNode;
             }
         }
+//        if (this.parentLogicId != null && tranPropagation != Propagation.REQUIRES_NEW.value()) {//子逻辑默认为每次交互模式，要么全成功要么全失败，继承父逻辑事务，跟随父逻辑提交
+//            if (tranPropagation == Propagation.NOT_SUPPORTED.value()) {//父逻辑关闭了事务，子逻辑也关闭
+//                tranScope = LogicItemTransactionScope.off;
+//            } else {
+//                log.info("[{}]bizId:{},当前为复用逻辑内部，未指定开启新事务，数据将与入口逻辑一起提交。", logicId, bizId);
+//                tranScope = LogicItemTransactionScope.everyRequest;
+//            }
+//        } else if (tranScope == null || tranScope.equals(LogicItemTransactionScope.def)) {
+//            if (LogicItemType.start.equalsTo(startItem.getType()) || LogicItemType.waitForContinue.equalsTo(startItem.getType())) {
+//                tranScope = RuntimeUtil.getEnvObject().getDefaultTranScope();
+//            } else {
+//                tranScope = LogicItemTransactionScope.everyNode;
+//            }
+//        }
         runner.getFnCtx().setTranScope(tranScope);
 
 
@@ -618,7 +644,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         LogicItemRunResult itemRes = null;
         if (runner.getRunnerStatus() == RunnerStatusEnum.Continue) {
             TransactionStatus begin = null;
-            begin = transactionalUtils.newTran();
+            begin = transactionalUtils.newRequiredTran();
             LogicItemTreeNode curItem;
             while (runner.getRunnerStatus() == RunnerStatusEnum.Continue) {
                 try {

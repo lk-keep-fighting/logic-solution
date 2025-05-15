@@ -40,7 +40,8 @@ public class TestQuerySDK {
 
     @Test
     void testQuery() {
-        var res = logicDataService.queryBiz(LocalDateTime.now().minusDays(10), LocalDateTime.now().minusDays(1), 1, 10);
+        List<String> bizIds = List.of("2", "3");
+        var res = logicDataService.queryBiz(LocalDateTime.now().minusDays(10), LocalDateTime.now().minusDays(1), bizIds, 1, 10);
         System.out.println(res);
     }
 }

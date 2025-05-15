@@ -96,6 +96,34 @@ public class LogicInstanceServiceImpl extends BaseServiceImpl<LogicInstanceEntit
         return jdbcTemplate.update(sql.toString());
     }
 
+    /**
+     * 删除业务实例
+     * 为了避免清空表，时间区间和ids至少有一个值，否则无法执行
+     *
+     * @param createTimeFrom
+     * @param createTimeTo
+     * @param ids
+     * @return
+     */
+    @Override
+    public int deleteBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, List<String> ids) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("delete from logic_instance where 1=1");
+        StringBuilder condition = new StringBuilder();
+        if (createTimeFrom != null && createTimeTo != null) {
+            condition.append(String.format(" and createTime between '%s' AND  '%s'", createTimeFrom, createTimeTo));
+        }
+        if (ids != null && !ids.isEmpty()) {
+            condition.append(String.format(" and id in ('%s')", String.join("','", ids)));
+        }
+        if (!condition.isEmpty()) {
+            sql.append(condition);
+        } else {
+            throw new RuntimeException("时间区间和ids都为空！");
+        }
+        return jdbcTemplate.update(sql.toString());
+    }
+
     @Override
     public int updateInstanceNextId(String logicId, String bizId, String nextId, String nextName, String varsJsonEnd) {
         if (logicId == null || bizId == null) {

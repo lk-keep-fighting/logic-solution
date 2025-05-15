@@ -57,11 +57,7 @@ public class SubLogicFunction implements ILogicItemFunctionRunner {
             itemDsl.setBody(jsonData == null ? null : jsonData.toJSONString());
             Object bizIdObj = Functions.runJsByContext(ctx, "return " + itemDsl.getBizId());
             subLogicBizId = bizIdObj == null ? null : bizIdObj.toString();
-            var subLogicTranPropagation = itemDsl.getTranPropagation();
-            if (ctx.getTranScope() == LogicItemTransactionScope.off) {//如果当前事务为off，则子逻辑事务为NOT_SUPPORTED，不开启事务
-                subLogicTranPropagation = Propagation.NOT_SUPPORTED.value();
-            }
-            var newRunnerService = runnerService.newInstance(ctx.get_env(), ctx.getLogicId(), ctx.getBizId(), subLogicTranPropagation, itemDsl.isAsync());
+            var newRunnerService = runnerService.newInstance(ctx.get_env(), ctx.getLogicId(), ctx.getBizId(),  itemDsl.getTranPropagation(), itemDsl.isAsync());
 
             var itemRunResult = new LogicItemRunResult().setItemInstance(itemDsl);
             JSONObject globalEnd;

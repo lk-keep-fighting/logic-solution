@@ -21,11 +21,28 @@ public class TransactionalUtils {
      *
      * @return
      */
-    public TransactionStatus newTran() {
+    public TransactionStatus newRequiredTran() {
         //事务隔离级别属于 mysql
         //传播行为属于 Spring，传播行为是指在 Spring 中，a 方法使用到事务，传到 b 方法中也使用到事务
         DefaultTransactionAttribute defaultTransactionAttribute = new DefaultTransactionAttribute();
+        defaultTransactionAttribute.setPropagationBehavior(DefaultTransactionAttribute.PROPAGATION_REQUIRED);
 //        defaultTransactionAttribute.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
+        defaultTransactionAttribute.setName(UUID.randomUUID().toString());
+        TransactionStatus transaction = dataSourceTransactionManager.getTransaction(defaultTransactionAttribute);
+        log.info("开启默认事务:{}", TransactionSynchronizationManager.getCurrentTransactionName());
+        return transaction;
+    }
+
+    /**
+     * 挂起当前事务
+     *
+     * @return
+     */
+    public TransactionStatus newNotSupportedTran() {
+        //事务隔离级别属于 mysql
+        //传播行为属于 Spring，传播行为是指在 Spring 中，a 方法使用到事务，传到 b 方法中也使用到事务
+        DefaultTransactionAttribute defaultTransactionAttribute = new DefaultTransactionAttribute();
+        defaultTransactionAttribute.setPropagationBehavior(DefaultTransactionAttribute.PROPAGATION_NOT_SUPPORTED);
         defaultTransactionAttribute.setName(UUID.randomUUID().toString());
         TransactionStatus transaction = dataSourceTransactionManager.getTransaction(defaultTransactionAttribute);
         log.info("开启默认事务:{}", TransactionSynchronizationManager.getCurrentTransactionName());
