@@ -793,17 +793,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
     @Override
     public List<LongtimeRunningBizDto> queryLongtimeRunningBiz(int timeout) {
         return logicDataService.queryLongtimeRunningBiz(timeout);
-//        var list = insService.queryLongtimeRunningBiz(timeout);
-//        if (list == null)
-//            return null;
-//        return list.stream().map(insEntity -> new LongtimeRunningBizDto()
-//                .setLogicId(insEntity.getLogicId())
-//                .setBizId(insEntity.getBizId())
-//                .setStartTime(insEntity.getStartTime())
-//                .setIsAsync(insEntity.getIsAsync())
-//                .setParentBizId(insEntity.getParentBizId())
-//                .setParentLogicId(insEntity.getParentLogicId())).collect(Collectors.toList());
-    }
+   }
 
     @Override
     public List<UnCompletedBizDto> queryUncompletedBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning) {
@@ -812,25 +802,13 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
 
     @Override
     public List<UnCompletedBizDto> queryUncompletedBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning, Boolean isSuccess) {
-        return logicDataService.queryUncompletedBizExclude(createTimeFrom, createTimeTo, isRunning, isSuccess, null);
+        return logicDataService.queryUncompletedBizExclude(createTimeFrom, createTimeTo, isRunning, isSuccess, null, null);
     }
 
     @Override
     public List<UnCompletedBizDto> queryUncompletedBizExclude(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning, Boolean isSuccess, List<String> excludeLogicIds) {
-        return logicDataService.queryUncompletedBizExclude(createTimeFrom, createTimeTo, isRunning, isSuccess, excludeLogicIds);
-//        var list = insService.queryUncompletedBizExclude(createTimeFrom, createTimeTo, isRunning, isSuccess, excludeLogicIds);
-//        if (list == null)
-//            return null;
-//        return list.stream().map(insEntity -> new UnCompletedBizDto()
-//                .setLogicId(insEntity.getLogicId())
-//                .setBizId(insEntity.getBizId())
-//                .setCreateTime(insEntity.getCreateTime())
-//                .setIsRunning(insEntity.getIsRunning())
-//                .setIsSuccess(insEntity.getSuccess())
-//                .setIsAsync(insEntity.getIsAsync())
-//                .setParentLogicId(insEntity.getParentLogicId())
-//                .setParentBizId(insEntity.getParentBizId())).collect(Collectors.toList());
-    }
+        return logicDataService.queryUncompletedBizExclude(createTimeFrom, createTimeTo, isRunning, isSuccess, null, excludeLogicIds);
+   }
 
     @Override
     public boolean resetBizInstanceNextId(String logicId, String bizId, String nextId, String nextName, String varsJsonEnd) {

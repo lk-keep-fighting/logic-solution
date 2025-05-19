@@ -18,4 +18,5 @@ public class UnCompletedBizDto {
     private Boolean isAsync;
     private String parentLogicId;
     private String parentBizId;
+    private int retryTimes = 0;
 }
