@@ -84,12 +84,12 @@ public class LogicDataServiceImpl implements LogicDataService {
 
     @Override
     public List<UnCompletedBizDto> queryUncompletedBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning, Boolean isSuccess) {
-        return queryUncompletedBizExclude(createTimeFrom, createTimeTo, isRunning, isSuccess, null);
+        return queryUncompletedBizExclude(createTimeFrom, createTimeTo, isRunning, isSuccess, null, null);
     }
 
     @Override
-    public List<UnCompletedBizDto> queryUncompletedBizExclude(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning, Boolean isSuccess, List<String> excludeLogicIds) {
-        var list = insService.queryUncompletedBizExclude(createTimeFrom, createTimeTo, isRunning, isSuccess, excludeLogicIds);
+    public List<UnCompletedBizDto> queryUncompletedBizExclude(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning, Boolean isSuccess, Integer maxRetryTimes, List<String> excludeLogicIds) {
+        var list = insService.queryUncompletedBizExclude(createTimeFrom, createTimeTo, isRunning, isSuccess, maxRetryTimes, excludeLogicIds);
         if (list == null)
             return null;
         return list.stream().map(insEntity -> new UnCompletedBizDto()
@@ -100,7 +100,13 @@ public class LogicDataServiceImpl implements LogicDataService {
                 .setIsSuccess(insEntity.getSuccess())
                 .setIsAsync(insEntity.getIsAsync())
                 .setParentLogicId(insEntity.getParentLogicId())
+                .setRetryTimes(insEntity.getRetryTimes())
                 .setParentBizId(insEntity.getParentBizId())).collect(Collectors.toList());
+    }
+
+    @Override
+    public int updateBizRetryTimes(String logicId, String bizId, int retryTimes) {
+        return jdbcTemplate.update("update logic_instance set retryTimes = ? where logicId = ? and bizId = ?", retryTimes, logicId, bizId);
     }
 
     @Override

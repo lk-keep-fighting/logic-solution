@@ -51,11 +51,20 @@ public interface LogicDataService {
      * @param createTimeTo    创建时间到……
      * @param isRunning       是否运行中
      * @param isSuccess       是否有异常
+     * @param maxRetryTimes   最大重试次数<=
      * @param excludeLogicIds 不包含的逻辑编号
      * @return
      */
 
-    List<UnCompletedBizDto> queryUncompletedBizExclude(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning, Boolean isSuccess, List<String> excludeLogicIds);
+    List<UnCompletedBizDto> queryUncompletedBizExclude(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning, Boolean isSuccess, Integer maxRetryTimes, List<String> excludeLogicIds);
+    /**
+     * 更新业务实例重试次数
+     *
+     * @param logicId
+     * @param bizId
+     * @param retryTimes
+     */
+    int updateBizRetryTimes(String logicId, String bizId, int retryTimes);
 
     /**
      * 删除业务实例
