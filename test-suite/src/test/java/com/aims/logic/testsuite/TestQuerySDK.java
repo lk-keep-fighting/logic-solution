@@ -1,6 +1,5 @@
 package com.aims.logic.testsuite;
 
-import com.aims.logic.runtime.service.LogicRunnerService;
 import com.aims.logic.sdk.LogicDataService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
@@ -14,7 +13,7 @@ import java.util.List;
 @SpringBootTest
 public class TestQuerySDK {
     @Autowired
-    LogicRunnerService logic;
+    LogicDataService logic;
 
     @Test
     public void contextLoads() {
@@ -28,8 +27,8 @@ public class TestQuerySDK {
 //        assert !res.isEmpty();
 //        res = logic.queryUncompletedBiz(LocalDateTime.now().minusHours(1), LocalDateTime.now(), true);
 //        assert !res.isEmpty();
-        List<String> excludeLogicIds = List.of("test.multisublogic", "loigc2");
-        res = logic.queryUncompletedBizExclude(LocalDateTime.now().minusHours(1), LocalDateTime.now(), true, true, excludeLogicIds);
+        List<String> excludeLogicIds = null;// List.of("test.multisublogic", "loigc2");
+        res = logic.queryUncompletedBizExclude(LocalDateTime.now().minusDays(60).minusHours(1), LocalDateTime.now(), null, null, -1, excludeLogicIds);
         assert res.isEmpty();
 
     }
