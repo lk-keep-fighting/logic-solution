@@ -379,15 +379,15 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         if (instanceId == null) {//先生成实例记录
             logService.addInstance(logicLog);
         }
-        LogicItemTransactionScope tranScope = null;
+        LogicItemTransactionScope tranScope = startItem.getTranScope();
         if (this.parentLogicId != null) {//复用逻辑，根据传播机制选择事务特性
             switch (tranPropagation) {
                 case 0://REQUIRED,表现为方法调用，全部成功或失败
-                    tranScope = LogicItemTransactionScope.everyRequest;
+                    //除非手动指定关闭了事务特性，否则默认为everyRequest
+                    if (tranScope != LogicItemTransactionScope.off)
+                        tranScope = LogicItemTransactionScope.everyRequest;
                     break;
                 case 3://REQUIRES_NEW，新事务，按配置的事务特性提交
-                    tranScope = startItem.getTranScope();
-                    break;
                 case 4://NOT_SUPPORTED，不传递事务，使用编排内部的事务，按配置的事务特性提交
                     tranScope = startItem.getTranScope();
                     break;
@@ -400,7 +400,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
             if (LogicItemType.start.equalsTo(startItem.getType()) || LogicItemType.waitForContinue.equalsTo(startItem.getType())) {
                 tranScope = RuntimeUtil.getEnvObject().getDefaultTranScope();
             } else {
-                tranScope = LogicItemTransactionScope.everyNode;
+                tranScope = runner.getFnCtx().getTranScope();
             }
         }
 //        if (this.parentLogicId != null && tranPropagation != Propagation.REQUIRES_NEW.value()) {//子逻辑默认为每次交互模式，要么全成功要么全失败，继承父逻辑事务，跟随父逻辑提交
@@ -793,7 +793,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
     @Override
     public List<LongtimeRunningBizDto> queryLongtimeRunningBiz(int timeout) {
         return logicDataService.queryLongtimeRunningBiz(timeout);
-   }
+    }
 
     @Override
     public List<UnCompletedBizDto> queryUncompletedBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning) {
@@ -808,7 +808,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
     @Override
     public List<UnCompletedBizDto> queryUncompletedBizExclude(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning, Boolean isSuccess, List<String> excludeLogicIds) {
         return logicDataService.queryUncompletedBizExclude(createTimeFrom, createTimeTo, isRunning, isSuccess, null, excludeLogicIds);
-   }
+    }
 
     @Override
     public boolean resetBizInstanceNextId(String logicId, String bizId, String nextId, String nextName, String varsJsonEnd) {
