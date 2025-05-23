@@ -20,11 +20,6 @@ public class FunctionContext {
     private JSONObject _env = new JSONObject();
     private JSONObject _global;
     static IdWorker idWorker = new IdWorker(1, 1);
-    /**
-     * 本次交互的事务作用域配置
-     * 从当前交互点读取
-     */
-    private LogicItemTransactionScope tranScope;
     private Object _lastRet;
     private LogicItemRunResult _last;
     private LogicTreeNode logic;
@@ -36,6 +31,18 @@ public class FunctionContext {
     private String nextTranGroupId;
     private String lastTranGroupId;
 
+    public void setTranScope(LogicItemTransactionScope tranScope) {
+        _var.put("__tranScope", tranScope);
+    }
+    /**
+     * 本次交互的事务作用域配置
+     * 从当前交互点读取
+     */
+    public LogicItemTransactionScope getTranScope() {
+        if (_var.get("__tranScope") == null)
+            return LogicItemTransactionScope.def;
+        return LogicItemTransactionScope.valueOf(_var.get("__tranScope").toString());
+    }
 
     public JSONObject get_global() {
         if (_var.getJSONObject("__global") == null) {

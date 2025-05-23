@@ -57,6 +57,7 @@ public interface LogicDataService {
      */
 
     List<UnCompletedBizDto> queryUncompletedBizExclude(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning, Boolean isSuccess, Integer maxRetryTimes, List<String> excludeLogicIds);
+
     /**
      * 更新业务实例重试次数
      *
@@ -65,6 +66,15 @@ public interface LogicDataService {
      * @param retryTimes
      */
     int updateBizRetryTimes(String logicId, String bizId, int retryTimes);
+
+    /**
+     * 根据逻辑编号和bizId获取业务实例
+     *
+     * @param logicId
+     * @param bizId
+     * @return
+     */
+    LogicInstanceEntity getBiz(String logicId, String bizId);
 
     /**
      * 删除业务实例

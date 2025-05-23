@@ -43,4 +43,10 @@ public class TestQuerySDK {
         var res = logicDataService.queryBiz(LocalDateTime.now().minusDays(10), LocalDateTime.now().minusDays(1), bizIds, 1, 10);
         System.out.println(res);
     }
+
+    @Test
+    void getBiz() {
+        var res = logicDataService.getBiz("test.multisublogic", "2323");
+        System.out.println(res);
+    }
 }

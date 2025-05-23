@@ -110,6 +110,11 @@ public class LogicDataServiceImpl implements LogicDataService {
     }
 
     @Override
+    public LogicInstanceEntity getBiz(String logicId, String bizId) {
+        return logicInstanceService.getInstance(logicId, bizId);
+    }
+
+    @Override
     public int deleteBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, List<String> ids) {
         return insService.deleteBiz(createTimeFrom, createTimeTo, ids);
     }
