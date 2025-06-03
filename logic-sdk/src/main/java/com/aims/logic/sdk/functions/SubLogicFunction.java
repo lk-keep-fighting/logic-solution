@@ -2,7 +2,6 @@ package com.aims.logic.sdk.functions;
 
 import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
 import com.aims.logic.runtime.contract.dto.LogicItemRunResult;
-import com.aims.logic.runtime.contract.enums.LogicItemTransactionScope;
 import com.aims.logic.runtime.runner.FunctionContext;
 import com.aims.logic.runtime.runner.Functions;
 import com.aims.logic.runtime.runner.functions.ILogicItemFunctionRunner;
@@ -11,7 +10,6 @@ import com.alibaba.fastjson2.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
 
 /**
  * @author liukun
@@ -57,7 +55,7 @@ public class SubLogicFunction implements ILogicItemFunctionRunner {
             itemDsl.setBody(jsonData == null ? null : jsonData.toJSONString());
             Object bizIdObj = Functions.runJsByContext(ctx, "return " + itemDsl.getBizId());
             subLogicBizId = bizIdObj == null ? null : bizIdObj.toString();
-            var newRunnerService = runnerService.newInstance(ctx.get_env(), ctx.getLogicId(), ctx.getBizId(),  itemDsl.getTranPropagation(), itemDsl.isAsync());
+            var newRunnerService = runnerService.newInstance(ctx.get_env(), ctx.getLogicId(), ctx.getBizId(), itemDsl.getTranPropagation(), itemDsl.isAsync());
 
             var itemRunResult = new LogicItemRunResult().setItemInstance(itemDsl);
             JSONObject globalEnd;
@@ -88,7 +86,8 @@ public class SubLogicFunction implements ILogicItemFunctionRunner {
                 }
             }
             itemDsl.setBizId(subLogicBizId);
-            ctx.buildSubLogicRandomBizId();//运行完成后生成下一个随机bizId保存在临时变量中
+            if (itemRunResult.isSuccess())
+                ctx.buildSubLogicRandomBizId();//运行完成后生成下一个随机bizId保存在临时变量中
             ctx.set_global(globalEnd);
             return itemRunResult;
 
