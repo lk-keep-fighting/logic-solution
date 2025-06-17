@@ -41,7 +41,8 @@
         <dependency>
             <groupId>com.aims.logic</groupId>
             <artifactId>logic-ide</artifactId>
-            <version>${logic-ide.version}</version>
+            <version>0.6.3.25030501</version>
+<!--            <version>${logic-ide.version}</version>-->
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
