@@ -28,11 +28,13 @@ public class SubLogicFunction implements ILogicItemFunctionRunner {
         var itemDsl = ((LogicItemTreeNode) item);
         var itemRunResult = new LogicItemRunResult().setItemInstance(itemDsl);
         if (itemDsl.isAsync()) {
+            var ctxClone = JSONObject.from(ctx).to(FunctionContext.class);
+            var itemDslClone = JSONObject.from(itemDsl).to(LogicItemTreeNode.class);
             // 异步调用 invokeMethod
             new Thread(() -> {
                 try {
                     log.info("[{}]bizId:{},开始异步执行……", ctx.getLogicId(), ctx.getBizId());
-                    var res = invokeMethod(ctx, itemDsl);
+                    var res = invokeMethod(ctxClone, itemDslClone);
                     log.info("[{}]bizId:{},异步执行完成,success：{}，msg:{}。", ctx.getLogicId(), ctx.getBizId(), res.isSuccess(), res.getMsg());
                 } catch (Exception e) {
                     // 处理 invokeMethod 抛出的异常
@@ -63,12 +65,10 @@ public class SubLogicFunction implements ILogicItemFunctionRunner {
                 if (subLogicBizId == null || "null".equals(subLogicBizId)) {//判断是否自动生成bizId
                     //自动生成bizId
                     subLogicBizId = ctx.getSubLogicRandomBizId();
-                    itemDsl.setBizId(subLogicBizId);//记录运行时配置
                     var res = newRunnerService.runBizByMap(subLogicId, subLogicBizId, jsonData, ctx.getTraceId(), itemDsl.getObjectId(), ctx.get_global());
                     itemRunResult.setSuccess(res.isSuccess()).setMsg(res.getMsg()).setData(res.getData());
                     globalEnd = res.getLogicLog().getGlobalVars();
                 } else { //使用配置的bizId
-                    itemDsl.setBizId(ctx.getBizId());
                     var res = newRunnerService.runBizByMap(subLogicId, subLogicBizId, jsonData, ctx.getTraceId(), itemDsl.getObjectId(), ctx.get_global());
                     itemRunResult.setSuccess(res.isSuccess()).setMsg(res.getMsg()).setData(res.getData());
                     globalEnd = res.getLogicLog().getGlobalVars();
