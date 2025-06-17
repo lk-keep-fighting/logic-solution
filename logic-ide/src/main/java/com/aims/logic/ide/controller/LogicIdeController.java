@@ -17,6 +17,7 @@ import com.aims.logic.sdk.entity.LogicEntity;
 import com.aims.logic.sdk.service.LogicBakService;
 import com.aims.logic.sdk.service.LogicService;
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -272,6 +273,19 @@ public class LogicIdeController {
         }
         return res;
     }
+
+
+    @PostMapping("/api/ide/asset/v1/java/sourceCode")
+    public ApiResult<MethodSourceCodeDto> getMethodSourceCode(@RequestBody JSONObject body) throws
+            ClassNotFoundException {
+        ApiResult<MethodSourceCodeDto> res = new ApiResult<>();
+        LogicItemTreeNode item = body.to(LogicItemTreeNode.class);
+        String methodName = item.getMethod().split("\\(")[0];
+        var method = ClassUtils.getMethodSourceCode(item.getUrl(), methodName, item.getParams());
+        res.setData(method);
+        return res;
+    }
+
 
 //    @PostMapping("/api/ide/settings/asset/{type}/{code}")
 //    public ApiResult setAsset(@PathVariable String type, @PathVariable String code, @RequestBody String config) {
