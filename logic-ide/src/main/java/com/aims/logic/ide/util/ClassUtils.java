@@ -16,10 +16,15 @@
  */
 package com.aims.logic.ide.util;
 
-import com.aims.logic.ide.controller.dto.MethodDto;
-import com.aims.logic.ide.controller.dto.MethodSourceCodeDto;
 import com.aims.logic.ide.controller.dto.LogicClassDto;
+import com.aims.logic.ide.controller.dto.MethodSourceCodeDto;
+import com.aims.logic.runtime.contract.dsl.ParamTreeNode;
 import com.aims.logic.runtime.util.ClassLoaderUtils;
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ParseResult;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -29,11 +34,14 @@ import org.springframework.core.type.classreading.MetadataReaderFactory;
 import org.springframework.core.type.classreading.SimpleMetadataReaderFactory;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -104,50 +112,30 @@ public class ClassUtils {
         return getMethods(clazz);
     }
 
-    public static MethodSourceCodeDto getMethodSourceCode(String fullClassPath, String methodName) throws ClassNotFoundException {
+    public static MethodSourceCodeDto getMethodSourceCode(String fullClassPath, String methodName,
+                                                          List<ParamTreeNode> paramTreeNodeList) throws ClassNotFoundException {
         var clazz = ClassLoaderUtils.loadClass(fullClassPath);
-        // 推导源码路径
-        String sourceFilePath = ClassLoaderUtils.getResource(clazz.getName().replace('.', '/') + ".class")
-                .getPath()
-                .replace("target/classes", "src/main/java")
-                .replace(".class", ".java");
-        // 读取方法的源码
-        MethodSourceCodeDto methodSource = null;
-        try {
-            methodSource = SourceCodeReader.readMethodSource(
-                    sourceFilePath, clazz.getSimpleName(), methodName
-            );
-            return methodSource;
 
-        } catch (Exception e) {
-            log.warn("读取{}源码失败: {}", methodName, e.getMessage());
+        // 方案1：尝试从标准源码路径读取（适用于开发环境）
+        MethodSourceCodeDto result = tryReadFromSourcePath(clazz, methodName, paramTreeNodeList);
+        if (result != null) {
+            return result;
         }
-        return methodSource;
-    }
+//
+//        // 方案2：尝试从类路径读取（适用于JAR包环境）
+//        result = tryReadFromClasspath(clazz, methodName, paramTreeNodeList);
+//        if (result != null) {
+//            return result;
+//        }
+//
+//        // 方案3：尝试从源码JAR读取（如果有源码JAR）
+//        result = tryReadFromSourceJar(clazz, methodName, paramTreeNodeList);
+//        if (result != null) {
+//            return result;
+//        }
 
-    public static List<MethodDto> getMethodsAndSourceCode(String fullClassPath) throws ClassNotFoundException {
-        var clazz = ClassLoaderUtils.loadClass(fullClassPath);
-        var methods = getMethods(clazz);
-        List<MethodDto> methodDtos = new ArrayList<>();
-        // 推导源码路径
-        String sourceFilePath = ClassLoaderUtils.getResource(clazz.getName().replace('.', '/') + ".class")
-                .getPath()
-                .replace("target/classes", "src/main/java")
-                .replace(".class", ".java");
-        for (int i = 0; i < methods.size(); i++) {
-            // 读取方法的源码
-            MethodSourceCodeDto methodSource = null;
-            try {
-                methodSource = SourceCodeReader.readMethodSource(
-                        sourceFilePath, clazz.getSimpleName(), methods.get(i).getName()
-                );
-            } catch (Exception e) {
-                log.warn("读取{}源码失败: {}", methods.get(i).getName(), e.getMessage());
-            }
-            methodDtos.add(new MethodDto(methods.get(i), methodSource));
-        }
-
-        return methodDtos;
+        log.warn("无法读取方法源码: {}.{}", fullClassPath, methodName);
+        return null;
     }
 
     public static List<Method> getMethods(Class<?> clazz) {
@@ -155,15 +143,113 @@ public class ClassUtils {
         return Arrays.stream(methods).toList();
     }
 
+    private static MethodSourceCodeDto tryReadFromSourcePath(Class<?> clazz, String methodName,
+                                                             List<ParamTreeNode> paramTreeNodeList) {
+        try {
+            // 开发环境下的源码路径推导
+            String sourcePath = clazz.getResource(clazz.getSimpleName() + ".class").getPath()
+                    .replace("target/classes", "src/main/java")
+                    .replace(".class", ".java");
+            log.info("尝试调试环境读取源码: {}", sourcePath);
+            File sourceFile = new File(sourcePath);
+            if (sourceFile.exists()) {
+                return parseMethodFromSource(new String(Files.readAllBytes(sourceFile.toPath()), StandardCharsets.UTF_8),
+                        clazz.getSimpleName(), methodName, paramTreeNodeList);
+            }
+        } catch (Exception e) {
+            log.debug("尝试从源码路径读取失败: {}", e.getMessage());
+        }
+        return null;
+    }
+
+//    private static MethodSourceCodeDto tryReadFromClasspath(Class<?> clazz, String methodName,
+//                                                            List<ParamTreeNode> paramTreeNodeList) {
+//        try {
+//            // 类路径下的源码文件路径
+//            String sourcePath = clazz.getName().replace('.', '/') + ".java";
+//            log.info("尝试从类路径读取源码: {}", sourcePath);
+//
+//            try (InputStream is = clazz.getClassLoader().getResourceAsStream(sourcePath)) {
+//                if (is != null) {
+//                    String sourceCode = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+//                    return parseMethodFromSource(sourceCode, clazz.getSimpleName(),
+//                            methodName, paramTreeNodeList);
+//                }
+//            }
+//        } catch (Exception e) {
+//            log.debug("尝试从类路径读取失败: {}", e.getMessage());
+//        }
+//        return null;
+//    }
+//
+//    private static MethodSourceCodeDto tryReadFromSourceJar(Class<?> clazz, String methodName,
+//                                                            List<ParamTreeNode> paramTreeNodeList) {
+//        try {
+//            // 尝试从-sources.jar中读取
+//            String sourceJarPath = clazz.getProtectionDomain().getCodeSource().getLocation().getPath()
+//                    .replace(".jar", "-sources.jar");
+//
+//            try (JarFile jarFile = new JarFile(sourceJarPath)) {
+//                String entryPath = clazz.getName().replace('.', '/') + ".class";
+//                JarEntry entry = jarFile.getJarEntry(entryPath);
+//
+//                if (entry != null) {
+//                    try (InputStream is = jarFile.getInputStream(entry)) {
+//                        String sourceCode = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+//                        return parseMethodFromSource(sourceCode, clazz.getSimpleName(),
+//                                methodName, paramTreeNodeList);
+//                    }
+//                }
+//            }
+//        } catch (Exception e) {
+//            log.debug("尝试从源码JAR读取失败: {}", e.getMessage());
+//        }
+//        return null;
+//    }
+
+    private static MethodSourceCodeDto parseMethodFromSource(String sourceCode, String className,
+                                                             String methodName, List<ParamTreeNode> paramTreeNodeList) {
+        // 使用JavaParser解析源码
+        JavaParser parser = new JavaParser();
+        ParseResult<CompilationUnit> parseResult = parser.parse(sourceCode);
+
+        if (!parseResult.isSuccessful() || !parseResult.getResult().isPresent()) {
+            return null;
+        }
+
+        CompilationUnit cu = parseResult.getResult().get();
+        MethodDeclaration[] foundMethod = new MethodDeclaration[1];
+
+        // 查找匹配的方法
+        new VoidVisitorAdapter<Void>() {
+            @Override
+            public void visit(MethodDeclaration md, Void arg) {
+                super.visit(md, arg);
+                if (md.getNameAsString().equals(methodName)) {
+                    if (paramTreeNodeList == null || paramTreeNodeList.isEmpty() ||
+                            md.getParameters().size() == paramTreeNodeList.size()) {
+                        foundMethod[0] = md;
+                    }
+                }
+            }
+        }.visit(cu, null);
+
+        if (foundMethod[0] == null) {
+            return null;
+        }
+
+        MethodSourceCodeDto dto = new MethodSourceCodeDto();
+        dto.setSourceCode(foundMethod[0].toString());
+        dto.setBeginLine(foundMethod[0].getRange().map(r -> r.begin.line).orElse(-1));
+        dto.setEndLine(foundMethod[0].getRange().map(r -> r.end.line).orElse(-1));
+        return dto;
+    }
+
     public static List<Method> getMethodsByAnnotation(String fullClassPath, Class<?> annotationClass) throws ClassNotFoundException {
         var methods = getMethods(fullClassPath);
         return methods.stream().filter(method -> method.isAnnotationPresent((Class<? extends Annotation>) annotationClass)).toList();
     }
 
-    public static List<MethodDto> getMethodsAndSourceCodeByAnnotation(String fullClassPath, Class<?> annotationClass) throws Exception {
-        var methodDtos = getMethodsAndSourceCode(fullClassPath);
-        return methodDtos.stream().filter(dto -> dto.getMethod().isAnnotationPresent((Class<? extends Annotation>) annotationClass)).toList();
-    }
 
     public static List<LogicClassDto> getAllClassNames(String basePackage) {
         List<LogicClassDto> classNames = new ArrayList<>();
