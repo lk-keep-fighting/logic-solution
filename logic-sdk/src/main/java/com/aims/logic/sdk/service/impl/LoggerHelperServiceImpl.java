@@ -2,6 +2,7 @@ package com.aims.logic.sdk.service.impl;
 
 import com.aims.logic.runtime.contract.logger.LogicLog;
 import com.aims.logic.runtime.util.RuntimeUtil;
+import com.aims.logic.sdk.config.LogicLogServiceConfig;
 import com.aims.logic.sdk.entity.LogicInstanceEntity;
 import com.aims.logic.sdk.entity.LogicLogEntity;
 import com.aims.logic.sdk.event.LogicRunnerEventListener;
@@ -13,33 +14,38 @@ import com.alibaba.fastjson2.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Slf4j
-@Service
+@Component
 public class LoggerHelperServiceImpl implements LoggerHelperService {
     private final LogicInstanceService instanceService;
     private final LogicLogService logicLogService;
     private final JdbcTemplate jdbcTemplate;
     private List<LogicRunnerEventListener> eventListener;
 
+    private LogicLogServiceConfig logicLogServiceConfig;
+
     @Autowired
     public LoggerHelperServiceImpl(
             LogicInstanceService _instanceService,
             LogicLogService _logicLogService,
             JdbcTemplate _jdbcTemplate,
-            List<LogicRunnerEventListener> _eventListener
-    ) {
+            List<LogicRunnerEventListener> _eventListener,
+            LogicLogServiceConfig _logicLogServiceConfig) {
         this.instanceService = _instanceService;
         this.logicLogService = _logicLogService;
         this.jdbcTemplate = _jdbcTemplate;
         this.eventListener = _eventListener;
+        this.logicLogServiceConfig = _logicLogServiceConfig;
     }
 
     /**
@@ -54,9 +60,8 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
         addLogicLog(logicLog);
     }
 
-
     public void startBizRunning(LogicLog logicLog) {
-//        triggerEventListener(logicLog);
+        // triggerEventListener(logicLog);
         String env = RuntimeUtil.getEnvObject().getNODE_ENV();
         var nextId = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getId();
         var nextName = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getName();
@@ -75,7 +80,8 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
         valueMaps.put("env", env);
         instanceService.updateById(logicLog.getInstanceId(), valueMaps);
         try {
-            eventListener.forEach(listener -> listener.beforeLogicRun(logicLog.getLogicId(), logicLog.getBizId(), logicLog.getReturnData()));
+            eventListener.forEach(listener -> listener.beforeLogicRun(logicLog.getLogicId(), logicLog.getBizId(),
+                    logicLog.getReturnData()));
         } catch (Exception e) {
             log.error("beforeLogicRun回调异常", e);
             e.printStackTrace();
@@ -84,25 +90,26 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
     }
 
     public void stopBizRunning(LogicLog logicLog) {
-//        triggerEventListener(logicLog);
+        // triggerEventListener(logicLog);
         logicLog.setIsRunning(false);
         Map<String, Object> valuesMap = new HashMap<>();
         valuesMap.put("isRunning", false);
         valuesMap.put("stopTime", logicLog.getStopTime());
         valuesMap.put("duration", logicLog.getDuration());
         valuesMap.put("success", logicLog.isSuccess());
-        var msg255 = logicLog.getMsg() == null ? null : logicLog.getMsg().length() > 255 ? logicLog.getMsg().substring(0, 255) : logicLog.getMsg();
+        var msg255 = logicLog.getMsg() == null ? null
+                : logicLog.getMsg().length() > 255 ? logicLog.getMsg().substring(0, 255) : logicLog.getMsg();
         valuesMap.put("message", msg255);
         instanceService.updateById(logicLog.getInstanceId(), valuesMap);
         try {
-            eventListener.forEach(listener -> listener.afterLogicStop(logicLog.getLogicId(), logicLog.getBizId(), logicLog.getReturnData()));
+            eventListener.forEach(listener -> listener.afterLogicStop(logicLog.getLogicId(), logicLog.getBizId(),
+                    logicLog.getReturnData()));
         } catch (Exception e) {
             log.error("afterLogicStop回调异常", e);
             e.printStackTrace();
         }
 
     }
-
 
     public void triggerEventListener(LogicLog logicLog) {
         if (logicLog.isOver()) {
@@ -130,15 +137,18 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
         String env = RuntimeUtil.getEnvObject().getNODE_ENV();
         var nextId = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getId();
         var nextName = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getName();
-        var msg255 = logicLog.getMsg() == null ? null : logicLog.getMsg().length() > 255 ? logicLog.getMsg().substring(0, 255) : logicLog.getMsg();
+        var msg255 = logicLog.getMsg() == null ? null
+                : logicLog.getMsg().length() > 255 ? logicLog.getMsg().substring(0, 255) : logicLog.getMsg();
         triggerEventListener(logicLog);
         Map<String, Object> valueMaps = new HashMap<>();
         valueMaps.put("success", logicLog.isSuccess());
         valueMaps.put("message", msg255);
-//            valueMaps.put("returnData", logicLog.getReturnDataStr());停用，加快更新速度，可以在logic_log表查看返回值
+        // valueMaps.put("returnData",
+        // logicLog.getReturnDataStr());停用，加快更新速度，可以在logic_log表查看返回值
         valueMaps.put("paramsJson", logicLog.getParamsJson() == null ? null : logicLog.getParamsJson().toJSONString());
         valueMaps.put("varsJson", logicLog.getVarsJson() == null ? null : logicLog.getVarsJson().toJSONString());
-        valueMaps.put("varsJsonEnd", logicLog.getVarsJson_end() == null ? null : logicLog.getVarsJson_end().toJSONString());
+        valueMaps.put("varsJsonEnd",
+                logicLog.getVarsJson_end() == null ? null : logicLog.getVarsJson_end().toJSONString());
         valueMaps.put("isOver", logicLog.isOver());
         valueMaps.put("isRunning", logicLog.isRunning());
         valueMaps.put("startTime", logicLog.getStartTime());
@@ -154,7 +164,8 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
         String env = RuntimeUtil.getEnvObject().getNODE_ENV();
         var nextId = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getId();
         var nextName = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getName();
-        var msg255 = logicLog.getMsg() == null ? null : logicLog.getMsg().length() > 255 ? logicLog.getMsg().substring(0, 255) : logicLog.getMsg();
+        var msg255 = logicLog.getMsg() == null ? null
+                : logicLog.getMsg().length() > 255 ? logicLog.getMsg().substring(0, 255) : logicLog.getMsg();
         LogicInstanceEntity newIns = new LogicInstanceEntity()
                 .setSuccess(logicLog.isSuccess())
                 .setMessage(msg255)
@@ -186,8 +197,18 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
      *
      * @param logicLog
      */
-    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
+    private final ExecutorService logExecutor = Executors.newFixedThreadPool(5);
+
     public void addLogicLog(LogicLog logicLog) {
+        // 使用线程池异步执行日志记录
+        logExecutor.execute(() -> {
+            execAddLogicLog(logicLog);
+        });
+    }
+
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
+    // 将日志插入数据库
+    public void execAddLogicLog(LogicLog logicLog) {
         try {
             if (logicLog.isLogOff()) {
                 log.info("LogicId:{}，关闭了日志，无法回放业务实例", logicLog.getLogicId());
@@ -204,7 +225,8 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
             }
             var nextId = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getNextId();
             var nextName = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getName();
-            var msg255 = logicLog.getMsg() == null ? null : logicLog.getMsg().substring(0, Math.min(logicLog.getMsg().length(), 255));
+            var msg255 = logicLog.getMsg() == null ? null
+                    : logicLog.getMsg().substring(0, Math.min(logicLog.getMsg().length(), 255));
             LogicLogEntity logEntity = new LogicLogEntity()
                     .setSuccess(logicLog.isSuccess())
                     .setMessage(msg255)
@@ -212,41 +234,50 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
                     .setServerTime(logicLog.getStartTime())
                     .setBizId(logicLog.getBizId())
                     .setVersion(logicLog.getVersion())
-                    .setItemLogs(JSONArray.toJSONString(logicLog.getItemLogs().subList(Math.max(logicLog.getItemLogs().size() - 30, 0), logicLog.getItemLogs().size())))
+                    .setItemLogs(JSONArray.toJSONString(logicLog.getItemLogs()
+                            .subList(Math.max(logicLog.getItemLogs().size() - 30, 0),
+                                    logicLog.getItemLogs().size())))
                     .setReturnData(logicLog.getReturnDataStr())
                     .setLogicId(logicLog.getLogicId())
-                    .setParamsJson(logicLog.getParamsJson() == null ? null : logicLog.getParamsJson().toJSONString())
+                    .setParamsJson(
+                            logicLog.getParamsJson() == null ? null : logicLog.getParamsJson().toJSONString())
                     .setVarsJson(logicLog.getVarsJson() == null ? null : logicLog.getVarsJson().toJSONString())
-                    .setVarsJsonEnd(logicLog.getVarsJson_end() == null ? null : logicLog.getVarsJson_end().toJSONString())
+                    .setVarsJsonEnd(
+                            logicLog.getVarsJson_end() == null ? null : logicLog.getVarsJson_end().toJSONString())
                     .setNextId(nextId)
                     .setNextName(nextName)
                     .setIsOver(logicLog.isOver())
                     .setEnv(RuntimeUtil.getEnvObject().getNODE_ENV())
                     .setHost(requestHost)
                     .setClientId(requestClientId);
-            if (logicLog.getId() != null) logEntity.setId(logicLog.getId().toString());
+            if (logicLog.getId() != null)
+                logEntity.setId(logicLog.getId().toString());
             logicLogService.insert(logEntity);
+            log.info("[{}]bizId:{},[{}]日志添加成功，点击回放：{}/logic/index.html#/debug/logic-log/i/{}", logicLog.getLogicId(), logicLog.getBizId(), logicLogServiceConfig.logStoreType, RuntimeUtil.getOnlineHost(), logicLog.getId());
         } catch (Exception e) {
             log.error("添加logicLog日志异常:{}", e.getMessage());
             e.printStackTrace();
         }
-
     }
 
-//    public List<LogicLogEntity> queryLogs(String logicId) {
-//        QueryWrapper<LogicLogEntity> wrapper = new QueryWrapper<>();
-//        wrapper.eq("logicId", logicId);
-//        wrapper.orderByDesc("id");
-//        return logMapper.selectList(wrapper);
-//    }
+    // 将日志插入es
+    public void addLogicLogToEs(LogicLog logicLog) {
 
-//    public List<LogicLogEntity> queryBizLogs(String logicId, String bizId) {
-//        QueryWrapper<LogicLogEntity> wrapper = new QueryWrapper<>();
-//        wrapper.eq("logicId", logicId);
-//        wrapper.eq("bizId", bizId);
-//        wrapper.orderByDesc("serverTime");
-//        return logMapper.selectList(wrapper);
-//    }
+    }
+    // public List<LogicLogEntity> queryLogs(String logicId) {
+    // QueryWrapper<LogicLogEntity> wrapper = new QueryWrapper<>();
+    // wrapper.eq("logicId", logicId);
+    // wrapper.orderByDesc("id");
+    // return logMapper.selectList(wrapper);
+    // }
+
+    // public List<LogicLogEntity> queryBizLogs(String logicId, String bizId) {
+    // QueryWrapper<LogicLogEntity> wrapper = new QueryWrapper<>();
+    // wrapper.eq("logicId", logicId);
+    // wrapper.eq("bizId", bizId);
+    // wrapper.orderByDesc("serverTime");
+    // return logMapper.selectList(wrapper);
+    // }
 
     public void clearLog() {
         jdbcTemplate.update("truncate logic_log");

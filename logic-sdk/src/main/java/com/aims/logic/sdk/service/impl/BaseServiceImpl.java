@@ -266,6 +266,11 @@ public class BaseServiceImpl<T extends BaseEntity, TKey> implements BaseService<
 
     @Override
     public Page<T> selectPage(FormQueryInput input) {
+        return queryPageByInput(getQueryInput(input));
+    }
+
+    @Override
+    public QueryInput getQueryInput(FormQueryInput input) {
         QueryInput queryInput = new QueryInput();
         queryInput.setPage(input.getPage())
                 .setPageSize(input.getPageSize());
@@ -299,7 +304,7 @@ public class BaseServiceImpl<T extends BaseEntity, TKey> implements BaseService<
             orderBy.setColumns(orderByColumns);
             queryInput.setOrderBy(orderBy);
         }
-        return queryPageByInput(queryInput);
+        return queryInput;
     }
 
     public List<Map<String, Object>> selectBySql(String sql) {

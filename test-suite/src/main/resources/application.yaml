@@ -13,6 +13,11 @@ mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 logic:
+  log:
+    store: es
+    es:
+      host: http://192.168.51.17:21903
+      index: logic-log
   config-dir: /Users/lk/Documents/Dev/aims/xuanwu-logic/logic-solution/test-suite/test-case-configs
   scan-package-names: com.aims.logic.testsuite
   biz-error-classes: com.aims.logic.testsuite.demo.exception.CustomException
@@ -30,6 +35,3 @@ logic:
       port: 6379  # 端口号
       database: 1  # 数据库索引（默认为0）
       expire: 30
-logging:
-  level:
-    root: info

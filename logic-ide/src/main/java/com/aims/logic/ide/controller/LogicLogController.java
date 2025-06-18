@@ -20,7 +20,7 @@ public class LogicLogController {
 
     @PostMapping("/api/ide/logic-logs")
     public ApiResult<Page> logicLogList(@RequestBody FormQueryInput input) {
-        var list = this.logicLogService.selectPage(input);
+        var list = this.logicLogService.selectPageByInput(logicLogService.getQueryInput(input));
         return new ApiResult<Page>().setData(list);
     }
 

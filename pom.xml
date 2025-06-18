@@ -16,7 +16,7 @@
     <packaging>pom</packaging>
     <properties>
         <java.version>17</java.version>
-        <revision>0.8.1.260612-SNAPSHOT</revision>
+        <revision>0.8.2.260618-SNAPSHOT</revision>
         <!--        <revision>20250218-SNAPSHOT</revision>-->
         <logic-runtime.version>${revision}</logic-runtime.version>
         <logic-sdk.version>${revision}</logic-sdk.version>
