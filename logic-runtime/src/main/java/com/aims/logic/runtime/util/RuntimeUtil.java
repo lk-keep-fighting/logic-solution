@@ -68,6 +68,16 @@ public class RuntimeUtil {
         return ENVs;
     }
 
+    private static String onlineIdeHostCache = null;
+
+    // 获取online模式下的IDE_HOST值，如果未配置取当前服务器+端口
+    public static String getOnlineHost() {
+        if (onlineIdeHostCache == null) {
+            onlineIdeHostCache =  getEnvObject().getIDE_HOST().isBlank() ? RuntimeUtil.getUrl() : getEnvObject().getIDE_HOST();
+        }
+        return onlineIdeHostCache;
+    }
+
     /**
      * 获取当前启动项目的url
      *
