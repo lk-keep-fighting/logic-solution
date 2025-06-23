@@ -5,6 +5,7 @@ import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
 import com.aims.logic.runtime.contract.dto.*;
 import com.aims.logic.runtime.contract.enums.LogicItemTransactionScope;
 import com.aims.logic.runtime.contract.enums.LogicItemType;
+import com.aims.logic.runtime.contract.logger.LogicItemLog;
 import com.aims.logic.runtime.contract.logger.LogicLog;
 import com.aims.logic.runtime.env.LogicAppConfig;
 import com.aims.logic.runtime.env.LogicSysEnvDto;
@@ -40,7 +41,7 @@ import java.util.*;
 @Slf4j
 @Service
 public class LogicRunnerServiceImpl implements LogicRunnerService {
-    private final LoggerHelperService logService;
+    private final LoggerHelperService logHelperService;
     private final LogicInstanceService insService;
     private final LogicConfigStoreService configStoreService;
     private final LogicAppConfig appConfig;
@@ -75,7 +76,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                                   LogicAppConfig appConfig,
                                   BizLock bizLock,
                                   List<LogicRunnerEventListener> _eventListener) {
-        this.logService = logService;
+        this.logHelperService = logService;
         this.insService = insService;
         this.configStoreService = _configStoreService;
         this.appConfig = appConfig;
@@ -133,7 +134,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
 
     @Override
     public LogicRunnerService newInstance(JSONObject env, String parentLogicId, String parentBizId, int tranPropagation, boolean isAsync) {
-        var ins = new LogicRunnerServiceImpl(logService, insService, configStoreService, transactionalUtils, appConfig, bizLock, eventListener);
+        var ins = new LogicRunnerServiceImpl(logHelperService, insService, configStoreService, transactionalUtils, appConfig, bizLock, eventListener);
         ins.setEnv(env, true);
         ins.isAsync = isAsync;
         ins.parentLogicId = parentLogicId;
@@ -183,7 +184,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         }
         var res = runner.run(parsMap);
         res.getLogicLog().setId(objectId);
-        logService.addLogicLog(res.getLogicLog());
+        logHelperService.addLogicLog(res.getLogicLog());
         try {
             eventListener.forEach(listener -> listener.afterLogicStop(logicId, null, res.getData()));
         } catch (Exception e) {
@@ -317,7 +318,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         var res = runner
                 .run(startId, parsMap, JSON.isValid(cacheVarsJson) ? JSON.parseObject(cacheVarsJson) : null);
         res.getLogicLog().setBizId(bizId);
-        logService.addOrUpdateInstanceAndAddLogicLog(res.getLogicLog());
+        logHelperService.addOrUpdateInstanceAndAddLogicLog(res.getLogicLog());
         return res;
     }
 
@@ -326,7 +327,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
      */
     @Override
     public void clearLog() {
-        logService.clearLog();
+        logHelperService.clearLog();
     }
 
     @Override
@@ -377,7 +378,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         LogicLog logicLog = LogicLog.newBizLogBeforeRun(instanceId, runner.getFnCtx(), startItem, runner.getFnCtx().getTraceId(), logicLogId);
         logicLog.setParentLogicId(this.parentLogicId).setParentBizId(this.parentBizId).setIsAsync(this.isAsync);
         if (instanceId == null) {//先生成实例记录
-            logService.addInstance(logicLog);
+            logHelperService.addInstance(logicLog);
         }
         LogicItemTransactionScope tranScope = startItem.getTranScope();
         if (this.parentLogicId != null) {//复用逻辑，根据传播机制选择事务特性
@@ -403,25 +404,12 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 tranScope = runner.getFnCtx().getTranScope();
             }
         }
-//        if (this.parentLogicId != null && tranPropagation != Propagation.REQUIRES_NEW.value()) {//子逻辑默认为每次交互模式，要么全成功要么全失败，继承父逻辑事务，跟随父逻辑提交
-//            if (tranPropagation == Propagation.NOT_SUPPORTED.value()) {//父逻辑关闭了事务，子逻辑也关闭
-//                tranScope = LogicItemTransactionScope.off;
-//            } else {
-//                log.info("[{}]bizId:{},当前为复用逻辑内部，未指定开启新事务，数据将与入口逻辑一起提交。", logicId, bizId);
-//                tranScope = LogicItemTransactionScope.everyRequest;
-//            }
-//        } else if (tranScope == null || tranScope.equals(LogicItemTransactionScope.def)) {
-//            if (LogicItemType.start.equalsTo(startItem.getType()) || LogicItemType.waitForContinue.equalsTo(startItem.getType())) {
-//                tranScope = RuntimeUtil.getEnvObject().getDefaultTranScope();
-//            } else {
-//                tranScope = LogicItemTransactionScope.everyNode;
-//            }
-//        }
+
         runner.getFnCtx().setTranScope(tranScope);
 
 
         log.info("[{}]bizId:{},tranScope:{}", logicId, bizId, tranScope);
-        logService.startBizRunning(logicLog);
+        logHelperService.startBizRunning(logicLog);
         LogicRunResult res = null;
         switch (tranScope) {
             case everyRequest:
@@ -442,8 +430,8 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 log.info("[{}]bizId:{},runBizInstanceWithEveryNodeTran", logicId, bizId);
                 res = runBizInstanceWithEveryNodeTran(runner, startItem, logicLog);
         }
-        logService.stopBizRunning(logicLog);
-        logService.addLogicLog(logicLog);
+        logHelperService.stopBizRunning(logicLog);
+        logHelperService.addLogicLog(logicLog);
         return res;
     }
 
@@ -531,7 +519,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                         .setNextItem(nextItem)
                         .setSuccess(itemRes.isSuccess()).setMsg(itemRes.getMsg());
                 if (itemRes.isSuccess()) {
-                    logService.updateInstance(logicLog);
+                    logHelperService.updateInstance(logicLog);
                     log.info("[{}]bizId:{},begin commit in runItemWithEveryJavaNodeTran-itemResIsSuccess=true", logicId, bizId);
                     commitCurTranIfNextIsNewGroup(curTranStatus, runner.getFnCtx(), curItem);
                     if (Objects.equals(curItem.getType(), LogicItemType.wait.getValue()) && bizLock.isStopping(bizLock.buildKey(logicId, bizId))) {
@@ -595,7 +583,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 if (itemRes.isSuccess()) {
                     //执行成功正常指定下一个节点
                     logicLog.setNextItem(nextItem);
-                    logService.updateInstance(logicLog);
+                    logHelperService.updateInstance(logicLog);
                     log.info("[{}]bizId:{},begin commit in runItemWithEveryJavaNodeTran-itemResIsSuccess=true", logicId, bizId);
                     commitCurTranIfNextIsNewGroup(curTranStatus, runner.getFnCtx(), curItem);
                     if (Objects.equals(curItem.getType(), LogicItemType.wait.getValue()) && bizLock.isStopping(logicId + "-" + bizId)) {
@@ -607,7 +595,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                     log.info("[{}]bizId:{},节点执行失败，begin rollback，success=false,msg:{}, in runItemWithEveryJavaNodeTran", logicId, bizId, itemRes.getMsg());
                     transactionalUtils.rollback(curTranStatus);
                     log.info("[{}]bizId:{},节点执行失败，rollback ok，事务组:{}", logicId, bizId, ctx.getCurTranGroupId());
-                    logService.updateInstance(logicLog);
+                    logHelperService.updateInstance(logicLog);
                 }
                 //代码报错时会中断执行
                 if (itemRes.isNeedInterrupt()) {
@@ -674,7 +662,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
             if (itemRes.isSuccess()) {
                 logicLog.setOver(runner.updateStatus(itemRes, nextItem) == RunnerStatusEnum.End)
                         .setNextItem(nextItem);
-                logService.updateInstance(logicLog);
+                logHelperService.updateInstance(logicLog);
                 transactionalUtils.commit(begin);
             } else {
                 if (!begin.isCompleted()) {
@@ -726,7 +714,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         if (logicLog.isSuccess())
             logicLog.setOver(runner.updateStatus(itemRes, nextItem) == RunnerStatusEnum.End)
                     .setNextItem(nextItem).setMsg(itemRes.getMsg());
-        logService.updateInstance(logicLog);
+        logHelperService.updateInstance(logicLog);
         return new LogicRunResult().setLogicLog(logicLog)
                 .setData(itemRes.getData())
                 .setSuccess(itemRes.isSuccess())
@@ -788,6 +776,39 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 res.add(retryErrorBiz(insEntity.getLogicId(), insEntity.getBizId()));
             });
         return res;
+    }
+
+    @Override
+    public int forceCompleteBiz(String logicId, String bizId) {
+        LogicLog logicLog = new LogicLog();
+        var insEntity = insService.getInstance(logicId, bizId);
+        logicLog.setEnvsJson(JSONObject.parse(insEntity.getEnvsJson()))
+                .setInstanceId(insEntity.getId())
+                .setVersion(insEntity.getVersion())
+                .setLogicId(logicId)
+                .setSuccess(insEntity.getSuccess())
+                .setBizId(bizId)
+                .setOver(true)
+                .setMsg("强制完成业务实例")
+                .setId(UUID.randomUUID().toString());
+        LogicItemLog logicItemLog = new LogicItemLog();
+        logicItemLog.setName("强制完成业务实例")
+                .setBeginTime(LocalDateTime.now())
+                .setEndTime(LocalDateTime.now());
+        logicLog.setItemLogs(List.of(logicItemLog));
+        try {
+            forceStopBiz(logicId, bizId);
+        } catch (Exception e) {
+        }
+        logHelperService.stopBizRunning(logicLog);
+        logHelperService.addLogicLog(logicLog);
+        logHelperService.updateInstance(logicLog);
+        return 1;
+    }
+
+    @Override
+    public void forceStopBiz(String logicId, String bizId) {
+        bizLock.setBizStopping(bizLock.buildKey(logicId, bizId));
     }
 
     @Override

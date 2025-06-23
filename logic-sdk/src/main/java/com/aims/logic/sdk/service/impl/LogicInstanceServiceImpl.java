@@ -1,8 +1,11 @@
 package com.aims.logic.sdk.service.impl;
 
+import com.aims.logic.runtime.contract.logger.LogicLog;
 import com.aims.logic.sdk.entity.LogicInstanceEntity;
+import com.aims.logic.sdk.event.LogicRunnerEventListener;
 import com.aims.logic.sdk.service.LogicInstanceService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +18,9 @@ public class LogicInstanceServiceImpl extends BaseServiceImpl<LogicInstanceEntit
 
     public LogicInstanceServiceImpl() {
     }
+
+    @Autowired
+    private List<LogicRunnerEventListener> eventListener;
 
     @Override
     public LogicInstanceEntity getInstance(String logicId, String bizId) {
@@ -134,5 +140,41 @@ public class LogicInstanceServiceImpl extends BaseServiceImpl<LogicInstanceEntit
         StringBuilder sql = new StringBuilder();
         sql.append(String.format("update logic_instance set nextId='%s',nextName='%s',varsJsonEnd='%s',isOver=0 where logicId = '%s' and bizId = '%s'", nextId, nextName, varsJsonEnd, logicId, bizId));
         return jdbcTemplate.update(sql.toString());
+    }
+
+    @Override
+    public void triggerBizCompleted(LogicLog logicLog) {
+        try {
+            for (LogicRunnerEventListener eventListener : this.eventListener) {
+                eventListener.onBizCompleted(logicLog.getLogicId(), logicLog.getBizId(), logicLog.getReturnData());
+            }
+        } catch (Exception e) {
+            log.warn("触发业务完成事件失败，triggerBizCompleted error: {}", e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void triggerAfterLogicStop(LogicLog logicLog) {
+        try {
+            for (LogicRunnerEventListener eventListener : this.eventListener) {
+                eventListener.afterLogicStop(logicLog.getLogicId(), logicLog.getBizId(), logicLog.getReturnData());
+            }
+        } catch (Exception e) {
+            log.warn("触发逻辑运行开始事件失败，triggerBeforeLogicRun error: {}", e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void triggerBeforeLogicRun(LogicLog logicLog) {
+        try {
+            for (LogicRunnerEventListener eventListener : this.eventListener) {
+                eventListener.beforeLogicRun(logicLog.getLogicId(), logicLog.getBizId(), logicLog.getParamsJson());
+            }
+        } catch (Exception e) {
+            log.warn("触发逻辑运行开始事件失败，triggerBeforeLogicRun error: {}", e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

@@ -98,6 +98,12 @@ public class LogicRuntimeController {
         return res;
     }
 
+    @PostMapping("/api/runtime/logic/v1/force-complete-biz/{logicId}/{bizId}")
+    public ApiResult forceCompleteBiz(@PathVariable String logicId, @PathVariable String bizId) {
+        var rep = runner.forceCompleteBiz(logicId, bizId);
+        return ApiResult.ok(rep);
+    }
+
     @PostMapping("/api/runtime/logic/v1/retry-longtime-running-biz")
     public ApiResult retryLongtimeRunningBiz(@RequestParam(value = "timeout", required = false, defaultValue = "30") int timeout) {
         var rep = runner.retryLongtimeRunningBiz(timeout);

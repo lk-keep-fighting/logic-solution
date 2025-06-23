@@ -5,7 +5,6 @@ import com.aims.logic.runtime.util.RuntimeUtil;
 import com.aims.logic.sdk.config.LogicLogServiceConfig;
 import com.aims.logic.sdk.entity.LogicInstanceEntity;
 import com.aims.logic.sdk.entity.LogicLogEntity;
-import com.aims.logic.sdk.event.LogicRunnerEventListener;
 import com.aims.logic.sdk.service.LoggerHelperService;
 import com.aims.logic.sdk.service.LogicInstanceService;
 import com.aims.logic.sdk.service.LogicLogService;
@@ -19,7 +18,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,8 +28,6 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
     private final LogicInstanceService instanceService;
     private final LogicLogService logicLogService;
     private final JdbcTemplate jdbcTemplate;
-    private List<LogicRunnerEventListener> eventListener;
-
     private LogicLogServiceConfig logicLogServiceConfig;
 
     @Autowired
@@ -39,12 +35,10 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
             LogicInstanceService _instanceService,
             LogicLogService _logicLogService,
             JdbcTemplate _jdbcTemplate,
-            List<LogicRunnerEventListener> _eventListener,
             LogicLogServiceConfig _logicLogServiceConfig) {
         this.instanceService = _instanceService;
         this.logicLogService = _logicLogService;
         this.jdbcTemplate = _jdbcTemplate;
-        this.eventListener = _eventListener;
         this.logicLogServiceConfig = _logicLogServiceConfig;
     }
 
@@ -80,8 +74,7 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
         valueMaps.put("env", env);
         instanceService.updateById(logicLog.getInstanceId(), valueMaps);
         try {
-            eventListener.forEach(listener -> listener.beforeLogicRun(logicLog.getLogicId(), logicLog.getBizId(),
-                    logicLog.getReturnData()));
+            instanceService.triggerBeforeLogicRun(logicLog);
         } catch (Exception e) {
             log.error("beforeLogicRun回调异常", e);
             e.printStackTrace();
@@ -101,22 +94,8 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
                 : logicLog.getMsg().length() > 255 ? logicLog.getMsg().substring(0, 255) : logicLog.getMsg();
         valuesMap.put("message", msg255);
         instanceService.updateById(logicLog.getInstanceId(), valuesMap);
-        try {
-            eventListener.forEach(listener -> listener.afterLogicStop(logicLog.getLogicId(), logicLog.getBizId(),
-                    logicLog.getReturnData()));
-        } catch (Exception e) {
-            log.error("afterLogicStop回调异常", e);
-            e.printStackTrace();
-        }
+        instanceService.triggerAfterLogicStop(logicLog);
 
-    }
-
-    public void triggerEventListener(LogicLog logicLog) {
-        if (logicLog.isOver()) {
-            for (LogicRunnerEventListener listener : eventListener) {
-                listener.onBizCompleted(logicLog.getLogicId(), logicLog.getBizId(), logicLog.getReturnData());
-            }
-        }
     }
 
     /**
@@ -139,7 +118,6 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
         var nextName = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getName();
         var msg255 = logicLog.getMsg() == null ? null
                 : logicLog.getMsg().length() > 255 ? logicLog.getMsg().substring(0, 255) : logicLog.getMsg();
-        triggerEventListener(logicLog);
         Map<String, Object> valueMaps = new HashMap<>();
         valueMaps.put("success", logicLog.isSuccess());
         valueMaps.put("message", msg255);
@@ -158,6 +136,9 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
         valueMaps.put("nextName", nextName);
         valueMaps.put("env", env);
         instanceService.updateById(logicLog.getInstanceId(), valueMaps);
+        if (logicLog.isOver()) {
+            instanceService.triggerBizCompleted(logicLog);
+        }
     }
 
     public String addInstance(LogicLog logicLog) {
