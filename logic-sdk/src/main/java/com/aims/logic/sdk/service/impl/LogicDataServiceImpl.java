@@ -17,17 +17,14 @@ import java.util.stream.Collectors;
 
 @Service
 public class LogicDataServiceImpl implements LogicDataService {
-    private String logicInstanceDataModelId = "logic_instance";
 
-    private LogicInstanceService logicInstanceService;
     private LogicInstanceService insService;
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
 
-    public LogicDataServiceImpl(LogicInstanceService _logicInstanceService,
-                                LogicInstanceService _insService) {
-        logicInstanceService = _logicInstanceService;
+    public LogicDataServiceImpl(
+            LogicInstanceService _insService) {
         insService = _insService;
     }
 
@@ -111,11 +108,12 @@ public class LogicDataServiceImpl implements LogicDataService {
 
     @Override
     public LogicInstanceEntity getBiz(String logicId, String bizId) {
-        return logicInstanceService.getInstance(logicId, bizId);
+        return insService.getInstance(logicId, bizId);
     }
 
     @Override
     public int deleteBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, List<String> ids) {
         return insService.deleteBiz(createTimeFrom, createTimeTo, ids);
     }
+
 }

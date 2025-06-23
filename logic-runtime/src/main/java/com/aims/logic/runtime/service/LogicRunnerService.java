@@ -139,6 +139,23 @@ public interface LogicRunnerService {
 
     List<LogicRunResult> retryLongtimeRunningBiz(int timeout);
 
+    /**
+     * 强制完成业务实例
+     *
+     * @param logicId
+     * @param bizId
+     * @return
+     */
+
+    int forceCompleteBiz(String logicId, String bizId);
+
+    /**
+     * 强制停止业务实例
+     *
+     * @param logicId
+     * @param bizId
+     */
+    void forceStopBiz(String logicId, String bizId);
 
     /**
      * 重置实例待执行节点与待执行局部变量
@@ -190,11 +207,13 @@ public interface LogicRunnerService {
     void clearCompletedInstance();
 
     /**
+     * 使用forceStopBiz方法代替
      * 停止业务执行,实例会在下一个延时等待节点结束后中止执行，并抛出异常
      *
      * @param logicId
      * @param bizId
      */
+    @Deprecated
     void stopBiz(String logicId, String bizId);
 
     /**

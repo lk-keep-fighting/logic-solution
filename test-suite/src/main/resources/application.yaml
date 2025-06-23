@@ -14,7 +14,7 @@ mybatis-plus:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 logic:
   log:
-    store: es
+    store: db
     es:
       host: http://192.168.51.17:21903
       index: logic-log
