@@ -18,6 +18,7 @@ import java.util.concurrent.locks.ReentrantLock;
 @ConditionalOnProperty(prefix = "logic.biz-lock", name = "type", havingValue = "MEMORY", matchIfMissing = true)
 public class MemoryBizLock implements BizLock {
     private final Cache<String, ReentrantLock> lockCache;
+    private final Cache<String, Integer> stoppingBizCache;
     private final BizLockProperties.SpinLock spinLock;
 
     public MemoryBizLock(BizLockProperties properties) {
@@ -26,6 +27,33 @@ public class MemoryBizLock implements BizLock {
                 .initialCapacity(200)
                 .expireAfterAccess(Duration.ofMinutes(60))
                 .build();
+        this.stoppingBizCache = Caffeine.newBuilder()
+                .initialCapacity(20)
+                .expireAfterAccess(Duration.ofMinutes(60))
+                .build();
+    }
+
+    @Override
+    public String buildKey(String logicId, String bizId) {
+        return logicId + ":" + bizId;
+    }
+
+    @Override
+    public boolean isLocked(String key) {
+        return lockCache.asMap().containsKey(key);
+    }
+
+    @Override
+    public boolean isStopping(String key) {
+        return stoppingBizCache.asMap().containsKey(key);
+    }
+
+    @Override
+    public void setBizStopping(String key) {
+        if (isLocked(key))
+            stoppingBizCache.put(key, 0);
+        else
+            throw new RuntimeException("指定的实例不在运行中，无法停止。");
     }
 
     @Override
@@ -36,7 +64,7 @@ public class MemoryBizLock implements BizLock {
         int retryCount = 0;
         while (retryCount <= spinLock.getRetryTimes()) {
             if (lock.tryLock()) {
-                log.debug("获取锁成功, key: {}, 重试次数: {}", key, retryCount);
+                log.info("获取锁成功, key: {}, 重试次数: {}", key, retryCount);
                 return true;
             }
             retryCount++;
@@ -47,7 +75,7 @@ public class MemoryBizLock implements BizLock {
                 return false;
             }
         }
-        log.warn("获取锁超时, key: {}, 重试次数: {}", key, retryCount);
+        log.error("获取锁超时, key: {}, 重试次数: {}", key, retryCount);
         return false;
     }
 
@@ -63,11 +91,15 @@ public class MemoryBizLock implements BizLock {
         log.debug("begin unlock {}", key);
         ReentrantLock lock = lockCache.asMap().get(key);
         if (lock != null) {
-            log.info("unlock ok,key:{}", key);
+            lockCache.asMap().remove(key);
+            log.info("remove key ok:{}", key);
+            stoppingBizCache.asMap().remove(key);
             lock.unlock();
+            log.info("unlock key ok:{}", key);
         } else {
-            log.info("unlock error，key缓存已过期，过期配置：60分钟，key {} ", key);
+            log.error("unlock error，key不存在或已过期，过期配置：60分钟，key {} ", key);
         }
+
     }
 
     @Override

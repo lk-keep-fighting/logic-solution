@@ -40,6 +40,7 @@ public class LogicLog {
         return new LogicLog().setInstanceId(instanceId).setBizId(ctx.getBizId()).setLogicId(ctx.getLogicId()).setVersion(ctx.getLogic().getVersion())
                 .setParamsJson(JSONObject.from(ctx.get_par()))
                 .setVarsJson(JsonUtil.clone(ctx.get_var()))
+                .setVarsJson_end(JsonUtil.clone(ctx.get_var()))
                 .setEnvsJson(ctx.get_env())
                 .setNextItem(nextItem)
                 .setLogOff(ctx.isLogOff())
@@ -77,6 +78,10 @@ public class LogicLog {
      * 父逻辑编号
      */
     String parentLogicId;
+    /**
+     * 是否异步执行
+     */
+    Boolean isAsync;
     /**
      * 父业务标识
      */

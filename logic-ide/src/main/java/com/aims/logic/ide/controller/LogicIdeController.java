@@ -1,17 +1,13 @@
 package com.aims.logic.ide.controller;
 
 import com.aims.logic.ide.configuration.LogicIdeConfig;
-import com.aims.logic.ide.controller.dto.ApiResult;
-import com.aims.logic.ide.controller.dto.ListData;
+import com.aims.logic.ide.controller.dto.*;
 import com.aims.logic.ide.util.ClassUtils;
 import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
 import com.aims.logic.runtime.contract.dsl.LogicTreeNode;
 import com.aims.logic.runtime.contract.dsl.ParamTreeNode;
 import com.aims.logic.runtime.contract.dsl.ReturnTreeNode;
 import com.aims.logic.runtime.contract.dsl.basic.TypeAnnotationTreeNode;
-import com.aims.logic.ide.controller.dto.LogicClassDto;
-import com.aims.logic.ide.controller.dto.LogicClassMethodDto;
-import com.aims.logic.ide.controller.dto.LogicItemGroupDto;
 import com.aims.logic.runtime.contract.parser.TypeAnnotationParser;
 import com.aims.logic.sdk.annotation.LogicItem;
 import com.aims.logic.sdk.dto.DataFilterInput;
@@ -21,6 +17,7 @@ import com.aims.logic.sdk.entity.LogicEntity;
 import com.aims.logic.sdk.service.LogicBakService;
 import com.aims.logic.sdk.service.LogicService;
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,8 +51,12 @@ public class LogicIdeController {
 
     @PostMapping("/api/ide/logic/add")
     public ApiResult<Boolean> addLogic(@RequestBody LogicEntity body) {
-        var res = logicService.insert(body);
-        return new ApiResult<Boolean>().setData(res);
+        try {
+            logicService.insert(body);
+            return new ApiResult<Boolean>().setData(true);
+        } catch (Exception ex) {
+            return ApiResult.fromException(ex);
+        }
     }
 
     @PostMapping("/api/ide/logics")
@@ -272,6 +273,19 @@ public class LogicIdeController {
         }
         return res;
     }
+
+
+    @PostMapping("/api/ide/asset/v1/java/sourceCode")
+    public ApiResult<MethodSourceCodeDto> getMethodSourceCode(@RequestBody JSONObject body) throws
+            ClassNotFoundException {
+        ApiResult<MethodSourceCodeDto> res = new ApiResult<>();
+        LogicItemTreeNode item = body.to(LogicItemTreeNode.class);
+        String methodName = item.getMethod().split("\\(")[0];
+        var method = ClassUtils.getMethodSourceCode(item.getUrl(), methodName, item.getParams());
+        res.setData(method);
+        return res;
+    }
+
 
 //    @PostMapping("/api/ide/settings/asset/{type}/{code}")
 //    public ApiResult setAsset(@PathVariable String type, @PathVariable String code, @RequestBody String config) {

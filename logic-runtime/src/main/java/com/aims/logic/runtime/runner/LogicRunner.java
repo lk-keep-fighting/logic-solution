@@ -5,6 +5,8 @@ import com.aims.logic.runtime.contract.dsl.LogicTreeNode;
 import com.aims.logic.runtime.contract.dto.LogicItemRunResult;
 import com.aims.logic.runtime.contract.dto.LogicRunResult;
 import com.aims.logic.runtime.contract.dto.RunnerStatusEnum;
+import com.aims.logic.runtime.contract.enums.LogicItemTransactionScope;
+import com.aims.logic.runtime.contract.enums.LogicItemType;
 import com.aims.logic.runtime.contract.logger.LogicLog;
 import com.aims.logic.runtime.contract.parser.TypeAnnotationParser;
 import com.aims.logic.runtime.util.IdWorker;
@@ -83,7 +85,7 @@ public class LogicRunner {
         this.fnCtx.setBizId(bizId);
         this.fnCtx.setLogicId(logic.getId());
         logicLog.setBizId(bizId).setLogOff(fnCtx.isLogOff());
-        log.info("init-[{}}]bizId:{}", logic.getId(), bizId);
+        log.info("init-[{}]bizId:{}", logic.getId(), bizId);
         log.debug("[{}}]参数声明：_par:{}", logic.getId(), this.fnCtx.get_par());
         log.debug("[{}}]局部变量声明：_var:{}", logic.getId(), this.fnCtx.get_var());
         log.debug("[{}}]环境变量声明：_env:{}", logic.getId(), this.fnCtx.get_env());
@@ -211,7 +213,7 @@ public class LogicRunner {
                 .setEnvsJson(fnCtx.get_env()).setMsgId(fnCtx.getTraceId());
         LogicItemRunResult itemRes = runItem(startNode);
         var nextItem = findNextItem(startNode);
-        while (refreshStatus(itemRes.isSuccess(), nextItem) == RunnerStatusEnum.Continue) {
+        while (updateStatus(itemRes, nextItem) == RunnerStatusEnum.Continue) {
             itemRes = runItem(nextItem);
             nextItem = findNextItem(nextItem);
         }
@@ -242,25 +244,25 @@ public class LogicRunner {
         return itemRes;
     }
 
-    // 定义常量
-    private static final String TYPE_WAIT_FOR_CONTINUE = "wait-for-continue";
-    private static final String TYPE_START = "start";
-
-    public RunnerStatusEnum refreshStatus(Boolean isCurItemSuccess, LogicItemTreeNode nextItem) {
+    public RunnerStatusEnum updateStatus(LogicItemRunResult itemRes, LogicItemTreeNode nextItem) {
         fnCtx.setNextItem(nextItem);
-        if (!isCurItemSuccess) {
-            this.setRunnerStatus(RunnerStatusEnum.Error);
-        } else {
-            if (nextItem != null && !nextItem.getId().isBlank()) {
-                String type = nextItem.getType();
-                if (TYPE_WAIT_FOR_CONTINUE.equals(type) || TYPE_START.equals(type)) {
-                    this.setRunnerStatus(RunnerStatusEnum.WaitForContinue);
-                } else {
-                    this.setRunnerStatus(RunnerStatusEnum.Continue);
-                }
-            } else
-                this.setRunnerStatus(RunnerStatusEnum.End);
+        if (!itemRes.isSuccess()) {
+            if (!itemRes.isNeedInterrupt() && LogicItemTransactionScope.everyNode2.equals(fnCtx.getTranScope())) {
+                this.setRunnerStatus(RunnerStatusEnum.Continue);
+            } else {
+                this.setRunnerStatus(RunnerStatusEnum.Error);
+                return this.getRunnerStatus();
+            }
         }
+        if (nextItem != null && !nextItem.getId().isBlank()) {
+            String type = nextItem.getType();
+            if (LogicItemType.waitForContinue.equalsTo(type) || LogicItemType.start.equalsTo(type)) {
+                this.setRunnerStatus(RunnerStatusEnum.WaitForContinue);
+            } else {
+                this.setRunnerStatus(RunnerStatusEnum.Continue);
+            }
+        } else
+            this.setRunnerStatus(RunnerStatusEnum.End);
         return this.getRunnerStatus();
     }
 

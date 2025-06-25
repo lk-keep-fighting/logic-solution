@@ -1,6 +1,8 @@
 package com.aims.logic.sdk.service.impl;
 
 import com.aims.logic.runtime.util.RuntimeUtil;
+import com.aims.logic.sdk.dto.FormQueryInput;
+import com.aims.logic.sdk.dto.Page;
 import com.aims.logic.sdk.entity.LogicBakEntity;
 import com.aims.logic.sdk.entity.LogicEntity;
 import com.aims.logic.sdk.entity.LogicPublishedEntity;
@@ -8,6 +10,7 @@ import com.aims.logic.sdk.service.LogicBakService;
 import com.aims.logic.sdk.service.LogicService;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.TypeReference;
 import lombok.extern.log4j.Log4j2;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -170,6 +173,39 @@ public class LogicServiceImpl extends BaseServiceImpl<LogicEntity, String> imple
             throw new RuntimeException("未找到要发布的逻辑：" + id);
         }
     }
+
+    @Override
+    public Page<LogicEntity> selectPageFromRemoteIde(String ideHost, FormQueryInput input) {
+        if (ideHost == null)
+            throw new RuntimeException("远程地址不能为空");
+        var queryBody = JSON.toJSONString(input);
+        var body = RequestBody.create(queryBody, MediaType.parse("application/json; charset=utf-8"));
+        String remoteIdeQueryUrl = String.format("%s/api/ide/logics", ideHost);
+        Request req = new Request.Builder().url(remoteIdeQueryUrl).post(body).build();
+        try (var rep = client.newCall(req).execute()) {
+            if (!rep.isSuccessful()) {
+                log.error("请求异常，Http Code:" + rep.code() + ", " + rep.message());
+                throw new RuntimeException("请求异常，Http Code:" + rep.code() + ", " + rep.message());
+            }
+            if (rep.body() != null) {
+                String repBody = rep.body().string();
+                if (JSON.isValid(repBody)) {
+                    var repData = JSON.parseObject(repBody);
+                    return repData.getObject("data", new TypeReference<Page<LogicEntity>>() {
+                    });
+                } else {
+                    log.error("请求异常，Http Code:" + rep.code() + ", " + rep.message());
+                    throw new RuntimeException("请求异常，Http Code:" + rep.code() + ", " + rep.message());
+                }
+            }
+        } catch (IOException e) {
+            log.error("请求catch异常:");
+            log.error(e.getMessage());
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
 
     @Override
     public List<Map<String, Object>> getModuleList() {

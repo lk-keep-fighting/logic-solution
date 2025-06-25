@@ -17,8 +17,9 @@ public class LogicIdeServiceApplication {
     private static final String DYNAMIC_LIBS_PATH = "/Users/lk/Documents/Dev/aims/xuanwu-logic/logic-solution/logic-ide-service/dynamic-libs"; // 自定义文件夹路径
 
     public static void main(String[] args) throws Exception {
+        SpringApplication.run(LogicIdeServiceApplication.class);
 //        var context = SpringApplication.run(LogicIdeServiceApplication.class);
-        solution1();
+//        solution1();
 //        DynamicComponentLoader dynamicComponentLoader = new DynamicComponentLoader(context);
 //        dynamicComponentLoader.loadJar(DYNAMIC_LIBS_PATH + "/test-case-0.0.1-SNAPSHOT.jar");
     }

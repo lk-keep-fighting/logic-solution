@@ -3,6 +3,8 @@ package com.aims.logic.runtime.runner;
 import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
 import com.aims.logic.runtime.contract.dsl.LogicTreeNode;
 import com.aims.logic.runtime.contract.dto.LogicItemRunResult;
+import com.aims.logic.runtime.contract.enums.LogicItemTransactionScope;
+import com.aims.logic.runtime.util.IdWorker;
 import com.alibaba.fastjson2.JSONObject;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,6 +19,7 @@ public class FunctionContext {
     private JSONObject _var = new JSONObject();
     private JSONObject _env = new JSONObject();
     private JSONObject _global;
+    static IdWorker idWorker = new IdWorker(1, 1);
     private Object _lastRet;
     private LogicItemRunResult _last;
     private LogicTreeNode logic;
@@ -28,6 +31,18 @@ public class FunctionContext {
     private String nextTranGroupId;
     private String lastTranGroupId;
 
+    public void setTranScope(LogicItemTransactionScope tranScope) {
+        _var.put("__tranScope", tranScope);
+    }
+    /**
+     * 本次交互的事务作用域配置
+     * 从当前交互点读取
+     */
+    public LogicItemTransactionScope getTranScope() {
+        if (_var.get("__tranScope") == null)
+            return LogicItemTransactionScope.def;
+        return LogicItemTransactionScope.valueOf(_var.get("__tranScope").toString());
+    }
 
     public JSONObject get_global() {
         if (_var.getJSONObject("__global") == null) {
@@ -42,17 +57,17 @@ public class FunctionContext {
         _var.getJSONObject("__global").putAll(global);
     }
 
-//    public String getSubLogicRandomBizId() {
-//        if (_var.get("__subLogicRandomBizId") == null)
-//            return buildSubLogicRandomBizId();
-//        return _var.get("__subLogicRandomBizId").toString();
-//    }
+    public String getSubLogicRandomBizId() {
+        if (_var.get("__subLogicRandomBizId") == null)
+            return buildSubLogicRandomBizId();
+        return _var.get("__subLogicRandomBizId").toString();
+    }
 
-//    public String buildSubLogicRandomBizId() {
-//        var subLogicRandomBizId = logicId + "_" + System.currentTimeMillis();
-//        _var.put("__subLogicRandomBizId", subLogicRandomBizId);
-//        return subLogicRandomBizId;
-//    }
+    public String buildSubLogicRandomBizId() {
+        var subLogicRandomBizId = String.valueOf(idWorker.nextId());// logicId + "_" + System.currentTimeMillis();
+        _var.put("__subLogicRandomBizId", subLogicRandomBizId);
+        return subLogicRandomBizId;
+    }
 
     public FunctionContext() {
 

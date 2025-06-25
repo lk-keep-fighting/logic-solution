@@ -1,6 +1,8 @@
 package com.aims.logic.ide.controller;
 
 import com.aims.logic.ide.controller.dto.ApiResult;
+import com.aims.logic.ide.controller.dto.DiffRemoteLogicsDto;
+import com.aims.logic.ide.controller.dto.DiffRemoteLogicsInput;
 import com.aims.logic.runtime.util.RuntimeUtil;
 import com.aims.logic.sdk.dto.FormQueryInput;
 import com.aims.logic.sdk.dto.Page;
@@ -12,6 +14,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 public class PublishController {
@@ -56,5 +61,37 @@ public class PublishController {
     public ApiResult<Page> publishedLogics(@RequestBody FormQueryInput input) {
         var list = logicPublishService.selectPage(input);
         return new ApiResult<Page>().setData(list);
+    }
+
+    @PostMapping("/api/ide/published/logics/diff")
+    public ApiResult<List<DiffRemoteLogicsDto>> diffLocalAndRemoteLogics(@RequestBody DiffRemoteLogicsInput input) {
+        List<DiffRemoteLogicsDto> diffList = new ArrayList<>();
+        var remoteHost = RuntimeUtil.getEnvObject().getPUBLISHED_IDE_HOSTS().stream().filter(h -> h.getName().equals(input.getHostName())).findFirst().get();
+        var remoteList = logicService.selectPageFromRemoteIde(remoteHost.getUrl(), input.getQueryInput() == null ? new FormQueryInput() : input.getQueryInput());
+        var localList = logicService.selectPage(input.getQueryInput());
+        localList.getRecords().forEach(local -> {
+            var optional = remoteList.getRecords().stream().filter(remote -> remote.getId().equals(local.getId())).findFirst();
+            var dto = new DiffRemoteLogicsDto();
+            dto.setId(local.getId());
+            dto.setName(local.getName());
+            dto.setLocalVersion(local.getVersion());
+            dto.setLocalVersionUpdateTime(local.getUpdateTime());
+            optional.ifPresentOrElse(remote -> {
+                dto.setRemoteVersion(remote.getVersion());
+                dto.setRemoteVersionUpdateTime(remote.getUpdateTime());
+                if (local.getUpdateTime().isBefore(remote.getUpdateTime())) {
+                    dto.setDiffType("低于远程环境");
+                } else if (local.getUpdateTime().isAfter(remote.getUpdateTime())) {
+                    dto.setDiffType("更新");
+                } else {
+                    dto.setDiffType("无变更");
+                }
+            }, () -> {
+                dto.setDiffType("新增");
+            });
+            diffList.add(dto);
+        });
+
+        return new ApiResult<List<DiffRemoteLogicsDto>>().setData(diffList);
     }
 }

@@ -32,7 +32,7 @@ public class LogicConfigStoreServiceImpl implements LogicConfigStoreService {
         return logicConfigCache;
     }
 
-    private JSONObject readFromCache(String logicId, String version) {
+    public JSONObject readFromCache(String logicId, String version) {
         JSONObject logicConfig = null;
         String logicCacheKey = logicId + "-" + version;
         logicConfig = logicConfigCache.asMap().get(logicCacheKey);
@@ -44,7 +44,7 @@ public class LogicConfigStoreServiceImpl implements LogicConfigStoreService {
         return null;
     }
 
-    private JSONObject saveToCache(String logicId, String version, JSONObject logicConfig) {
+    public JSONObject saveToCache(String logicId, String version, JSONObject logicConfig) {
         String logicCacheKey = logicId + "-" + version;
         logicConfig.put("id", logicId);//自动修复文件名编号与内部配置编号不同的问题
         logicConfigCache.put(logicCacheKey, logicConfig);
@@ -73,14 +73,14 @@ public class LogicConfigStoreServiceImpl implements LogicConfigStoreService {
                 }
             }
             OkHttpClient client = httpClient.newBuilder().callTimeout(Duration.ofSeconds(10)).build();
-            String onlineHost = RuntimeUtil.getEnvObject().getIDE_HOST().isBlank() ? RuntimeUtil.getUrl() : RuntimeUtil.getEnvObject().getIDE_HOST();
+            String onlineHost = RuntimeUtil.getOnlineHost();//.getEnvObject().getIDE_HOST().isBlank() ? RuntimeUtil.getUrl() : RuntimeUtil.getEnvObject().getIDE_HOST();
             String url;
             if (version == null) {//读取最新配置
                 url = String.format("%s/api/ide/logic/%s/config", onlineHost, logicId);
                 log.info("online-从[{}]读取最新配置logicId:[{}]", url, logicId);
             } else {
                 url = String.format("%s/api/ide/logic/%s/config/%s", onlineHost, logicId, version);
-                log.info("online-从[{}]读取配置logicId:[{}]-version:[{}]", url, logicId, version);
+                log.info("online-从[{}]读取指定版本配置logicId:[{}]-version:[{}]", url, logicId, version);
             }
 //            String token = "";
 //            if (RuntimeUtil.getHeader("Authorization") != null) {
@@ -97,14 +97,17 @@ public class LogicConfigStoreServiceImpl implements LogicConfigStoreService {
                         if (JSON.isValid(res)) {
                             var json = JSON.parseObject(res);
                             logicConfig = json.getJSONObject("data");
+                            if (logicConfig == null)
+                                throw new RuntimeException(String.format("%s的配置在%s中不存在", logicId, url));
                             return saveToCache(logicId, version, logicConfig);
+
                         }
                     }
                 } else {
-                    throw new RuntimeException(String.format("online获取配置失败，逻辑编号:%s,错误：%s,%s", logicId, rep.code(), rep.message()));
+                    throw new RuntimeException(String.format("请求地址%s获取配置失败，逻辑编号:%s,错误：%s,%s", url, logicId, rep.code(), rep.message()));
                 }
             } catch (Exception e) {
-                log.error("online获取配置失败，逻辑编号:{}，错误：{}", logicId, e.getLocalizedMessage());
+                log.error("请求地址{}获取配置异常，逻辑编号:{}，错误：{}", url, logicId, e.getLocalizedMessage());
                 throw new RuntimeException(String.format("online获取配置失败，逻辑编号:%s,错误：%s", logicId, e.getLocalizedMessage()));
             }
         }

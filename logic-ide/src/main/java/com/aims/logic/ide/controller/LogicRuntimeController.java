@@ -1,6 +1,7 @@
 package com.aims.logic.ide.controller;
 
 import com.aims.logic.ide.controller.dto.ApiResult;
+import com.aims.logic.ide.util.VersionUtil;
 import com.aims.logic.runtime.service.LogicRunnerService;
 import com.aims.logic.runtime.util.RuntimeUtil;
 import com.aims.logic.sdk.util.lock.BizLock;
@@ -98,6 +99,12 @@ public class LogicRuntimeController {
         return res;
     }
 
+    @PostMapping("/api/runtime/logic/v1/force-complete-biz/{logicId}/{bizId}")
+    public ApiResult forceCompleteBiz(@PathVariable String logicId, @PathVariable String bizId) {
+        var rep = runner.forceCompleteBiz(logicId, bizId);
+        return ApiResult.ok(rep);
+    }
+
     @PostMapping("/api/runtime/logic/v1/retry-longtime-running-biz")
     public ApiResult retryLongtimeRunningBiz(@RequestParam(value = "timeout", required = false, defaultValue = "30") int timeout) {
         var rep = runner.retryLongtimeRunningBiz(timeout);
@@ -142,7 +149,12 @@ public class LogicRuntimeController {
      */
     @GetMapping("/api/runtime/env")
     public ApiResult env() {
-        return new ApiResult().setData(RuntimeUtil.getEnvJson());
+        return new ApiResult().setData(RuntimeUtil.readEnvFromFile());
+    }
+
+    @GetMapping("/api/runtime/version")
+    public ApiResult getVersion() {
+        return new ApiResult().setData(JSONObject.of("version", VersionUtil.getVersion()));
     }
 
     /**
@@ -151,9 +163,9 @@ public class LogicRuntimeController {
      * @param customEnv
      * @return
      */
-    @PostMapping("/api/runtime/env/merge")
-    public ApiResult setEnv(@RequestBody JSONObject customEnv) {
-        RuntimeUtil.mergeEnv(customEnv);
+    @PostMapping("/api/runtime/env/set")
+    public ApiResult setEnv(@RequestBody JSONObject customEnv) throws Exception {
+        RuntimeUtil.saveEnvToFile(customEnv);
         return new ApiResult().setData(RuntimeUtil.getEnvJson());
     }
 
@@ -165,5 +177,16 @@ public class LogicRuntimeController {
     @GetMapping("/api/runtime/lockKeys")
     public ApiResult lockKeys() {
         return new ApiResult().setData(this.bizLock.getLockKeys());
+    }
+
+    @DeleteMapping("/api/runtime/lockKey/setBizStopping/{key}")
+    public ApiResult stoppingBiz(@PathVariable String key) {
+        try {
+            bizLock.setBizStopping(key);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResult.error(e.toString());
+        }
+        return new ApiResult().setData(key);
     }
 }
