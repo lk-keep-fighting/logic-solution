@@ -100,16 +100,6 @@ public class RuntimeUtil {
         }
     }
 
-//    public static String getHeader(String headerName) {
-//        if (RequestContextHolder.getRequestAttributes() == null)
-//            return null;
-//        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder
-//                .getRequestAttributes();
-//        if (requestAttributes == null)
-//            throw new RuntimeException("获取当前程序Request对象失败");
-//        return requestAttributes.getRequest().getHeader(headerName);
-//    }
-
     /**
      * 根据逻辑编号读取逻辑配置
      *

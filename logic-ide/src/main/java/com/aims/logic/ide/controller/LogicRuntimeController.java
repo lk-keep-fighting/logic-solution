@@ -1,6 +1,7 @@
 package com.aims.logic.ide.controller;
 
 import com.aims.logic.ide.controller.dto.ApiResult;
+import com.aims.logic.ide.util.VersionUtil;
 import com.aims.logic.runtime.service.LogicRunnerService;
 import com.aims.logic.runtime.util.RuntimeUtil;
 import com.aims.logic.sdk.util.lock.BizLock;
@@ -149,6 +150,11 @@ public class LogicRuntimeController {
     @GetMapping("/api/runtime/env")
     public ApiResult env() {
         return new ApiResult().setData(RuntimeUtil.readEnvFromFile());
+    }
+
+    @GetMapping("/api/runtime/version")
+    public ApiResult getVersion() {
+        return new ApiResult().setData(JSONObject.of("version", VersionUtil.getVersion()));
     }
 
     /**

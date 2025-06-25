@@ -275,7 +275,6 @@ public class BaseServiceImpl<T extends BaseEntity, TKey> implements BaseService<
         queryInput.setPage(input.getPage())
                 .setPageSize(input.getPageSize());
         queryInput.setFrom(new DataModel().setMainTable(this.getTableNameByAnnotation()));
-        Page page = new Page(input.getPage(), input.getPageSize());
         List<DataViewCondition> cons = new ArrayList<>();
         if (input.getFilters() != null)
             input.getFilters().forEach(v -> {
