@@ -54,6 +54,12 @@ public class LogicInstanceIdeController {
         return new ApiResult().setData(res);
     }
 
+    @DeleteMapping("/api/ide/logic-instance/deleteCompletedBizInstance")
+    public ApiResult deleteCompletedBizInstance() {
+        var res = instanceService.deleteCompletedBizInstance();
+        return new ApiResult().setData(res);
+    }
+
     @GetMapping("/api/ide/logic-instance/{id}")
     public ApiResult<LogicInstanceEntity> getLogic(@PathVariable String id) {
         var entity = instanceService.selectById(id);

@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
 
 /**
  * @author liukun
@@ -30,6 +29,7 @@ public class JsFunction implements ILogicItemFunctionRunner {
         ScriptEngine engine = manager.getEngineByName("js");
         engine.put("_var", ctx.get_var());
         engine.put("_env", ctx.get_env());
+        engine.put("_bizId", ctx.getBizId());
         engine.put("_global", ctx.get_global());
         engine.put("_par", JSONObject.from(ctx.get_par()));
         engine.put("_lastRet", ctx.get_lastRet());
@@ -41,10 +41,10 @@ public class JsFunction implements ILogicItemFunctionRunner {
             Object funcRes = inv.invokeFunction("fn");
             Object data = convertResult(funcRes);
             return new LogicItemRunResult().setData(data);
-        } catch (IllegalArgumentException | ScriptException | NoSuchMethodException exception) {
-            log.error("[{}]bizId:{},js function error: {}", ctx.getLogicId(), ctx.getBizId(), exception.getMessage());
+        } catch (Exception e) {
+            log.error("[{}]bizId:{},js function error: {}", ctx.getLogicId(), ctx.getBizId(), e.getMessage());
             return new LogicItemRunResult()
-                    .setMsg(exception.getMessage())
+                    .setMsg(e.getMessage())
                     .setSuccess(false);
         }
     }

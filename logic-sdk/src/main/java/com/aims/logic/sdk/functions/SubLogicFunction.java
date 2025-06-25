@@ -28,11 +28,13 @@ public class SubLogicFunction implements ILogicItemFunctionRunner {
         var itemDsl = ((LogicItemTreeNode) item);
         var itemRunResult = new LogicItemRunResult().setItemInstance(itemDsl);
         if (itemDsl.isAsync()) {
+            var ctxClone = JSONObject.from(ctx).to(FunctionContext.class);
+            var itemDslClone = JSONObject.from(itemDsl).to(LogicItemTreeNode.class);
             // 异步调用 invokeMethod
             new Thread(() -> {
                 try {
                     log.info("[{}]bizId:{},开始异步执行……", ctx.getLogicId(), ctx.getBizId());
-                    var res = invokeMethod(ctx, itemDsl);
+                    var res = invokeMethod(ctxClone, itemDslClone);
                     log.info("[{}]bizId:{},异步执行完成,success：{}，msg:{}。", ctx.getLogicId(), ctx.getBizId(), res.isSuccess(), res.getMsg());
                 } catch (Exception e) {
                     // 处理 invokeMethod 抛出的异常
@@ -51,43 +53,47 @@ public class SubLogicFunction implements ILogicItemFunctionRunner {
             Object data = Functions.runJsByContext(ctx, itemDsl.getBody());
             String subLogicId = itemDsl.getUrl();
             JSONObject jsonData = data == null ? null : JSONObject.from(data);
-            String bizId;
+            String subLogicBizId;
             itemDsl.setBody(jsonData == null ? null : jsonData.toJSONString());
             Object bizIdObj = Functions.runJsByContext(ctx, "return " + itemDsl.getBizId());
-            bizId = bizIdObj == null ? null : bizIdObj.toString();
-            var newRunnerService = runnerService.newInstance(ctx.get_env(), ctx.getLogicId(), ctx.getBizId());
+            subLogicBizId = bizIdObj == null ? null : bizIdObj.toString();
+            var newRunnerService = runnerService.newInstance(ctx.get_env(), ctx.getLogicId(), ctx.getBizId(), itemDsl.getTranPropagation(), itemDsl.isAsync());
 
             var itemRunResult = new LogicItemRunResult().setItemInstance(itemDsl);
             JSONObject globalEnd;
-            if (StringUtils.isNotBlank(ctx.getBizId())) {//父流程为实例模式，子逻辑必须为实例模式，判断是否需要公用bizId
-                if (bizId == null || "null".equals(bizId)) {//不共用bizId
-                    bizId = itemDsl.getObjectId().toString();//ctx.getSubLogicRandomBizId();//从上下文生成一个，并缓存在上下文中，防止出现异常时重试
-                    itemDsl.setBizId(bizId);//记录运行时配置
-                    var res = newRunnerService.runBizByMap(subLogicId, bizId, jsonData, ctx.getTraceId(), itemDsl.getObjectId(), ctx.get_global());
+            if (StringUtils.isNotEmpty(ctx.getBizId())) {//父流程为实例模式，子逻辑必须为实例模式
+                if (subLogicBizId == null || "null".equals(subLogicBizId)) {//判断是否自动生成bizId
+                    //自动生成bizId
+                    subLogicBizId = ctx.getSubLogicRandomBizId();
+                    var res = newRunnerService.runBizByMap(subLogicId, subLogicBizId, jsonData, ctx.getTraceId(), itemDsl.getObjectId(), ctx.get_global());
                     itemRunResult.setSuccess(res.isSuccess()).setMsg(res.getMsg()).setData(res.getData());
                     globalEnd = res.getLogicLog().getGlobalVars();
-                } else {
-                    var res = newRunnerService.runBizByMap(subLogicId, bizId, jsonData, ctx.getTraceId(), itemDsl.getObjectId(), ctx.get_global());
+                } else { //使用配置的bizId
+                    var res = newRunnerService.runBizByMap(subLogicId, subLogicBizId, jsonData, ctx.getTraceId(), itemDsl.getObjectId(), ctx.get_global());
                     itemRunResult.setSuccess(res.isSuccess()).setMsg(res.getMsg()).setData(res.getData());
                     globalEnd = res.getLogicLog().getGlobalVars();
                 }
-            } else {
-                if (bizId == null || "null".equals(bizId)) {
+            } else {//父逻辑非实例模式
+                if (subLogicBizId == null || "null".equals(subLogicBizId)) {//判断是否指定了bizId,null或字符串"null"都为未指定
                     var res = newRunnerService.runByMap(subLogicId, jsonData, ctx.getTraceId(), itemDsl.getObjectId(), ctx.get_global());
                     itemRunResult.setSuccess(res.isSuccess()).setMsg(res.getMsg()).setData(res.getData());
                     globalEnd = res.getLogicLog().getGlobalVars();
                 } else {
-                    var res = newRunnerService.runBizByMap(subLogicId, bizId, jsonData, ctx.getTraceId(), itemDsl.getObjectId(), ctx.get_global());
+//                    subLogicBizId = ctx.getSubLogicRandomBizId();
+                    var res = newRunnerService.runBizByMap(subLogicId, subLogicBizId, jsonData, ctx.getTraceId(), itemDsl.getObjectId(), ctx.get_global());
                     itemRunResult.setSuccess(res.isSuccess()).setMsg(res.getMsg()).setData(res.getData());
                     globalEnd = res.getLogicLog().getGlobalVars();
                 }
             }
-//            ctx.buildSubLogicRandomBizId();//运行完成后生成下一个随机bizId，不同的逻辑不能公用bizId
+            itemDsl.setBizId(subLogicBizId);
+            if (itemRunResult.isSuccess())
+                ctx.buildSubLogicRandomBizId();//运行完成后生成下一个随机bizId保存在临时变量中
             ctx.set_global(globalEnd);
             return itemRunResult;
 
         } catch (Exception e) {
             log.error("[{}]bizId:{},复用逻辑执行异常：{}", ctx.getLogicId(), ctx.getBizId(), e.toString());
+            e.printStackTrace();
             return new LogicItemRunResult().setSuccess(false).setData(e.toString()).setMsg(e.toString()).setItemInstance(itemDsl);
         }
     }

@@ -25,4 +25,10 @@ public class ParamTreeNode extends BaseLASL {
     private TypeAnnotationTreeNode typeAnnotation;
     private boolean required;
     private String defaultValue;
+
+    @Override
+    public boolean equals(Object obj) {
+        ParamTreeNode paramTreeNode = (ParamTreeNode) obj;
+        return paramTreeNode != null && paramTreeNode.getName().equals(this.name) && paramTreeNode.typeAnnotation != null && paramTreeNode.typeAnnotation.getTypeName().equals(this.typeAnnotation.getTypeName());
+    }
 }

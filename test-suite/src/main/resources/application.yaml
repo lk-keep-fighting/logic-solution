@@ -3,17 +3,21 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/logic_v0_7?useUnicode=true&characterEncoding=gbk&autoReconnect=true&failOverReadOnly=false
+    url: jdbc:mysql://localhost:3306/logic_test?useUnicode=true&characterEncoding=gbk&autoReconnect=true&failOverReadOnly=false
     username: root
     password: 12#$qwER
-#    driver-class-name: com.mysql.cj.jdbc.Driver
-#    url: jdbc:mysql://192.168.153.92:30010/hs_wms_xn?useUnicode=true&characterEncoding=gbk&autoReconnect=true&failOverReadOnly=false
+#    url: jdbc:mysql://localhost:3306/logic_v0_7?useUnicode=true&characterEncoding=gbk&autoReconnect=true&failOverReadOnly=false
 #    username: root
-#    password: pxc.aims.com
+#    password: 12#$qwER
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 logic:
+  log:
+    store: db
+    es:
+      host: http://192.168.51.17:21903
+      index: logic-log
   config-dir: /Users/lk/Documents/Dev/aims/xuanwu-logic/logic-solution/test-suite/test-case-configs
   scan-package-names: com.aims.logic.testsuite
   biz-error-classes: com.aims.logic.testsuite.demo.exception.CustomException
@@ -31,7 +35,3 @@ logic:
       port: 6379  # 端口号
       database: 1  # 数据库索引（默认为0）
       expire: 30
-logging:
-  config:
-    level: debug
-

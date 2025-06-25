@@ -15,4 +15,7 @@ public class LongtimeRunningBizDto {
     private LocalDateTime createTime;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS", timezone = "GMT+8")
     private LocalDateTime startTime;
+    private String parentLogicId;
+    private String parentBizId;
+    private Boolean isAsync;
 }

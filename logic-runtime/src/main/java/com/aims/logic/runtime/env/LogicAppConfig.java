@@ -13,7 +13,7 @@ public class LogicAppConfig {
     @Value("${logic.biz-error-classes:LogicBizException}")
     public List<String> BIZ_ERROR_CLASSES;
 
-    @Value("${server.port}")
+    @Value("${server.port:8080}")  // 显式设置默认值为8080
     public String SERVER_PORT;
 
 }

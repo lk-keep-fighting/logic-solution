@@ -52,7 +52,7 @@ public interface LogicRunnerService {
      * @return 返回逻辑运行器
      */
 
-    LogicRunnerService newInstance(JSONObject env, String parentLogicId, String parentBizId);
+    LogicRunnerService newInstance(JSONObject env, String parentLogicId, String parentBizId, int tranPropagation, boolean isAsync);
 
     /**
      * 无状态-入参为json字符串
@@ -140,14 +140,22 @@ public interface LogicRunnerService {
     List<LogicRunResult> retryLongtimeRunningBiz(int timeout);
 
     /**
-     * 查询超时运行的业务
+     * 强制完成业务实例，内部同时会调用强制停止业务实例forceStopBiz
      *
-     * @param timeout 超时时间，单位秒
+     * @param logicId
+     * @param bizId
      * @return
      */
-    List<LongtimeRunningBizDto> queryLongtimeRunningBiz(int timeout);
 
-    List<UnCompletedBizDto> queryUncompletedBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning);
+    int forceCompleteBiz(String logicId, String bizId);
+
+    /**
+     * 强制停止业务实例
+     *
+     * @param logicId
+     * @param bizId
+     */
+    void forceStopBiz(String logicId, String bizId);
 
     /**
      * 重置实例待执行节点与待执行局部变量
@@ -170,6 +178,43 @@ public interface LogicRunnerService {
      * @return
      */
     boolean updateBizInstanceParams(String logicId, String bizId, Object... pars);
+
+    /**
+     * 删除业务实例
+     *
+     * @param logicId
+     * @param bizId
+     * @return
+     */
+    int deleteBizInstance(String logicId, String bizId);
+
+    /**
+     * 根据logicId删除已完成业务实例
+     *
+     * @param logicId
+     * @return
+     */
+    int deleteCompletedBizInstanceByLogicId(String logicId);
+
+    /**
+     * 清除所有日志
+     */
+    void clearLog();
+
+    /**
+     * 清除已完成业务实例
+     */
+    void clearCompletedInstance();
+
+    /**
+     * 使用forceStopBiz方法代替
+     * 停止业务执行,实例会在下一个延时等待节点结束后中止执行，并抛出异常
+     *
+     * @param logicId
+     * @param bizId
+     */
+    @Deprecated
+    void stopBiz(String logicId, String bizId);
 
     /**
      * 先校验验证码，再执行业务逻辑
@@ -195,9 +240,44 @@ public interface LogicRunnerService {
     @Deprecated
     LogicRunResult runBizByVerifyCode(String logicId, String bizId, String verifyCode, Map<String, Object> parsMap);
 
-    void clearLog();
 
-    void clearCompletedInstance();
+    /**
+     * 查询超时运行的业务
+     *
+     * @param timeout 超时时间，单位秒
+     * @return
+     */
+    @Deprecated
+    List<LongtimeRunningBizDto> queryLongtimeRunningBiz(int timeout);
+
+    @Deprecated
+    List<UnCompletedBizDto> queryUncompletedBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning);
+
+    /**
+     * 查询未完成实例，参数为null则不根据此条件筛选
+     *
+     * @param createTimeFrom
+     * @param createTimeTo
+     * @param isRunning
+     * @param isSuccess
+     * @return
+     */
+    @Deprecated
+    List<UnCompletedBizDto> queryUncompletedBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning, Boolean isSuccess);
+
+    /**
+     * 查询未完成实例，参数为null则不根据此条件筛选
+     *
+     * @param createTimeFrom  创建开始从……
+     * @param createTimeTo    创建时间到……
+     * @param isRunning       是否运行中
+     * @param isSuccess       是否有异常
+     * @param excludeLogicIds 不包含的逻辑编号
+     * @return
+     */
+    @Deprecated
+    List<UnCompletedBizDto> queryUncompletedBizExclude(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, Boolean isRunning, Boolean isSuccess, List<String> excludeLogicIds);
+
     //
 //    LogicRunResult runBizStepByStep(String logicId, String bizId, JSONObject pars);
 //
