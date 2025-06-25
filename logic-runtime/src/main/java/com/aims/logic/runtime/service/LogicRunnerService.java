@@ -140,7 +140,7 @@ public interface LogicRunnerService {
     List<LogicRunResult> retryLongtimeRunningBiz(int timeout);
 
     /**
-     * 强制完成业务实例
+     * 强制完成业务实例，内部同时会调用强制停止业务实例forceStopBiz
      *
      * @param logicId
      * @param bizId

@@ -24,4 +24,19 @@ public interface LogicConfigStoreService {
      * @param configJson 逻辑配置json字符串
      */
     String saveLogicConfigToFile(String logicId, String configJson);
+    /**
+     * 从缓存中读取逻辑配置
+     *
+     * @param logicId 逻辑编号
+     * @return 逻辑配置
+     */
+    JSONObject readFromCache(String logicId, String version);
+
+    /**
+     * 将配置写入缓存
+     *
+     * @param logicId 逻辑编号
+     * @return 逻辑配置
+     */
+    JSONObject saveToCache(String logicId, String version, JSONObject logicConfig);
 }

@@ -5,7 +5,6 @@ import com.aims.logic.sdk.entity.LogicInstanceEntity;
 import com.aims.logic.sdk.event.LogicRunnerEventListener;
 import com.aims.logic.sdk.service.LogicInstanceService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.stereotype.Service;
 
@@ -16,11 +15,14 @@ import java.util.List;
 @Slf4j
 public class LogicInstanceServiceImpl extends BaseServiceImpl<LogicInstanceEntity, String> implements LogicInstanceService {
 
-    public LogicInstanceServiceImpl() {
-    }
 
-    @Autowired
     private List<LogicRunnerEventListener> eventListener;
+
+    public LogicInstanceServiceImpl(
+            List<LogicRunnerEventListener> _eventListener
+    ) {
+        this.eventListener = _eventListener;
+    }
 
     @Override
     public LogicInstanceEntity getInstance(String logicId, String bizId) {
