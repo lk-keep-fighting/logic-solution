@@ -5,11 +5,11 @@
   <parent>
     <groupId>com.aims.logic</groupId>
     <artifactId>logic-solution</artifactId>
-    <version>0.8.2.260625</version>
+    <version>0.8.2.26062502-SNAPSHOT</version>
   </parent>
   <groupId>com.aims.logic</groupId>
   <artifactId>logic-sdk</artifactId>
-  <version>0.8.2.260625</version>
+  <version>0.8.2.26062502-SNAPSHOT</version>
   <name>logic-sdk</name>
   <description>logic-sdk</description>
   <distributionManagement>

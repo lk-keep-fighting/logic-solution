@@ -180,113 +180,17 @@ public class BaseEsServiceImpl<T extends BaseEntity, TKey> implements BaseServic
 
     @Override
     public Page<T> selectPage(FormQueryInput input) {
-        QueryInput queryInput = new QueryInput();
-        queryInput.setPage(input.getPage())
-                .setPageSize(input.getPageSize());
-        queryInput.setFrom(new DataModel().setMainTable(this.getTableNameByAnnotation()));
-        Page page = new Page(input.getPage(), input.getPageSize());
-        List<DataViewCondition> cons = new ArrayList<>();
-        if (input.getFilters() != null)
-            input.getFilters().forEach(v -> {
-                if (!v.getValues().isEmpty()) {
-                    if ("=".equals(v.getType())) {
-                        cons.add(new DataViewCondition(v.getDataIndex(), "=", v.getValues().get(0)));
-                    } else {
-                        var likeValue = v.getValues().get(0);
-                        if (!likeValue.isBlank())
-                            cons.add(new DataViewCondition(v.getDataIndex(), "like", likeValue));
-                    }
-                }
-            });
-        OrderBy orderBy = new OrderBy();
-        List<OrderByColumn> orderByColumns = new ArrayList<>();
-        if (input.getOrderBy() != null && !input.getOrderBy().isEmpty()) {
-            input.getOrderBy().forEach(o -> {
-                if (o.isDesc()) {
-                    orderByColumns.add(new OrderByColumn(o.getDataIndex(), "desc"));
-                } else
-                    orderByColumns.add(new OrderByColumn(o.getDataIndex(), "asc"));
-            });
+        var res = selectPageByInput(getQueryInput(input));
+        try {
+            var list = MapUtils.mapListToBeanList(res.getRecords(), entityClass);
+            var pageRes = new Page<T>(res.getCurrent(), res.getSize());
+            pageRes.setRecords((List<T>) list);
+            pageRes.setTotal(res.getTotal());
+            return pageRes;
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        queryInput.setConditions(cons);
-        if (!orderByColumns.isEmpty()) {
-            orderBy.setColumns(orderByColumns);
-            queryInput.setOrderBy(orderBy);
-        }
-        return queryPageByInput(queryInput);
-//        try {
-//            // 构建ES查询URL
-//            String url = String.format("%s/%s/_search", esHost, indexName);
-//
-//            // 构建ES查询DSL
-//            JSONObject query = new JSONObject();
-//
-//            // 设置分页参数
-//            query.put("from", (input.getPage() - 1) * input.getPageSize());
-//            query.put("size", input.getPageSize());
-//
-//            // 构建请求体
-//            RequestBody body = RequestBody.create(
-//                    MediaType.parse("application/json"),
-//                    query.toString());
-//
-//            // 构建POST请求
-//            Request request = new Request.Builder()
-//                    .url(url)
-//                    .post(body)
-//                    .build();
-//
-//            // 执行请求
-//            try (Response response = client.newCall(request).execute()) {
-//                if (response.isSuccessful() && response.body() != null) {
-//                    String responseBody = response.body().string();
-//                    JSONObject result = JSONObject.parseObject(responseBody);
-//
-//                    // 解析总记录数
-//                    long total = result.getJSONObject("hits").getJSONObject("total").getLongValue("value");
-//
-//                    // 解析查询结果
-//                    List<T> records = result.getJSONObject("hits")
-//                            .getJSONArray("hits")
-//                            .stream()
-//                            .map(hit -> {
-//                                JSONObject source = ((JSONObject) hit).getJSONObject("_source");
-//                                try {
-//                                    // 处理日期时间字段的转换
-//                                    JSONObject processedSource = new JSONObject();
-//                                    source.forEach((key, value) -> {
-//                                        if (value instanceof String && ((String) value)
-//                                                .matches("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}.*")) {
-//                                            DateTimeFormatter formatter = DateTimeFormatter
-//                                                    .ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
-//                                            LocalDateTime dateTime = LocalDateTime.parse(value.toString(), formatter);
-//                                            // 将日期时间字符串转换为LocalDateTime
-//                                            processedSource.put(key, dateTime);
-//                                        } else {
-//                                            processedSource.put(key, value);
-//                                        }
-//                                    });
-//                                    return MapUtils.mapToBean(processedSource, getEntityClass());
-//                                } catch (Exception e) {
-//                                    throw new RuntimeException(e);
-//                                }
-//                            })
-//                            .collect(java.util.stream.Collectors.toList());
-//
-//                    // 构建分页结果
-//                    Page<T> page = new Page<>();
-//                    page.setTotal(total);
-//                    page.setRecords(records);
-//                    page.setCurrent(input.getPage());
-//                    page.setSize(input.getPageSize());
-//                    return page;
-//                }
-//            }
-//            return new Page<>();
-//        } catch (Exception e) {
-//            log.error("ES分页查询失败", e);
-//            return new Page<>();
-//        }
     }
 
     @Override
@@ -451,12 +355,15 @@ public class BaseEsServiceImpl<T extends BaseEntity, TKey> implements BaseServic
                     page.setCurrent(input.getPage());
                     page.setSize(input.getPageSize());
                     return page;
+                } else {
+                    String msg = String.format("ES查询失败，请检查配置：\r\nurl：%s，\r\nindex：%s,\r\n报错信息：%s", esHost, indexName, response.message());
+                    throw new RuntimeException(msg);
                 }
             }
-            return new Page<>();
         } catch (Exception e) {
-            log.error("ES分页查询失败", e);
-            return new Page<>();
+            log.error(e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
         }
     }
 

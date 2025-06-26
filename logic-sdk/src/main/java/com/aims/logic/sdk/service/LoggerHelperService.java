@@ -5,7 +5,6 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
 public interface LoggerHelperService {
 
     /**
@@ -15,10 +14,13 @@ public interface LoggerHelperService {
      *
      * @param logicLog
      */
+    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     void addOrUpdateInstanceAndAddLogicLog(LogicLog logicLog);
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     void startBizRunning(LogicLog logicLog);
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     void stopBizRunning(LogicLog logicLog);
 
     /**
@@ -26,10 +28,13 @@ public interface LoggerHelperService {
      *
      * @param logicLog
      */
+    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     void addOrUpdateInstance(LogicLog logicLog);
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     String addInstance(LogicLog logicLog);
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     void updateInstance(LogicLog logicLog);
 
     /**

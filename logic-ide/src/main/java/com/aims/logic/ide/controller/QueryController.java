@@ -25,10 +25,15 @@ public class QueryController {
         QueryInput input = json.to(QueryInput.class);//JSONObject.parseObject(json, QueryInput.class);
         if (input.getFrom() == null)
             input.setFrom(new DataModel().setMainTable(dataModelId));
-        if (dataModelId.equals("logic_log")) {
-            return new ApiResult<Page<Map<String, Object>>>().setData(logicLogService.selectPageByInput(input));
+        try {
+
+            if (dataModelId.equals("logic_log")) {
+                return new ApiResult<Page<Map<String, Object>>>().setData(logicLogService.selectPageByInput(input));
+            }
+            return new ApiResult<Page<Map<String, Object>>>().setData(logicService.selectPageByInput(input));
+        } catch (Exception e) {
+            return new ApiResult<Page<Map<String, Object>>>().setCode(500).setMsg(e.getMessage());
         }
-        return new ApiResult<Page<Map<String, Object>>>().setData(logicService.selectPageByInput(input));
     }
 
 //    @PostMapping("/queryBySql")
