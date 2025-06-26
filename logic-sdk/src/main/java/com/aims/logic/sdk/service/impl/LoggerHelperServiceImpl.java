@@ -19,8 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 @Slf4j
 @Component
@@ -29,6 +28,20 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
     private final LogicLogService logicLogService;
     private final JdbcTemplate jdbcTemplate;
     private LogicLogServiceConfig logicLogServiceConfig;
+
+    /**
+     * 新增执行日志logic_log日志
+     *
+     * @param logicLog
+     */
+    private final static ExecutorService logExecutor = new ThreadPoolExecutor(
+            5,
+            10,
+            60L,
+            TimeUnit.SECONDS,
+            new LinkedBlockingQueue<>(100),
+            new ThreadPoolExecutor.CallerRunsPolicy()
+    );
 
     @Autowired
     public LoggerHelperServiceImpl(
@@ -55,7 +68,6 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
     }
 
     public void startBizRunning(LogicLog logicLog) {
-        // triggerEventListener(logicLog);
         String env = RuntimeUtil.getEnvObject().getNODE_ENV();
         var nextId = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getId();
         var nextName = logicLog.getNextItem() == null ? null : logicLog.getNextItem().getName();
@@ -172,13 +184,6 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
         logicLog.setInstanceId(newInsId);
         return newInsId;
     }
-
-    /**
-     * 新增执行日志logic_log日志
-     *
-     * @param logicLog
-     */
-    private final ExecutorService logExecutor = Executors.newFixedThreadPool(5);
 
     public void addLogicLog(LogicLog logicLog) {
         // 使用线程池异步执行日志记录
