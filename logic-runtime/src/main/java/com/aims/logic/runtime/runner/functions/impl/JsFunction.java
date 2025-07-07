@@ -28,20 +28,21 @@ public class JsFunction implements ILogicItemFunctionRunner {
         }
 //        ScriptEngineManager manager = new ScriptEngineManager();
 //        ScriptEngine engine = manager.getEngineByName("graal.js");
+//        engine.put("polyglot.js.allowAllAccess", true);
+
         Engine graalEngine = Engine.newBuilder()
                 .option("engine.WarnInterpreterOnly", "false")
                 .build();
         ScriptEngine engine = GraalJSScriptEngine.create(graalEngine,
                 Context.newBuilder("js")
                         .allowHostAccess(HostAccess.ALL));
-//        engine.put("polyglot.js.allowAllAccess", true);
         engine.put("_var", ctx.get_var());
         engine.put("_env", ctx.get_env());
         engine.put("_bizId", ctx.getBizId());
         engine.put("_global", ctx.get_global());
         engine.put("_par", JSONObject.from(ctx.get_par()));
         engine.put("_lastRet", ctx.get_lastRet());
-        engine.put("_last", ctx.get_last());
+        engine.put("_last", JSONObject.from(ctx.get_last()));
         try {
             String processedCode = script.toString().replaceAll("^//.*", "");
             engine.eval(String.format("function fn(){ %s }", processedCode));
