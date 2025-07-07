@@ -21,6 +21,11 @@
             <artifactId>spring-boot-starter-web</artifactId>
             <version>2.7.2</version>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.aims.logic</groupId>-->
+<!--            <artifactId>logic-ide</artifactId>-->
+<!--            <version>0.6.3.25030501</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>com.aims.logic</groupId>
             <artifactId>logic-ide</artifactId>

@@ -68,7 +68,17 @@ public class TypeAnnotationParser {
         return Class.forName(fullClassName);
     }
 
-    public static TypeAnnotationTreeNode createTypeAnnotationTreeNode(Type paramType) {
+    /**
+     * 创建类型注解树节点
+     *
+     * @param parentClassType 所在类的类型
+     * @param paramType 参数类型
+     * @return
+     */
+    public static TypeAnnotationTreeNode createTypeAnnotationTreeNode(String parentClassType, Type paramType) {
+        if (paramType.getTypeName().equals(parentClassType)) {
+            return null;
+        }
         if (paramType instanceof ParameterizedType typeP) {
 //            List<TypeAnnotationTreeNode> typeArguments = Arrays.stream(typeP.getActualTypeArguments())
 //                    .map(TypeAnnotationParser::createTypeAnnotationTreeNode)
@@ -102,13 +112,12 @@ public class TypeAnnotationParser {
                         .setTypeKind(TypeKindEnum.reference)
                         .setTypeName(paramType.getTypeName())
                         .setTypeNamespace(paramType.getTypeName());
-            }
-            else {
+            } else {
                 List<StructurePropertyTreeNode> properties = Arrays.stream(clazz.getDeclaredFields())
                         .map(f -> new StructurePropertyTreeNode()
                                 .setName(f.getName())
                                 .setDefaultValue(DataType.getNullValueString(f.getGenericType()))
-                                .setTypeAnnotation(createTypeAnnotationTreeNode(f.getGenericType())))
+                                .setTypeAnnotation(createTypeAnnotationTreeNode(clazz.getTypeName(), f.getGenericType())))
                         .collect(Collectors.toList());
                 return new TypeAnnotationTreeNode()
                         .setTypeKind(TypeKindEnum.reference)

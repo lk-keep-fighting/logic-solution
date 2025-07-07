@@ -2,7 +2,7 @@ package com.aims.logic.runtime.contract.logger;
 
 import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
 import com.alibaba.fastjson2.JSON;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.alibaba.fastjson2.annotation.JSONField;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -19,9 +19,9 @@ public class LogicItemLog {
 
     Long id;
     private String name;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS", timezone = "GMT+8")
+    @JSONField(format = "yyyy-MM-dd HH:mm:ss.SSS")
     private LocalDateTime beginTime;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS", timezone = "GMT+8")
+    @JSONField(format = "yyyy-MM-dd HH:mm:ss.SSS")
     private LocalDateTime endTime;
     /*
     节点配置

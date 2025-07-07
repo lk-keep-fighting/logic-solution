@@ -2,12 +2,6 @@ package com.aims.logic.runtime.util;
 
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
-import org.openjdk.nashorn.api.scripting.ScriptObjectMirror;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class JsonUtil {
 
@@ -47,34 +41,34 @@ public class JsonUtil {
         return target;
     }
 
-    public static Object toObject(ScriptObjectMirror mirror) {
-        if (!mirror.isArray() && mirror.isEmpty()) {
-            return null;
-        }
-        if (mirror.isArray()) {
-            List<Object> list = new ArrayList<>();
-            for (Map.Entry<String, Object> entry : mirror.entrySet()) {
-                Object result = entry.getValue();
-                if (result instanceof ScriptObjectMirror) {
-                    list.add(toObject((ScriptObjectMirror) result));
-                } else {
-                    list.add(result);
-                }
-            }
-            return list;
-        }
-
-        Map<String, Object> map = new HashMap<>();
-        for (Map.Entry<String, Object> entry : mirror.entrySet()) {
-            Object result = entry.getValue();
-            if (result instanceof ScriptObjectMirror) {
-                map.put(entry.getKey(), toObject((ScriptObjectMirror) result));
-            } else {
-                map.put(entry.getKey(), result);
-            }
-        }
-        return map;
-    }
+//    public static Object toObject(ScriptObjectMirror mirror) {
+//        if (!mirror.isArray() && mirror.isEmpty()) {
+//            return null;
+//        }
+//        if (mirror.isArray()) {
+//            List<Object> list = new ArrayList<>();
+//            for (Map.Entry<String, Object> entry : mirror.entrySet()) {
+//                Object result = entry.getValue();
+//                if (result instanceof ScriptObjectMirror) {
+//                    list.add(toObject((ScriptObjectMirror) result));
+//                } else {
+//                    list.add(result);
+//                }
+//            }
+//            return list;
+//        }
+//
+//        Map<String, Object> map = new HashMap<>();
+//        for (Map.Entry<String, Object> entry : mirror.entrySet()) {
+//            Object result = entry.getValue();
+//            if (result instanceof ScriptObjectMirror) {
+//                map.put(entry.getKey(), toObject((ScriptObjectMirror) result));
+//            } else {
+//                map.put(entry.getKey(), result);
+//            }
+//        }
+//        return map;
+//    }
 
     public static JSONObject clone(JSONObject json) {
         if (json != null)
