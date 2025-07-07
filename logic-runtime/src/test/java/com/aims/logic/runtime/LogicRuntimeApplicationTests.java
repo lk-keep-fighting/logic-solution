@@ -5,11 +5,7 @@ import com.aims.logic.runtime.runner.LogicRunner;
 import com.aims.logic.runtime.runner.functions.impl.JsFunction;
 import com.alibaba.fastjson2.JSONObject;
 import org.junit.jupiter.api.Test;
-import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
 import org.springframework.test.context.ContextConfiguration;
-
-import javax.script.ScriptEngine;
-import javax.script.ScriptException;
 
 //@SpringBootTest(classes = LogicRuntimeApplicationTests.class)
 @ContextConfiguration()
@@ -36,28 +32,4 @@ class LogicRuntimeApplicationTests {
 //        js.invoke(ctx, "return _var.ways.push({})");
     }
 
-    //    @Test
-    void testJsArray() {
-        NashornScriptEngineFactory factory = new NashornScriptEngineFactory();
-        ScriptEngine engine = factory.getScriptEngine();
-
-        int[] arr = new int[2];
-        try {
-            engine.put("array", arr);
-            engine.eval("array=[];array.push(2);");
-
-            // 获取修改后的数组
-//            int[] modifiedArr = (int[]) engine.get("array");
-//            for (int i : modifiedArr) {
-//                System.out.println(i); // 输出：1, 2, 3
-//            }
-            var res = (Object[]) engine.get("array");
-            for (Object i : res) {
-                System.out.println(i.toString());
-            }
-
-        } catch (ScriptException e) {
-            e.printStackTrace();
-        }
-    }
 }

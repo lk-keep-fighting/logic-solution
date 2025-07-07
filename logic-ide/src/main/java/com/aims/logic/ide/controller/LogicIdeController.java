@@ -246,11 +246,17 @@ public class LogicIdeController {
 
     private ParamTreeNode createParamTreeNode(String paramName, Type paramType) {
         log.debug("解析参数:" + paramName + ",参数类型：" + paramType);
-        ParamTreeNode p = new ParamTreeNode(paramName)
-                .setTypeAnnotation(TypeAnnotationParser.createTypeAnnotationTreeNode(paramType));
+        ParamTreeNode p = new ParamTreeNode(paramName);
+        try {
+            p.setTypeAnnotation(TypeAnnotationParser.createTypeAnnotationTreeNode(null, paramType));
 //        if (paramType instanceof Class<?> clazz) {//通过NotNull注解判断是否必填
 //            p.setRequired(clazz.getAnnotation(NotNull.class) != null);
 //        }
+        } catch (Exception e) {
+            log.error("参数解析错误：" + paramName + ",参数类型：" + paramType, e);
+            e.printStackTrace();
+        }
+
         return p;
     }
 

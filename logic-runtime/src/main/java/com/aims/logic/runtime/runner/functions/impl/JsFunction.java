@@ -3,15 +3,16 @@ package com.aims.logic.runtime.runner.functions.impl;
 import com.aims.logic.runtime.contract.dto.LogicItemRunResult;
 import com.aims.logic.runtime.runner.FunctionContext;
 import com.aims.logic.runtime.runner.functions.ILogicItemFunctionRunner;
-import com.aims.logic.runtime.util.JsonUtil;
 import com.alibaba.fastjson2.JSONObject;
+import com.oracle.truffle.js.scriptengine.GraalJSScriptEngine;
 import lombok.extern.slf4j.Slf4j;
-import org.openjdk.nashorn.api.scripting.ScriptObjectMirror;
+import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.Engine;
+import org.graalvm.polyglot.HostAccess;
 import org.springframework.stereotype.Service;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
 
 /**
  * @author liukun
@@ -25,8 +26,15 @@ public class JsFunction implements ILogicItemFunctionRunner {
         if (script == null) {
             return itemRes;
         }
-        ScriptEngineManager manager = new ScriptEngineManager();
-        ScriptEngine engine = manager.getEngineByName("js");
+//        ScriptEngineManager manager = new ScriptEngineManager();
+//        ScriptEngine engine = manager.getEngineByName("graal.js");
+        Engine graalEngine = Engine.newBuilder()
+                .option("engine.WarnInterpreterOnly", "false")
+                .build();
+        ScriptEngine engine = GraalJSScriptEngine.create(graalEngine,
+                Context.newBuilder("js")
+                        .allowHostAccess(HostAccess.ALL));
+//        engine.put("polyglot.js.allowAllAccess", true);
         engine.put("_var", ctx.get_var());
         engine.put("_env", ctx.get_env());
         engine.put("_bizId", ctx.getBizId());
@@ -39,8 +47,7 @@ public class JsFunction implements ILogicItemFunctionRunner {
             engine.eval(String.format("function fn(){ %s }", processedCode));
             Invocable inv = (Invocable) engine;
             Object funcRes = inv.invokeFunction("fn");
-            Object data = convertResult(funcRes);
-            return new LogicItemRunResult().setData(data);
+            return new LogicItemRunResult().setData(funcRes);
         } catch (Exception e) {
             log.error("[{}]bizId:{},js function error: {}", ctx.getLogicId(), ctx.getBizId(), e.getMessage());
             return new LogicItemRunResult()
@@ -50,16 +57,16 @@ public class JsFunction implements ILogicItemFunctionRunner {
     }
 
     private Object convertResult(Object funcRes) {
-        if (funcRes instanceof ScriptObjectMirror) {
-            try {
-                // 对转换过程进行异常捕获，确保数据转换的健壮性
-                return JsonUtil.toObject((ScriptObjectMirror) funcRes);
-            } catch (Exception e) {
-                // 可以根据实际情况记录日志或者采取其他处理措施
-                log.error("js意外的异常：转换js执行结果失败", e);
-                return null; // 或者返回一个特定的错误标示对象
-            }
-        }
+        // if (funcRes instanceof ScriptObjectMirror) {
+        //     try {
+        //         // 对转换过程进行异常捕获，确保数据转换的健壮性
+        //         return JsonUtil.toObject((ScriptObjectMirror) funcRes);
+        //     } catch (Exception e) {
+        //         // 可以根据实际情况记录日志或者采取其他处理措施
+        //         log.error("js意外的异常：转换js执行结果失败", e);
+        //         return null; // 或者返回一个特定的错误标示对象
+        //     }
+        // }
         return funcRes;
     }
 

@@ -1,6 +1,5 @@
 package com.aims.logic.testsuite;
 
-import com.aims.logic.runtime.contract.enums.LogicConfigModelEnum;
 import com.aims.logic.runtime.service.LogicRunnerService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
@@ -19,7 +18,7 @@ public class TestConcurrency {
 
     @Test
     public void test() throws InterruptedException {
-        logic.getEnv().setLOGIC_CONFIG_MODEL(LogicConfigModelEnum.offline);
+//        logic.getEnv().setLOGIC_CONFIG_MODEL(LogicConfigModelEnum.online);
         String bizId = String.valueOf(new Date().getTime());
 //        var res = logic.runBizByObjectArgs("test.pub", bizId);
 //        log.info("res.getDataString()");
@@ -29,7 +28,8 @@ public class TestConcurrency {
             int finalI = i;
             Runnable runnable = () -> {
                 try {
-                    var res = logic.runBizByObjectArgs("test.pub", bizId + String.valueOf(finalI / 2), String.valueOf(finalI));
+//                    var res = logic.runBizByObjectArgs("test.pub", bizId + String.valueOf(finalI / 2), String.valueOf(finalI));
+                    var res = logic.runBizByObjectArgs("33", bizId + String.valueOf(finalI / 2), String.valueOf(finalI));
                     log.info("res.getDataString()");
                     log.info(res.getMsg());
                     log.info(res.getDataString());

@@ -11,6 +11,9 @@ import com.aims.logic.testsuite.demo.mapper.TestDetailMapper;
 import com.aims.logic.testsuite.demo.mapper.TestMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 
 import java.util.List;
 
@@ -35,9 +38,23 @@ public class testTran {
         return testMapper.selectById(id);
     }
 
+    @Autowired
+    private PlatformTransactionManager dataSourceTransactionManager;
+
     @LogicItem(name = "根据id更新", group = "测试事务", memo = "")
     public int update(TestEntity testEntity) {
-        return testMapper.updateById(testEntity);
+        testEntity.setName("beforeNewTran");
+        testMapper.updateById(testEntity);
+        DefaultTransactionAttribute defaultTransactionAttribute = new DefaultTransactionAttribute();
+        defaultTransactionAttribute.setIsolationLevel(2);
+        defaultTransactionAttribute.setPropagationBehavior(DefaultTransactionAttribute.PROPAGATION_REQUIRES_NEW);
+        TransactionStatus transaction = this.dataSourceTransactionManager.getTransaction(defaultTransactionAttribute);
+        testEntity.setName("newTran");
+        testMapper.updateById(testEntity);
+        this.dataSourceTransactionManager.commit(transaction);
+        throw new RuntimeException("测试事务");
+//        testEntity.setName("afterNewTran");
+//        return testMapper.updateById(testEntity);
     }
 
     @LogicItem(name = "根据id删除-与插入同类", group = "测试事务", memo = "")
