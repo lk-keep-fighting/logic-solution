@@ -107,6 +107,9 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
         valuesMap.put("message", msg255);
         instanceService.updateById(logicLog.getInstanceId(), valuesMap);
         instanceService.triggerAfterLogicStop(logicLog);
+        if (logicLog.isOver()) {
+            instanceService.triggerBizCompleted(logicLog);
+        }
 
     }
 
@@ -148,9 +151,6 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
         valueMaps.put("nextName", nextName);
         valueMaps.put("env", env);
         instanceService.updateById(logicLog.getInstanceId(), valueMaps);
-        if (logicLog.isOver()) {
-            instanceService.triggerBizCompleted(logicLog);
-        }
     }
 
     public String addInstance(LogicLog logicLog) {
