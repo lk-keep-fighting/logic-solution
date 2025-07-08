@@ -26,6 +26,10 @@ public class FunctionContext {
     private String traceId = null;
     private String logicId = null;
     private String bizId = null;
+    //当前事务组开始节点
+    private LogicItemTreeNode curTranGroupBeginItem;
+    //当前事务组开始时变量
+    private JSONObject curTranGroupBeginVar;
     private LogicItemTreeNode nextItem;
     private String curTranGroupId;
     private String nextTranGroupId;
@@ -34,6 +38,7 @@ public class FunctionContext {
     public void setTranScope(LogicItemTransactionScope tranScope) {
         _var.put("__tranScope", tranScope);
     }
+
     /**
      * 本次交互的事务作用域配置
      * 从当前交互点读取
