@@ -440,7 +440,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 ctx.getLastTranGroupId() == null ||
                 !ctx.getCurTranGroupId().equals(ctx.getLastTranGroupId());
 
-        String logMsg = needNewTran ? "begin开启事务组" : "begin复用事务组";
+        String logMsg = needNewTran ? ">>开启事务组" : ">>复用事务组";
         String tranGroupId = needNewTran ? ctx.getCurTranGroupId() : ctx.getLastTranGroupId();
 
         log.info("[{}]bizId:{}-当前节点：{}-{},{}: {}",
@@ -454,35 +454,50 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
 
         if (lastTran != null) {
             if (!lastTran.isCompleted()) {
-                transactionalUtils.commit(lastTran);
+                log.warn("[{}]bizId:{},事务组【{}】未完成，补充提交",
+                        ctx.getLogicId(), ctx.getBizId(), ctx.getCurTranGroupId());
+                if (lastTran.isRollbackOnly()) {
+                    log.warn("[{}]bizId:{}-事务组【{}】已被标记为rollbackonly，可能内部方法继承了事务并发生回滚，当前事务组也将回滚",
+                            ctx.getLogicId(), ctx.getBizId(),
+                            tranGroupId);
+                    transactionalUtils.rollback(lastTran);
+                } else
+                    transactionalUtils.commit(lastTran);
             }
         }
-
+        ctx.setCurTranGroupBeginItem(curItem);
+//        ctx.setCurTranGroupBeginVar(JsonUtil.clone(ctx.get_var()));
         return transactionalUtils.newRequiresNewTran();
     }
 
-    private void commitCurTranIfNextIsNewGroup(TransactionStatus curTran, FunctionContext ctx, LogicItemTreeNode curItem) {
+    private void commitCurTranIfNextIsNewGroup(TransactionStatus curTran, FunctionContext ctx, LogicItemTreeNode curItem, LogicLog logicLog) {
         boolean needCommit = ctx.getCurTranGroupId() == null ||
                 ctx.getNextTranGroupId() == null ||
                 !ctx.getCurTranGroupId().equals(ctx.getNextTranGroupId());
 
         if (!needCommit) {
-            log.info("[{}]bizId:{}-当前节点：{}-{},commit 未提交，保留当前事务组：{}",
+            log.info("[{}]bizId:{}-当前节点：{}-{},当前事务组：{}，未结束，不需要提交",
                     ctx.getLogicId(), ctx.getBizId(),
                     curItem.getType(), curItem.getName(),
                     ctx.getLastTranGroupId());
             return;
         }
 
-        log.info("[{}]bizId:{}-当前节点：{}-{},commit 提交事务组：{}",
+        log.info("[{}]bizId:{}-当前节点：{}-{},>>提交事务组：{}",
                 ctx.getLogicId(), ctx.getBizId(),
                 curItem.getType(), curItem.getName(),
                 ctx.getCurTranGroupId());
 
         if (!curTran.isCompleted()) {
-            transactionalUtils.commit(curTran);
+            if (curTran.isRollbackOnly()) {//内部已经把事务标记为回滚
+                log.warn("[{}]bizId:{}-事务组【{}】已被标记为rollbackonly，可能内部方法继承了事务并发生回滚，当前事务组也将回滚",
+                        ctx.getLogicId(), ctx.getBizId(),
+                        ctx.getCurTranGroupId());
+                transactionalUtils.rollback(curTran);
+            } else
+                transactionalUtils.commit(curTran);
         } else {
-            log.info("[{}]bizId:{},commit 未执行，isCompleted=true",
+            log.warn("[{}]bizId:{},提交未执行，isCompleted=true",
                     ctx.getLogicId(), ctx.getBizId());
         }
     }
@@ -520,16 +535,19 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                         .setSuccess(itemRes.isSuccess()).setMsg(itemRes.getMsg());
                 if (itemRes.isSuccess()) {
                     logHelperService.updateInstance(logicLog);
-                    log.info("[{}]bizId:{},begin commit in runItemWithEveryJavaNodeTran-itemResIsSuccess=true", logicId, bizId);
-                    commitCurTranIfNextIsNewGroup(curTranStatus, runner.getFnCtx(), curItem);
+                    log.info("[{}]bizId:{},>>单节点模式提交", logicId, bizId);
+                    commitCurTranIfNextIsNewGroup(curTranStatus, runner.getFnCtx(), curItem, logicLog);
                     if (Objects.equals(curItem.getType(), LogicItemType.wait.getValue()) && bizLock.isStopping(bizLock.buildKey(logicId, bizId))) {
                         throw new BizManuallyStoppedException(logicId, bizId);
                     }
                 } else {
                     log.info("[{}]bizId:{},节点执行失败，begin rollback，success=false,msg:{}, in runItemWithEveryJavaNodeTran", logicId, bizId, itemRes.getMsg());
                     transactionalUtils.rollback(curTranStatus);
-                    log.info("[{}]bizId:{},节点执行失败，rollback ok，事务组:{}", logicId, bizId, ctx.getCurTranGroupId());
+                    logicLog.setNextItem(runner.getFnCtx().getCurTranGroupBeginItem());
                     logicLog.setOver(false);
+//                    logicLog.setVarsJson_end(runner.getFnCtx().getCurTranGroupBeginVar());
+                    logHelperService.updateInstance(logicLog);
+                    log.info("[{}]bizId:{},节点执行失败，rollback ok，事务组:{}", logicId, bizId, ctx.getCurTranGroupId());
                     return LogicRunResult.fromLogicLog(logicLog);
                 }
             } catch (Exception e) {
@@ -579,29 +597,34 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 runner.updateStatus(itemRes, nextItem);
                 logicLog.setVarsJson_end(runner.getFnCtx().get_var())
                         .setOver(runner.getRunnerStatus() == RunnerStatusEnum.End)
-                        .setMsg(itemRes.getMsg());
+                        .setMsg(itemRes.getMsg()).setNextItem(nextItem);
                 if (itemRes.isSuccess()) {
                     //执行成功正常指定下一个节点
-                    logicLog.setNextItem(nextItem);
                     logHelperService.updateInstance(logicLog);
-                    log.info("[{}]bizId:{},begin commit in runItemWithEveryJavaNodeTran-itemResIsSuccess=true", logicId, bizId);
-                    commitCurTranIfNextIsNewGroup(curTranStatus, runner.getFnCtx(), curItem);
+                    log.info("[{}]bizId:{},>>节点不中断模式提交", logicId, bizId);
+                    commitCurTranIfNextIsNewGroup(curTranStatus, runner.getFnCtx(), curItem, logicLog);
                     if (Objects.equals(curItem.getType(), LogicItemType.wait.getValue()) && bizLock.isStopping(logicId + "-" + bizId)) {
                         throw new BizManuallyStoppedException(logicId, bizId);
                     }
                 } else {
-                    //执行失败，下一次继续执行当前节点
-                    logicLog.setNextItem(curItem).setOver(false);
-                    log.info("[{}]bizId:{},节点执行失败，begin rollback，success=false,msg:{}, in runItemWithEveryJavaNodeTran", logicId, bizId, itemRes.getMsg());
-                    transactionalUtils.rollback(curTranStatus);
-                    log.info("[{}]bizId:{},节点执行失败，rollback ok，事务组:{}", logicId, bizId, ctx.getCurTranGroupId());
-                    logHelperService.updateInstance(logicLog);
+                    //代码报错时会中断执行
+                    if (itemRes.isNeedInterrupt() || !LogicItemType.java.equalsTo(curItem.getType())) {
+                        //执行失败，下一次继续执行当前节点
+                        logicLog.setNextItem(runner.getFnCtx().getCurTranGroupBeginItem());
+                        logicLog.setSuccess(false).setOver(false);
+                        log.info("[{}]bizId:{},节点执行失败，begin rollback，success=false,msg:{}, in runItemWithEveryJavaNodeTran", logicId, bizId, itemRes.getMsg());
+                        transactionalUtils.rollback(curTranStatus);
+                        log.info("[{}]bizId:{},节点执行失败，rollback ok，事务组:{}", logicId, bizId, ctx.getCurTranGroupId());
+                        logHelperService.updateInstance(logicLog);
+                        break;
+                    } else {
+                        logHelperService.updateInstance(logicLog);
+                        log.info("[{}]bizId:{},节点执行失败，事务组:{}", logicId, bizId, ctx.getCurTranGroupId());
+                        commitCurTranIfNextIsNewGroup(curTranStatus, runner.getFnCtx(), curItem, logicLog);
+//                        logHelperService.updateInstance(logicLog);
+                    }
                 }
-                //代码报错时会中断执行
-                if (itemRes.isNeedInterrupt()) {
-                    logicLog.setSuccess(false);
-                    break;
-                }
+
             } catch (Exception e) {
                 var msg = e.toString();
                 log.error("[{}]bizId:{},节点执行catch到意外的异常：{},begin rollback", logicId, bizId, msg);

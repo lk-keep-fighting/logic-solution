@@ -2,6 +2,6 @@ package com.aims.logic.ide.util;
 
 public class VersionUtil {
     public static String getVersion() {
-        return "0.9.0.26070701-SNAPSHOT";
+        return "0.9.0.260708-SNAPSHOT";
     }
 }
