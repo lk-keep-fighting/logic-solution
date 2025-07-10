@@ -1,6 +1,8 @@
 package com.aims.logic.testsuite;
 
+import com.aims.logic.runtime.contract.enums.LogicConfigModelEnum;
 import com.aims.logic.runtime.service.LogicRunnerService;
+import com.alibaba.fastjson2.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,18 +20,20 @@ public class TestConcurrency {
 
     @Test
     public void test() throws InterruptedException {
-//        logic.getEnv().setLOGIC_CONFIG_MODEL(LogicConfigModelEnum.online);
+        var newEnv = logic.getEnv();
+        newEnv.setLOGIC_CONFIG_MODEL(LogicConfigModelEnum.offline);
+        var newLogic = logic.newInstance(JSONObject.from(newEnv));
         String bizId = String.valueOf(new Date().getTime());
 //        var res = logic.runBizByObjectArgs("test.pub", bizId);
 //        log.info("res.getDataString()");
 //        log.info(res.getDataString());
         ExecutorService executorService = java.util.concurrent.Executors.newFixedThreadPool(10);
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 20; i++) {
             int finalI = i;
             Runnable runnable = () -> {
                 try {
 //                    var res = logic.runBizByObjectArgs("test.pub", bizId + String.valueOf(finalI / 2), String.valueOf(finalI));
-                    var res = logic.runBizByObjectArgs("33", bizId + String.valueOf(finalI / 2), String.valueOf(finalI));
+                    var res = newLogic.runBizByObjectArgs("testJsConcurrency", bizId + String.valueOf(finalI / 2), String.valueOf(finalI));
                     log.info("res.getDataString()");
                     log.info(res.getMsg());
                     log.info(res.getDataString());

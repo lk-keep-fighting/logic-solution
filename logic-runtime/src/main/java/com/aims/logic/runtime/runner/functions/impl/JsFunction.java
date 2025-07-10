@@ -11,6 +11,7 @@ import org.graalvm.polyglot.Engine;
 import org.graalvm.polyglot.HostAccess;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PreDestroy;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 
@@ -20,6 +21,12 @@ import javax.script.ScriptEngine;
 @Slf4j
 @Service
 public class JsFunction implements ILogicItemFunctionRunner {
+
+    // 单例复用 Engine
+    private static final Engine SHARED_GRAAL_ENGINE = Engine.newBuilder()
+            .option("engine.WarnInterpreterOnly", "false")
+            .build();
+
     @Override
     public LogicItemRunResult invoke(FunctionContext ctx, Object script) {
         LogicItemRunResult itemRes = new LogicItemRunResult();
@@ -30,10 +37,10 @@ public class JsFunction implements ILogicItemFunctionRunner {
 //        ScriptEngine engine = manager.getEngineByName("graal.js");
 //        engine.put("polyglot.js.allowAllAccess", true);
 
-        Engine graalEngine = Engine.newBuilder()
-                .option("engine.WarnInterpreterOnly", "false")
-                .build();
-        ScriptEngine engine = GraalJSScriptEngine.create(graalEngine,
+//        Engine graalEngine = Engine.newBuilder()
+//                .option("engine.WarnInterpreterOnly", "false")
+//                .build();
+        ScriptEngine engine = GraalJSScriptEngine.create(SHARED_GRAAL_ENGINE,
                 Context.newBuilder("js")
                         .allowHostAccess(HostAccess.ALL));
         engine.put("_var", ctx.get_var());
@@ -57,20 +64,6 @@ public class JsFunction implements ILogicItemFunctionRunner {
         }
     }
 
-    private Object convertResult(Object funcRes) {
-        // if (funcRes instanceof ScriptObjectMirror) {
-        //     try {
-        //         // 对转换过程进行异常捕获，确保数据转换的健壮性
-        //         return JsonUtil.toObject((ScriptObjectMirror) funcRes);
-        //     } catch (Exception e) {
-        //         // 可以根据实际情况记录日志或者采取其他处理措施
-        //         log.error("js意外的异常：转换js执行结果失败", e);
-        //         return null; // 或者返回一个特定的错误标示对象
-        //     }
-        // }
-        return funcRes;
-    }
-
     @Override
     public String getItemType() {
         return "js";
@@ -79,5 +72,14 @@ public class JsFunction implements ILogicItemFunctionRunner {
     @Override
     public int getPriority(String env) {
         return 0;
+    }
+
+    @PreDestroy
+    public void destroy() {
+        try {
+            SHARED_GRAAL_ENGINE.close();
+        } catch (Exception e) {
+            log.error("js engine close error: {}", e.getMessage());
+        }
     }
 }

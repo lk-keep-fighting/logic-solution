@@ -117,7 +117,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
 
     @Override
     public LogicSysEnvDto getEnv() {
-        return RuntimeUtil.toEnvObject(this.envJson);
+        return RuntimeUtil.toEnvObject(getEnvJson());
     }
 
 //    @Override
