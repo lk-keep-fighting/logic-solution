@@ -1,6 +1,7 @@
 package com.aims.logic.sdk.service.impl;
 
 import com.aims.logic.runtime.contract.logger.LogicLog;
+import com.aims.logic.runtime.custom.CustomDiscardOldestPolicy;
 import com.aims.logic.runtime.util.RuntimeUtil;
 import com.aims.logic.sdk.config.LogicLogServiceConfig;
 import com.aims.logic.sdk.entity.LogicInstanceEntity;
@@ -28,19 +29,19 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
     private final LogicLogService logicLogService;
     private final JdbcTemplate jdbcTemplate;
     private LogicLogServiceConfig logicLogServiceConfig;
-
+    static RejectedExecutionHandler customDiscardOldestPolicy = new CustomDiscardOldestPolicy();
     /**
      * 新增执行日志logic_log日志
      *
      * @param logicLog
      */
     private final static ExecutorService logExecutor = new ThreadPoolExecutor(
-            5,
-            10,
+            2,
+            4,
             60L,
             TimeUnit.SECONDS,
-            new LinkedBlockingQueue<>(100),
-            new ThreadPoolExecutor.CallerRunsPolicy()
+            new LinkedBlockingQueue<>(200),
+            customDiscardOldestPolicy
     );
 
     @Autowired

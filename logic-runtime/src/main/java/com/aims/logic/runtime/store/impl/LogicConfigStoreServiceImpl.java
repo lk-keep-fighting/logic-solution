@@ -25,7 +25,7 @@ public class LogicConfigStoreServiceImpl implements LogicConfigStoreService {
     public static Cache<String, JSONObject> logicConfigCache = Caffeine.newBuilder().initialCapacity(100)
             //最大容量为200
 //                .maximumSize(200)
-            .expireAfterAccess(Duration.ofDays(7))
+            .expireAfterAccess(Duration.ofHours(1))
             .build();
 
     public Cache<String, JSONObject> getLogicConfigCache() {
@@ -47,6 +47,9 @@ public class LogicConfigStoreServiceImpl implements LogicConfigStoreService {
     public JSONObject saveToCache(String logicId, String version, JSONObject logicConfig) {
         String logicCacheKey = logicId + "-" + version;
         logicConfig.put("id", logicId);//自动修复文件名编号与内部配置编号不同的问题
+        if (logicConfig.get("visualConfig") != null) {
+            logicConfig.remove("visualConfig");//删除可视化配置减少缓存
+        }
         logicConfigCache.put(logicCacheKey, logicConfig);
         log.info("将逻辑配置[{}]写入缓存，json内version：{}", logicCacheKey, logicConfig.get("version"));
         return logicConfig;
