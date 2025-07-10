@@ -15,14 +15,13 @@ public class CustomDiscardOldestPolicy implements RejectedExecutionHandler {
         long currentTime = System.currentTimeMillis();
         // 记录被丢弃任务的名称
         String taskName = r.toString();
-        log.warn("添加日志线程池任务队列已满，日志被丢弃，[" + currentTime + "] Task " + taskName + " is discarded.");
-        // 记录日志
         // 如果线程池没有被关闭
         if (!executor.isShutdown()) {
             // 获取任务队列
             BlockingQueue<Runnable> queue = executor.getQueue();
             // 获取队列的第一个任务（最旧的任务）
             Runnable oldestTask = queue.poll();
+            log.warn("添加日志线程池任务队列已满，日志被丢弃，[" + currentTime + "] Task " + taskName + " is discarded.");
             if (oldestTask != null) {
                 // 将新的任务添加到任务队列中
                 executor.execute(r);
