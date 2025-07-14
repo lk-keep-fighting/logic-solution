@@ -35,7 +35,7 @@ public class BaseServiceImpl<T extends BaseEntity, TKey> implements BaseService<
 
 
     public BaseServiceImpl() {
-        idWorker = new IdWorker(3, 2);
+        idWorker = new IdWorker(3, 1);
         this.entityClass = (Class<?>) (JSONObject.from(getClass().getGenericSuperclass()).to(ParameterizedTypeImpl.class)).getActualTypeArguments()[0];
 
         if (this.entityClass == null) {

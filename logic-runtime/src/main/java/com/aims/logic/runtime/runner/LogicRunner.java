@@ -230,7 +230,7 @@ public class LogicRunner {
         return res;
     }
 
-    IdWorker idWorker = new IdWorker(1, 1);
+    static IdWorker idWorker = new IdWorker(1, 1);
 
     public LogicItemRunResult runItem(LogicItemTreeNode item) {
         item.setObjectId(String.valueOf(idWorker.nextId()));

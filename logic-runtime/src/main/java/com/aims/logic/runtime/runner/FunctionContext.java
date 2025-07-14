@@ -19,7 +19,7 @@ public class FunctionContext {
     private JSONObject _var = new JSONObject();
     private JSONObject _env = new JSONObject();
     private JSONObject _global;
-    static IdWorker idWorker = new IdWorker(1, 1);
+    static IdWorker idWorker = new IdWorker(4, 1);
     private Object _lastRet;
     private LogicItemRunResult _last;
     private LogicTreeNode logic;
@@ -57,18 +57,21 @@ public class FunctionContext {
     }
 
     public void set_global(JSONObject global) {
+        if (global == null) global = new JSONObject();
         if (_var.getJSONObject("__global") == null)
             _var.put("__global", new JSONObject());
         _var.getJSONObject("__global").putAll(global);
     }
 
-    public String getSubLogicRandomBizId() {
+    public synchronized String getSubLogicRandomBizId() {
         if (_var.get("__subLogicRandomBizId") == null)
-            return buildSubLogicRandomBizId();
-        return _var.get("__subLogicRandomBizId").toString();
+            buildSubLogicRandomBizId();
+        var subLogicRandomBizId = _var.get("__subLogicRandomBizId").toString();
+        buildSubLogicRandomBizId();
+        return subLogicRandomBizId;
     }
 
-    public String buildSubLogicRandomBizId() {
+    public synchronized String buildSubLogicRandomBizId() {
         var subLogicRandomBizId = String.valueOf(idWorker.nextId());// logicId + "_" + System.currentTimeMillis();
         _var.put("__subLogicRandomBizId", subLogicRandomBizId);
         return subLogicRandomBizId;
