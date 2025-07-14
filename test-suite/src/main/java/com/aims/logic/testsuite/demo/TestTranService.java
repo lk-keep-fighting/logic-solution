@@ -20,13 +20,15 @@ import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 import java.util.List;
 
 @Component
-public class testTran {
+public class TestTranService {
     @Autowired
     TestMapper testMapper;
     @Autowired
     TestAutoIdMapper testAutoIdMapper;
     @Autowired
     TestDetailMapper testDetailMapperMapper;
+    @Autowired
+    TestTran2Service testTran2Service;
 
     //    @Transactional(rollbackFor = Exception.class)
     @LogicItem(name = "插入测试", group = "测试事务", memo = "很简单的插入id值，用于测试插入id重复时报错是否会回滚上游事务")
@@ -35,11 +37,23 @@ public class testTran {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    @LogicItem(name = "插入测试2（注解事务）", group = "测试事务", memo = "很简单的插入id值，用于测试插入id重复时报错是否会回滚上游事务")
-    public int insert2(String id, boolean thorwError) {
+    @LogicItem(name = "插入测试2（注解事务）", group = "测试事务", memo = "包含事务注解")
+    public int insertWithTran(String id, boolean thorwError) {
         testMapper.insert(new TestEntity().setId(id));
         if (thorwError) {
             throw new CustomException("主动抛出业务异常");
+        }
+        return 1;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @LogicItem(name = "插入测试3（注解事务）", group = "测试事务", memo = "包含嵌套事务注解")
+    public int insertWithInnerTran(String id) {
+        testMapper.insert(new TestEntity().setId(id));
+        try {
+            testTran2Service.insertWithTran(id + 1, true);
+        } catch (Exception e) {
+            System.out.println("主动catch了异常：" + e.getMessage());
         }
         return 1;
     }

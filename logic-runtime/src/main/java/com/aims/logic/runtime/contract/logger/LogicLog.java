@@ -66,6 +66,7 @@ public class LogicLog {
     JSONObject varsJson_end;
 
     public JSONObject getGlobalVars() {
+        if (varsJson_end == null) return null;
         return varsJson_end.getJSONObject("__global");
     }
 

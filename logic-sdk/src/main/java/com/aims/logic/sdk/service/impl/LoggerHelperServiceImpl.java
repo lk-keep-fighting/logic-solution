@@ -238,7 +238,7 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
                     .setHost(requestHost)
                     .setClientId(requestClientId);
             if (logicLog.getId() != null)
-                logEntity.setId(logicLog.getId().toString());
+                logEntity.setId(logicLog.getId());
             logicLogService.insert(logEntity);
             log.info("[{}]bizId:{},[{}]日志添加成功，点击回放：{}/logic/index.html#/debug/logic-log/i/{}", logicLog.getLogicId(), logicLog.getBizId(), logicLogServiceConfig.logStoreType, RuntimeUtil.getOnlineHost(), logicLog.getId());
         } catch (Exception e) {

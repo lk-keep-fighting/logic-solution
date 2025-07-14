@@ -21,11 +21,16 @@ import javax.script.ScriptEngine;
 @Slf4j
 @Service
 public class JsFunction implements ILogicItemFunctionRunner {
-
-    // 单例复用 Engine
-    private static final Engine SHARED_GRAAL_ENGINE = Engine.newBuilder()
-            .option("engine.WarnInterpreterOnly", "false")
-            .build();
+    
+    // 使用ThreadLocal维护线程独立的ScriptEngine
+    private static final ThreadLocal<ScriptEngine> engineHolder = ThreadLocal.withInitial(() -> {
+        Engine sharedEngine = Engine.newBuilder()
+                .option("engine.WarnInterpreterOnly", "false")
+                .build();
+        return GraalJSScriptEngine.create(sharedEngine,
+                Context.newBuilder("js")
+                        .allowHostAccess(HostAccess.ALL));
+    });
 
     @Override
     public LogicItemRunResult invoke(FunctionContext ctx, Object script) {
@@ -33,16 +38,7 @@ public class JsFunction implements ILogicItemFunctionRunner {
         if (script == null) {
             return itemRes;
         }
-//        ScriptEngineManager manager = new ScriptEngineManager();
-//        ScriptEngine engine = manager.getEngineByName("graal.js");
-//        engine.put("polyglot.js.allowAllAccess", true);
-
-//        Engine graalEngine = Engine.newBuilder()
-//                .option("engine.WarnInterpreterOnly", "false")
-//                .build();
-        ScriptEngine engine = GraalJSScriptEngine.create(SHARED_GRAAL_ENGINE,
-                Context.newBuilder("js")
-                        .allowHostAccess(HostAccess.ALL));
+        ScriptEngine engine = engineHolder.get();
         engine.put("_var", ctx.get_var());
         engine.put("_env", ctx.get_env());
         engine.put("_bizId", ctx.getBizId());
@@ -76,10 +72,6 @@ public class JsFunction implements ILogicItemFunctionRunner {
 
     @PreDestroy
     public void destroy() {
-        try {
-            SHARED_GRAAL_ENGINE.close();
-        } catch (Exception e) {
-            log.error("js engine close error: {}", e.getMessage());
-        }
+        engineHolder.remove();  // 清理当前线程实例
     }
 }

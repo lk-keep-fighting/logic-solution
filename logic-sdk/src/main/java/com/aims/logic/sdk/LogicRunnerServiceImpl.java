@@ -607,7 +607,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                         throw new BizManuallyStoppedException(logicId, bizId);
                     }
                 } else {
-                    //代码报错时会中断执行
+                    //需要中断或非java节点执行报错时会中断执行
                     if (itemRes.isNeedInterrupt() || !LogicItemType.java.equalsTo(curItem.getType())) {
                         //执行失败，下一次继续执行当前节点
                         logicLog.setNextItem(runner.getFnCtx().getCurTranGroupBeginItem());
@@ -621,7 +621,6 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                         logHelperService.updateInstance(logicLog);
                         log.info("[{}]bizId:{},节点执行失败，事务组:{}", logicId, bizId, ctx.getCurTranGroupId());
                         commitCurTranIfNextIsNewGroup(curTranStatus, runner.getFnCtx(), curItem, logicLog);
-//                        logHelperService.updateInstance(logicLog);
                     }
                 }
 
