@@ -20,7 +20,7 @@ public class FunctionContext {
     private JSONObject _env = new JSONObject();
     private JSONObject _global;
     static IdWorker idWorker = new IdWorker(4, 1);
-    private Object _lastRet;
+    //    private Object _lastRet;
     private LogicItemRunResult _last;
     private LogicTreeNode logic;
     private String traceId = null;
@@ -34,6 +34,10 @@ public class FunctionContext {
     private String curTranGroupId;
     private String nextTranGroupId;
     private String lastTranGroupId;
+
+    public Object get_lastRet() {
+        return _last == null ? null : _last.getData();
+    }
 
     public void setTranScope(LogicItemTransactionScope tranScope) {
         _var.put("__tranScope", tranScope);
@@ -63,18 +67,17 @@ public class FunctionContext {
         _var.getJSONObject("__global").putAll(global);
     }
 
-    public synchronized String getSubLogicRandomBizId() {
-        if (_var.get("__subLogicRandomBizId") == null)
-            buildSubLogicRandomBizId();
-        var subLogicRandomBizId = _var.get("__subLogicRandomBizId").toString();
-        buildSubLogicRandomBizId();
-        return subLogicRandomBizId;
-    }
+//    public synchronized String getSubLogicRandomBizId() {
+//        if (_var.get("__subLogicRandomBizId") == null)
+//            buildSubLogicRandomBizId();
+//        var subLogicRandomBizId = _var.get("__subLogicRandomBizId").toString();
+//        buildSubLogicRandomBizId();
+//        return subLogicRandomBizId;
+//    }
 
-    public synchronized String buildSubLogicRandomBizId() {
-        var subLogicRandomBizId = String.valueOf(idWorker.nextId());// logicId + "_" + System.currentTimeMillis();
-        _var.put("__subLogicRandomBizId", subLogicRandomBizId);
-        return subLogicRandomBizId;
+    public String buildSubLogicRandomBizId() {
+        //        _var.put("__subLogicRandomBizId", subLogicRandomBizId);
+        return String.valueOf(idWorker.nextId());
     }
 
     public FunctionContext() {

@@ -31,11 +31,11 @@ public class LogicInstanceServiceImpl extends BaseServiceImpl<LogicInstanceEntit
         }
         StringBuilder sql = new StringBuilder();
         sql.append("select * from logic_instance where logicId = '").append(logicId);
-        sql.append("' and bizId = '").append(bizId).append("' order by version desc limit 1");
+        sql.append("' and bizId = '").append(bizId).append("' order by serverTime desc limit 1");
         try {
             return jdbcTemplate.queryForObject(sql.toString(), new BeanPropertyRowMapper<>(LogicInstanceEntity.class));
         } catch (Exception e) {
-            log.warn("获取实例失败，getInstance error: {},logicId:{},bizId:{}", e.getMessage(), logicId, bizId);
+            log.info("未查询到实例，logicId:{},bizId:{}", logicId, bizId);
             return null;
         }
     }

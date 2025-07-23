@@ -9,6 +9,7 @@ import com.aims.logic.runtime.service.LogicRunnerService;
 import com.alibaba.fastjson2.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 
 /**
@@ -30,9 +31,12 @@ public class SubLogicFunction implements ILogicItemFunctionRunner {
         if (itemDsl.isAsync()) {
             var ctxClone = JSONObject.from(ctx).to(FunctionContext.class);
             var itemDslClone = JSONObject.from(itemDsl).to(LogicItemTreeNode.class);
+            var traceId = MDC.get("traceId");
             // 异步调用 invokeMethod
             new Thread(() -> {
                 try {
+                    if (traceId != null)
+                        MDC.put("traceId", traceId);
                     log.info("[{}]bizId:{},开始异步执行……", ctx.getLogicId(), ctx.getBizId());
                     var res = invokeMethod(ctxClone, itemDslClone);
                     log.info("[{}]bizId:{},异步执行完成,success：{}，msg:{}。", ctx.getLogicId(), ctx.getBizId(), res.isSuccess(), res.getMsg());
@@ -64,7 +68,7 @@ public class SubLogicFunction implements ILogicItemFunctionRunner {
             if (StringUtils.isNotEmpty(ctx.getBizId())) {//父流程为实例模式，子逻辑必须为实例模式
                 if (subLogicBizId == null || "null".equals(subLogicBizId)) {//判断是否自动生成bizId
                     //自动生成bizId
-                    subLogicBizId = ctx.getSubLogicRandomBizId();
+                    subLogicBizId = ctx.buildSubLogicRandomBizId();
                     var res = newRunnerService.runBizByMap(subLogicId, subLogicBizId, jsonData, ctx.getTraceId(), itemDsl.getObjectId(), ctx.get_global());
                     itemRunResult.setSuccess(res.isSuccess()).setMsg(res.getMsg()).setData(res.getData());
                     globalEnd = res.getLogicLog().getGlobalVars();
@@ -86,8 +90,8 @@ public class SubLogicFunction implements ILogicItemFunctionRunner {
                 }
             }
             itemDsl.setBizId(subLogicBizId);
-            if (itemRunResult.isSuccess())
-                ctx.buildSubLogicRandomBizId();//运行完成后生成下一个随机bizId保存在临时变量中
+//            if (itemRunResult.isSuccess())
+//                ctx.buildSubLogicRandomBizId();//运行完成后生成下一个随机bizId保存在临时变量中
             ctx.set_global(globalEnd);
             return itemRunResult;
 
