@@ -237,7 +237,7 @@ public class LogicRunner {
         var itemRes = new LogicItemRunner(item).run(fnCtx);
         fnCtx.set_last(itemRes);
 
-        fnCtx.set_lastRet(JSON.toJSON(itemRes.getData()));
+//        fnCtx.set_lastRet(JSON.toJSON(itemRes.getData()));
         if (item.getReturnAccept() != null && !item.getReturnAccept().isBlank()) {
             Functions.runJsByContext(fnCtx, String.format("%s=_lastRet", item.getReturnAccept()));
         }

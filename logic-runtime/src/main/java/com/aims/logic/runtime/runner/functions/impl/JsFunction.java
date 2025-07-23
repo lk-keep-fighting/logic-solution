@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PreDestroy;
 import javax.script.Invocable;
+import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 
 /**
@@ -21,16 +22,14 @@ import javax.script.ScriptEngine;
 @Slf4j
 @Service
 public class JsFunction implements ILogicItemFunctionRunner {
-    
+
+    private static final Engine sharedEngine = Engine.newBuilder()
+            .option("engine.WarnInterpreterOnly", "false")
+            .build();
     // 使用ThreadLocal维护线程独立的ScriptEngine
-    private static final ThreadLocal<ScriptEngine> engineHolder = ThreadLocal.withInitial(() -> {
-        Engine sharedEngine = Engine.newBuilder()
-                .option("engine.WarnInterpreterOnly", "false")
-                .build();
-        return GraalJSScriptEngine.create(sharedEngine,
-                Context.newBuilder("js")
-                        .allowHostAccess(HostAccess.ALL));
-    });
+    private static final ThreadLocal<ScriptEngine> engineHolder = ThreadLocal.withInitial(() -> GraalJSScriptEngine.create(sharedEngine,
+            Context.newBuilder("js")
+                    .allowHostAccess(HostAccess.ALL)));
 
     @Override
     public LogicItemRunResult invoke(FunctionContext ctx, Object script) {
@@ -44,10 +43,11 @@ public class JsFunction implements ILogicItemFunctionRunner {
         engine.put("_bizId", ctx.getBizId());
         engine.put("_global", ctx.get_global());
         engine.put("_par", JSONObject.from(ctx.get_par()));
-        engine.put("_lastRet", ctx.get_lastRet());
+//        engine.put("_lastRet", ctx.get_lastRet());
         engine.put("_last", JSONObject.from(ctx.get_last()));
         try {
             String processedCode = script.toString().replaceAll("^//.*", "");
+            engine.eval("_lastRet=_last.data");
             engine.eval(String.format("function fn(){ %s }", processedCode));
             Invocable inv = (Invocable) engine;
             Object funcRes = inv.invokeFunction("fn");
@@ -57,6 +57,13 @@ public class JsFunction implements ILogicItemFunctionRunner {
             return new LogicItemRunResult()
                     .setMsg(e.getMessage())
                     .setSuccess(false);
+        } finally {
+            engine.getBindings(ScriptContext.ENGINE_SCOPE).clear();
+            try {
+                engine.eval("(function() { for (let k in this) delete this[k] })()");
+            } catch (Exception e) {
+                log.error("clear engine error: {}", e.getMessage());
+            }
         }
     }
 
