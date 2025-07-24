@@ -9,11 +9,11 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "logic.biz-lock")
 public class BizLockProperties {
     private String type = "memory"; // 默认使用内存锁
-    private int expire = 30; // 锁失效时间，单位：秒
+    private int expire = 120; // 锁失效时间，单位：秒
 
     public int getExpire() {
         if (expire == 0) {
-            expire = 30;
+            expire = 120;
         }
         return expire;
     }
