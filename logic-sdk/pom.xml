@@ -16,18 +16,6 @@
         <java.version>17</java.version>
     </properties>
     <dependencies>
-        <!--        <dependency>-->
-        <!--            <groupId>com.mybatis-flex</groupId>-->
-        <!--            <artifactId>mybatis-flex-spring-boot-starter</artifactId>-->
-        <!--            <version>1.9.6</version>-->
-        <!--        </dependency>-->
-        <!--        <dependency>-->
-        <!--            <groupId>com.mybatis-flex</groupId>-->
-        <!--            <artifactId>mybatis-flex-processor</artifactId>-->
-        <!--            <version>1.9.6</version>-->
-        <!--            <scope>provided</scope>-->
-        <!--        </dependency>-->
-
         <dependency>
             <groupId>com.aims.logic</groupId>
             <artifactId>logic-runtime</artifactId>

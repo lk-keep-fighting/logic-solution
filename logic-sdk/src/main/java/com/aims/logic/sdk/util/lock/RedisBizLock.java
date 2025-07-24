@@ -1,10 +1,9 @@
 package com.aims.logic.sdk.util.lock;
 
 import lombok.extern.slf4j.Slf4j;
-import org.redisson.Redisson;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
-import org.redisson.config.Config;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
@@ -21,28 +20,26 @@ public class RedisBizLock implements BizLock {
     private static final String LOCK_PREFIX = "biz_lock:";
     private static final String LOCK_STOPPING_PREFIX = "biz_stopping:";
 
-
-    public RedisBizLock(BizLockProperties properties) {
+    // 注入Spring管理的RedissonClient和BizLockProperties
+    @Autowired
+    public RedisBizLock(BizLockProperties properties, RedissonClient redisson) {
         this.properties = properties;
         this.spinLock = properties.getSpinLock();
-        Config config = new Config();
-        config.useSingleServer()
-                .setAddress("redis://" + properties.getRedis().getHost() + ":" + properties.getRedis().getPort())
-                .setPassword(properties.getRedis().getPassword())
-                .setDatabase(properties.getRedis().getDatabase());
-        this.redisson = Redisson.create(config);
+        this.redisson = redisson; // 使用Spring注入的RedissonClient
     }
 
     @Override
     public String buildKey(String logicId, String bizId) {
         return logicId + ":" + bizId;
     }
+
     @Override
     public boolean isLocked(String key) {
         String lockKey = LOCK_PREFIX + key;
         RLock lock = redisson.getLock(lockKey);
         return lock.isLocked();
     }
+
     @Override
     public boolean isStopping(String key) {
         return redisson.getBucket(LOCK_STOPPING_PREFIX + key).isExists();
@@ -64,7 +61,7 @@ public class RedisBizLock implements BizLock {
         int retryCount = 0;
         while (retryCount <= spinLock.getRetryTimes()) {
             try {
-                if (lock.tryLock(0, properties.getRedis().getExpire(), TimeUnit.SECONDS)) {
+                if (lock.tryLock(0, properties.getExpire(), TimeUnit.SECONDS)) {
                     log.debug("获取锁成功, key: {},重试次数: {}", key, retryCount);
                     return true;
                 }
@@ -88,12 +85,12 @@ public class RedisBizLock implements BizLock {
         return false;
     }
 
-    @Override
-    public void lock(String key) throws InterruptedException {
-        String lockKey = LOCK_PREFIX + key;
-        RLock lock = redisson.getLock(lockKey);
-        lock.lock(properties.getRedis().getExpire(), TimeUnit.SECONDS);
-    }
+//    @Override
+//    public void lock(String key) throws InterruptedException {
+//        String lockKey = LOCK_PREFIX + key;
+//        RLock lock = redisson.getLock(lockKey);
+//        lock.lock(properties.getRedis().getExpire(), TimeUnit.SECONDS);
+//    }
 
     @Override
     public void unlock(String key) {
