@@ -1,9 +1,11 @@
 package com.aims.logic.sdk.util.lock;
 
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.Redisson;
+import org.redisson.api.RFuture;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.redisson.config.Config;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
@@ -20,12 +22,29 @@ public class RedisBizLock implements BizLock {
     private static final String LOCK_PREFIX = "biz_lock:";
     private static final String LOCK_STOPPING_PREFIX = "biz_stopping:";
 
-    // 注入Spring管理的RedissonClient和BizLockProperties
-    @Autowired
-    public RedisBizLock(BizLockProperties properties, RedissonClient redisson) {
+
+    public RedisBizLock(BizLockProperties properties) {
         this.properties = properties;
         this.spinLock = properties.getSpinLock();
-        this.redisson = redisson; // 使用Spring注入的RedissonClient
+        Config config = new Config();
+        if (properties.getRedis().getHost() != null) {
+            config.useSingleServer()
+                    .setAddress("redis://" + properties.getRedis().getHost() + ":" + properties.getRedis().getPort())
+                    .setPassword(properties.getRedis().getPassword())
+                    .setDatabase(properties.getRedis().getDatabase());
+        } else if (properties.getRedis().getCluster() != null) {
+            String[] nodes = properties.getRedis().getCluster().getNodes();
+            for (int i = 0; i < nodes.length; i++) {
+                if (!nodes[i].startsWith("redis://") && !nodes[i].startsWith("rediss://")) {
+                    nodes[i] = "redis://" + nodes[i];
+                }
+            }
+            config.useClusterServers()
+                    .addNodeAddress(nodes)
+                    .setPassword(properties.getRedis().getPassword());
+        }
+
+        this.redisson = Redisson.create(config);
     }
 
     @Override
@@ -85,26 +104,48 @@ public class RedisBizLock implements BizLock {
         return false;
     }
 
-//    @Override
-//    public void lock(String key) throws InterruptedException {
-//        String lockKey = LOCK_PREFIX + key;
-//        RLock lock = redisson.getLock(lockKey);
-//        lock.lock(properties.getRedis().getExpire(), TimeUnit.SECONDS);
-//    }
 
     @Override
     public void unlock(String key) {
         String lockKey = LOCK_PREFIX + key;
         String stoppingBizKey = LOCK_STOPPING_PREFIX + key;
         RLock lock = redisson.getLock(lockKey);
-        if (lock.isHeldByCurrentThread()) {
-            redisson.getKeys().delete(lockKey);
-            log.info("delete key ok:{}", key);
-            redisson.getKeys().delete(stoppingBizKey);
-            lock.unlock();
-            log.info("unlock key ok:{}", key);
-        } else {
-            log.info("unlock error，redis不存在锁，锁已被删除或已过期, key:{}", key);
+
+        try {
+            if (lock.isHeldByCurrentThread()) {
+                try {
+                    // 先解锁再删除key，避免竞争条件
+                    lock.unlock();
+                    log.debug("Unlock successful for key: {}", key);
+
+                    // 异步删除key避免阻塞（根据业务需求选择同步/异步）
+                    RFuture<Long> delLockFuture = redisson.getKeys().deleteAsync(lockKey);
+                    RFuture<Long> delStopFuture = redisson.getKeys().deleteAsync(stoppingBizKey);
+
+                    // 等待删除操作完成（可选）
+                    delLockFuture.await();
+                    delStopFuture.await();
+
+                    if (delLockFuture.isSuccess() && delStopFuture.isSuccess()) {
+                        log.debug("Cleanup completed for key: {}", key);
+                    }
+                } catch (Exception e) {
+                    log.error("Failed to unlock or cleanup for key: {}", key, e);
+                    // 考虑重试机制或告警
+                }
+            } else {
+                log.warn("Unlock failed: Lock either expired or not held by current thread. Key: {}", key);
+                // 可添加监控指标
+            }
+        } finally {
+            // 确保锁资源释放
+            if (lock.isHeldByCurrentThread()) {
+                try {
+                    lock.unlock();
+                } catch (IllegalMonitorStateException e) {
+                    log.debug("Lock already released for key: {}", key);
+                }
+            }
         }
     }
 
