@@ -23,10 +23,12 @@ public class MemoryBizLock implements BizLock {
 
     public MemoryBizLock(BizLockProperties properties) {
         this.spinLock = properties.getSpinLock();
-        this.lockCache = Caffeine.newBuilder()
-                .initialCapacity(200)
-                .expireAfterAccess(Duration.ofSeconds(properties.getExpire()))
-                .build();
+        var builder = Caffeine.newBuilder()
+                .initialCapacity(200);
+        if (properties.getExpire() > 0)
+            builder.expireAfterAccess(Duration.ofSeconds(properties.getExpire()));
+
+        this.lockCache = builder.build();
         this.stoppingBizCache = Caffeine.newBuilder()
                 .initialCapacity(20)
                 .expireAfterAccess(Duration.ofMinutes(10))
