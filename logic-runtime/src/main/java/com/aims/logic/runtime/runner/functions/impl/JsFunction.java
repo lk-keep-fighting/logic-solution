@@ -3,7 +3,7 @@ package com.aims.logic.runtime.runner.functions.impl;
 import com.aims.logic.runtime.contract.dto.LogicItemRunResult;
 import com.aims.logic.runtime.runner.FunctionContext;
 import com.aims.logic.runtime.runner.functions.ILogicItemFunctionRunner;
-import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.JSON;
 import com.oracle.truffle.js.scriptengine.GraalJSScriptEngine;
 import lombok.extern.slf4j.Slf4j;
 import org.graalvm.polyglot.Context;
@@ -42,9 +42,9 @@ public class JsFunction implements ILogicItemFunctionRunner {
         engine.put("_env", ctx.get_env());
         engine.put("_bizId", ctx.getBizId());
         engine.put("_global", ctx.get_global());
-        engine.put("_par", JSONObject.from(ctx.get_par()));
-        engine.put("_lastRet", JSONObject.from(ctx.get_lastRet()));
-        engine.put("_last", JSONObject.from(ctx.get_last()));
+        engine.put("_par", JSON.toJSON(ctx.get_par()));
+        engine.put("_lastRet", JSON.toJSON(ctx.get_lastRet()));
+        engine.put("_last", JSON.toJSON(ctx.get_last()));
         try {
             String processedCode = script.toString().replaceAll("^//.*", "");
             engine.eval("_last.data=_lastRet");

@@ -221,9 +221,7 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
                     .setServerTime(logicLog.getStartTime())
                     .setBizId(logicLog.getBizId())
                     .setVersion(logicLog.getVersion())
-                    .setItemLogs(JSONArray.toJSONString(logicLog.getItemLogs()
-                            .subList(Math.max(logicLog.getItemLogs().size() - 30, 0),
-                                    logicLog.getItemLogs().size())))
+                    .setItemLogs(JSONArray.toJSONString(logicLog.getItemLogs()))
                     .setReturnData(logicLog.getReturnDataStr())
                     .setLogicId(logicLog.getLogicId())
                     .setParamsJson(
