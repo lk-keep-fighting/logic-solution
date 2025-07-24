@@ -13,17 +13,17 @@ public class LogicItemRunResult {
     public LogicItemRunResult() {
     }
 
-    boolean success = true;
+    public boolean success = true;
     boolean needInterrupt = false;
 
     /**
      * 消息
      */
-    String msg;
+    public String msg;
     /**
      * 返回数据
      */
-    Object data;
+    public Object data;
 
 //    /**
 //     * 获取data数据的字符串表示，
