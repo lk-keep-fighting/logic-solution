@@ -12,7 +12,7 @@ public interface BizLock {
 
     boolean spinLock(String key);
 
-    void lock(String key) throws InterruptedException;
+//    void lock(String key) throws InterruptedException;
 
     void unlock(String key);
 

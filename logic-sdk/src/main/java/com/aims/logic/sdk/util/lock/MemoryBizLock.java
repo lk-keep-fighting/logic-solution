@@ -25,11 +25,11 @@ public class MemoryBizLock implements BizLock {
         this.spinLock = properties.getSpinLock();
         this.lockCache = Caffeine.newBuilder()
                 .initialCapacity(200)
-                .expireAfterAccess(Duration.ofMinutes(60))
+                .expireAfterAccess(Duration.ofSeconds(properties.getExpire()))
                 .build();
         this.stoppingBizCache = Caffeine.newBuilder()
                 .initialCapacity(20)
-                .expireAfterAccess(Duration.ofMinutes(60))
+                .expireAfterAccess(Duration.ofMinutes(10))
                 .build();
     }
 
@@ -79,12 +79,12 @@ public class MemoryBizLock implements BizLock {
         return false;
     }
 
-    @Override
-    public void lock(String key) throws InterruptedException {
-        log.debug("begin lock {}", key);
-        ReentrantLock lock = lockCache.asMap().computeIfAbsent(key, k -> new ReentrantLock());
-        lock.lock();
-    }
+//    @Override
+//    public void lock(String key) throws InterruptedException {
+//        log.debug("begin lock {}", key);
+//        ReentrantLock lock = lockCache.asMap().computeIfAbsent(key, k -> new ReentrantLock());
+//        lock.lock();
+//    }
 
     @Override
     public void unlock(String key) {

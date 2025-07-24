@@ -9,17 +9,26 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "logic.biz-lock")
 public class BizLockProperties {
     private String type = "memory"; // 默认使用内存锁
-    private SpinLock spinLock = new SpinLock();
-    private Redis redis = new Redis();
+    private int expire = 30; // 锁失效时间，单位：秒
 
-    @Data
-    public static class Redis {
-        private String host = "localhost";
-        private int port = 6379;
-        private String password;
-        private int database = 0;
-        private int expire = 100;
+    public int getExpire() {
+        if (expire == 0) {
+            expire = 30;
+        }
+        return expire;
     }
+
+    private SpinLock spinLock = new SpinLock();
+//    private Redis redis = new Redis();
+
+//    @Data
+//    public static class Redis {
+//        private String host = "localhost";
+//        private int port = 6379;
+//        private String password;
+//        private int database = 0;
+//        private int expire = 100;
+//    }
 
     @Data
     public static class SpinLock {
