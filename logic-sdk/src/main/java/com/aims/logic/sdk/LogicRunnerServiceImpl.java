@@ -817,7 +817,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         logicItemLog.setName("强制完成业务实例")
                 .setBeginTime(LocalDateTime.now())
                 .setEndTime(LocalDateTime.now());
-        logicLog.setItemLogs(List.of(logicItemLog));
+        logicLog.itemLogs.add(logicItemLog);
         try {
             forceStopBiz(logicId, bizId);
         } catch (Exception e) {

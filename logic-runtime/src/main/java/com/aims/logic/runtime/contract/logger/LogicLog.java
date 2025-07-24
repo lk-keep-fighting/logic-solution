@@ -12,8 +12,8 @@ import lombok.experimental.Accessors;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.ArrayDeque;
+import java.util.Queue;
 
 @Accessors(chain = true)
 @Getter
@@ -146,11 +146,15 @@ public class LogicLog {
 
     Object returnData;
 
-    List<LogicItemLog> itemLogs = new ArrayList<>();
+    public final Queue<LogicItemLog> itemLogs = new ArrayDeque<>(30);
 
     public void addItemLog(LogicItemRunResult itemRunResult) {
         returnData = itemRunResult.getData();
-        if (!isLogOff)
+        if (!isLogOff) {
+            if (itemLogs.size() >= 30) {
+                itemLogs.poll();
+            }
             itemLogs.add(itemRunResult.getItemLog());
+        }
     }
 }
