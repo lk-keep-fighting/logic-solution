@@ -12,18 +12,6 @@ spring:
   #    url: jdbc:mysql://192.168.51.199:3307/bssg_wmsdb_test?useUnicode=true&characterEncoding=gbk&autoReconnect=true&failOverReadOnly=false
   #    username: root
   #    password: 1q2w3e
-  redis:
-    # 单节点配置
-    host: localhost
-    port: 6379
-    password: your_password
-    database: 0
-    # 集群模式配置（单节点与集群模式二选一）
-    # cluster:
-    #   nodes:
-    #     - 192.168.1.100:6379
-    #     - 192.168.1.101:6379
-    #   max-redirects: 3
 logic:
   log:
     store: es
@@ -43,7 +31,17 @@ logic:
         shape: ExtShape1
   biz-lock:
     expire: 30 # 单位：秒，根据业务请求响应时间来设置锁失效时间
-    type: memory  # 可选值：memory, redis
-    spin-lock:
+    type: redis  # 可选值：memory, redis
+    redis:
+#      host: 192.168.53.205  # 地址
+#      port: 6379  # 端口号
+      database: 1  # 数据库索引
+      cluster:
+        nodes:
+          - "192.168.153.77:16379"
+          - "192.168.153.78:16379"
+          - "192.168.153.79:16379"
+      password: aims1@034
+    spin-lock: # 自旋锁配置
       wait-time: 0
       retry-times: 1

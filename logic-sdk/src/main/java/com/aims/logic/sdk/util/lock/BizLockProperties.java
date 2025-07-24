@@ -19,16 +19,22 @@ public class BizLockProperties {
     }
 
     private SpinLock spinLock = new SpinLock();
-//    private Redis redis = new Redis();
+    private Redis redis = new Redis();
 
-//    @Data
-//    public static class Redis {
-//        private String host = "localhost";
-//        private int port = 6379;
-//        private String password;
-//        private int database = 0;
-//        private int expire = 100;
-//    }
+    @Data
+    public static class Redis {
+        private String host;
+        private int port = 6379;
+        private String password;
+        private int database = 0;
+        private int timeout = 5000;
+        private Cluster cluster;
+    }
+
+    @Data
+    public static class Cluster {
+        private String[] nodes;
+    }
 
     @Data
     public static class SpinLock {
