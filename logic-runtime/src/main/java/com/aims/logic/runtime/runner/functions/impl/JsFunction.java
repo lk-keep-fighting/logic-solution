@@ -43,11 +43,11 @@ public class JsFunction implements ILogicItemFunctionRunner {
         engine.put("_bizId", ctx.getBizId());
         engine.put("_global", ctx.get_global());
         engine.put("_par", JSONObject.from(ctx.get_par()));
-//        engine.put("_lastRet", ctx.get_lastRet());
+        engine.put("_lastRet", JSONObject.from(ctx.get_lastRet()));
         engine.put("_last", JSONObject.from(ctx.get_last()));
         try {
             String processedCode = script.toString().replaceAll("^//.*", "");
-            engine.eval("_lastRet=_last.data");
+            engine.eval("_last.data=_lastRet");
             engine.eval(String.format("function fn(){ %s }", processedCode));
             Invocable inv = (Invocable) engine;
             Object funcRes = inv.invokeFunction("fn");
