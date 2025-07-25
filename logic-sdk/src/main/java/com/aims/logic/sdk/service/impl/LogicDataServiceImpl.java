@@ -6,6 +6,7 @@ import com.aims.logic.sdk.LogicDataService;
 import com.aims.logic.sdk.dto.Page;
 import com.aims.logic.sdk.entity.LogicInstanceEntity;
 import com.aims.logic.sdk.service.LogicInstanceService;
+import com.aims.logic.sdk.util.lock.BizLock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -21,7 +22,8 @@ public class LogicDataServiceImpl implements LogicDataService {
     private LogicInstanceService insService;
     @Autowired
     private JdbcTemplate jdbcTemplate;
-
+    @Autowired
+    BizLock bizLock;
 
     public LogicDataServiceImpl(
             LogicInstanceService _insService) {
@@ -89,11 +91,13 @@ public class LogicDataServiceImpl implements LogicDataService {
         var list = insService.queryUncompletedBizExclude(createTimeFrom, createTimeTo, isRunning, isSuccess, maxRetryTimes, excludeLogicIds);
         if (list == null)
             return null;
+
         return list.stream().map(insEntity -> new UnCompletedBizDto()
                 .setLogicId(insEntity.getLogicId())
                 .setBizId(insEntity.getBizId())
                 .setCreateTime(insEntity.getCreateTime())
                 .setIsRunning(insEntity.getIsRunning())
+                .setIsBizLocked(bizLock.isBizLocked(insEntity.getLogicId(), insEntity.getBizId()))
                 .setIsSuccess(insEntity.getSuccess())
                 .setIsAsync(insEntity.getIsAsync())
                 .setParentLogicId(insEntity.getParentLogicId())

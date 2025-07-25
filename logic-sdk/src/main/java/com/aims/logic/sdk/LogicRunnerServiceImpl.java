@@ -5,6 +5,7 @@ import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
 import com.aims.logic.runtime.contract.dto.*;
 import com.aims.logic.runtime.contract.enums.LogicItemTransactionScope;
 import com.aims.logic.runtime.contract.enums.LogicItemType;
+import com.aims.logic.runtime.contract.enums.LogicStopModel;
 import com.aims.logic.runtime.contract.logger.LogicItemLog;
 import com.aims.logic.runtime.contract.logger.LogicLog;
 import com.aims.logic.runtime.env.LogicAppConfig;
@@ -538,6 +539,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                     log.info("[{}]bizId:{},>>单节点模式提交", logicId, bizId);
                     commitCurTranIfNextIsNewGroup(curTranStatus, runner.getFnCtx(), curItem, logicLog);
                     if (Objects.equals(curItem.getType(), LogicItemType.wait.getValue()) && bizLock.isStopping(bizLock.buildKey(logicId, bizId))) {
+                        logicLog.setStopModel(LogicStopModel.MANUAL);
                         throw new BizManuallyStoppedException(logicId, bizId);
                     }
                 } else {
@@ -604,6 +606,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                     log.info("[{}]bizId:{},>>节点不中断模式提交", logicId, bizId);
                     commitCurTranIfNextIsNewGroup(curTranStatus, runner.getFnCtx(), curItem, logicLog);
                     if (Objects.equals(curItem.getType(), LogicItemType.wait.getValue()) && bizLock.isStopping(logicId + "-" + bizId)) {
+                        logicLog.setStopModel(LogicStopModel.MANUAL);
                         throw new BizManuallyStoppedException(logicId, bizId);
                     }
                 } else {
@@ -665,6 +668,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                     if (itemRes.isSuccess()) {
                         runner.updateStatus(itemRes, nextItem);
                         if (Objects.equals(curItem.getType(), LogicItemType.wait.getValue()) && bizLock.isStopping(logicId + "-" + bizId)) {
+                            logicLog.setStopModel(LogicStopModel.MANUAL);
                             throw new BizManuallyStoppedException(logicId, bizId);
                         }
                     } else {

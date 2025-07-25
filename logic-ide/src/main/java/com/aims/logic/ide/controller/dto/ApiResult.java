@@ -17,6 +17,7 @@ public class ApiResult<T> {
         return new ApiResult()
                 .setCode(res.isSuccess() ? 0 : 500)
                 .setMsg(res.getMsg())
+                .setDebug(res)
                 .setData(res.getData());
     }
 

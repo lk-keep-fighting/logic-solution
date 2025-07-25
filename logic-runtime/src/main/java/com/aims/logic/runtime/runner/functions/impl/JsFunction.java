@@ -26,10 +26,10 @@ public class JsFunction implements ILogicItemFunctionRunner {
     private static final Engine sharedEngine = Engine.newBuilder()
             .option("engine.WarnInterpreterOnly", "false")
             .build();
-    // 使用ThreadLocal维护线程独立的ScriptEngine
-    private static final ThreadLocal<ScriptEngine> engineHolder = ThreadLocal.withInitial(() -> GraalJSScriptEngine.create(sharedEngine,
-            Context.newBuilder("js")
-                    .allowHostAccess(HostAccess.ALL)));
+//    // 使用ThreadLocal维护线程独立的ScriptEngine
+//    private static final ThreadLocal<ScriptEngine> engineHolder = ThreadLocal.withInitial(() -> GraalJSScriptEngine.create(sharedEngine,
+//            Context.newBuilder("js")
+//                    .allowHostAccess(HostAccess.ALL)));
 
     @Override
     public LogicItemRunResult invoke(FunctionContext ctx, Object script) {
@@ -37,7 +37,7 @@ public class JsFunction implements ILogicItemFunctionRunner {
         if (script == null) {
             return itemRes;
         }
-        ScriptEngine engine = engineHolder.get();
+        ScriptEngine engine = GraalJSScriptEngine.create(sharedEngine, Context.newBuilder(new String[]{"js"}).allowHostAccess(HostAccess.ALL));
         engine.put("_var", ctx.get_var());
         engine.put("_env", ctx.get_env());
         engine.put("_bizId", ctx.getBizId());
@@ -79,6 +79,11 @@ public class JsFunction implements ILogicItemFunctionRunner {
 
     @PreDestroy
     public void destroy() {
-        engineHolder.remove();  // 清理当前线程实例
+        try {
+            sharedEngine.close();
+        } catch (Exception var2) {
+            log.error("js engine close error: {}", var2.getMessage());
+        }
+
     }
 }

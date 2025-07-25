@@ -1,5 +1,6 @@
 package com.aims.logic.runtime.contract.dto;
 
+import com.aims.logic.runtime.contract.enums.LogicStopModel;
 import com.aims.logic.runtime.contract.logger.LogicLog;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.JSONWriter;
@@ -24,6 +25,8 @@ public class LogicRunResult {
      */
     Object data;
 
+    LogicStopModel stopModel = LogicStopModel.NORMAL;
+
     /**
      * 获取data数据的字符串表示，
      * 如果是json则转换为json字符串，
@@ -43,6 +46,7 @@ public class LogicRunResult {
                 .setMsg(itemRunResult.getMsg())
                 .setSuccess(itemRunResult.isSuccess());
     }
+
     public static LogicRunResult fromLogicLog(LogicLog logicLog) {
         return new LogicRunResult()
                 .setLogicLog(logicLog)
@@ -55,4 +59,10 @@ public class LogicRunResult {
      * 执行日志
      */
     LogicLog logicLog;
+
+    public LogicRunResult setLogicLog(LogicLog logicLog) {
+        this.logicLog = logicLog;
+        this.stopModel = logicLog.getStopModel();
+        return this;
+    }
 }

@@ -60,6 +60,11 @@ public class RedisBizLock implements BizLock {
     }
 
     @Override
+    public boolean isBizLocked(String logicId, String bizId) {
+        return isLocked(logicId + ":" + bizId);
+    }
+
+    @Override
     public boolean isStopping(String key) {
         return redisson.getBucket(LOCK_STOPPING_PREFIX + key).isExists();
     }
