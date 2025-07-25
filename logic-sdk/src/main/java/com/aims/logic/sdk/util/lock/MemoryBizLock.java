@@ -46,6 +46,11 @@ public class MemoryBizLock implements BizLock {
     }
 
     @Override
+    public boolean isBizLocked(String logicId, String bizId) {
+        return isLocked(logicId + ":" + bizId);
+    }
+
+    @Override
     public boolean isStopping(String key) {
         return stoppingBizCache.asMap().containsKey(key);
     }

@@ -4,7 +4,10 @@ import java.util.List;
 
 public interface BizLock {
     String buildKey(String logicId, String bizId);
+
     boolean isLocked(String key);
+
+    boolean isBizLocked(String logicId, String bizId);
 
     boolean isStopping(String key);
 

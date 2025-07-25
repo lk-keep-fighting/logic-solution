@@ -33,28 +33,18 @@
         <dependency>
             <groupId>org.graalvm.js</groupId>
             <artifactId>js</artifactId>
-            <version>22.3.0</version>
+            <version>22.3.5</version>
         </dependency>
         <dependency>
             <groupId>org.graalvm.js</groupId>
             <artifactId>js-scriptengine</artifactId>
-            <version>22.3.0</version>
+            <version>22.3.5</version>
         </dependency>
-        <!--        <dependency>-->
-        <!--            <groupId>org.graalvm.polyglot</groupId>-->
-        <!--            <artifactId>polyglot</artifactId>-->
-        <!--            <version>22.3.0</version>-->
-        <!--        </dependency>-->
-        <!--        <dependency>-->
-        <!--            <groupId>org.graalvm.js</groupId>-->
-        <!--            <artifactId>js</artifactId>-->
-        <!--            <version>22.3.0</version>-->
-        <!--        </dependency>-->
-        <!--        <dependency>-->
-        <!--            <groupId>org.graalvm.truffle</groupId>-->
-        <!--            <artifactId>truffle-api</artifactId>-->
-        <!--            <version>22.3.0</version>-->
-        <!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.graalvm.js</groupId>-->
+<!--            <artifactId>js-scriptengine</artifactId>-->
+<!--            <version>22.3.5</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>

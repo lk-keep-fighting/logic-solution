@@ -14,6 +14,10 @@ public class UnCompletedBizDto {
     @JSONField(format = "yyyy-MM-dd HH:mm:ss.SSS")
     private LocalDateTime createTime;
     private Boolean isRunning;
+    /**
+     * 实例锁是否存在
+     */
+    private Boolean isBizLocked;
     private Boolean isSuccess;
     private Boolean isAsync;
     private String parentLogicId;

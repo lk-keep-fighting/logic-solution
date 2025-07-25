@@ -2,6 +2,7 @@ package com.aims.logic.runtime.contract.logger;
 
 import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
 import com.aims.logic.runtime.contract.dto.LogicItemRunResult;
+import com.aims.logic.runtime.contract.enums.LogicStopModel;
 import com.aims.logic.runtime.runner.FunctionContext;
 import com.aims.logic.runtime.util.JsonUtil;
 import com.alibaba.fastjson2.JSONObject;
@@ -32,6 +33,7 @@ public class LogicLog {
     String msgId;
     boolean success = true;
     String msg;
+    @Deprecated
     Error error;
 
     boolean isLogOff = false;
@@ -100,6 +102,10 @@ public class LogicLog {
      * 整个逻辑是否已结束，没有后续交互节点
      */
     boolean isOver = false;
+    /**
+     * 编排停止模式
+     */
+    LogicStopModel stopModel = LogicStopModel.NORMAL;
 
     boolean isRunning = true;
 
