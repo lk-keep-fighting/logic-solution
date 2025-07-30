@@ -20,20 +20,27 @@ public class FunctionContext {
     private JSONObject _env = new JSONObject();
     private JSONObject _global;
     static IdWorker idWorker = new IdWorker(4, 1);
-    //    private Object _lastRet;
+    // private Object _lastRet;
     private LogicItemRunResult _last;
     private LogicTreeNode logic;
     private String traceId = null;
     private String logicId = null;
     private String bizId = null;
-    //当前事务组开始节点
+    // 当前事务组开始节点
     private LogicItemTreeNode curTranGroupBeginItem;
-    //当前事务组开始时变量
+    // 当前事务组开始时变量
     private JSONObject curTranGroupBeginVar;
     private LogicItemTreeNode nextItem;
     private String curTranGroupId;
     private String nextTranGroupId;
     private String lastTranGroupId;
+
+    public LogicItemRunResult get_last() {
+        if (_last == null) {
+            _last = new LogicItemRunResult();
+        }
+        return _last;
+    }
 
     public Object get_lastRet() {
         return _last == null ? null : _last.getData();
@@ -61,22 +68,23 @@ public class FunctionContext {
     }
 
     public void set_global(JSONObject global) {
-        if (global == null) global = new JSONObject();
+        if (global == null)
+            global = new JSONObject();
         if (_var.getJSONObject("__global") == null)
             _var.put("__global", new JSONObject());
         _var.getJSONObject("__global").putAll(global);
     }
 
-//    public synchronized String getSubLogicRandomBizId() {
-//        if (_var.get("__subLogicRandomBizId") == null)
-//            buildSubLogicRandomBizId();
-//        var subLogicRandomBizId = _var.get("__subLogicRandomBizId").toString();
-//        buildSubLogicRandomBizId();
-//        return subLogicRandomBizId;
-//    }
+    // public synchronized String getSubLogicRandomBizId() {
+    // if (_var.get("__subLogicRandomBizId") == null)
+    // buildSubLogicRandomBizId();
+    // var subLogicRandomBizId = _var.get("__subLogicRandomBizId").toString();
+    // buildSubLogicRandomBizId();
+    // return subLogicRandomBizId;
+    // }
 
     public String buildSubLogicRandomBizId() {
-        //        _var.put("__subLogicRandomBizId", subLogicRandomBizId);
+        // _var.put("__subLogicRandomBizId", subLogicRandomBizId);
         return String.valueOf(idWorker.nextId());
     }
 

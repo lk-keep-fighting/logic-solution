@@ -43,8 +43,8 @@ public class JsFunction implements ILogicItemFunctionRunner {
         engine.put("_bizId", ctx.getBizId());
         engine.put("_global", ctx.get_global());
         engine.put("_par", JSON.toJSON(ctx.get_par()));
-        engine.put("_lastRet", JSON.toJSON(ctx.get_lastRet()));
         engine.put("_last", JSON.toJSON(ctx.get_last()));
+        engine.put("_lastRet", JSON.toJSON(ctx.get_lastRet()));
         try {
             String processedCode = script.toString().replaceAll("^//.*", "");
             engine.eval("_last.data=_lastRet");
