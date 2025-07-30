@@ -19,7 +19,7 @@ logic:
       #      host: http://192.168.51.17:21903
       #      index: logic-log-test
       host: http://192.168.51.201:9200
-      index: logic-log-wms-test-mxd-new
+      index: logic-log-lk-local
   test:
     case:
   config-dir: /Users/lk/Documents/Dev/aims/xuanwu-logic/logic-solution/test-suite/test-case-configs
