@@ -357,7 +357,8 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 cacheVarsJson = JSON.isValid(insEntity.getVarsJsonEnd()) ? JSON.parseObject(insEntity.getVarsJsonEnd()) : null;
                 startId = insEntity.getNextId();
                 logicVersion = insEntity.getVersion();
-                instanceId = insEntity.getId().toString();
+                instanceId = insEntity.getId();
+                this.isAsync = insEntity.getIsAsync();
 //                startTime = insEntity.getStartTime();
                 if (insEntity.getIsOver()) {
                     var msg = String.format("[%s]bizId:%s，业务实例已完成，无法重复执行。", bizId, logicId);
