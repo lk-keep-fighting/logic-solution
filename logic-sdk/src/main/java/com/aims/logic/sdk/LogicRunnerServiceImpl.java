@@ -774,10 +774,11 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 return new LogicRunResult().setSuccess(false).setMsg(String.format("指定的bizId:%s已完成执行，无法重复执行。", bizId));
             }
             String lockKey = bizLock.buildKey(logicId, bizId);
+            String traceId = String.valueOf(idWorker.nextId());
             try {
                 bizLock.spinLock(lockKey);
                 log.info("[{}]bizId:{}-get lock key:{}", logicId, bizId, lockKey);
-                return runBiz(logicId, bizId, parsJson, UUID.randomUUID().toString(), null, null);
+                return runBiz(logicId, bizId, parsJson, UUID.randomUUID().toString(), traceId, null);
             } catch (Exception e) {
                 log.error("[{}]bizId:{}-runBizByMap catch逻辑异常:{}", logicId, bizId, e.getMessage());
                 throw new RuntimeException(e);
