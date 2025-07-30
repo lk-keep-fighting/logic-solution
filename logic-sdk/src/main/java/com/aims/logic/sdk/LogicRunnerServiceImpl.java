@@ -351,6 +351,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         String startId = null;
         String logicVersion = null;
         String instanceId = null;
+        var isAsyncBiz = this.isAsync;
         if (bizId != null && !bizId.isBlank()) {
             LogicInstanceEntity insEntity = insService.getInstance(logicId, bizId);
             if (insEntity != null) {
@@ -358,7 +359,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 startId = insEntity.getNextId();
                 logicVersion = insEntity.getVersion();
                 instanceId = insEntity.getId();
-                this.isAsync = insEntity.getIsAsync();
+                isAsyncBiz = insEntity.getIsAsync();
 //                startTime = insEntity.getStartTime();
                 if (insEntity.getIsOver()) {
                     var msg = String.format("[%s]bizId:%s，业务实例已完成，无法重复执行。", bizId, logicId);
@@ -378,7 +379,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         runner.getFnCtx().setTraceId(traceId == null ? UUID.randomUUID().toString() : traceId);
 //        runner.getFnCtx().setIsRetry(isRetry);
         LogicLog logicLog = LogicLog.newBizLogBeforeRun(instanceId, runner.getFnCtx(), startItem, runner.getFnCtx().getTraceId(), logicLogId);
-        logicLog.setParentLogicId(this.parentLogicId).setParentBizId(this.parentBizId).setIsAsync(this.isAsync);
+        logicLog.setParentLogicId(this.parentLogicId).setParentBizId(this.parentBizId).setIsAsync(isAsyncBiz);
         if (instanceId == null) {//先生成实例记录
             logHelperService.addInstance(logicLog);
         }
