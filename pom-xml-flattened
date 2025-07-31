@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.aims.logic</groupId>
   <artifactId>logic-solution</artifactId>
-  <version>0.9.1.260730-SNAPSHOT</version>
+  <version>0.9.1.250730</version>
   <packaging>pom</packaging>
   <name>logic-solution</name>
   <description>logic-solution</description>
@@ -26,11 +26,11 @@
   <properties>
     <java.version>17</java.version>
     <maven.compiler.source>17</maven.compiler.source>
-    <logic-sdk.version>0.9.1.260730-SNAPSHOT</logic-sdk.version>
-    <revision>0.9.1.260730-SNAPSHOT</revision>
+    <logic-sdk.version>0.9.1.250730</logic-sdk.version>
+    <revision>0.9.1.250730</revision>
     <maven.compiler.target>17</maven.compiler.target>
-    <logic-ide.version>0.9.1.260730-SNAPSHOT</logic-ide.version>
-    <logic-runtime.version>0.9.1.260730-SNAPSHOT</logic-runtime.version>
+    <logic-ide.version>0.9.1.250730</logic-ide.version>
+    <logic-runtime.version>0.9.1.250730</logic-runtime.version>
   </properties>
   <dependencies>
     <dependency>

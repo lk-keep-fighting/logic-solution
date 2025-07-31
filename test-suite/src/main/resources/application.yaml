@@ -29,20 +29,20 @@ logic:
     groups:
       - name: 公共组件
         shape: ExtShape1
-  biz-lock:
-    spin-lock: # 自旋锁配置
-      wait-time: 0  #自旋每次等待时间
-      retry-times: 1 #自旋重试次数
-    expire: -1 # 单位：秒，根据业务请求响应时间来设置锁失效时间
-    type: memory  # 可选值：memory, redis
-    redis: # type为redis时必填
+#  biz-lock:
+#    spin-lock: # 自旋锁配置
+#      wait-time: 0  #自旋每次等待时间
+#      retry-times: 1 #自旋重试次数
+#    expire: -1 # 单位：秒，根据业务请求响应时间来设置锁失效时间
+#    type: memory  # 可选值：memory, redis
+#    redis: # type为redis时必填
 #      host: 192.168.53.205  # 地址
 #      port: 6379  # 端口号
 #      database: 1  # 数据库索引
-      password: aims1@034
-      cluster:
-        nodes:
-          - "192.168.153.77:16379"
-          - "192.168.153.78:16379"
-          - "192.168.153.79:16379"
+#      password: aims1@034
+#      cluster:
+#        nodes:
+#          - "192.168.153.77:16379"
+#          - "192.168.153.78:16379"
+#          - "192.168.153.79:16379"
 
