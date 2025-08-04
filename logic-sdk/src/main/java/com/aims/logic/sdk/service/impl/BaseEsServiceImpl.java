@@ -127,9 +127,11 @@ public class BaseEsServiceImpl<T extends BaseEntity, TKey> implements BaseServic
                 // 检查响应状态
                 if (response.isSuccessful()) {
                     return true;
+                } else {
+                    log.error("ES插入数据失败,Http error: " + response.body().string());
+                    return false;
                 }
             }
-            return false;
         } catch (Exception e) {
             log.error("ES插入数据失败", e);
             return false;

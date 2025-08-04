@@ -58,7 +58,7 @@ public class LogicRunner {
         fnCtx.set_var(JsonUtil.jsonMerge(varsJson, fnCtx.get_var()));
         if (globalVars != null)
             fnCtx.set_global(globalVars);
-        logicLog.setParamsJson(fnCtx.get_par() == null ? null : JSONObject.from(fnCtx.get_par()))
+        logicLog.setParamsJson(fnCtx.get_par() == null ? null : JSONObject.from(fnCtx.get_par()).clone())
                 .setVarsJson(fnCtx.get_var() == null ? null : fnCtx.get_var().clone());
     }
 
