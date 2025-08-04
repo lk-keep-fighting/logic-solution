@@ -14,7 +14,7 @@ spring:
   #    password: 1q2w3e
 logic:
   log:
-    store: es
+    store: db
     es:
       #      host: http://192.168.51.17:21903
       #      index: logic-log-test
@@ -27,7 +27,7 @@ logic:
   biz-error-classes: com.aims.logic.testsuite.demo.exception.CustomException
   item:
     groups:
-      - name: 公共组件
+      - name: 公共组件w
         shape: ExtShape1
 #  biz-lock:
 #    spin-lock: # 自旋锁配置

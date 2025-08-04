@@ -27,9 +27,15 @@ public class LogicItemTreeNode extends BaseLASL {
     String type;
     String script;
     /**
-     * 业务标识，可以是js表达式
+     * 是否关闭业务实例调用
+     */
+    boolean bizOff = false;
+    /**
+     * isBizOn=false时，传入业务标识，可以是js表达式
      */
     String bizId;
+
+
     String url;
     /**
      * 方法格式为方法名(参数名称1，参数2名称2)
