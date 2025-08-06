@@ -6,10 +6,12 @@ import com.aims.logic.sdk.service.impl.BaseEsServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 
-//@Component
-//@ConditionalOnLogicLogService("es")
 @Slf4j
 public class LogicLogServiceEsImpl extends BaseEsServiceImpl<LogicLogEntity, String> implements LogicLogService {
+
+    public LogicLogServiceEsImpl(OkHttpClient esHttpClient) {
+        super(esHttpClient);
+    }
 
     /**
      * 构建ES索引
@@ -151,7 +153,6 @@ public class LogicLogServiceEsImpl extends BaseEsServiceImpl<LogicLogEntity, Str
                 "    }\n" +
                 "  }\n" +
                 "}";
-        OkHttpClient client = new OkHttpClient();
         try {
             Request request = new Request.Builder()
                     .url(esHost + "/" + indexName)
@@ -159,7 +160,7 @@ public class LogicLogServiceEsImpl extends BaseEsServiceImpl<LogicLogEntity, Str
                     .build();
 
             // 执行请求
-            Response response = client.newCall(request).execute();
+            Response response = httpClient.newCall(request).execute();
 
             if (!response.isSuccessful()) {
                 throw new RuntimeException("初始化日志失败: " + response.body().string());
@@ -174,8 +175,6 @@ public class LogicLogServiceEsImpl extends BaseEsServiceImpl<LogicLogEntity, Str
      * 清除ES索引
      */
     private void deleteEsIndex() {
-        // 构建OkHttpClient
-        OkHttpClient client = new OkHttpClient();
 
         try {
             // 构建DELETE请求
@@ -185,7 +184,7 @@ public class LogicLogServiceEsImpl extends BaseEsServiceImpl<LogicLogEntity, Str
                     .build();
 
             // 执行请求
-            Response response = client.newCall(request).execute();
+            Response response = httpClient.newCall(request).execute();
 
             if (!response.isSuccessful()) {
                 throw new RuntimeException("清除ES日志失败: " + response.body().string());
@@ -200,8 +199,6 @@ public class LogicLogServiceEsImpl extends BaseEsServiceImpl<LogicLogEntity, Str
     public void clearLog() {
         //初始化ES索引
         initEsIndex();
-        // 构建OkHttpClient
-        OkHttpClient client = new OkHttpClient();
 
         try {
             // 构建DELETE请求
@@ -211,7 +208,7 @@ public class LogicLogServiceEsImpl extends BaseEsServiceImpl<LogicLogEntity, Str
                     .build();
 
             // 执行请求
-            Response response = client.newCall(request).execute();
+            Response response = httpClient.newCall(request).execute();
 
             if (!response.isSuccessful()) {
                 throw new RuntimeException("清除ES日志失败: " + response.body().string());
@@ -224,8 +221,6 @@ public class LogicLogServiceEsImpl extends BaseEsServiceImpl<LogicLogEntity, Str
 
     @Override
     public void deleteLogBeforeDays(int days) {
-        // 构建OkHttpClient
-        OkHttpClient client = new OkHttpClient();
 
         try {
             // 构建DELETE请求
@@ -235,7 +230,7 @@ public class LogicLogServiceEsImpl extends BaseEsServiceImpl<LogicLogEntity, Str
                     .build();
 
             // 执行请求
-            Response response = client.newCall(request).execute();
+            Response response = httpClient.newCall(request).execute();
 
             if (!response.isSuccessful()) {
                 throw new RuntimeException("清除ES日志失败: " + response.body().string());
