@@ -14,12 +14,12 @@ spring:
   #    password: 1q2w3e
 logic:
   log:
-    store: db
+    store: es
     es:
-      #      host: http://192.168.51.17:21903
-      #      index: logic-log-test
-      host: http://192.168.51.201:9200
+      host: http://es.xuanwu-factory.dev.aimstek.cn
       index: logic-log-lk-local
+  #      username: admin
+  #      password: idw
   test:
     case:
   config-dir: /Users/lk/Documents/Dev/aims/xuanwu-logic/logic-solution/test-suite/test-case-configs

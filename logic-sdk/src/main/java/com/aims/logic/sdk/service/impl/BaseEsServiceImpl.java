@@ -33,10 +33,12 @@ public class BaseEsServiceImpl<T extends BaseEntity, TKey> implements BaseServic
     public String indexName;
     String tableName;
     Class<?> entityClass;
+    protected OkHttpClient httpClient;
 
-    public BaseEsServiceImpl() {
+    public BaseEsServiceImpl(OkHttpClient esHttpClient) {
         this.entityClass = getEntityClass();//Class<?>) (JSONObject.from(getClass().getGenericSuperclass()).to(ParameterizedTypeImpl.class)).getActualTypeArguments()[0];
         tableName = getTableNameByAnnotation();
+        this.httpClient = esHttpClient;
     }
 
 
@@ -59,7 +61,7 @@ public class BaseEsServiceImpl<T extends BaseEntity, TKey> implements BaseServic
                     .build();
 
             // 执行请求
-            try (Response response = client.newCall(request).execute()) {
+            try (Response response = httpClient.newCall(request).execute()) {
                 if (response.isSuccessful() && response.body() != null) {
                     // 解析响应体
                     String responseBody = response.body().string();
@@ -100,8 +102,6 @@ public class BaseEsServiceImpl<T extends BaseEntity, TKey> implements BaseServic
                 .getGenericSuperclass()).getActualTypeArguments()[0];
     }
 
-    // 执行请求
-    OkHttpClient client = new OkHttpClient();
 
     @Override
     public boolean insert(T entity) {
@@ -123,7 +123,7 @@ public class BaseEsServiceImpl<T extends BaseEntity, TKey> implements BaseServic
                     .post(body)
                     .build();
 
-            try (Response response = client.newCall(request).execute()) {
+            try (Response response = httpClient.newCall(request).execute()) {
                 // 检查响应状态
                 if (response.isSuccessful()) {
                     return true;
@@ -314,7 +314,7 @@ public class BaseEsServiceImpl<T extends BaseEntity, TKey> implements BaseServic
                     .build();
 
             // 执行请求
-            try (Response response = client.newCall(request).execute()) {
+            try (Response response = httpClient.newCall(request).execute()) {
                 if (response.isSuccessful() && response.body() != null) {
                     String responseBody = response.body().string();
                     JSONObject result = JSONObject.parseObject(responseBody);
