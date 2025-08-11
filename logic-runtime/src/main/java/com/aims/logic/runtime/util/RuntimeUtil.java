@@ -1,6 +1,7 @@
 package com.aims.logic.runtime.util;
 
 import com.aims.logic.runtime.contract.enums.KeepBizVersionEnum;
+import com.aims.logic.runtime.contract.enums.LogicConfigModelEnum;
 import com.aims.logic.runtime.env.LogicAppConfig;
 import com.aims.logic.runtime.env.LogicSysEnvDto;
 import com.aims.logic.runtime.store.LogicConfigStoreService;
@@ -14,6 +15,9 @@ public class RuntimeUtil {
     private static LogicSysEnvDto ENVObject = null;
     public static LogicAppConfig AppConfig;
 
+    public static LogicConfigModelEnum getLOGIC_CONFIG_MODEL() {
+        return ENVObject.getLOGIC_CONFIG_MODEL();
+    }
 
     /**
      * 获取强类型的环境变量，主要用于系统变量的方便读取
@@ -73,7 +77,7 @@ public class RuntimeUtil {
     // 获取online模式下的IDE_HOST值，如果未配置取当前服务器+端口
     public static String getOnlineHost() {
         if (onlineIdeHostCache == null) {
-            onlineIdeHostCache =  getEnvObject().getIDE_HOST().isBlank() ? RuntimeUtil.getUrl() : getEnvObject().getIDE_HOST();
+            onlineIdeHostCache = getEnvObject().getIDE_HOST().isBlank() ? RuntimeUtil.getUrl() : getEnvObject().getIDE_HOST();
         }
         return onlineIdeHostCache;
     }
@@ -107,7 +111,7 @@ public class RuntimeUtil {
      * @return 逻辑配置
      */
     public static JSONObject readLogicConfig(String logicId) {
-        return logicConfigStoreService.readLogicConfig(logicId, null);
+        return logicConfigStoreService.readLogicConfig(logicId, null, getLOGIC_CONFIG_MODEL());
     }
 
     /**
@@ -119,9 +123,9 @@ public class RuntimeUtil {
      */
     public static JSONObject readLogicConfig(String logicId, String version) {
         if (RuntimeUtil.getEnvObject().getKEEP_BIZ_VERSION() == KeepBizVersionEnum.off)
-            return logicConfigStoreService.readLogicConfig(logicId, null);
+            return logicConfigStoreService.readLogicConfig(logicId, null, getLOGIC_CONFIG_MODEL());
         else
-            return logicConfigStoreService.readLogicConfig(logicId, version);
+            return logicConfigStoreService.readLogicConfig(logicId, version, getLOGIC_CONFIG_MODEL());
     }
 
     /**

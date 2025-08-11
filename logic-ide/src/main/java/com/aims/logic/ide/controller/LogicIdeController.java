@@ -8,7 +8,12 @@ import com.aims.logic.runtime.contract.dsl.LogicTreeNode;
 import com.aims.logic.runtime.contract.dsl.ParamTreeNode;
 import com.aims.logic.runtime.contract.dsl.ReturnTreeNode;
 import com.aims.logic.runtime.contract.dsl.basic.TypeAnnotationTreeNode;
+import com.aims.logic.runtime.contract.dto.LogicRunResult;
+import com.aims.logic.runtime.contract.enums.LogicConfigModelEnum;
 import com.aims.logic.runtime.contract.parser.TypeAnnotationParser;
+import com.aims.logic.runtime.service.LogicRunnerService;
+import com.aims.logic.runtime.store.LogicConfigStoreService;
+import com.aims.logic.sdk.LogicDataService;
 import com.aims.logic.sdk.annotation.LogicItem;
 import com.aims.logic.sdk.dto.DataFilterInput;
 import com.aims.logic.sdk.dto.FormQueryInput;
@@ -22,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.DefaultParameterNameDiscoverer;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.Type;
@@ -39,6 +45,13 @@ public class LogicIdeController {
     private List<String> ScanPackageNames;
     @Autowired
     LogicIdeConfig logicIdeConfig;
+    @Autowired
+    LogicConfigStoreService logicConfigStoreService;
+
+    @Autowired
+    LogicRunnerService logicRunnerService;
+    @Autowired
+    private LogicDataService logicdataService;
 
     @Autowired
     public LogicIdeController(
@@ -120,8 +133,46 @@ public class LogicIdeController {
             var res = JSON.isValid(config) ? JSON.parseObject(config, LogicTreeNode.class) : null;
             return new ApiResult<LogicTreeNode>().setData(res);
         }
-        int[] n = {1, 2, 3};
         return new ApiResult<>();
+    }
+
+    @GetMapping("/api/ide/logic/{id}/try-get/{version}")
+    public ApiResult<LogicTreeNode> tryGetLogicConfigByAllWays(@PathVariable String id, @PathVariable String version) {
+        var config = logicdataService.tryGetLogicConfigByAllWays(id, version);
+        if (config != null) {
+            return new ApiResult<LogicTreeNode>().setData(config);
+        }
+        throw new RuntimeException("未找到逻辑配置");
+    }
+
+    //暂未使用
+    @PostMapping("/api/ide/logic/debug/{model}/{id}")
+    public ApiResult run(@RequestHeader Map<String, String> headers, @RequestBody(required = false) JSONObject
+            body, @PathVariable String id, @PathVariable String model, @RequestParam(required = false) String bizId) {
+        ApiResult res;
+        try {
+            JSONObject headerJson = JSONObject.from(headers);
+            var customEnv = logicRunnerService.getEnv();
+            if ("offline".equals(model)) {
+                customEnv.setLOGIC_CONFIG_MODEL(LogicConfigModelEnum.offline);
+            } else if ("online".equals(model)) {
+                customEnv.setLOGIC_CONFIG_MODEL(LogicConfigModelEnum.online);
+            }
+            var cusEnvJson = JSONObject.from(customEnv);
+            cusEnvJson.put("HEADERS", headerJson);
+            var newRunner = logicRunnerService.newInstance(cusEnvJson);
+            LogicRunResult rep;
+            if (StringUtils.hasText(bizId)) {
+                rep = newRunner.runBizByMap(id, bizId, body);
+            } else {
+                rep = newRunner.runByMap(id, body);
+            }
+            res = ApiResult.fromLogicRunResult(rep);
+            res.setDebug(rep.getLogicLog());
+        } catch (Exception e) {
+            res = ApiResult.fromException(e);
+        }
+        return res;
     }
 
     @GetMapping("/api/ide/asset/v1/java/classes/{packageName}")

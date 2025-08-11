@@ -1,12 +1,17 @@
 package com.aims.logic.sdk.service.impl;
 
+import com.aims.logic.runtime.contract.dsl.LogicTreeNode;
 import com.aims.logic.runtime.contract.dto.LongtimeRunningBizDto;
 import com.aims.logic.runtime.contract.dto.UnCompletedBizDto;
+import com.aims.logic.runtime.store.LogicConfigStoreService;
 import com.aims.logic.sdk.LogicDataService;
 import com.aims.logic.sdk.dto.Page;
+import com.aims.logic.sdk.entity.LogicBakEntity;
 import com.aims.logic.sdk.entity.LogicInstanceEntity;
+import com.aims.logic.sdk.service.LogicBakService;
 import com.aims.logic.sdk.service.LogicInstanceService;
 import com.aims.logic.sdk.util.lock.BizLock;
+import com.alibaba.fastjson2.JSON;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -24,6 +29,11 @@ public class LogicDataServiceImpl implements LogicDataService {
     private JdbcTemplate jdbcTemplate;
     @Autowired
     BizLock bizLock;
+    @Autowired
+    LogicBakService logicBakService;
+    @Autowired
+    LogicConfigStoreService logicConfigStoreService;
+
 
     public LogicDataServiceImpl(
             LogicInstanceService _insService) {
@@ -118,6 +128,37 @@ public class LogicDataServiceImpl implements LogicDataService {
     @Override
     public int deleteBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, List<String> ids) {
         return insService.deleteBiz(createTimeFrom, createTimeTo, ids);
+    }
+
+    @Override
+    public LogicTreeNode tryGetLogicConfigByAllWays(String logicId, String version) {
+        // 从备份表读取逻辑配置
+        var logicBakEntityEntity = logicBakService.getByIdAndVersion(logicId, version);
+        if (logicBakEntityEntity != null) {
+            var bakConfig = logicBakEntityEntity.getConfigJson();
+            return JSON.isValid(bakConfig) ? JSON.parseObject(bakConfig, LogicTreeNode.class) : null;
+        }
+
+        // 从当前运行的配置中获取逻辑配置，并匹配版本
+        var config = logicConfigStoreService.readLogicConfigFromFile(logicId);
+        if (config != null) {
+            LogicTreeNode res = config.to(LogicTreeNode.class);
+            if (version.equals(res.getVersion())) {
+                logicBakService.insert(new LogicBakEntity().setId(logicId).setName(config.getString("name")).setVersion(version).setConfigJson(config.toJSONString()));
+                return res;
+            }
+        }
+        // version=null，读取最新配置
+        config = logicConfigStoreService.readLogicConfigFromHost(logicId, null);
+        if (config != null) {
+            LogicTreeNode res = config.to(LogicTreeNode.class);
+            if (version.equals(res.getVersion())) {
+                logicBakService.insert(new LogicBakEntity().setId(logicId).setName(config.getString("name")).setVersion(version).setConfigJson(config.toJSONString()));
+                return res;
+            }
+        }
+
+        return null;
     }
 
 }
