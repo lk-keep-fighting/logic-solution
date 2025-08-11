@@ -1,5 +1,6 @@
 package com.aims.logic.sdk;
 
+import com.aims.logic.runtime.contract.dsl.LogicTreeNode;
 import com.aims.logic.runtime.contract.dto.LongtimeRunningBizDto;
 import com.aims.logic.runtime.contract.dto.UnCompletedBizDto;
 import com.aims.logic.sdk.dto.Page;
@@ -86,4 +87,15 @@ public interface LogicDataService {
      * @return
      */
     int deleteBiz(LocalDateTime createTimeFrom, LocalDateTime createTimeTo, List<String> ids);
+
+    /**
+     * 尽可能找到指定版本的编排配置
+     * logic_bak 表-》当前运行时（online从logic表，offline从文件）
+     * 找到后保存到logic_bak
+     *
+     * @param logicId
+     * @param version
+     * @return
+     */
+    LogicTreeNode tryGetLogicConfigByAllWays(String logicId, String version);
 }

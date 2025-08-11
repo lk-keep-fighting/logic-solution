@@ -3,9 +3,7 @@ package com.aims.logic.sdk;
 import com.aims.logic.runtime.LogicBizException;
 import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
 import com.aims.logic.runtime.contract.dto.*;
-import com.aims.logic.runtime.contract.enums.LogicItemTransactionScope;
-import com.aims.logic.runtime.contract.enums.LogicItemType;
-import com.aims.logic.runtime.contract.enums.LogicStopModel;
+import com.aims.logic.runtime.contract.enums.*;
 import com.aims.logic.runtime.contract.logger.LogicItemLog;
 import com.aims.logic.runtime.contract.logger.LogicLog;
 import com.aims.logic.runtime.env.LogicAppConfig;
@@ -52,6 +50,12 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
      */
 //    private LogicSysEnvDto envObject = null;
     private JSONObject envJson = null;
+    private LogicSysEnvDto envObject = null;
+
+    public final LogicConfigModelEnum getLOGIC_CONFIG_MODEL() {
+        return getEnv().getLOGIC_CONFIG_MODEL();
+    }
+
     /**
      * 父逻辑编号
      */
@@ -112,13 +116,15 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
     @Override
     public JSONObject getEnvJson() {
         if (this.envJson == null)
-            return RuntimeUtil.getEnvJson();
-        else return this.envJson;
+            this.envJson = RuntimeUtil.getEnvJson();
+        return this.envJson;
     }
 
     @Override
     public LogicSysEnvDto getEnv() {
-        return RuntimeUtil.toEnvObject(getEnvJson());
+        if (this.envObject == null)
+            this.envObject = RuntimeUtil.toEnvObject(getEnvJson());
+        return this.envObject;
     }
 
 //    @Override
@@ -174,7 +180,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
 
     @Override
     public LogicRunResult runByMap(String logicId, Map<String, Object> parsMap, String traceId, String objectId, JSONObject globalVars) {
-        JSONObject config = RuntimeUtil.readLogicConfig(logicId);
+        JSONObject config = configStoreService.readLogicConfig(logicId, null, getLOGIC_CONFIG_MODEL());//RuntimeUtil.readLogicConfig(logicId);
         var runner = new com.aims.logic.runtime.runner.LogicRunner(config, getEnvJson(), globalVars);
         runner.getFnCtx().setTraceId(traceId == null ? UUID.randomUUID().toString() : traceId);
         try {
@@ -368,7 +374,10 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
             }
 
         }
-        JSONObject config = RuntimeUtil.readLogicConfig(logicId, logicVersion);
+        if (getEnv().getKEEP_BIZ_VERSION() == KeepBizVersionEnum.off) {//版本保持关闭，版本号设置为null获取最新编排配置
+            logicVersion = null;
+        }
+        JSONObject config = configStoreService.readLogicConfig(logicId, logicVersion, getLOGIC_CONFIG_MODEL());
         if (config == null) {
             var msg = String.format("[%s]bizId:%s，未发现指定的逻辑，执行中止。", logicId, bizId);
             log.error(msg);

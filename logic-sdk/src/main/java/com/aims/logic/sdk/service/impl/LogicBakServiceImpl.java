@@ -16,8 +16,8 @@ public class LogicBakServiceImpl extends BaseServiceImpl<LogicBakEntity, String>
 
     @Override
     public LogicBakEntity getByIdAndVersion(String logicId, String version) {
-        var res = jdbcTemplate.queryForMap("select * from logic_bak where id='" + logicId + "' and version='" + version + "' order by aid desc limit 1");
         try {
+            var res = jdbcTemplate.queryForMap("select * from logic_bak where id='" + logicId + "' and version='" + version + "' order by aid desc limit 1");
             return MapUtils.mapToBean(res, LogicBakEntity.class);
         } catch (Exception e) {
             log.error("getByIdAndVersion error", e);

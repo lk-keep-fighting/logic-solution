@@ -2,6 +2,7 @@ package com.aims.logic.ide.controller;
 
 import com.aims.logic.ide.controller.dto.ApiResult;
 import com.aims.logic.ide.util.VersionUtil;
+import com.aims.logic.runtime.contract.dsl.LogicTreeNode;
 import com.aims.logic.runtime.service.LogicRunnerService;
 import com.aims.logic.runtime.util.RuntimeUtil;
 import com.aims.logic.sdk.util.lock.BizLock;
@@ -24,6 +25,11 @@ public class LogicRuntimeController {
         this.bizLock = _bizLock;
     }
 
+    @GetMapping("/api/runtime/logic/v1/config/{id}")
+    public ApiResult<LogicTreeNode> getRuntimeConfig(@PathVariable String id) {
+        var config = RuntimeUtil.readLogicConfig(id);
+        return new ApiResult<LogicTreeNode>().setData(config.to(LogicTreeNode.class));
+    }
 
     @PostMapping("/api/runtime/logic/v1/run-api/{id}")
     public ApiResult run(@RequestHeader Map<String, String> headers, @RequestBody(required = false) JSONObject body, @PathVariable String id, @RequestParam(value = "debug", required = false, defaultValue = "false") boolean debug) {
