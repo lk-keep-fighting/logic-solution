@@ -11,8 +11,6 @@ import org.graalvm.polyglot.HostAccess;
 import org.graalvm.polyglot.Value;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PreDestroy;
-
 /**
  * @author liukun
  */
@@ -40,13 +38,14 @@ public class JsFunction implements ILogicItemFunctionRunner {
                 .build()) {
 
             // 设置变量到JavaScript上下文中
-            context.getBindings("js").putMember("_var", ctx.get_var());
-            context.getBindings("js").putMember("_env", ctx.get_env());
-            context.getBindings("js").putMember("_bizId", ctx.getBizId());
-            context.getBindings("js").putMember("_global", ctx.get_global());
-            context.getBindings("js").putMember("_par", JSON.toJSON(ctx.get_par()));
-            context.getBindings("js").putMember("_last", JSON.toJSON(ctx.get_last()));
-            context.getBindings("js").putMember("_lastRet", JSON.toJSON(ctx.get_lastRet()));
+            var bindings = context.getBindings("js");
+            bindings.putMember("_var", ctx.get_var());
+            bindings.putMember("_env", ctx.get_env());
+            bindings.putMember("_bizId", ctx.getBizId());
+            bindings.putMember("_global", ctx.get_global());
+            bindings.putMember("_par", JSON.toJSON(ctx.get_par()));
+            bindings.putMember("_last", JSON.toJSON(ctx.get_last()));
+            bindings.putMember("_lastRet", JSON.toJSON(ctx.get_lastRet()));
 
             String processedCode = script.toString().replaceAll("^//.*", "");
 
@@ -111,13 +110,12 @@ public class JsFunction implements ILogicItemFunctionRunner {
         return 0;
     }
 
-    @PreDestroy
-    public void destroy() {
-        try {
-            sharedEngine.close();
-        } catch (Exception var2) {
-            log.error("js engine close error: {}", var2.getMessage());
-        }
-
-    }
+//    @PreDestroy
+//    public void destroy() {
+//        try {
+//            sharedEngine.close();
+//        } catch (Exception var2) {
+//            log.error("js engine close error: {}", var2.getMessage());
+//        }
+//    }
 }
