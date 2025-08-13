@@ -34,7 +34,7 @@ public class JavaCodeFunction implements ILogicItemFunctionRunner {
             // 获取参数声明
             List<ParamTreeNode> paramTreeNodes = itemDsl.getParams();
             var paramsJson = bodyObj != null ? JSONObject.from(bodyObj) : new JSONObject();//bodyObj instanceof ScriptObjectMirror ? JSONObject.from(JsonUtil.toObject((ScriptObjectMirror) bodyObj)) : JSONObject.from(bodyObj);
-            log.info("[{}]bizId:{},Java代码实参：-{}", ctx.getLogicId(), ctx.getBizId(), paramsJson.toJSONString());
+            log.debug("[{}]bizId:{},Java代码实参：-{}", ctx.getLogicId(), ctx.getBizId(), paramsJson.toJSONString());
             itemDsl.setBody(paramsJson.toJSONString());
             List<Class<?>> cls = new ArrayList<>();
             List<Object> paramsArrayFromJsObj = new ArrayList<>();
