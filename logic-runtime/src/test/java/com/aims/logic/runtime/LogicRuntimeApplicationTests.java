@@ -4,12 +4,13 @@ import com.aims.logic.runtime.runner.FunctionContext;
 import com.aims.logic.runtime.runner.LogicRunner;
 import com.aims.logic.runtime.runner.functions.impl.JsFunction;
 import com.alibaba.fastjson2.JSONObject;
+import org.graalvm.polyglot.Engine;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 //@SpringBootTest(classes = LogicRuntimeApplicationTests.class)
 @ContextConfiguration()
-//@SpringBootApplication(scanBasePackages = "com.aims")
 class LogicRuntimeApplicationTests {
     //    @Test
     void javaCode() {
@@ -20,9 +21,12 @@ class LogicRuntimeApplicationTests {
         System.out.println(res);
     }
 
+    @Autowired
+    Engine engine;
+
     @Test
     void contextLoads() {
-        JsFunction js = new JsFunction();
+        JsFunction js = new JsFunction(engine);
         JSONObject j = new JSONObject();
         j.putArray("ways");
         var ctx = new FunctionContext();
