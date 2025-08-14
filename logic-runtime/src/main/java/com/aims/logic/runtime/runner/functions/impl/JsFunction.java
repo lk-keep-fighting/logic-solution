@@ -50,7 +50,7 @@ public class JsFunction implements ILogicItemFunctionRunner {
             String processedCode = script.toString().replaceAll("^//.*", "");
 
             // 执行初始化代码
-            context.eval("js", "_last.data=_lastRet");
+//            context.eval("js", "_last.data=_lastRet");
 
             // 定义并执行函数
             String functionCode = String.format("function fn(){ %s };fn();", processedCode);
