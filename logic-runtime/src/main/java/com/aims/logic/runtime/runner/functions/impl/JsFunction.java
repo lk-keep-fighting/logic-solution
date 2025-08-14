@@ -37,7 +37,7 @@ public class JsFunction implements ILogicItemFunctionRunner {
                 .allowHostAccess(HostAccess.ALL)
                 .build()) {
 
-            // 设置变量到JavaScript上下文中
+            // 设置变量到JavaScript上下文中，使用JSON转换确保可访问性
             var bindings = context.getBindings("js");
             bindings.putMember("_var", ctx.get_var());
             bindings.putMember("_env", ctx.get_env());
@@ -56,7 +56,7 @@ public class JsFunction implements ILogicItemFunctionRunner {
             String functionCode = String.format("function fn(){ %s };fn();", processedCode);
             Value result = context.eval("js", functionCode);
 
-            // 处理返回结果
+            // 使用JSON转换确保线程安全
             Object funcRes = JSON.toJSON(result.as(Object.class));
             return new LogicItemRunResult().setData(funcRes);
 
@@ -68,37 +68,46 @@ public class JsFunction implements ILogicItemFunctionRunner {
         }
     }
 
-    // 添加一个辅助方法来转换GraalVM的值到Java对象
-    private Object convertValue(Value value) {
-        if (value.isNull()) {
-            return null;
-        } else if (value.isBoolean()) {
-            return value.asBoolean();
-        } else if (value.isNumber()) {
-            return value.asDouble();
-        } else if (value.isString()) {
-            return value.asString();
-        } else if (value.isHostObject()) {
-            return value.asHostObject();
-        } else if (value.hasHashEntries()) {
-            // 处理对象
-            com.alibaba.fastjson2.JSONObject obj = new com.alibaba.fastjson2.JSONObject();
-            for (String key : value.getMemberKeys()) {
-                obj.put(key, convertValue(value.getMember(key)));
-            }
-            return obj;
-        } else if (value.hasArrayElements()) {
-            // 处理数组
-            com.alibaba.fastjson2.JSONArray array = new com.alibaba.fastjson2.JSONArray();
-            for (int i = 0; i < value.getArraySize(); i++) {
-                array.add(convertValue(value.getArrayElement(i)));
-            }
-            return array;
-        } else {
-            // 默认转为字符串
-            return value.toString();
-        }
-    }
+//    // 深度解包GraalVM值（核心解决方法）
+//    private Object deepUnwrapGraalValue(Value value) {
+//        if (value == null) return null;
+//
+//        // 处理原始类型
+//        if (value.isString()) return value.asString();
+//        if (value.isBoolean()) return value.asBoolean();
+//        if (value.isNumber()) return value.asDouble();
+//        if (value.isNull()) return null;
+//
+//        // 处理数组
+//        if (value.hasArrayElements()) {
+//            List<Object> list = new ArrayList<>();
+//            long size = value.getArraySize();
+//            for (long i = 0; i < size; i++) {
+//                list.add(deepUnwrapGraalValue(value.getArrayElement(i)));
+//            }
+//            return list;
+//        }
+//        // 处理对象
+//        if (value.hasMembers()) {
+//            Map<String, Object> map = new HashMap<>();
+//            for (String key : value.getMemberKeys()) {
+//                Value member = value.getMember(key);
+//
+//                // 跳过函数和特殊对象
+//                if (!member.canExecute() && !member.isHostObject()) {
+//                    map.put(key, deepUnwrapGraalValue(member));
+//                }
+//            }
+//            return map;
+//        }
+//
+//        // 回退：尝试作为Java对象获取
+//        try {
+//            return value.as(Object.class);
+//        } catch (Exception e) {
+//            return null;
+//        }
+//    }
 
     @Override
     public String getItemType() {
