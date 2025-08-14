@@ -134,8 +134,10 @@ public class RuntimeUtil {
      * @param logicId    逻辑编号
      * @param configJson 逻辑配置json字符串
      */
-    public static String saveLogicConfigToFile(String logicId, String configJson) {
-        return logicConfigStoreService.saveLogicConfigToFile(logicId, configJson);
+    public static String saveLogicConfigToFile(String logicId, String configJson, boolean isHotUpdate) {
+        var str = logicConfigStoreService.saveLogicConfigToFile(logicId, configJson);
+        if (isHotUpdate) logicConfigStoreService.removeFromCache(logicId, "offline");
+        return str;
     }
 
     /**

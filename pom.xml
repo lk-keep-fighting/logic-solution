@@ -17,7 +17,7 @@
     <properties>
         <java.version>17</java.version>
         <!--        <revision>0.9.1.250730</revision>-->
-        <revision>0.9.4.250813-SNAPSHOT</revision>
+        <revision>0.9.4.250814-SNAPSHOT</revision>
         <!--                <revision>0.8.2.260618-SNAPSHOT</revision>-->
         <logic-runtime.version>${revision}</logic-runtime.version>
         <logic-sdk.version>${revision}</logic-sdk.version>

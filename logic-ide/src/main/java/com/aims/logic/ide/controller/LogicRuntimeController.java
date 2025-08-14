@@ -144,7 +144,7 @@ public class LogicRuntimeController {
 //    }
     @PutMapping("/api/runtime/logic/v1/update-file/{id}")
     public ApiResult updateFile(@RequestBody(required = false) String body, @PathVariable String id) {
-        RuntimeUtil.saveLogicConfigToFile(id, body);
+        RuntimeUtil.saveLogicConfigToFile(id, body, true);
         return new ApiResult();
     }
 
@@ -175,9 +175,21 @@ public class LogicRuntimeController {
         return new ApiResult().setData(RuntimeUtil.getEnvJson());
     }
 
-    @GetMapping("/api/runtime/state")
-    public ApiResult state() {
-        return new ApiResult().setData(RuntimeUtil.logicConfigStoreService.getLogicConfigCache().stats());
+    @GetMapping("/api/runtime/config/cache")
+    public ApiResult configCache() {
+        return new ApiResult().setData(RuntimeUtil.logicConfigStoreService.getLogicConfigCache().asMap());
+    }
+
+    @DeleteMapping("/api/runtime/config/cache/{key}")
+    public ApiResult deleteConfigCache(@PathVariable String key) {
+        RuntimeUtil.logicConfigStoreService.getLogicConfigCache().asMap().remove(key);
+        return new ApiResult();
+    }
+
+    @DeleteMapping("/api/runtime/config/cache/clear")
+    public ApiResult clearConfigCache() {
+        RuntimeUtil.logicConfigStoreService.getLogicConfigCache().asMap().clear();
+        return new ApiResult();
     }
 
     @GetMapping("/api/runtime/lockKeys")

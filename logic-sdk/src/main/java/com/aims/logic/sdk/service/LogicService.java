@@ -25,7 +25,7 @@ public interface LogicService extends BaseService<LogicEntity, String> {
      * @return 保存路径
      */
 
-    String pubToLocal(String id);
+    String pubToLocal(String id, boolean isHotUpdate);
 
     /**
      * 通过Logic实体json发布到本地，用于远程发布
@@ -34,9 +34,9 @@ public interface LogicService extends BaseService<LogicEntity, String> {
      * @param source  发布源
      * @return
      */
-    String pubToLocalFromEntityJson(JSONObject jsonStr, String source);
+    String pubToLocalFromEntityJson(JSONObject jsonStr, String source, boolean isHotUpdate);
 
-    String pubToIdeHost(String id, String url);
+    String pubToIdeHost(String id, String url, boolean isHotUpdate);
 
     Page<LogicEntity> selectPageFromRemoteIde(String ideHost, FormQueryInput input);
 

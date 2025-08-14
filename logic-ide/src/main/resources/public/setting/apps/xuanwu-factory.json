@@ -4,7 +4,7 @@
     "menus": [
         {
             "key": "logic-api",
-            "label": "逻辑编排"
+            "label": "逻辑设计"
         },
         {
             "key": "logic-instance",
