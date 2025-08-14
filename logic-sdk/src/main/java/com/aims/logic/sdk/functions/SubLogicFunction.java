@@ -29,22 +29,26 @@ public class SubLogicFunction implements ILogicItemFunctionRunner {
         var itemDsl = ((LogicItemTreeNode) item);
         var itemRunResult = new LogicItemRunResult().setItemInstance(itemDsl);
         if (itemDsl.isAsync()) {
+
+            var traceId = MDC.get("traceId");
+            // 复制上下文和逻辑节点，避免并发问题
+            // 不能放在创建线程中，否则会丢失数据
             var ctxClone = JSONObject.from(ctx).to(FunctionContext.class);
             var itemDslClone = JSONObject.from(itemDsl).to(LogicItemTreeNode.class);
-            var traceId = MDC.get("traceId");
+
             // 异步调用 invokeMethod
             new Thread(() -> {
                 try {
                     if (traceId != null)
                         MDC.put("traceId", traceId);
-                    log.info("[{}]bizId:{},开始异步执行……", ctx.getLogicId(), ctx.getBizId());
+                    log.info("[{}]bizId:{},开始异步执行……", ctxClone.getLogicId(), ctxClone.getBizId());
                     var res = invokeMethod(ctxClone, itemDslClone);
-                    log.info("[{}]bizId:{},异步执行完成,success：{}，msg:{}。", ctx.getLogicId(), ctx.getBizId(),
+                    log.info("[{}]bizId:{},异步执行完成,success：{}，msg:{}。", ctxClone.getLogicId(), ctxClone.getBizId(),
                             res.isSuccess(), res.getMsg());
                 } catch (Exception e) {
                     // 处理 invokeMethod 抛出的异常
                     // 例如：logger.error("Error invoking method asynchronously", e);
-                    log.error(" [{}]bizId:{},异步执行异常：{}", ctx.getLogicId(), ctx.getBizId(), e.toString());
+                    log.error(" [{}]bizId:{},异步执行异常：{}", ctxClone.getLogicId(), ctxClone.getBizId(), e.toString());
                 }
             }).start();
             return itemRunResult.setSuccess(true).setMsg("异步执行中");
