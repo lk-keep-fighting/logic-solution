@@ -86,11 +86,11 @@ public class LogicServiceImpl extends BaseServiceImpl<LogicEntity, String> imple
 
 
     @Override
-    public String pubToLocal(String id) {
+    public String pubToLocal(String id, boolean isHotUpdate) {
         var logicEntity = selectById(id);
         if (logicEntity != null) {
             var config = logicEntity.getConfigJson();
-            String path = RuntimeUtil.saveLogicConfigToFile(id, config);
+            String path = RuntimeUtil.saveLogicConfigToFile(id, config, isHotUpdate);
             LogicPublishedEntity publishedEntity = new LogicPublishedEntity();
             publishedEntity.setLogicId(logicEntity.getId())
                     .setName(logicEntity.getName())
@@ -107,10 +107,10 @@ public class LogicServiceImpl extends BaseServiceImpl<LogicEntity, String> imple
     }
 
     @Override
-    public String pubToLocalFromEntityJson(JSONObject jsonObject, String source) {
+    public String pubToLocalFromEntityJson(JSONObject jsonObject, String source, boolean isHotUpdate) {
         var logicEntity = jsonObject.to(LogicEntity.class);
         if (logicEntity != null) {
-            String path = RuntimeUtil.saveLogicConfigToFile(logicEntity.getId(), logicEntity.getConfigJson());
+            String path = RuntimeUtil.saveLogicConfigToFile(logicEntity.getId(), logicEntity.getConfigJson(), isHotUpdate);
             LogicPublishedEntity publishedEntity = new LogicPublishedEntity();
             publishedEntity.setLogicId(logicEntity.getId())
                     .setName(logicEntity.getName())
@@ -141,12 +141,12 @@ public class LogicServiceImpl extends BaseServiceImpl<LogicEntity, String> imple
     OkHttpClient client = new OkHttpClient();
 
     @Override
-    public String pubToIdeHost(String id, String url) {
+    public String pubToIdeHost(String id, String url, boolean isHotUpdate) {
         var logicEntity = selectById(id);
         if (logicEntity != null) {
             var config = JSON.toJSONString(logicEntity);
             var body = RequestBody.create(config, MediaType.parse("application/json; charset=utf-8"));
-            String idePubUrl = String.format("%s/api/ide/publish/logic/to-local-from-entity-json", url);
+            String idePubUrl = String.format("%s/api/ide/publish/logic/to-local-from-entity-json?isHotUpdate=%s", url, isHotUpdate);
             Request req = new Request.Builder().url(idePubUrl).post(body).build();
             try (var rep = client.newCall(req).execute()) {
                 if (!rep.isSuccessful()) {

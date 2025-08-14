@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author liukun
@@ -36,13 +38,13 @@ public class FileUtil {
     /**
      * 读取json配置文件为JSONObject
      *
-     * @param dir      资源文件目录
+     * @param subDir      资源文件目录
      * @param fileName 资源文件名
      * @return 文件内容转换后的json对象
      */
-    public static JSONObject readJsonFile(String dir, String fileName) {
+    public static JSONObject readJsonFile(String subDir, String fileName) {
         JSONObject json;
-        String fullDir = buildPath(getConfigDir(), dir);
+        String fullDir = buildPath(getConfigDir(), subDir);
         String path = buildPath(fullDir, fileName);
         log.info("read json file:{}", path);
         String jsonStr;
@@ -53,6 +55,29 @@ public class FileUtil {
         }
         json = JSON.parseObject(jsonStr, JSONObject.class);
         return json;
+    }
+
+    /**
+     * 获取配置目录子文件下的文件列表
+     *
+     * @param subDir
+     * @return
+     */
+    public static List<String> getFileList(String subDir) {
+        String fullDir = buildPath(getConfigDir(), subDir);
+        List<String> fileList = new ArrayList<>();
+        File file = new File(fullDir);
+        if (file.isDirectory()) {
+            File[] files = file.listFiles();
+            if (files != null) {
+                for (File f : files) {
+                    if (f.isFile()) {
+                        fileList.add(f.getName());
+                    }
+                }
+            }
+        }
+        return fileList;
     }
 
     public static JSONObject readOrCreateFile(String dir, String fileName, String defContent) {

@@ -14,6 +14,8 @@ import okhttp3.Request;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author liukun
@@ -47,6 +49,12 @@ public class LogicConfigStoreServiceImpl implements LogicConfigStoreService {
         }
         log.info("从缓存读取逻辑配置[{}]，version：{}，***未命中***", logicCacheKey, version);
         return null;
+    }
+
+    public void removeFromCache(String logicId, String version) {
+        String logicCacheKey = logicId + "-" + version;
+        logicConfigCache.asMap().remove(logicCacheKey);
+        log.info("从缓存移除逻辑配置[{}]", logicCacheKey);
     }
 
     public JSONObject saveToCache(String logicId, String version, JSONObject logicConfig) {
@@ -104,6 +112,12 @@ public class LogicConfigStoreServiceImpl implements LogicConfigStoreService {
     }
 
     @Override
+    public List<String> getOfflineLogicIds() {
+        List<String> logicFiles = FileUtil.getFileList(FileUtil.LOGIC_DIR);
+        return logicFiles.stream().map(s -> s.replace(".json", "")).collect(Collectors.toList());
+    }
+
+    @Override
     public JSONObject readLogicConfigFromHost(String logicId, String version) {
         String onlineHost = RuntimeUtil.getOnlineHost();//.getEnvObject().getIDE_HOST().isBlank() ? RuntimeUtil.getUrl() : RuntimeUtil.getEnvObject().getIDE_HOST();
         String url;
@@ -145,8 +159,6 @@ public class LogicConfigStoreServiceImpl implements LogicConfigStoreService {
         try {
             String path = FileUtil.writeFile(FileUtil.LOGIC_DIR, logicId + ".json", configJson);
             log.info("已保存逻辑配置到文件[{}.json]", logicId);
-            logicConfigCache.asMap().remove(logicId + "-null");
-            log.info("已删除key为[{}-null]的缓存", logicId);
             return path;
         } catch (Exception e) {
             log.error("保存逻辑配置报错[{}.json]", logicId);

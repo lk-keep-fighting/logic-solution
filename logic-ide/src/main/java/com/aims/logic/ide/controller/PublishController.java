@@ -10,10 +10,8 @@ import com.aims.logic.sdk.service.LogicPublishService;
 import com.aims.logic.sdk.service.LogicService;
 import com.alibaba.fastjson2.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.lang.Nullable;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,16 +24,15 @@ public class PublishController {
     private LogicPublishService logicPublishService;
 
     @PostMapping("/api/ide/publish/logic/to-local/{id}")
-    public ApiResult<String> publishConfigToLocalFile(@PathVariable String id) {
-        String path = logicService.pubToLocal(id);
+    public ApiResult<String> publishConfigToLocalFile(@PathVariable String id, @RequestParam @Nullable boolean isHotUpdate) {
+        String path = logicService.pubToLocal(id, isHotUpdate);
         return new ApiResult<String>().setData(path);
     }
 
     @PostMapping("/api/ide/publish/logic/to-local-from-entity-json")
-    public ApiResult<String> publishConfigToLocalFromEntityJson(@RequestBody JSONObject configJson) {
+    public ApiResult<String> publishConfigToLocalFromEntityJson(@RequestBody JSONObject configJson, @RequestParam @Nullable boolean isHotUpdate) {
         try {
-//            String path = logicService.pubToLocalFromEntityJson(configJson, request.getRemoteAddr());
-            String path = logicService.pubToLocalFromEntityJson(configJson, "");
+            String path = logicService.pubToLocalFromEntityJson(configJson, "", isHotUpdate);
             return new ApiResult<String>().setData(path);
         } catch (Exception e) {
             return new ApiResult<String>().setCode(500).setMsg(e.getMessage());
@@ -44,12 +41,12 @@ public class PublishController {
     }
 
     @PostMapping("/api/ide/publish/logic/to-ide/{id}/{host_name}")
-    public ApiResult<String> publishConfigToIdeHost(@PathVariable String id, @PathVariable String host_name) {
+    public ApiResult<String> publishConfigToIdeHost(@PathVariable String id, @PathVariable String host_name, @RequestParam @Nullable boolean isHotUpdate) {
         try {
             var host = RuntimeUtil.getEnvObject().getPUBLISHED_IDE_HOSTS().stream().filter(h -> h.getName().equals(host_name)).findFirst().orElse(null);
             if (host == null)
                 return new ApiResult<String>().setCode(500).setMsg("未发现环境" + host_name);
-            String path = logicService.pubToIdeHost(id, host.getUrl());
+            String path = logicService.pubToIdeHost(id, host.getUrl(), isHotUpdate);
             return new ApiResult<String>().setData(path);
         } catch (Exception e) {
             return new ApiResult<String>().setCode(500).setMsg(e.getMessage());
