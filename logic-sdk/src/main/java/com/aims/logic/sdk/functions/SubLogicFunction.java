@@ -28,8 +28,12 @@ public class SubLogicFunction implements ILogicItemFunctionRunner {
     public LogicItemRunResult invoke(FunctionContext ctx, Object item) {
         var itemDsl = ((LogicItemTreeNode) item);
         var itemRunResult = new LogicItemRunResult().setItemInstance(itemDsl);
-        if (itemDsl.isAsync()) {
 
+        Object data = Functions.runJsByContext(ctx, itemDsl.getBody());
+        JSONObject jsonData = data == null ? null : JSONObject.from(data);
+        itemDsl.setBody(jsonData == null ? null : jsonData.toJSONString());
+
+        if (itemDsl.isAsync()) {
             var traceId = MDC.get("traceId");
             // 复制上下文和逻辑节点，避免并发问题
             // 不能放在创建线程中，否则会丢失数据
@@ -42,7 +46,7 @@ public class SubLogicFunction implements ILogicItemFunctionRunner {
                     if (traceId != null)
                         MDC.put("traceId", traceId);
                     log.info("[{}]bizId:{},开始异步执行……", ctxClone.getLogicId(), ctxClone.getBizId());
-                    var res = invokeMethod(ctxClone, itemDslClone);
+                    var res = invokeMethod(ctxClone, itemDslClone, jsonData);
                     log.info("[{}]bizId:{},异步执行完成,success：{}，msg:{}。", ctxClone.getLogicId(), ctxClone.getBizId(),
                             res.isSuccess(), res.getMsg());
                 } catch (Exception e) {
@@ -53,17 +57,17 @@ public class SubLogicFunction implements ILogicItemFunctionRunner {
             }).start();
             return itemRunResult.setSuccess(true).setMsg("异步执行中");
         } else {
-            return invokeMethod(ctx, itemDsl);
+            return invokeMethod(ctx, itemDsl, jsonData);
         }
     }
 
-    public LogicItemRunResult invokeMethod(FunctionContext ctx, LogicItemTreeNode itemDsl) {
+    public LogicItemRunResult invokeMethod(FunctionContext ctx, LogicItemTreeNode itemDsl, JSONObject jsonData) {
         try {
-            Object data = Functions.runJsByContext(ctx, itemDsl.getBody());
+//            Object data = Functions.runJsByContext(ctx, itemDsl.getBody());
+//            JSONObject jsonData = data == null ? null : JSONObject.from(data);
+//            itemDsl.setBody(jsonData == null ? null : jsonData.toJSONString());
             String subLogicId = itemDsl.getUrl();
-            JSONObject jsonData = data == null ? null : JSONObject.from(data);
             String subLogicBizId;
-            itemDsl.setBody(jsonData == null ? null : jsonData.toJSONString());
             Object bizIdObj = Functions.runJsByContext(ctx, "return " + itemDsl.getBizId());
             subLogicBizId = bizIdObj == null ? null : bizIdObj.toString();
             itemDsl.setBizId(subLogicBizId);
