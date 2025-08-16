@@ -66,10 +66,9 @@ public class MemoryBizLock implements BizLock {
     @Override
     public boolean spinLock(String key) {
         log.debug("自旋锁开始获取 {}", key);
-        ReentrantLock lock = lockCache.asMap().computeIfAbsent(key, k -> new ReentrantLock());
-
         int retryCount = 0;
         while (retryCount <= spinLock.getRetryTimes()) {
+            ReentrantLock lock = lockCache.asMap().computeIfAbsent(key, k -> new ReentrantLock());
             if (lock.tryLock()) {
                 log.info("获取锁成功, key: {}, 重试次数: {}", key, retryCount);
                 return true;
