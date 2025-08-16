@@ -152,11 +152,11 @@ public class LogicIdeController {
         ApiResult res;
         try {
             JSONObject headerJson = JSONObject.from(headers);
-            var customEnv = logicRunnerService.getEnv();
+            var customEnv = logicRunnerService.getEnvJson();
             if ("offline".equals(model)) {
-                customEnv.setLOGIC_CONFIG_MODEL(LogicConfigModelEnum.offline);
+                customEnv.put("LOGIC_CONFIG_MODEL", LogicConfigModelEnum.offline.toString());
             } else if ("online".equals(model)) {
-                customEnv.setLOGIC_CONFIG_MODEL(LogicConfigModelEnum.online);
+                customEnv.put("LOGIC_CONFIG_MODEL", LogicConfigModelEnum.online.toString());
             }
             var cusEnvJson = JSONObject.from(customEnv);
             cusEnvJson.put("HEADERS", headerJson);

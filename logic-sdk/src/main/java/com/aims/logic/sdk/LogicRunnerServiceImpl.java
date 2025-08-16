@@ -528,7 +528,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         TransactionStatus curTranStatus = null;
         LogicItemRunResult itemRes = null;
         var ctx = runner.getFnCtx();
-        LogicItemTreeNode curItem;
+        LogicItemTreeNode curItem = null;
         while (runner.getRunnerStatus() == RunnerStatusEnum.Continue) {
             try {
                 curItem = nextItem;
@@ -565,7 +565,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 }
             } catch (Exception e) {
                 var msg = e.toString();
-                log.error("[{}]bizId:{},节点执行catch到意外的异常：{},begin rollback", logicId, bizId, msg);
+                log.error("[{}]bizId:{},[{}]节点执行catch到意外的异常：{},begin rollback", logicId, bizId, curItem == null ? "null" : curItem.getName(), msg);
                 e.printStackTrace();
                 if (!curTranStatus.isCompleted()) {
                     transactionalUtils.rollback(curTranStatus);

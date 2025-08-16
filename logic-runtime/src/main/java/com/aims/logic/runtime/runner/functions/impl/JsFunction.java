@@ -4,6 +4,7 @@ import com.aims.logic.runtime.contract.dto.LogicItemRunResult;
 import com.aims.logic.runtime.runner.FunctionContext;
 import com.aims.logic.runtime.runner.functions.ILogicItemFunctionRunner;
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Engine;
@@ -55,6 +56,10 @@ public class JsFunction implements ILogicItemFunctionRunner {
             // 定义并执行函数
             String functionCode = String.format("function fn(){ %s };fn();", processedCode);
             Value result = context.eval("js", functionCode);
+
+            ctx.set_var(JSONObject.parse(ctx.get_var().toJSONString()));
+            ctx.set_env(JSONObject.parse(ctx.get_env().toJSONString()));
+            ctx.set_global(JSONObject.parse(ctx.get_global().toJSONString()));
 
             // 使用JSON转换确保线程安全
             Object funcRes = JSON.toJSON(result.as(Object.class));
