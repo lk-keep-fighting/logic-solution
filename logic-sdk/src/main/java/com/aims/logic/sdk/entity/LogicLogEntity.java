@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Accessors(chain = true)
 @TableName("logic_log")
 public class LogicLogEntity extends BaseEntity {
-    @TableId(type = IdType.ASSIGN_ID)
+    @TableId(type = IdType.UUID)
     private String id;
     @TableField("logicId")
     private String logicId;

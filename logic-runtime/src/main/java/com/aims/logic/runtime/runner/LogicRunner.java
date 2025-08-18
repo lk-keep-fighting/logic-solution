@@ -9,7 +9,6 @@ import com.aims.logic.runtime.contract.enums.LogicItemTransactionScope;
 import com.aims.logic.runtime.contract.enums.LogicItemType;
 import com.aims.logic.runtime.contract.logger.LogicLog;
 import com.aims.logic.runtime.contract.parser.TypeAnnotationParser;
-import com.aims.logic.runtime.util.IdWorker;
 import com.aims.logic.runtime.util.JsonUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
@@ -23,6 +22,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
@@ -230,10 +230,10 @@ public class LogicRunner {
         return res;
     }
 
-    static IdWorker idWorker = new IdWorker(1, 1);
+//    static IdWorker idWorker = new IdWorker(1, 1);
 
     public LogicItemRunResult runItem(LogicItemTreeNode item) {
-        item.setObjectId(String.valueOf(idWorker.nextId()));
+        item.setObjectId(UUID.randomUUID().toString());
         var itemRes = new LogicItemRunner(item).run(fnCtx);
         fnCtx.set_last(itemRes);
 

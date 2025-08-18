@@ -19,7 +19,7 @@ public class LogicInstanceEntity extends BaseEntity {
         createTime = LocalDateTime.now();
     }
 
-    @TableId(type = IdType.ASSIGN_ID)
+    @TableId(type = IdType.UUID)
     private String id;
     @TableField("logicId")
     private String logicId;
