@@ -14,7 +14,6 @@ import com.aims.logic.runtime.runner.Functions;
 import com.aims.logic.runtime.runner.LogicRunner;
 import com.aims.logic.runtime.service.LogicRunnerService;
 import com.aims.logic.runtime.store.LogicConfigStoreService;
-import com.aims.logic.runtime.util.IdWorker;
 import com.aims.logic.runtime.util.JsonUtil;
 import com.aims.logic.runtime.util.RuntimeUtil;
 import com.aims.logic.sdk.entity.LogicInstanceEntity;
@@ -67,7 +66,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
     private String parentBizId = null;
     private int tranPropagation = 0;
 
-    static IdWorker idWorker = new IdWorker(2, 1);
+//    static IdWorker idWorker = new IdWorker(2, 1);
     BizLock bizLock;
     List<LogicRunnerEventListener> eventListener;
     @Autowired
@@ -174,7 +173,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
      */
     @Override
     public LogicRunResult runByMap(String logicId, Map<String, Object> parsMap) {
-        String traceId = String.valueOf(idWorker.nextId());
+        String traceId = UUID.randomUUID().toString();
         return runByMap(logicId, parsMap, traceId, traceId, null);
     }
 
@@ -227,7 +226,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
 
     @Override
     public LogicRunResult runBizByMap(String logicId, String bizId, Map<String, Object> parsMap) {
-        String traceId = String.valueOf(idWorker.nextId());
+        String traceId = UUID.randomUUID().toString();
 //        String traceId = bizId + "-" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"));
         return runBizByMap(logicId, bizId, parsMap, traceId, traceId, null);
     }
@@ -785,7 +784,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 return new LogicRunResult().setSuccess(false).setMsg(String.format("指定的bizId:%s已完成执行，无法重复执行。", bizId));
             }
             String lockKey = bizLock.buildKey(logicId, bizId);
-            String traceId = String.valueOf(idWorker.nextId());
+            String traceId = UUID.randomUUID().toString();
             try {
                 bizLock.spinLock(lockKey);
                 log.info("[{}]bizId:{}-get lock key:{}", logicId, bizId, lockKey);

@@ -11,6 +11,7 @@ import lombok.Setter;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -19,7 +20,6 @@ public class FunctionContext {
     private JSONObject _var = new JSONObject();
     private JSONObject _env = new JSONObject();
     private JSONObject _global;
-    static IdWorker idWorker = new IdWorker(4, 1);
     // private Object _lastRet;
     private LogicItemRunResult _last;
     private LogicTreeNode logic;
@@ -85,7 +85,7 @@ public class FunctionContext {
 
     public String buildSubLogicRandomBizId() {
         // _var.put("__subLogicRandomBizId", subLogicRandomBizId);
-        return String.valueOf(idWorker.nextId());
+        return UUID.randomUUID().toString();//String.valueOf(idWorker.nextId());
     }
 
     public FunctionContext() {
