@@ -16,4 +16,7 @@ public class LogicAppConfig {
     @Value("${server.port:8080}")  // 显式设置默认值为8080
     public String SERVER_PORT;
 
+    @Value("${logic.log.item-queue-size:30}")
+    public int itemQueueSize;
+
 }

@@ -5,6 +5,7 @@ import com.aims.logic.runtime.contract.dto.LogicItemRunResult;
 import com.aims.logic.runtime.contract.enums.LogicStopModel;
 import com.aims.logic.runtime.runner.FunctionContext;
 import com.aims.logic.runtime.util.JsonUtil;
+import com.aims.logic.runtime.util.RuntimeUtil;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.JSONWriter;
 import lombok.Getter;
@@ -20,6 +21,7 @@ import java.util.Queue;
 @Getter
 @Setter
 public class LogicLog {
+
     public LogicLog() {
 
     }
@@ -152,12 +154,12 @@ public class LogicLog {
 
     Object returnData;
 
-    public final Queue<LogicItemLog> itemLogs = new ArrayDeque<>(30);
+    public final Queue<LogicItemLog> itemLogs = new ArrayDeque<>(RuntimeUtil.AppConfig.itemQueueSize);
 
     public void addItemLog(LogicItemRunResult itemRunResult) {
         returnData = itemRunResult.getData();
         if (!isLogOff) {
-            if (itemLogs.size() >= 30) {
+            if (itemLogs.size() >= RuntimeUtil.AppConfig.itemQueueSize) {
                 itemLogs.poll();
             }
             itemLogs.add(itemRunResult.getItemLog());

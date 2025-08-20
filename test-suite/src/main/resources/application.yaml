@@ -3,7 +3,7 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-#    url: jdbc:mysql://localhost:3306/logic_test?useUnicode=true&characterEncoding=gbk&autoReconnect=true&failOverReadOnly=false
+    #    url: jdbc:mysql://localhost:3306/logic_test?useUnicode=true&characterEncoding=gbk&autoReconnect=true&failOverReadOnly=false
     url: jdbc:mysql://localhost:3306/logic_test_0_9?useUnicode=true&characterEncoding=gbk&autoReconnect=true&failOverReadOnly=false
     username: root
     password: 12#$qwER
@@ -13,6 +13,7 @@ spring:
 logic:
   log:
     store: es
+    item-queue-size: 2
     es:
       host: http://es.xuanwu-factory.dev.aimstek.cn
       index: logic-log-lk-local
