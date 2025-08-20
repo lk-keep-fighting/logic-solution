@@ -127,7 +127,12 @@ public class JavaCodeFunction implements ILogicItemFunctionRunner {
                             .setMsg(e.getTargetException().getMessage())
                             .setItemInstance(itemDsl);
                 } else {
-                    var errMsg = String.format(">>java方法[%s]代码报错：%s", methodName, e.getTargetException().getMessage());
+                    var msg = e.getTargetException().getMessage();
+                    if (msg == null)
+                        msg = e.getMessage();
+                    if (msg == null)
+                        msg = e.toString();
+                    var errMsg = String.format(">>java方法[%s]代码报错：%s", methodName, msg);
                     log.error("[{}]bizId:{},{}", ctx.getLogicId(), ctx.getBizId(), errMsg);
                     e.printStackTrace();
                     return res.setSuccess(false)
