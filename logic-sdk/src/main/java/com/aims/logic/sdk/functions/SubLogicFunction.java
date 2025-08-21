@@ -37,8 +37,8 @@ public class SubLogicFunction implements ILogicItemFunctionRunner {
             var traceId = MDC.get("traceId");
             // 复制上下文和逻辑节点，避免并发问题
             // 不能放在创建线程中，否则会丢失数据
-            var ctxClone = JSONObject.from(ctx).to(FunctionContext.class);
-            var itemDslClone = JSONObject.from(itemDsl).to(LogicItemTreeNode.class);
+            var ctxClone = JSONObject.from(ctx).clone().to(FunctionContext.class);
+            var itemDslClone = JSONObject.from(itemDsl).clone().to(LogicItemTreeNode.class);
 
             // 异步调用 invokeMethod
             new Thread(() -> {

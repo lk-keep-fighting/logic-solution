@@ -4,7 +4,6 @@ import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
 import com.aims.logic.runtime.contract.dsl.LogicTreeNode;
 import com.aims.logic.runtime.contract.dto.LogicItemRunResult;
 import com.aims.logic.runtime.contract.enums.LogicItemTransactionScope;
-import com.aims.logic.runtime.util.IdWorker;
 import com.alibaba.fastjson2.JSONObject;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,7 +18,6 @@ public class FunctionContext {
     private Map<String, Object> _par = new HashMap<>();
     private JSONObject _var = new JSONObject();
     private JSONObject _env = new JSONObject();
-    private JSONObject _global;
     // private Object _lastRet;
     private LogicItemRunResult _last;
     private LogicTreeNode logic;
@@ -44,6 +42,10 @@ public class FunctionContext {
 
     public Object get_lastRet() {
         return _last == null ? null : _last.getData();
+    }
+
+    public void set_lastRet(Object ret) {
+        get_last().setData(ret);
     }
 
     public void setTranScope(LogicItemTransactionScope tranScope) {
