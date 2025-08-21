@@ -122,6 +122,7 @@ public class JavaCodeFunction implements ILogicItemFunctionRunner {
                     var bizEx = e.getTargetException();
                     var errMsg = String.format(">>[%s]：%s", methodName, bizEx.getMessage());
                     log.error("[{}]bizId:{},{}", ctx.getLogicId(), ctx.getBizId(), errMsg);
+                    log.error("异常堆栈:", e);
                     e.printStackTrace();
                     return res.setSuccess(false)
                             .setMsg(e.getTargetException().getMessage())
@@ -134,6 +135,7 @@ public class JavaCodeFunction implements ILogicItemFunctionRunner {
                         msg = e.toString();
                     var errMsg = String.format(">>java方法[%s]代码报错：%s", methodName, msg);
                     log.error("[{}]bizId:{},{}", ctx.getLogicId(), ctx.getBizId(), errMsg);
+                    log.error("异常堆栈:", e);
                     e.printStackTrace();
                     return res.setSuccess(false)
                             .setNeedInterrupt(true)
