@@ -4,8 +4,6 @@ import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
 import com.aims.logic.runtime.contract.dto.LogicItemRunResult;
 import com.aims.logic.runtime.contract.logger.LogicItemLog;
 import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONObject;
-import com.alibaba.fastjson2.JSONWriter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
@@ -23,7 +21,7 @@ public class LogicItemRunner {
         LogicItemLog itemLog = new LogicItemLog().
                 setName(dsl.getName());
         log.info("[{}]bizId:{},执行节点[{}]", ctx.getLogicId(), ctx.getBizId(), this.dsl.getName());
-        log.debug("[{}]bizId:{},上下文 {}", ctx.getLogicId(), ctx.getBizId(), JSONObject.toJSONString(ctx, JSONWriter.Feature.WriteNulls));
+//        log.debug("[{}]bizId:{},上下文 {}", ctx.getLogicId(), ctx.getBizId(), JSONObject.toJSONString(ctx, JSONWriter.Feature.WriteNulls));
         var itemType = this.dsl.getType();
         itemLog.setBeginTime(LocalDateTime.now());
         switch (itemType) {

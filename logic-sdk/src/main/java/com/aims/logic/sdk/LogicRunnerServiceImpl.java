@@ -256,6 +256,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 return runBiz(logicId, bizId, parsMap, traceId, logicLogId, globalVars);
             } catch (Exception e) {
                 log.error("[{}]bizId:{}-runBizByMap catch逻辑异常:{}", logicId, bizId, e.getMessage());
+                e.printStackTrace();
                 throw new RuntimeException(e);
             } finally {
                 bizLock.unlock(lockKey);
@@ -787,17 +788,17 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
             String traceId = UUID.randomUUID().toString();
             try {
                 bizLock.spinLock(lockKey);
-                log.info("[{}]bizId:{}-get lock key:{}", logicId, bizId, lockKey);
+                log.info("[{}]bizId:{}-retryError get lock key:{}", logicId, bizId, lockKey);
                 return runBiz(logicId, bizId, parsJson, UUID.randomUUID().toString(), traceId, null);
             } catch (Exception e) {
-                log.error("[{}]bizId:{}-runBizByMap catch逻辑异常:{}", logicId, bizId, e.getMessage());
+                log.error("[{}]bizId:{}-retryError catch逻辑异常:{}", logicId, bizId, e.getMessage());
                 throw new RuntimeException(e);
             } finally {
                 bizLock.unlock(lockKey);
                 Map<String, Object> vals = new HashMap<>();
                 vals.put("retryTimes", insEntity.getRetryTimes() + 1);
                 insService.updateById(insEntity.getId(), vals);
-                log.info("[{}]bizId:{}-unlock key:{}", logicId, bizId, lockKey);
+                log.info("[{}]bizId:{}-retryError unlock key:{}", logicId, bizId, lockKey);
             }
         } else {
             return new LogicRunResult().setSuccess(false).setMsg(String.format("业务逻辑[%s]的实例[%s]不存在，不可重试！", logicId, bizId));

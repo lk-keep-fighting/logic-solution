@@ -12,6 +12,8 @@ import org.graalvm.polyglot.HostAccess;
 import org.graalvm.polyglot.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 /**
  * @author liukun
  */
@@ -59,7 +61,16 @@ public class JsFunction implements ILogicItemFunctionRunner {
 
             ctx.set_var(JSONObject.parse(ctx.get_var().toJSONString()));
             ctx.set_env(JSONObject.parse(ctx.get_env().toJSONString()));
-            ctx.set_global(JSONObject.parse(ctx.get_global().toJSONString()));
+            if (!ctx.get_par().isEmpty()) {
+                var parJson = JSON.toJSONString(ctx.get_par());
+                Map<String, Object> parClone = JSONObject.parse(parJson);
+                ctx.set_par(parClone);
+            }
+//            var lastRetClone = JSON.toJSONString(ctx.get_lastRet());
+//            if (JSON.isValid(lastRetClone)) {
+//                ctx.set_lastRet(JSON.parse(lastRetClone));
+//            }
+
 
             // 使用JSON转换确保线程安全
             Object funcRes = JSON.toJSON(result.as(Object.class));
@@ -67,6 +78,7 @@ public class JsFunction implements ILogicItemFunctionRunner {
 
         } catch (Exception e) {
             log.error("[{}]bizId:{},js function error: {}", ctx.getLogicId(), ctx.getBizId(), e.getMessage());
+            e.printStackTrace();
             return new LogicItemRunResult()
                     .setMsg(e.getMessage())
                     .setSuccess(false);

@@ -13,7 +13,7 @@ spring:
 logic:
   log:
     store: es
-    item-queue-size: 2
+    item-queue-size: 30
     es:
       host: http://es.xuanwu-factory.dev.aimstek.cn
       index: logic-log-lk-local
