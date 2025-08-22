@@ -48,7 +48,7 @@ public class JsFunction implements ILogicItemFunctionRunner {
             bindings.putMember("_global", ctx.get_global());
             bindings.putMember("_par", JSON.toJSON(ctx.get_par()));
             bindings.putMember("_last", JSON.toJSON(ctx.get_last()));
-            bindings.putMember("_lastRet", JSON.toJSON(ctx.get_lastRet()));
+            bindings.putMember("_lastRet", JSON.toJSON(ctx.get_lastRet()));// 避免私有字段无法访问，所以转换为json
 
             String processedCode = script.toString().replaceAll("^//.*", "");
 

@@ -156,8 +156,11 @@ public class LogicLog {
 
     public final Queue<LogicItemLog> itemLogs = new ArrayDeque<>(RuntimeUtil.AppConfig.itemQueueSize);
 
+    public boolean hasError = false;
+
     public void addItemLog(LogicItemRunResult itemRunResult) {
         returnData = itemRunResult.getData();
+        hasError = hasError || !itemRunResult.isSuccess();
         if (!isLogOff) {
             if (itemLogs.size() >= RuntimeUtil.AppConfig.itemQueueSize) {
                 itemLogs.poll();

@@ -79,7 +79,7 @@ public class LogicItemRunner {
         if (ctx.isLogOff()) {
             log.info("[{}]关闭了日志", ctx.getLogicId());
         } else {
-            itemLog.setConfigInstance(ret.getItemInstance())
+            itemLog.setConfigInstance(ret.getItemInstance() == null ? dsl : ret.getItemInstance())
                     .setEndTime(LocalDateTime.now())
                     .setConfig(dsl)
                     .setMsg(ret.getMsg())
