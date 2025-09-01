@@ -68,7 +68,8 @@ public class TransactionalUtils {
         if (!transaction.isCompleted()) {
             log.info("提交事务:{}", TransactionSynchronizationManager.getCurrentTransactionName());
             dataSourceTransactionManager.commit(transaction);
-        }
+        } else
+            log.error("检测到当前事务已提交:{}，无需重复提交", TransactionSynchronizationManager.getCurrentTransactionName());
     }
 
     //回滚事务
@@ -76,6 +77,8 @@ public class TransactionalUtils {
         if (!transaction.isCompleted()) {
             log.info("回滚事务:{}", TransactionSynchronizationManager.getCurrentTransactionName());
             dataSourceTransactionManager.rollback(transaction);
-        }
+        } else
+            log.info("检测到当前事务已回滚:{}", TransactionSynchronizationManager.getCurrentTransactionName());
+
     }
 }
