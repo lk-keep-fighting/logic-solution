@@ -178,6 +178,7 @@ public class LoggerHelperServiceImpl implements LoggerHelperService {
                 .setEnvsJson(logicLog.getEnvsJson() == null ? null : logicLog.getEnvsJson().toJSONString())
                 .setIsOver(logicLog.isOver())
                 .setIsRunning(logicLog.isRunning())
+                .setCreateTime(logicLog.getStartTime())
                 .setStartTime(logicLog.getStartTime())
                 .setNextId(nextId)
                 .setNextName(nextName)
