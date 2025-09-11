@@ -20,7 +20,7 @@ public class LogicLogServiceEsImpl extends BaseEsServiceImpl<LogicLogEntity, Str
         try {
             deleteEsIndex();
         } catch (Exception e) {
-            log.error("初始化时删除索引失败");
+            log.error("初始化时删除索引失败:" + e.getMessage());
             e.printStackTrace();
         }
         String bodyStr = "{\n" +
