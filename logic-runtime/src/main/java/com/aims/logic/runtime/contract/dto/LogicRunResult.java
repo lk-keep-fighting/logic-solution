@@ -33,10 +33,17 @@ public class LogicRunResult {
      * 通常用于获取值进行存储或判断
      */
     public String getDataString() {
+        if (data == null) {
+            return null;
+        }
+        if (data instanceof String) {
+            return (String) data;
+        }
         try {
             return JSONObject.toJSONString(data, JSONWriter.Feature.WriteNulls);
         } catch (Exception ex) {
-            return (String) data;
+            // 如果序列化失败，返回对象的toString表示
+            return String.valueOf(data);
         }
     }
 

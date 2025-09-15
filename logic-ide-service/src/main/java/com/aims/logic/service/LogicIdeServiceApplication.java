@@ -14,7 +14,8 @@ import java.util.jar.JarFile;
 @SpringBootApplication(scanBasePackages = {"com.aims.logic", "com.aims.datamodel"})
 @SpringBootConfiguration
 public class LogicIdeServiceApplication {
-    private static final String DYNAMIC_LIBS_PATH = "/Users/lk/Documents/Dev/aims/xuanwu-logic/logic-solution/logic-ide-service/dynamic-libs"; // 自定义文件夹路径
+    // 可通过环境变量或配置文件设置动态库路径
+    private static final String DYNAMIC_LIBS_PATH = System.getProperty("logic.dynamic.libs.path", "./dynamic-libs");
 
     public static void main(String[] args) throws Exception {
         SpringApplication.run(LogicIdeServiceApplication.class);
