@@ -23,7 +23,6 @@ import java.util.Base64;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
 @Accessors(chain = true)
@@ -99,14 +98,19 @@ public class LogicRunner {
         if (headers != null) {
             var jwtToken = headers.getString("authorization");
             if (jwtToken != null) {
-                String[] strings = jwtToken.split("\\.");
-                if (strings.length > 1) {
-                    JSONObject beforeJwtInfo = envJson.getJSONObject("JWT");
-                    JSONObject tokenJwtInfo = JSON.parseObject(
-                            new String(Base64.getDecoder().decode(strings[1]), StandardCharsets.UTF_8),
-                            JSONObject.class
-                    );
-                    envJson.put("JWT", JsonUtil.jsonMerge(beforeJwtInfo, tokenJwtInfo));
+                try {
+                    String[] strings = jwtToken.split("\\.");
+                    if (strings.length > 1) {
+                        JSONObject beforeJwtInfo = envJson.getJSONObject("JWT");
+                        JSONObject tokenJwtInfo = JSON.parseObject(
+                                new String(Base64.getDecoder().decode(strings[1]), StandardCharsets.UTF_8),
+                                JSONObject.class
+                        );
+                        envJson.put("JWT", JsonUtil.jsonMerge(beforeJwtInfo, tokenJwtInfo));
+                    }
+                } catch (RuntimeException ex) {
+                    log.error("["+logic.getId()+"]解析JWT token失败: {}", ex.getMessage());
+                    // 忽略JWT解析错误，继续执行
                 }
             }
             JSONArray headerFilters = envJson.getJSONArray("HEADER_FILTERS");
@@ -255,7 +259,7 @@ public class LogicRunner {
                 return this.getRunnerStatus();
             }
         }
-        if (nextItem != null && !nextItem.getId().isBlank()) {
+        if (nextItem != null && nextItem.getId() != null && !nextItem.getId().isBlank()) {
             String type = nextItem.getType();
             if (LogicItemType.waitForContinue.equalsTo(type) || LogicItemType.start.equalsTo(type)) {
                 this.setRunnerStatus(RunnerStatusEnum.WaitForContinue);
@@ -268,18 +272,19 @@ public class LogicRunner {
     }
 
     public LogicItemTreeNode findNextItem(LogicItemTreeNode curItem) {
-        AtomicReference<String> nextId = new AtomicReference<>("");
-        AtomicReference<LogicItemTreeNode> nextItem = new AtomicReference<>(null);
+        String nextId;
         switch (curItem.getType()) {
             case "switch"://switch运行时内部解析了分支条件，并返回了命中分支的下一个节点
-                nextId.set(fnCtx.get_lastRet().toString());
+                nextId = fnCtx.get_lastRet().toString();
                 break;
             default:
-                nextId.set(curItem.getNextId());
+                nextId = curItem.getNextId();
                 break;
         }
-        logic.getItems().stream().filter(i -> Objects.equals(i.getId(), nextId.get())).findFirst().ifPresent(nextItem::set);
-        return nextItem.get();
+        return logic.getItems().stream()
+                .filter(i -> Objects.equals(i.getId(), nextId))
+                .findFirst()
+                .orElse(null);
     }
 
 }

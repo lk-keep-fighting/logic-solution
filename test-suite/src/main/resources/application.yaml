@@ -16,7 +16,7 @@ logic:
     item-queue-size: 30
     es:
       host: http://es.xuanwu-factory.dev.aimstek.cn
-      index: logic-log-lk-local
+      index: logic-log-cbb-154
   #      username: admin
   #      password: idw
   test:
