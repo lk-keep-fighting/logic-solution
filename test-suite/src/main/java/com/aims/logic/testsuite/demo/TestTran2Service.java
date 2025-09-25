@@ -19,13 +19,13 @@ public class TestTran2Service {
     @Autowired
     TestDetailMapper testDetailMapperMapper;
 
-    @LogicItem(name = "插入测试", group = "测试事务", memo = "很简单的插入id值，用于测试插入id重复时报错是否会回滚上游事务")
+    @LogicItem(name = "插入测试2", group = "测试事务", memo = "很简单的插入id值，用于测试插入id重复时报错是否会回滚上游事务")
     public int insert(String id) {
         return testMapper.insert(new TestEntity().setId(id));
     }
 
     @Transactional(rollbackFor = Exception.class)
-    @LogicItem(name = "插入测试2（注解事务）", group = "测试事务", memo = "包含事务注解")
+    @LogicItem(name = "插入测试22（注解事务）", group = "测试事务", memo = "包含事务注解")
     public int insertWithTran(String id, boolean thorwError) {
         testMapper.insert(new TestEntity().setId(id));
         if (thorwError) {

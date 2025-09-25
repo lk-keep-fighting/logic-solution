@@ -8,6 +8,9 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.apache.commons.lang3.StringUtils;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.Base64;
 import java.util.List;
 
 @Getter
@@ -20,6 +23,38 @@ public class LogicItemTreeNode extends BaseLASL {
 
     String id;
     String name;
+    String version;
+    String group;
+    /**
+     * 组件的唯一标识，根据name + group
+     */
+    String itemId;
+    /**
+     * 组件的唯一标识，根据name + group
+     */
+    public String getItemId() {
+        if (StringUtils.isBlank(itemId)) {
+            itemId = generateId(name, group);
+        }
+        return itemId;
+    }
+
+    /**
+     * 组件版本控制的唯一标识，不同版本会不同
+     * 资产Id可用于唯一标识特定版本的组件，只要id不变，资产对外实现的功能不变
+     */
+    String cbbId;
+    /**
+     * 组件版本控制的唯一标识，不同版本会不同
+     * 资产Id可用于唯一标识特定版本的组件，只要id不变，资产对外实现的功能不变
+     */
+    public String getCbbId() {
+        if (StringUtils.isBlank(cbbId)) {
+            cbbId = generateId(name, group, version);
+        }
+        return cbbId;
+    }
+
     /**
      * 节点代码
      */
@@ -112,4 +147,29 @@ public class LogicItemTreeNode extends BaseLASL {
     用于循环调用时的链路追踪
      */
     String objectId;
+
+
+    /**
+     * 生成版本的哈希值，基于 name + group + version
+     *
+     * @return
+     */
+    public String generateId(String... pars) {
+        StringBuilder input = new StringBuilder();
+        if (pars != null) {
+            for (String par : pars) {
+                input.append("|").append(par);
+            }
+        }
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hash = md.digest(input.toString().getBytes(StandardCharsets.UTF_8));
+            // 使用前16字节而不是8字节，减少冲突概率，同时保持ID相对简短
+            byte[] truncated = new byte[16];
+            System.arraycopy(hash, 0, truncated, 0, Math.min(hash.length, 16));
+            return Base64.getUrlEncoder().withoutPadding().encodeToString(truncated);
+        } catch (Exception e) {
+            throw new RuntimeException("ID 生成失败！", e);
+        }
+    }
 }

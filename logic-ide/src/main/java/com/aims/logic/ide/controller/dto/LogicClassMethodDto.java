@@ -12,13 +12,34 @@ import java.util.List;
 @Data
 @Accessors(chain = true)
 public class LogicClassMethodDto {
-    String name;
-    String type = "java";
-    String group = "预声明业务方法";
+    public String getCbbId() {
+        return logicItem.getCbbId();
+    }
+    public String getItemId() {
+        return logicItem.getItemId();
+    }
+
+    public String getType() {
+        return logicItem.getType();
+    }
+
+    public String getName() {
+        return logicItem.getName();
+    }
+
+    public String getGroup() {
+        return logicItem.getGroup();
+    }
+
+    public String getVersion() {
+        return logicItem.getVersion();
+    }
+
     String shape = "";
     String order = "";
     MethodSourceCodeDto codeInfo;
     LogicItemTreeNode logicItem;
     List<ParamTreeNode> parameters = new ArrayList<>();
     ReturnTreeNode returnType;
+
 }
