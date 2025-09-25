@@ -3,6 +3,7 @@ package com.aims.logic.ide.controller;
 import com.aims.logic.ide.configuration.LogicIdeConfig;
 import com.aims.logic.ide.controller.dto.*;
 import com.aims.logic.ide.util.ClassUtils;
+import com.aims.logic.ide.util.LogicItemUtil;
 import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
 import com.aims.logic.runtime.contract.dsl.LogicTreeNode;
 import com.aims.logic.runtime.contract.dsl.ParamTreeNode;
@@ -10,11 +11,9 @@ import com.aims.logic.runtime.contract.dsl.ReturnTreeNode;
 import com.aims.logic.runtime.contract.dsl.basic.TypeAnnotationTreeNode;
 import com.aims.logic.runtime.contract.dto.LogicRunResult;
 import com.aims.logic.runtime.contract.enums.LogicConfigModelEnum;
-import com.aims.logic.runtime.contract.parser.TypeAnnotationParser;
 import com.aims.logic.runtime.service.LogicRunnerService;
 import com.aims.logic.runtime.store.LogicConfigStoreService;
 import com.aims.logic.sdk.LogicDataService;
-import com.aims.logic.sdk.annotation.LogicItem;
 import com.aims.logic.sdk.dto.DataFilterInput;
 import com.aims.logic.sdk.dto.FormQueryInput;
 import com.aims.logic.sdk.dto.Page;
@@ -30,7 +29,6 @@ import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -52,6 +50,9 @@ public class LogicIdeController {
     LogicRunnerService logicRunnerService;
     @Autowired
     private LogicDataService logicdataService;
+
+    @Autowired
+    LogicItemUtil logicItemUtil;
 
     @Autowired
     public LogicIdeController(
@@ -203,16 +204,16 @@ public class LogicIdeController {
                 .map(m -> {
 //                    var m = mdto.getMethod();
                     log.info("开始解析方法:{}", m.getName());
-                    var dto = new LogicClassMethodDto().setName(m.getName());
+                    var dto = new LogicClassMethodDto();
                     var paramNames = discoverer.getParameterNames(m);
                     var paramTypes = m.getGenericParameterTypes();
                     if (paramNames != null) {
                         var pars = IntStream.range(0, paramTypes.length)
-                                .mapToObj(i -> createParamTreeNode(paramNames[i], paramTypes[i]))
+                                .mapToObj(i -> logicItemUtil.createParamTreeNode(paramNames[i], paramTypes[i]))
                                 .collect(Collectors.toList());
                         dto.setParameters(pars);
                     }
-                    var returnType = createParamTreeNode("返回值", m.getGenericReturnType());
+                    var returnType = logicItemUtil.createParamTreeNode("返回值", m.getGenericReturnType());
                     ReturnTreeNode returnTreeNode = new ReturnTreeNode("返回值");
                     returnTreeNode.setTypeAnnotation(returnType.getTypeAnnotation());
                     dto.setReturnType(returnTreeNode);
@@ -229,86 +230,13 @@ public class LogicIdeController {
 
     @GetMapping("/api/ide/asset/v1/logic-item/readFromCode")
     public ApiResult<Map<String, List<LogicClassMethodDto>>> logicItemJava() throws ClassNotFoundException {
-        List<LogicClassDto> classDtos = new ArrayList<>();
-        LinkedHashMap<String, List<LogicClassMethodDto>> methodsByGroup = new LinkedHashMap<>();
-        Map<String, String> groupShapeMap = new HashMap<>();
-        if (!logicIdeConfig.getLogicItemGroups().isEmpty()) {
-            logicIdeConfig.getLogicItemGroups().stream().sorted(Comparator.comparing(LogicItemGroupDto::getOrder)).forEach(g -> {
-                var groupName = g.getName();
-                methodsByGroup.put(groupName, new ArrayList<>());
-                groupShapeMap.put(groupName, g.getShape());
-            });
-        }
-        for (String name : ScanPackageNames) {
-            var res = ClassUtils.getAllClassNames(name);
-            classDtos.addAll(res);
-        }
-        classDtos.forEach(c -> {
-            try {
-                ClassUtils.getMethodsByAnnotation(c.getValue(), LogicItem.class)
-                        .forEach(method -> {
-                            var dto = new LogicClassMethodDto().setName(method.getName());
-                            var anno = method.getAnnotation(LogicItem.class);
-                            dto.setName(anno.name());
-                            dto.setGroup(anno.group());
-                            var shape = anno.shape();
-                            if (shape.isEmpty()) {//如果未指定，则获取当前分组指定的形状
-                                shape = groupShapeMap.get(dto.getGroup());
-                            }
-                            dto.setShape(shape);
-                            dto.setOrder(anno.order());
-                            LogicItemTreeNode logicItemTreeNode = new LogicItemTreeNode()
-                                    .setName(anno.name())
-                                    .setMemo(anno.memo())
-                                    .setType(anno.type());
-                            var paramNames = discoverer.getParameterNames(method);
-                            logicItemTreeNode.setMethod(method.getName(), paramNames);
-                            logicItemTreeNode.setBody("return _par;");
-                            logicItemTreeNode.setUrl(c.getValue());
-                            var paramTypes = method.getGenericParameterTypes();
-                            if (paramNames != null) {
-                                var pars = IntStream.range(0, paramTypes.length)
-                                        .mapToObj(i -> createParamTreeNode(paramNames[i], paramTypes[i]))
-                                        .collect(Collectors.toList());
-                                logicItemTreeNode.setParams(pars);
-                            }
-                            var returnType = createParamTreeNode("返回值", method.getGenericReturnType());
-                            ReturnTreeNode returnTreeNode = new ReturnTreeNode("返回值");
-                            returnTreeNode.setTypeAnnotation(returnType.getTypeAnnotation());
-                            logicItemTreeNode.setReturnType(returnTreeNode);
-                            dto.setLogicItem(logicItemTreeNode);
-                            methodsByGroup.computeIfAbsent(anno.group(), k -> new ArrayList<>());
-                            methodsByGroup.get(anno.group()).add(dto);
-                        });
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException(e);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
-
-        return new ApiResult<Map<String, List<LogicClassMethodDto>>>().setData(methodsByGroup);
+        Map<String, List<LogicClassMethodDto>> res = logicItemUtil.readFromCode(true);
+        return new ApiResult<Map<String, List<LogicClassMethodDto>>>().setData(res);
     }
 
     @PostMapping("/api/ide/remote-runtimes")
     public ApiResult remoteRuntimeList() {
         return new ApiResult().setData(logicIdeConfig.getRemoteRuntimes());
-    }
-
-    private ParamTreeNode createParamTreeNode(String paramName, Type paramType) {
-        log.debug("解析参数:" + paramName + ",参数类型：" + paramType);
-        ParamTreeNode p = new ParamTreeNode(paramName);
-        try {
-            p.setTypeAnnotation(TypeAnnotationParser.createTypeAnnotationTreeNode(null, paramType));
-//        if (paramType instanceof Class<?> clazz) {//通过NotNull注解判断是否必填
-//            p.setRequired(clazz.getAnnotation(NotNull.class) != null);
-//        }
-        } catch (Exception e) {
-            log.error("参数解析错误：" + paramName + ",参数类型：" + paramType, e);
-            e.printStackTrace();
-        }
-
-        return p;
     }
 
     @PostMapping("/api/ide/asset/v1/java/class/{fullClassPath}/method/{methodName}/params")
