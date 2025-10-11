@@ -50,11 +50,4 @@
             <version>4.13.2</version>
         </dependency>
     </dependencies>
-    <repositories>
-        <repository>
-            <id>nexus</id>
-            <name>科大智联镜像仓库</name>
-            <url>https://nexus.aimstek.cn/repository/maven-public</url>
-        </repository>
-    </repositories>
 </project>
