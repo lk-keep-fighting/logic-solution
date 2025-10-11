@@ -6,13 +6,13 @@
 
 ### 报告 Bug
 
-1. 检查 [现有 Issues](https://github.com/logic-ide/logic-solution/issues) 确保问题未被报告
+1. 检查 [现有 Issues](https://github.com/liusir2606/logic-ide/issues) 确保问题未被报告
 2. 使用 Bug 报告模板创建新 Issue
 3. 提供详细的重现步骤和环境信息
 
 ### 功能建议
 
-1. 在 [GitHub Discussions](https://github.com/logic-ide/logic-solution/discussions) 中先讨论想法
+1. 在 [GitHub Discussions](https://github.com/liusir2606/logic-ide/discussions) 中先讨论想法
 2. 获得维护者确认后，创建 Feature Request Issue
 3. 提供详细的需求说明和使用场景
 
@@ -24,11 +24,11 @@
 # 1. Fork 项目到你的 GitHub 账户
 
 # 2. 克隆你的 Fork
-git clone https://github.com/YOUR_USERNAME/logic-solution.git
-cd logic-solution
+git clone https://github.com/YOUR_USERNAME/logic-ide.git
+cd logic-ide
 
 # 3. 添加上游远程仓库
-git remote add upstream https://github.com/logic-ide/logic-solution.git
+git remote add upstream https://github.com/liusir2606/logic-ide.git
 
 # 4. 安装依赖
 mvn clean install
@@ -191,8 +191,8 @@ docs: update installation guide
 
 ### 讨论和交流
 
-- [GitHub Discussions](https://github.com/logic-ide/logic-solution/discussions) - 功能讨论和技术交流
-- [Issues](https://github.com/logic-ide/logic-solution/issues) - Bug 报告和功能请求
+- [GitHub Discussions](https://github.com/liusir2606/logic-ide/discussions) - 功能讨论和技术交流
+- [Issues](https://github.com/liusir2606/logic-ide/issues) - Bug 报告和功能请求
 
 ### 文档贡献
 

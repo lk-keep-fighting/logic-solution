@@ -1,0 +1,17 @@
+{
+  "name": "logic-solution",
+  "version": "0.9.5",
+  "description": "Logic IDE - 可视化逻辑编排引擎",
+  "scripts": {
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0",
+    "changelog:update": "conventional-changelog -p angular -i CHANGELOG.md -s",
+    "version": "npm run changelog:update && git add CHANGELOG.md"
+  },
+  "devDependencies": {
+    "conventional-changelog-cli": "^4.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/liusir2606/logic-ide.git"
+  }
+}

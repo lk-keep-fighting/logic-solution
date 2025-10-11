@@ -8,11 +8,11 @@ spring:
     password: 12#$qwER
 logic:
   log:
-    store: es
+    store: db #db, es
     item-queue-size: 30
-    es:
-      host: http://es.xuanwu-factory.dev.aimstek.cn
-      index: logic-log-lk-dev
+#    es:
+#      host: http://es.xuanwu-factory.dev.aimstek.cn
+#      index: logic-log-lk-dev
   #      username: admin
   #      password: idw
   test:

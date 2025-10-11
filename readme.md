@@ -1,13 +1,15 @@
 # Logic IDE - 可视化逻辑编排引擎
 
-[![Java CI](https://github.com/logic-ide/logic-solution/workflows/Java%20CI/badge.svg)](https://github.com/logic-ide/logic-solution/actions)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.logic-ide/logic-solution/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.logic-ide/logic-solution)
+[![Java CI](https://github.com/YOUR_GITHUB_USERNAME/logic-solution/workflows/Java%20CI/badge.svg)](https://github.com/YOUR_GITHUB_USERNAME/logic-solution/actions)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.aims.logic/logic-solution/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.aims.logic/logic-solution)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ## 项目介绍
 
 Logic IDE 是一个基于 Java 17 和 Spring Boot 的可视化逻辑编排引擎，支持通过拖拽式界面设计业务流程，并提供强大的运行时执行能力。
 
+### 知识库
+[知识库链接](https://aims.feishu.cn/wiki/space/7293034659871817730?ccm_open_type=lark_wiki_spaceLink&open_tab_from=wiki_home)
 ### 核心特性
 
 - 🎨 **可视化编排**：拖拽式界面，所见即所得的逻辑设计
@@ -31,26 +33,30 @@ Logic IDE 是一个基于 Java 17 和 Spring Boot 的可视化逻辑编排引擎
 
 ```bash
 # 克隆项目
-git clone https://github.com/logic-ide/logic-solution.git
+git clone https://github.com/liusir2606/logic-ide.git
 cd logic-solution
 
 # 编译
 mvn clean package
 
+# 在业务数据库执行sql脚本,脚本目录：
+doc/sql-script/full/v0.8.sql
+
 # 运行测试套件（包含 Web IDE）
 cd test-suite
 mvn spring-boot:run
+
 ```
 
-访问 http://localhost:8080 查看管理界面。
+访问 http://localhost:8888 查看管理界面。
 
 ### Maven 依赖
 
 ```xml
 <dependency>
-    <groupId>io.github.logic-ide</groupId>
+    <groupId>com.aims.logic</groupId>
     <artifactId>logic-sdk</artifactId>
-    <version>0.9.4-SNAPSHOT</version>
+    <version>0.9.5.250925-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -61,7 +67,6 @@ logic-solution/
 ├── logic-runtime/     # 核心执行引擎
 ├── logic-sdk/         # SDK 和服务层
 ├── logic-ide/         # Web IDE 界面
-├── logic-ide-service/ # IDE 服务端
 └── test-suite/        # 完整示例和测试
 ```
 
@@ -130,22 +135,6 @@ public class CustomFunction implements ILogicItemFunctionRunner {
 }
 ```
 
-### 扩展数据连接
-
-通过实现 `LogicDataService` 接口支持自定义数据源：
-
-```java
-@Service
-public class CustomDataService implements LogicDataService {
-    
-    @Override
-    public Object queryForObject(String sql, Map<String, Object> params) {
-        // 自定义查询实现
-        return null;
-    }
-}
-```
-
 ## 部署指南
 
 ### Docker 部署
@@ -179,7 +168,6 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 ### 代码规范
 
 - 遵循阿里巴巴 Java 开发手册
-- 使用 4 空格缩进
 - 方法和类添加必要注释
 - 单元测试覆盖率 > 70%
 
@@ -189,9 +177,10 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 
 ## 支持与反馈
 
-- 🐛 **Bug 报告**：[GitHub Issues](https://github.com/logic-ide/logic-solution/issues)
-- 💡 **功能建议**：[GitHub Discussions](https://github.com/logic-ide/logic-solution/discussions)
-- 📚 **文档**：[Wiki](https://github.com/logic-ide/logic-solution/wiki)
+- 🐛 **Bug 报告**：[GitHub Issues](https://github.com/liusir2606/logic-ide/issues)
+- 💡 **功能建议**：[GitHub Discussions](https://github.com/liusir2606/logic-ide/discussions)
+- 📚 **文档**：[Wiki](https://github.com/liusir2606/logic-ide/wiki)
+- 加我进交流群：<br/><img src="doc/file/img/wx.JPG" height="200">
 
 ## 更新日志
 
@@ -200,3 +189,4 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 ---
 
 **如果这个项目对你有帮助，请给我们一个 ⭐️！**
+
