@@ -1,44 +1,63 @@
 # 运行时API
 
 <cite>
-**本文档引用的文件**  
+**本文档中引用的文件**  
 - [LogicRuntimeController.java](file://logic-ide/src/main/java/com/aims/logic/ide/controller/LogicRuntimeController.java)
-- [LogicRunnerService.java](file://logic-runtime/src/main/java/com/aims/logic/runtime/service/LogicRunnerService.java)
-- [LogicRunner.java](file://logic-runtime/src/main/java/com/aims/logic/runtime/runner/LogicRunner.java)
-- [LogicRunResult.java](file://logic-runtime/src/main/java/com/aims/logic/runtime/contract/dto/LogicRunResult.java)
 - [ApiResult.java](file://logic-ide/src/main/java/com/aims/logic/ide/controller/dto/ApiResult.java)
-- [LogicInstanceDto.java](file://logic-runtime/src/main/java/com/aims/logic/runtime/contract/dto/LogicInstanceDto.java)
-- [LogicRunModelEnum.java](file://logic-runtime/src/main/java/com/aims/logic/runtime/contract/dto/LogicRunModelEnum.java)
-- [LogicStopModel.java](file://logic-runtime/src/main/java/com/aims/logic/runtime/contract/enums/LogicStopModel.java)
-- [RunnerStatusEnum.java](file://logic-runtime/src/main/java/com/aims/logic/runtime/contract/dto/RunnerStatusEnum.java)
+- [LogicRunnerService.java](file://logic-runtime/src/main/java/com/aims/logic/runtime/service/LogicRunnerService.java)
+- [RuntimeUtil.java](file://logic-runtime/src/main/java/com/aims/logic/runtime/util/RuntimeUtil.java)
+- [BizLock.java](file://logic-sdk/src/main/java/com/aims/logic/sdk/util/lock/BizLock.java)
+- [LogicRunResult.java](file://logic-runtime/src/main/java/com/aims/logic/runtime/contract/dto/LogicRunResult.java)
+- [LogicTreeNode.java](file://logic-runtime/src/main/java/com/aims/logic/runtime/contract/dsl/LogicTreeNode.java)
 </cite>
 
 ## 目录
 1. [简介](#简介)
-2. [核心接口说明](#核心接口说明)
-3. [执行模式详解](#执行模式详解)
-4. [请求与响应结构](#请求与响应结构)
-5. [错误处理策略](#错误处理策略)
-6. [性能与并发控制](#性能与并发控制)
-7. [实际调用示例](#实际调用示例)
-8. [总结](#总结)
+2. [核心执行接口](#核心执行接口)
+   - [/run-api/{id}](#run-apiid)
+   - [/run-biz/{id}/{bizId}](#run-bizidbizid)
+   - [/biz/{id}/{startCode}/{bizId}](#bizidstartcodebizid)
+3. [业务管理接口](#业务管理接口)
+   - [重试失败业务](#重试失败业务)
+   - [强制完成长时间运行的业务](#强制完成长时间运行的业务)
+   - [重试超时运行的业务](#重试超时运行的业务)
+   - [重置业务执行节点](#重置业务执行节点)
+4. [环境与配置管理](#环境与配置管理)
+   - [环境变量设置](#环境变量设置)
+   - [配置缓存管理](#配置缓存管理)
+5. [系统信息与调试](#系统信息与调试)
+   - [获取运行时版本](#获取运行时版本)
+   - [查看锁信息](#查看锁信息)
+   - [停止业务执行](#停止业务执行)
+6. [性能考虑与最佳实践](#性能考虑与最佳实践)
 
 ## 简介
-本文档深入解析 `LogicRuntimeController` 中与逻辑执行相关的核心接口，包括 `/run`、`/debug`、`/stop`、`/resume` 等操作。结合 `LogicRunnerService` 的实现逻辑，详细阐述无状态执行、有状态执行及断点恢复等模式的 API 调用方式。同时提供请求体结构、响应格式、错误处理机制，并给出性能优化建议与实际调用示例。
 
-**Section sources**  
-- [LogicRuntimeController.java](file://logic-ide/src/main/java/com/aims/logic/ide/controller/LogicRuntimeController.java#L1-L50)
+运行时API提供了对逻辑执行引擎的全面控制能力，允许外部系统通过RESTful接口触发、管理和监控逻辑执行。本API由`LogicRuntimeController`类提供，封装了`LogicRunnerService`的核心功能，支持无状态和有状态的逻辑执行模式。
 
-## 核心接口说明
+该API设计用于生产环境中的自动化集成，支持调试模式、环境变量注入、配置热更新等高级功能。所有接口均返回统一的`ApiResult`结构，便于客户端解析和处理。
 
-### 执行逻辑（/run）
-- **接口路径**：`POST /api/runtime/logic/v1/run-api/{id}`
-- **功能描述**：执行指定逻辑ID的无状态逻辑。
-- **参数说明**：
-  - `id`：逻辑编号
-  - `debug`：是否开启调试模式（可选，默认false）
-  - `body`：输入参数（JSON格式）
-- **行为逻辑**：通过 `LogicRunnerService.runByMap()` 方法执行，支持传入自定义环境变量（如HEADERS）。
+**Section sources**
+- [LogicRuntimeController.java](file://logic-ide/src/main/java/com/aims/logic/ide/controller/LogicRuntimeController.java#L1-L20)
+
+## 核心执行接口
+
+### /run-api/{id}
+
+此端点用于无状态地执行指定ID的逻辑，适用于一次性任务或无需持久化执行上下文的场景。
+
+- **HTTP方法**: POST
+- **URL路径**: `/api/runtime/logic/v1/run-api/{id}`
+- **请求参数**:
+  - `id` (路径参数): 逻辑编号
+  - `debug` (查询参数, 可选): 是否启用调试模式，默认为`false`
+- **请求头**: 所有请求头将被自动注入到`HEADERS`环境变量中
+- **请求体结构**: JSON对象，作为逻辑执行的输入参数
+- **响应格式**: `ApiResult`对象
+- **错误码**:
+  - `500`: 执行异常，详细信息在`error`字段中
+
+当`debug=true`时，响应中会包含完整的执行日志（`debug`字段），可用于问题排查。
 
 ```mermaid
 sequenceDiagram
@@ -46,221 +65,266 @@ participant Client as "客户端"
 participant Controller as "LogicRuntimeController"
 participant Runner as "LogicRunnerService"
 Client->>Controller : POST /run-api/{id}
-Controller->>Runner : newInstance(customEnv)
-Runner->>Runner : runByMap(id, body)
-Runner-->>Controller : LogicRunResult
-Controller-->>Client : ApiResult
+Controller->>Controller : 注入请求头到环境变量
+Controller->>Runner : newInstance(customEnv).runByMap(id, body)
+Runner-->>Controller : 返回LogicRunResult
+Controller->>Controller : 转换为ApiResult
+Controller->>Client : 返回ApiResult
 ```
 
-**Diagram sources**  
+**Diagram sources**
 - [LogicRuntimeController.java](file://logic-ide/src/main/java/com/aims/logic/ide/controller/LogicRuntimeController.java#L33-L49)
-- [LogicRunnerService.java](file://logic-runtime/src/main/java/com/aims/logic/runtime/service/LogicRunnerService.java#L68-L75)
+- [LogicRunnerService.java](file://logic-runtime/src/main/java/com/aims/logic/runtime/service/LogicRunnerService.java#L84-L86)
 
-### 有状态执行（/run-biz）
-- **接口路径**：`POST /api/runtime/logic/v1/run-biz/{id}/{bizId}`
-- **功能描述**：以业务ID为上下文执行逻辑，支持状态保持。
-- **参数说明**：
-  - `id`：逻辑编号
-  - `bizId`：业务实例ID
-  - `body`：输入参数
+### /run-biz/{id}/{bizId}
+
+此端点用于有状态地执行指定ID的逻辑实例，适用于需要维护业务上下文的长期运行任务。
+
+- **HTTP方法**: POST
+- **URL路径**: `/api/runtime/logic/v1/run-biz/{id}/{bizId}`
+- **请求参数**:
+  - `id` (路径参数): 逻辑编号
+  - `bizId` (路径参数): 业务实例编号
+  - `debug` (查询参数, 可选): 是否启用调试模式，默认为`false`
+- **请求头**: 所有请求头将被自动注入到`HEADERS`环境变量中
+- **请求体结构**: JSON对象，作为逻辑执行的输入参数
+- **响应格式**: `ApiResult`对象
+- **错误码**:
+  - `500`: 执行异常
+
+与`/run-api`不同，此接口维护业务实例的状态，允许后续操作如重试、重置等。
 
 ```mermaid
 sequenceDiagram
-participant Client
-participant Controller
-participant Runner
+participant Client as "客户端"
+participant Controller as "LogicRuntimeController"
+participant Runner as "LogicRunnerService"
 Client->>Controller : POST /run-biz/{id}/{bizId}
-Controller->>Runner : newInstance(env)
-Runner->>Runner : runBizByMap(id, bizId, body)
-Runner-->>Controller : LogicRunResult
-Controller-->>Client : ApiResult
+Controller->>Controller : 注入请求头到环境变量
+Controller->>Runner : newInstance(customEnv).runBizByMap(id, bizId, body)
+Runner-->>Controller : 返回LogicRunResult
+Controller->>Controller : 转换为ApiResult
+Controller->>Client : 返回ApiResult
 ```
 
-**Diagram sources**  
-- [LogicRuntimeController.java](file://logic-ide/src/main/java/com/aims/logic/ide/controller/LogicRuntimeController.java#L51-L70)
-- [LogicRunnerService.java](file://logic-runtime/src/main/java/com/aims/logic/runtime/service/LogicRunnerService.java#L88-L95)
+**Diagram sources**
+- [LogicRuntimeController.java](file://logic-ide/src/main/java/com/aims/logic/ide/controller/LogicRuntimeController.java#L51-L68)
+- [LogicRunnerService.java](file://logic-runtime/src/main/java/com/aims/logic/runtime/service/LogicRunnerService.java#L119-L121)
 
-### 断点恢复执行（/resume）
-- **接口路径**：`POST /api/runtime/logic/v1/resetBiz/{id}/{bizId}`
-- **功能描述**：重置业务实例的下一个执行节点和局部变量，实现断点续跑。
-- **请求体结构**：
+### /biz/{id}/{startCode}/{bizId}
+
+此端点用于通过验证码验证后执行业务逻辑，提供额外的安全层。
+
+- **HTTP方法**: POST
+- **URL路径**: `/api/runtime/logic/v1/biz/{id}/{startCode}/{bizId}`
+- **请求参数**:
+  - `id` (路径参数): 逻辑编号
+  - `bizId` (路径参数): 业务实例编号
+  - `startCode` (路径参数): 启动验证码
+  - `debug` (查询参数, 可选): 是否启用调试模式
+- **请求头**: 注入到环境变量
+- **请求体结构**: JSON对象
+- **响应格式**: `ApiResult`对象
+
+此接口首先验证`startCode`，然后执行指定的业务逻辑。
+
+**Section sources**
+- [LogicRuntimeController.java](file://logic-ide/src/main/java/com/aims/logic/ide/controller/LogicRuntimeController.java#L119-L130)
+- [LogicRunnerService.java](file://logic-runtime/src/main/java/com/aims/logic/runtime/service/LogicRunnerService.java#L227-L240)
+
+## 业务管理接口
+
+### 重试失败业务
+
+重新执行因异常而失败的业务实例。
+
+- **HTTP方法**: POST
+- **URL路径**: `/api/runtime/logic/v1/retry-error-biz/{id}/{bizId}`
+- **请求参数**:
+  - `id` (路径参数): 逻辑编号
+  - `bizId` (路径参数): 业务实例编号
+  - `debug` (查询参数, 可选): 是否返回调试信息
+- **响应格式**: `ApiResult`对象
+
+系统会自动从实例缓存中读取原始输入参数、临时变量和环境变量进行重试。
+
+**Section sources**
+- [LogicRuntimeController.java](file://logic-ide/src/main/java/com/aims/logic/ide/controller/LogicRuntimeController.java#L97-L105)
+- [LogicRunnerService.java](file://logic-runtime/src/main/java/com/aims/logic/runtime/service/LogicRunnerService.java#L130-L130)
+
+### 强制完成长时间运行的业务
+
+强制完成指定的长时间运行业务实例。
+
+- **HTTP方法**: POST
+- **URL路径**: `/api/runtime/logic/v1/retry-longtime-running-biz`
+- **请求参数**:
+  - `timeout` (查询参数, 可选): 超时时间（秒），默认30秒
+- **响应格式**: `ApiResult`对象
+
+系统会自动识别并重试所有超过指定超时时间的运行中业务。
+
+**Section sources**
+- [LogicRuntimeController.java](file://logic-ide/src/main/java/com/aims/logic/ide/controller/LogicRuntimeController.java#L113-L117)
+- [LogicRunnerService.java](file://logic-runtime/src/main/java/com/aims/logic/runtime/service/LogicRunnerService.java#L139-L139)
+
+### 强制完成业务实例
+
+强制将指定业务实例标记为完成状态。
+
+- **HTTP方法**: POST
+- **URL路径**: `/api/runtime/logic/v1/force-complete-biz/{logicId}/{bizId}`
+- **请求参数**:
+  - `logicId` (路径参数): 逻辑编号
+  - `bizId` (路径参数): 业务实例编号
+- **响应格式**: `ApiResult`对象
+
+此操作会同时调用`forceStopBiz`来确保业务完全停止。
+
+**Section sources**
+- [LogicRuntimeController.java](file://logic-ide/src/main/java/com/aims/logic/ide/controller/LogicRuntimeController.java#L107-L111)
+- [LogicRunnerService.java](file://logic-runtime/src/main/java/com/aims/logic/runtime/service/LogicRunnerService.java#L149-L149)
+
+### 重置业务执行节点
+
+重置业务实例的下一个执行节点和局部变量。
+
+- **HTTP方法**: POST
+- **URL路径**: `/api/runtime/logic/v1/resetBiz/{id}/{bizId}`
+- **请求参数**:
+  - `id` (路径参数): 逻辑编号
+  - `bizId` (路径参数): 业务实例编号
+  - `debug` (查询参数, 可选): 调试模式
+- **请求体结构**:
 ```json
 {
-  "startNodeId": "node_2",
-  "startNodeName": "处理节点",
-  "varsJson": "{\"tempValue\": 100}"
+  "startNodeId": "节点ID",
+  "startNodeName": "节点名称",
+  "varsJson": "局部变量JSON"
 }
 ```
+- **响应格式**: `ApiResult`对象
 
-**Section sources**  
-- [LogicRuntimeController.java](file://logic-ide/src/main/java/com/aims/logic/ide/controller/LogicRuntimeController.java#L83-L105)
-- [LogicRunnerService.java](file://logic-runtime/src/main/java/com/aims/logic/runtime/service/LogicRunnerService.java#L138-L147)
+此接口用于在特定条件下重新定向业务流程的执行路径。
 
-### 异常重试（/retry-error-biz）
-- **接口路径**：`POST /api/runtime/logic/v1/retry-error-biz/{id}/{bizId}`
-- **功能描述**：重试执行失败的业务实例，自动恢复上下文。
+**Section sources**
+- [LogicRuntimeController.java](file://logic-ide/src/main/java/com/aims/logic/ide/controller/LogicRuntimeController.java#L83-L95)
+- [LogicRunnerService.java](file://logic-runtime/src/main/java/com/aims/logic/runtime/service/LogicRunnerService.java#L169-L169)
 
-**Section sources**  
-- [LogicRuntimeController.java](file://logic-ide/src/main/java/com/aims/logic/ide/controller/LogicRuntimeController.java#L96-L105)
-- [LogicRunnerService.java](file://logic-runtime/src/main/java/com/aims/logic/runtime/service/LogicRunnerService.java#L120-L127)
+## 环境与配置管理
 
-### 强制完成（/force-complete-biz）
-- **接口路径**：`POST /api/runtime/logic/v1/force-complete-biz/{logicId}/{bizId}`
-- **功能描述**：强制标记业务实例为完成状态，内部调用 `forceStopBiz`。
+### 环境变量设置
 
-**Section sources**  
-- [LogicRuntimeController.java](file://logic-ide/src/main/java/com/aims/logic/ide/controller/LogicRuntimeController.java#L107-L111)
-- [LogicRunnerService.java](file://logic-runtime/src/main/java/com/aims/logic/runtime/service/LogicRunnerService.java#L130-L136)
+动态设置运行时环境变量。
 
-## 执行模式详解
+- **HTTP方法**: POST
+- **URL路径**: `/api/runtime/env/set`
+- **请求体结构**: JSON对象，包含自定义环境变量
+- **响应格式**: `ApiResult`对象，返回更新后的环境变量
 
-### 无状态执行模式
-- **适用场景**：函数式调用，无需保留上下文。
-- **API**：`runByMap`
-- **特点**：每次调用独立，不依赖历史状态。
-
-### 有状态执行模式
-- **适用场景**：业务流程编排，需保持业务上下文。
-- **API**：`runBizByMap`
-- **特点**：通过 `bizId` 关联执行实例，支持断点恢复。
-
-### 断点恢复机制
-通过 `resetBizInstanceNextId` 方法实现：
-1. 指定下一执行节点 `nextId`
-2. 提供恢复后的局部变量 `varsJson`
-3. 重新进入执行流程
+设置的环境变量不会覆盖配置文件，重启后会重新从文件加载。
 
 ```mermaid
 flowchart TD
-Start([开始]) --> CheckStatus{实例状态}
-CheckStatus --> |异常中断| Reset["resetBizInstanceNextId"]
-Reset --> Resume["runBizByMap 续跑"]
-Resume --> End([完成])
+A["客户端发送POST请求"] --> B["设置自定义环境变量"]
+B --> C["保存到内存"]
+C --> D["返回更新后的环境变量"]
 ```
 
-**Diagram sources**  
-- [LogicRunnerService.java](file://logic-runtime/src/main/java/com/aims/logic/runtime/service/LogicRunnerService.java#L138-L147)
-- [LogicRunner.java](file://logic-runtime/src/main/java/com/aims/logic/runtime/runner/LogicRunner.java#L150-L180)
+**Diagram sources**
+- [LogicRuntimeController.java](file://logic-ide/src/main/java/com/aims/logic/ide/controller/LogicRuntimeController.java#L171-L175)
+- [RuntimeUtil.java](file://logic-runtime/src/main/java/com/aims/logic/runtime/util/RuntimeUtil.java#L144-L154)
 
-## 请求与响应结构
+### 配置缓存管理
 
-### 请求体结构
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `id` | String | 是 | 逻辑编号 |
-| `bizId` | String | 否 | 业务实例ID（有状态时必填） |
-| `body` | JSON | 否 | 输入参数对象 |
-| `debug` | Boolean | 否 | 是否返回调试日志 |
+提供对逻辑配置缓存的全面管理能力。
 
-### 响应数据格式
-```json
-{
-  "code": 0,
-  "msg": "success",
-  "data": {}, 
-  "debug": {
-    "logicId": "logic_001",
-    "bizId": "biz_001",
-    "paramsJson": {},
-    "varsJson": {},
-    "varsJson_end": {},
-    "success": true,
-    "over": true,
-    "stopModel": "NORMAL"
-  }
-}
-```
+#### 获取配置缓存
 
-#### 核心字段说明
-- **`stopModel`**：执行终止模式
-  - `NORMAL`：正常结束
-  - `MANUAL`：手动停止
-  - `ERROR`：异常终止
-  - `TIMEOUT`：超时终止
-- **`varsJson_end`**：执行结束时的局部变量快照，用于断点恢复。
+- **HTTP方法**: GET
+- **URL路径**: `/api/runtime/config/cache`
+- **响应格式**: `ApiResult`对象，包含所有缓存的配置
 
-**Section sources**  
-- [ApiResult.java](file://logic-ide/src/main/java/com/aims/logic/ide/controller/dto/ApiResult.java#L1-L41)
-- [LogicRunResult.java](file://logic-runtime/src/main/java/com/aims/logic/runtime/contract/dto/LogicRunResult.java#L1-L75)
-- [LogicStopModel.java](file://logic-runtime/src/main/java/com/aims/logic/runtime/contract/enums/LogicStopModel.java#L1-L8)
+#### 删除指定缓存
 
-## 错误处理策略
+- **HTTP方法**: DELETE
+- **URL路径**: `/api/runtime/config/cache/{key}`
+- **请求参数**: `key` (路径参数): 缓存键
 
-### 统一异常响应结构
-```java
-public static ApiResult fromException(Exception ex) {
-    return new ApiResult()
-        .setCode(500)
-        .setMsg(ex.getMessage())
-        .setError(new ApiError()
-            .setCode(500)
-            .setMsg(ex.getCause() == null ? ex.getMessage() : ex.getCause().getMessage())
-            .setDetail(ex.getCause() != null ? ex.getCause() : ex));
-}
-```
+#### 清空所有缓存
 
-### 常见错误码
-| 错误码 | 含义 | 处理建议 |
-|--------|------|----------|
-| 500 | 通用服务端错误 | 检查输入参数与逻辑配置 |
-| 404 | 未找到逻辑配置 | 确认逻辑ID是否存在 |
-| 400 | 参数错误 | 验证JSON格式与必填字段 |
+- **HTTP方法**: DELETE
+- **URL路径**: `/api/runtime/config/cache/clear`
 
-**Section sources**  
-- [ApiResult.java](file://logic-ide/src/main/java/com/aims/logic/ide/controller/dto/ApiResult.java#L35-L41)
-- [LogicRunner.java](file://logic-runtime/src/main/java/com/aims/logic/runtime/runner/LogicRunner.java#L100-L120)
+这些接口支持配置的热更新，修改后立即生效。
 
-## 性能与并发控制
+**Section sources**
+- [LogicRuntimeController.java](file://logic-ide/src/main/java/com/aims/logic/ide/controller/LogicRuntimeController.java#L177-L186)
+- [RuntimeUtil.java](file://logic-runtime/src/main/java/com/aims/logic/runtime/util/RuntimeUtil.java#L68-L72)
 
-### 并发执行建议
-- **无状态模式**：可高并发调用 `runByMap`
-- **有状态模式**：建议控制 `bizId` 的并发度，避免状态冲突
+## 系统信息与调试
 
-### 超时配置
-- **默认超时**：30秒（可通过 `timeout` 参数调整）
-- **长时任务重试**：`retryLongtimeRunningBiz(timeout)` 可扫描并重试超时任务
+### 获取运行时版本
 
-### 缓存机制
-- **配置缓存**：`LogicConfigStoreService` 使用 Caffeine 缓存逻辑配置
-- **清除缓存**：
-  - `DELETE /api/runtime/config/cache/{key}`：清除指定key
-  - `DELETE /api/runtime/config/cache/clear`：清空全部缓存
+获取当前运行时的版本信息。
 
-**Section sources**  
-- [LogicRunnerService.java](file://logic-runtime/src/main/java/com/aims/logic/runtime/service/LogicRunnerService.java#L128-L137)
-- [LogicRuntimeController.java](file://logic-ide/src/main/java/com/aims/logic/ide/controller/LogicRuntimeController.java#L178-L195)
+- **HTTP方法**: GET
+- **URL路径**: `/api/runtime/version`
+- **响应格式**: `ApiResult`对象，包含版本号
 
-## 实际调用示例
+**Section sources**
+- [LogicRuntimeController.java](file://logic-ide/src/main/java/com/aims/logic/ide/controller/LogicRuntimeController.java#L160-L163)
+- [VersionUtil.java](file://logic-ide/src/main/java/com/aims/logic/ide/util/VersionUtil.java)
 
-### 无状态执行
-```bash
-curl -X POST http://localhost:8080/api/runtime/logic/v1/run-api/logic_001 \
-  -H "Content-Type: application/json" \
-  -d '{"input": "value"}'
-```
+### 查看锁信息
 
-### 有状态执行与断点恢复
-```bash
-# 第一次执行
-curl -X POST http://localhost:8080/api/runtime/logic/v1/run-biz/logic_001/biz_001 \
-  -d '{"step": 1}'
+获取当前所有业务锁的键值。
 
-# 断点恢复
-curl -X POST http://localhost:8080/api/runtime/logic/v1/resetBiz/logic_001/biz_001 \
-  -d '{
-    "startNodeId": "node_3",
-    "startNodeName": "恢复节点",
-    "varsJson": "{\"recovered\": true}"
-  }'
-```
+- **HTTP方法**: GET
+- **URL路径**: `/api/runtime/lockKeys`
+- **响应格式**: `ApiResult`对象，包含锁键列表
 
-### 异常重试
-```bash
-curl -X POST http://localhost:8080/api/runtime/logic/v1/retry-error-biz/logic_001/biz_001?debug=true
-```
+此接口用于监控和调试业务并发控制。
 
-**Section sources**  
-- [LogicRuntimeController.java](file://logic-ide/src/main/java/com/aims/logic/ide/controller/LogicRuntimeController.java#L33-L130)
+**Section sources**
+- [LogicRuntimeController.java](file://logic-ide/src/main/java/com/aims/logic/ide/controller/LogicRuntimeController.java#L194-L197)
+- [BizLock.java](file://logic-sdk/src/main/java/com/aims/logic/sdk/util/lock/BizLock.java#L21-L21)
 
-## 总结
-本文档系统性地解析了 `LogicRuntimeController` 的核心执行接口，涵盖无状态、有状态及断点恢复等多种执行模式。通过 `LogicRunnerService` 提供的丰富API，实现了灵活的逻辑执行控制。建议在实际使用中结合调试模式与日志分析，确保业务流程的稳定运行。
+### 停止业务执行
+
+标记指定业务为停止状态。
+
+- **HTTP方法**: DELETE
+- **URL路径**: `/api/runtime/lockKey/setBizStopping/{key}`
+- **请求参数**: `key` (路径参数): 业务锁键
+- **响应格式**: `ApiResult`对象
+
+业务会在下一个延时等待节点结束后停止执行。
+
+**Section sources**
+- [LogicRuntimeController.java](file://logic-ide/src/main/java/com/aims/logic/ide/controller/LogicRuntimeController.java#L199-L208)
+- [BizLock.java](file://logic-sdk/src/main/java/com/aims/logic/sdk/util/lock/BizLock.java#L13-L13)
+
+## 性能考虑与最佳实践
+
+1. **调试模式**: 仅在问题排查时启用`debug=true`，因为完整的执行日志会显著增加响应大小和处理时间。
+
+2. **连接复用**: 对于频繁调用的接口，建议使用HTTP连接池以减少连接建立开销。
+
+3. **批量操作**: 当需要处理多个业务实例时，考虑使用批量接口而非逐个调用。
+
+4. **缓存策略**: 利用配置缓存管理接口实现配置的热更新，避免频繁重启服务。
+
+5. **错误处理**: 实现重试机制处理临时性错误，但要注意避免无限重试导致系统过载。
+
+6. **监控告警**: 结合`/api/runtime/lockKeys`和业务状态查询接口，建立业务执行监控系统。
+
+7. **安全考虑**: `/biz/{id}/{startCode}/{bizId}`接口提供了额外的安全层，建议在生产环境中使用。
+
+8. **资源清理**: 定期调用`clearCompletedInstance`清理已完成的业务实例，避免内存泄漏。
+
+通过合理使用这些API，可以实现对逻辑执行引擎的高效管理和监控，确保系统的稳定运行。
+
+**Section sources**
+- [LogicRunnerService.java](file://logic-runtime/src/main/java/com/aims/logic/runtime/service/LogicRunnerService.java)
+- [RuntimeUtil.java](file://logic-runtime/src/main/java/com/aims/logic/runtime/util/RuntimeUtil.java)
