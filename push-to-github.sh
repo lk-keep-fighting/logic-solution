@@ -56,7 +56,7 @@ git push github $BRANCH
 # 显示推送结果
 echo ""
 echo -e "${GREEN}✅ 成功推送到 GitHub!${NC}"
-echo -e "${GREEN}📍 仓库地址: https://github.com/liusir2606/logic-ide.git${NC}"
+echo -e "${GREEN}📍 仓库地址: https://github.com/lk-keep-fighting/logic-solution.git${NC}"
 echo -e "${GREEN}🌿 分支: $BRANCH${NC}"
 echo ""
 

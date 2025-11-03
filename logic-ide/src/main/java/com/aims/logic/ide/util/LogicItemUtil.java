@@ -112,4 +112,101 @@ public class LogicItemUtil {
 
         return p;
     }
+
+    /**
+     * 读取所有逻辑项并输出为AI易于理解的MD文档
+     */
+    public String readAllLogicItemsToDoc() {
+        Map<String, List<LogicClassMethodDto>> methodsByGroup = readFromCode(true);
+        StringBuilder doc = new StringBuilder();
+        
+        doc.append("# Logic Items 逻辑组件文档\n\n");
+        doc.append("本文档列出所有可用的逻辑组件，按分组组织。\n\n");
+        doc.append("---\n\n");
+        
+        // 统计信息
+        int totalItems = methodsByGroup.values().stream()
+                .mapToInt(List::size)
+                .sum();
+        doc.append(String.format("**总计**: %d 个分组，%d 个组件\n\n", methodsByGroup.size(), totalItems));
+        
+        // 遍历每个分组
+        for (Map.Entry<String, List<LogicClassMethodDto>> entry : methodsByGroup.entrySet()) {
+            String groupName = entry.getKey();
+            List<LogicClassMethodDto> methods = entry.getValue();
+            
+            if (methods.isEmpty()) {
+                continue;
+            }
+            
+            doc.append(String.format("## %s\n\n", groupName));
+            doc.append(String.format("*分组包含 %d 个组件*\n\n", methods.size()));
+            
+            // 按order排序
+            methods.sort(Comparator.comparing(m -> m.getOrder() == null ? "" : m.getOrder()));
+            
+            for (LogicClassMethodDto method : methods) {
+                LogicItemTreeNode item = method.getLogicItem();
+                
+                // 组件标题
+                doc.append(String.format("### %s\n\n", item.getName()));
+                
+                // 基本信息
+                doc.append("**基本信息**:\n\n");
+                doc.append(String.format("- **类型**: `%s`\n", item.getType()));
+                doc.append(String.format("- **版本**: `%s`\n", item.getVersion()));
+                doc.append(String.format("- **ID**: `%s`\n", item.getItemId()));
+                doc.append(String.format("- **实现类**: `%s`\n", item.getUrl()));
+                doc.append(String.format("- **方法**: `%s`\n", item.getMethod()));
+                
+                if (item.getMemo() != null && !item.getMemo().isEmpty()) {
+                    doc.append(String.format("- **说明**: %s\n", item.getMemo()));
+                }
+                
+                doc.append("\n");
+                
+                // 参数列表
+                if (item.getParams() != null && !item.getParams().isEmpty()) {
+                    doc.append("**参数**:\n\n");
+                    doc.append("| 参数名 | 类型 | 必填 | 默认值 |\n");
+                    doc.append("|--------|------|------|--------|\n");
+                    
+                    for (ParamTreeNode param : item.getParams()) {
+                        String paramName = param.getName();
+                        String typeName = param.getTypeAnnotation() != null ? 
+                                param.getTypeAnnotation().getTypeName() : "Unknown";
+                        String required = param.isRequired() ? "是" : "否";
+                        String defaultValue = param.getDefaultValue() != null ? 
+                                param.getDefaultValue() : "-";
+                        
+                        doc.append(String.format("| `%s` | `%s` | %s | %s |\n", 
+                                paramName, typeName, required, defaultValue));
+                    }
+                    doc.append("\n");
+                }
+                
+                // 返回值
+                if (item.getReturnType() != null) {
+                    doc.append("**返回值**:\n\n");
+                    String returnTypeName = item.getReturnType().getTypeAnnotation() != null ?
+                            item.getReturnType().getTypeAnnotation().getTypeName() : "void";
+                    doc.append(String.format("`%s`\n\n", returnTypeName));
+                }
+                
+                // 事务配置
+                if (item.getTranScope() != null) {
+                    doc.append("**事务配置**:\n\n");
+                    doc.append(String.format("- 事务范围: `%s`\n", item.getTranScope()));
+                    if (item.getTranGroupId() != null) {
+                        doc.append(String.format("- 事务组: `%s`\n", item.getTranGroupId()));
+                    }
+                    doc.append("\n");
+                }
+                
+                doc.append("---\n\n");
+            }
+        }
+        
+        return doc.toString();
+    }
 }

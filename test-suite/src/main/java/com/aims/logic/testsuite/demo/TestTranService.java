@@ -16,7 +16,10 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -132,6 +135,24 @@ public class TestTranService {
     public void insertOneByOne(String[] ids) {
         for (String id : ids) {
             testMapper.insert(new TestEntity().setId(id));
+        }
+    }
+
+    @LogicItem(name = "测试注册事务完成回调", group = "测试事务", memo = "")
+    public void testTranRegisterCallback(String[] keys) {
+        // 检查当前是否在事务中
+        if (TransactionSynchronizationManager.isActualTransactionActive()) {
+            // 注册事务同步回调
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCompletion(int status) {
+                    // 事务完成后输出日志
+                    System.out.println("事务已完成，状态码: " + status);
+                    System.out.println(Arrays.toString(keys));
+                }
+            });
+        } else {
+            System.out.println("当前不在事务中");
         }
     }
 
