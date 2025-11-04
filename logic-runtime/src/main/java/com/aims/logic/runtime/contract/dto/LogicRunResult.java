@@ -16,6 +16,16 @@ public class LogicRunResult {
     }
 
     boolean success = true;
+
+    /**
+     * 执行节点是否包含错误，
+     * 通常用于异常不中断模式下判断本次执行是否有报错的节点
+     * @return
+     */
+    boolean hasError() {
+        return logicLog.hasError;
+    }
+
     /**
      * 消息
      */
