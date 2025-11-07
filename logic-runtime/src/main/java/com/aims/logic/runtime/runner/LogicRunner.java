@@ -5,7 +5,7 @@ import com.aims.logic.runtime.contract.dsl.LogicTreeNode;
 import com.aims.logic.runtime.contract.dto.LogicItemRunResult;
 import com.aims.logic.runtime.contract.dto.LogicRunResult;
 import com.aims.logic.runtime.contract.dto.RunnerStatusEnum;
-import com.aims.logic.runtime.contract.enums.LogicItemTransactionScope;
+import com.aims.logic.runtime.contract.enums.LogicItemStopSignal;
 import com.aims.logic.runtime.contract.enums.LogicItemType;
 import com.aims.logic.runtime.contract.logger.LogicLog;
 import com.aims.logic.runtime.contract.parser.TypeAnnotationParser;
@@ -109,7 +109,7 @@ public class LogicRunner {
                         envJson.put("JWT", JsonUtil.jsonMerge(beforeJwtInfo, tokenJwtInfo));
                     }
                 } catch (RuntimeException ex) {
-                    log.error("["+logic.getId()+"]解析JWT token失败: {}", ex.getMessage());
+                    log.error("[" + logic.getId() + "]解析JWT token失败: {}", ex.getMessage());
                     // 忽略JWT解析错误，继续执行
                 }
             }
@@ -250,9 +250,14 @@ public class LogicRunner {
     }
 
     public RunnerStatusEnum updateStatus(LogicItemRunResult itemRes, LogicItemTreeNode nextItem) {
+        //当当前节点为复用逻辑，配置了需要检查执行条件，且复用逻辑还有交互点未执行，则当前逻辑中止执行，下次重新进入触发复用逻辑继续执行复用逻辑的交互点
+        if (itemRes.getItemInstance().isCheckCondition() && itemRes.getStopSignal() == LogicItemStopSignal.subLogicWaitForContinue) {
+            this.setRunnerStatus(RunnerStatusEnum.WaitForContinue);
+            return this.getRunnerStatus();
+        }
         fnCtx.setNextItem(nextItem);
         if (!itemRes.isSuccess()) {
-            if (!itemRes.isNeedInterrupt() && LogicItemTransactionScope.everyNode2.equals(fnCtx.getTranScope())) {
+            if (itemRes.getStopSignal() == LogicItemStopSignal.def) {
                 this.setRunnerStatus(RunnerStatusEnum.Continue);
             } else {
                 this.setRunnerStatus(RunnerStatusEnum.Error);

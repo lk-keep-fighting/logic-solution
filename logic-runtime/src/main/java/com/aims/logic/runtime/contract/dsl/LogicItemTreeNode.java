@@ -2,6 +2,7 @@ package com.aims.logic.runtime.contract.dsl;
 
 import com.aims.logic.runtime.contract.dsl.basic.BaseLASL;
 import com.aims.logic.runtime.contract.enums.ConceptEnum;
+import com.aims.logic.runtime.contract.enums.LogicItemBizErrorModel;
 import com.aims.logic.runtime.contract.enums.LogicItemTransactionScope;
 import lombok.Getter;
 import lombok.Setter;
@@ -103,12 +104,13 @@ public class LogicItemTreeNode extends BaseLASL {
 
     /**
      * 事务范围
-     * EveryJavaNode-每个java节点开启事务
-     * EveryJavaNode2-每个java节点开启事务但报错不会中断
-     * EveryRequest-每次请求交互开启事务，即每个交互点
+     * def-默认事务，即默认事务
+     * tranGroup-事务组，即事务组
+     * everyRequest-每次请求交互开启事务，即每个交互点
      * off-关闭事务
      */
     LogicItemTransactionScope tranScope;
+    LogicItemBizErrorModel bizErrorModel;
     /*
     事务传播属性
      */
@@ -141,6 +143,12 @@ public class LogicItemTreeNode extends BaseLASL {
     是否异步执行，异步执行将不等待返回结果，默认成功
      */
     boolean async = false;
+    /*
+    是否检查继续执行条件，通常复用逻辑时可能需要检查条件，如：有复用逻辑多交互点，一个交互点执行后逻辑若没有完成，则中断执行，下次重新进入
+     */
+
+    boolean checkCondition = false;
+
     String memo;
     /*
     节点执行时实例化的对象唯一编号

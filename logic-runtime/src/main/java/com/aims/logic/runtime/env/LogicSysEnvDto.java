@@ -39,7 +39,7 @@ public class LogicSysEnvDto {
 
     public LogicItemTransactionScope getDefaultTranScope() {
         if (DEFAULT_TRAN_SCOPE == null || StringUtils.isEmpty(DEFAULT_TRAN_SCOPE.getValue()))
-            return LogicItemTransactionScope.everyJavaNode;
+            return LogicItemTransactionScope.tranGroup;
         else
             return DEFAULT_TRAN_SCOPE;
     }

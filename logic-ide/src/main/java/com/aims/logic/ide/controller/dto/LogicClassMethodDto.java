@@ -15,6 +15,7 @@ public class LogicClassMethodDto {
     public String getCbbId() {
         return logicItem.getCbbId();
     }
+
     public String getItemId() {
         return logicItem.getItemId();
     }

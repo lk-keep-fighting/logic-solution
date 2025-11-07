@@ -1,6 +1,7 @@
 package com.aims.logic.runtime.contract.dto;
 
 import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
+import com.aims.logic.runtime.contract.enums.LogicItemStopSignal;
 import com.aims.logic.runtime.contract.logger.LogicItemLog;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,7 +15,8 @@ public class LogicItemRunResult {
     }
 
     public boolean success = true;
-    boolean needInterrupt = false;
+
+    public LogicItemStopSignal stopSignal = LogicItemStopSignal.def;
 
     /**
      * 消息
@@ -42,6 +44,13 @@ public class LogicItemRunResult {
      * 逻辑项实例，配置解析后的数据实例
      */
     LogicItemTreeNode itemInstance;
+
+    public LogicItemTreeNode getItemInstance() {
+        if (itemInstance == null)
+            if (itemLog != null)
+                return itemLog.getConfigInstance();
+        return itemInstance;
+    }
 
     LogicItemLog itemLog;
 

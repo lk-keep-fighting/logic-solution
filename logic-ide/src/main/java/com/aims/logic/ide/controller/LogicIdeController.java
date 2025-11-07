@@ -221,6 +221,11 @@ public class LogicIdeController {
 //                        mdto.getSourceCodeDto().readGitInfo();
 //                    }
 //                    dto.setCodeInfo(mdto.getSourceCodeDto());
+                    if (dto.getLogicItem() == null) {
+                        var item = new LogicItemTreeNode();
+                        item.setName(m.getName());
+                        dto.setLogicItem(item);
+                    }
                     return dto;
                 })
                 .collect(Collectors.toList());

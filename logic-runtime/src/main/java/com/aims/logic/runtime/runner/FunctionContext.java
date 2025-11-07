@@ -3,6 +3,7 @@ package com.aims.logic.runtime.runner;
 import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
 import com.aims.logic.runtime.contract.dsl.LogicTreeNode;
 import com.aims.logic.runtime.contract.dto.LogicItemRunResult;
+import com.aims.logic.runtime.contract.enums.LogicItemBizErrorModel;
 import com.aims.logic.runtime.contract.enums.LogicItemTransactionScope;
 import com.alibaba.fastjson2.JSONObject;
 import lombok.Getter;
@@ -48,10 +49,6 @@ public class FunctionContext {
         get_last().setData(ret);
     }
 
-    public void setTranScope(LogicItemTransactionScope tranScope) {
-        _var.put("__tranScope", tranScope);
-    }
-
     /**
      * 本次交互的事务作用域配置
      * 从当前交互点读取
@@ -61,6 +58,19 @@ public class FunctionContext {
             return LogicItemTransactionScope.def;
         return LogicItemTransactionScope.valueOf(_var.get("__tranScope").toString());
     }
+    public void setTranScope(LogicItemTransactionScope tranScope) {
+        _var.put("__tranScope", tranScope);
+    }
+
+    public LogicItemBizErrorModel getBizErrorModel() {
+        if (_var.get("__bizErrorModel") == null)
+            return LogicItemBizErrorModel.def;
+        return LogicItemBizErrorModel.valueOf(_var.get("__bizErrorModel").toString());
+    }
+    public void setBizErrorModel(LogicItemBizErrorModel bizErrorModel) {
+        _var.put("__bizErrorModel", bizErrorModel);
+    }
+
 
     public JSONObject get_global() {
         if (_var.getJSONObject("__global") == null) {

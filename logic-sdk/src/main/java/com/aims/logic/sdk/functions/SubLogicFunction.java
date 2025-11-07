@@ -2,6 +2,8 @@ package com.aims.logic.sdk.functions;
 
 import com.aims.logic.runtime.contract.dsl.LogicItemTreeNode;
 import com.aims.logic.runtime.contract.dto.LogicItemRunResult;
+import com.aims.logic.runtime.contract.dto.LogicRunResult;
+import com.aims.logic.runtime.contract.enums.LogicItemStopSignal;
 import com.aims.logic.runtime.runner.FunctionContext;
 import com.aims.logic.runtime.runner.Functions;
 import com.aims.logic.runtime.runner.functions.ILogicItemFunctionRunner;
@@ -63,9 +65,6 @@ public class SubLogicFunction implements ILogicItemFunctionRunner {
 
     public LogicItemRunResult invokeMethod(FunctionContext ctx, LogicItemTreeNode itemDsl, JSONObject jsonData) {
         try {
-//            Object data = Functions.runJsByContext(ctx, itemDsl.getBody());
-//            JSONObject jsonData = data == null ? null : JSONObject.from(data);
-//            itemDsl.setBody(jsonData == null ? null : jsonData.toJSONString());
             String subLogicId = itemDsl.getUrl();
             String subLogicBizId;
             Object bizIdObj = Functions.runJsByContext(ctx, "return " + itemDsl.getBizId());
@@ -75,6 +74,7 @@ public class SubLogicFunction implements ILogicItemFunctionRunner {
                     itemDsl.getTranPropagation(), itemDsl.isAsync());
 
             var itemRunResult = new LogicItemRunResult().setItemInstance(itemDsl);
+            LogicRunResult res;
             JSONObject globalEnd;
             if (!itemDsl.isBizOff()) {
                 if (StringUtils.isNotEmpty(ctx.getBizId())) { // 父流程为实例模式，子逻辑必须为实例模式
@@ -83,33 +83,28 @@ public class SubLogicFunction implements ILogicItemFunctionRunner {
                         itemDsl.setBizId(subLogicBizId);
                     }
                     // 父流程为实例模式，调用 runBizByMap 方法
-                    var res = newRunnerService.runBizByMap(subLogicId, subLogicBizId, jsonData, ctx.getTraceId(),
+                    res = newRunnerService.runBizByMap(subLogicId, subLogicBizId, jsonData, ctx.getTraceId(),
                             itemDsl.getObjectId(), ctx.get_global());
-                    itemRunResult.setSuccess(res.isSuccess()).setMsg(res.getMsg()).setData(res.getData());
-                    globalEnd = res.getLogicLog().getGlobalVars();
                 } else { // 父逻辑非实例模式
                     if (subLogicBizId == null || "null".equals(subLogicBizId)) { // 判断是否指定了bizId,null或字符串"null"都为未指定
                         // 未指定 bizId，调用 runByMap 方法
-                        var res = newRunnerService.runByMap(subLogicId, jsonData, ctx.getTraceId(),
+                        res = newRunnerService.runByMap(subLogicId, jsonData, ctx.getTraceId(),
                                 itemDsl.getObjectId(), ctx.get_global());
-                        itemRunResult.setSuccess(res.isSuccess()).setMsg(res.getMsg()).setData(res.getData());
-                        globalEnd = res.getLogicLog().getGlobalVars();
                     } else {
                         // 指定了 bizId，调用 runBizByMap 方法
-                        var res = newRunnerService.runBizByMap(subLogicId, subLogicBizId, jsonData, ctx.getTraceId(),
+                        res = newRunnerService.runBizByMap(subLogicId, subLogicBizId, jsonData, ctx.getTraceId(),
                                 itemDsl.getObjectId(), ctx.get_global());
-                        itemRunResult.setSuccess(res.isSuccess()).setMsg(res.getMsg()).setData(res.getData());
-                        globalEnd = res.getLogicLog().getGlobalVars();
                     }
                 }
             } else {
-                var res = newRunnerService.runByMap(subLogicId, jsonData, ctx.getTraceId(),
+                res = newRunnerService.runByMap(subLogicId, jsonData, ctx.getTraceId(),
                         itemDsl.getObjectId(), ctx.get_global());
-                itemRunResult.setSuccess(res.isSuccess()).setMsg(res.getMsg()).setData(res.getData());
-                globalEnd = res.getLogicLog().getGlobalVars();
             }
-            // if (itemRunResult.isSuccess())
-            // ctx.buildSubLogicRandomBizId();//运行完成后生成下一个随机bizId保存在临时变量中
+            itemRunResult.setSuccess(res.isSuccess()).setMsg(res.getMsg()).setData(res.getData());
+            if (res.isSuccess() && res.getLogicLog() != null && !res.getLogicLog().isOver()) {//成功执行但没有完成，需要下一次交互继续进子逻辑执行
+                itemRunResult.setStopSignal(LogicItemStopSignal.subLogicWaitForContinue);
+            }
+            globalEnd = res.getLogicLog().getGlobalVars();
             ctx.set_global(globalEnd);
             return itemRunResult;
 

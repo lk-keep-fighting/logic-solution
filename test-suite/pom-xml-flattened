@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.aims.logic</groupId>
     <artifactId>logic-solution</artifactId>
-    <version>0.9.5.250925-SNAPSHOT</version>
+    <version>0.10-SNAPSHOT</version>
   </parent>
   <groupId>com.aims.logic</groupId>
   <artifactId>test-suite</artifactId>

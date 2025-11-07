@@ -66,7 +66,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
     private String parentBizId = null;
     private int tranPropagation = 0;
 
-//    static IdWorker idWorker = new IdWorker(2, 1);
+    //    static IdWorker idWorker = new IdWorker(2, 1);
     BizLock bizLock;
     List<LogicRunnerEventListener> eventListener;
     @Autowired
@@ -416,31 +416,28 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 tranScope = runner.getFnCtx().getTranScope();
             }
         }
-
         runner.getFnCtx().setTranScope(tranScope);
 
+        LogicItemBizErrorModel bizErrorModel = startItem.getBizErrorModel();
+        runner.getFnCtx().setBizErrorModel(bizErrorModel);
 
-        log.info("[{}]bizId:{},tranScope:{}", logicId, bizId, tranScope);
+        log.info("[{}]bizId:{},tranScope:{},bizErrorModel:{}", logicId, bizId, tranScope, bizErrorModel);
+
         logHelperService.startBizRunning(logicLog);
         LogicRunResult res = null;
         switch (tranScope) {
             case everyRequest:
-                log.info("[{}]bizId:{},runBizInstanceWithEveryRequestTran", logicId, bizId);
+                log.info("[{}]bizId:{},事务模式【每次交互】", logicId, bizId);
                 res = runBizInstanceWithEveryRequestTran(runner, startItem, logicLog);
                 break;
             case off:
-                log.info("[{}]bizId:{},runBizInstanceWithoutTran", logicId, bizId);
+                log.info("[{}]bizId:{},事务模式【关闭】", logicId, bizId);
                 res = runBizInstanceWithoutTran(runner, startItem, logicLog);
                 break;
-            case everyNode2:
-                log.info("[{}]bizId:{},runBizInstanceWithEveryNodeTran2", logicId, bizId);
-                res = runBizInstanceWithEveryNodeTran2(runner, startItem, logicLog);
-                break;
-            case everyJavaNode:
-            case everyNode:
+            case tranGroup:
             default:
-                log.info("[{}]bizId:{},runBizInstanceWithEveryNodeTran", logicId, bizId);
-                res = runBizInstanceWithEveryNodeTran(runner, startItem, logicLog);
+                log.info("[{}]bizId:{},事务模式【事务组】", logicId, bizId);
+                res = runBizInstanceWithTranGroup(runner, startItem, logicLog);
         }
         logHelperService.stopBizRunning(logicLog);
         logHelperService.addLogicLog(logicLog);
@@ -506,8 +503,12 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                         ctx.getLogicId(), ctx.getBizId(),
                         ctx.getCurTranGroupId());
                 transactionalUtils.rollback(curTran);
-            } else
+            } else {
                 transactionalUtils.commit(curTran);
+                log.info("[{}]bizId:{}-事务组【{}】已提交",
+                        ctx.getLogicId(), ctx.getBizId(),
+                        ctx.getCurTranGroupId());
+            }
         } else {
             log.warn("[{}]bizId:{},提交未执行，isCompleted=true",
                     ctx.getLogicId(), ctx.getBizId());
@@ -515,83 +516,15 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
     }
 
     /***
-     * 事务范围为每个节点
+     * 事务范围为事务组
      * @param runner
      * @param nextItem
      * @return
      */
-
-    private LogicRunResult runBizInstanceWithEveryNodeTran(LogicRunner runner, LogicItemTreeNode nextItem, LogicLog logicLog) {
+    private LogicRunResult runBizInstanceWithTranGroup(LogicRunner runner, LogicItemTreeNode nextItem, LogicLog logicLog) {
         var logicId = logicLog.getLogicId();
         var bizId = logicLog.getBizId();
-        log.info("[{}]bizId:{}-runItemWithEveryJavaNodeTran", logicId, bizId);
-        TransactionStatus curTranStatus = null;
-        LogicItemRunResult itemRes = null;
-        var ctx = runner.getFnCtx();
-        LogicItemTreeNode curItem = null;
-        while (runner.getRunnerStatus() == RunnerStatusEnum.Continue) {
-            try {
-                curItem = nextItem;
-                ctx.setCurTranGroupId(Functions.runJsExpressByContext(runner.getFnCtx(), curItem.getTranGroupId()));
-                curTranStatus = beginNewTranIfNewGroup(curTranStatus, runner.getFnCtx(), curItem);
-                ctx.setLastTranGroupId(ctx.getCurTranGroupId());
-                itemRes = runner.runItem(nextItem);
-                log.info("[{}]bizId:{}-当前节点：{}-{}，执行结果,success:{},msg:{}", logicId, bizId, nextItem.getType(), nextItem.getName(), itemRes.isSuccess(), itemRes.getMsg());
-                nextItem = runner.findNextItem(nextItem);
-                ctx.setNextTranGroupId(Functions.runJsExpressByContext(runner.getFnCtx(), nextItem == null ? null : nextItem.getTranGroupId()));
-                logicLog.addItemLog(itemRes);
-                runner.updateStatus(itemRes, nextItem);
-                logicLog.setVarsJson_end(runner.getFnCtx().get_var())
-                        .setOver(runner.getRunnerStatus() == RunnerStatusEnum.End)
-                        .setNextItem(nextItem)
-                        .setSuccess(itemRes.isSuccess()).setMsg(itemRes.getMsg());
-                if (itemRes.isSuccess()) {
-                    logHelperService.updateInstance(logicLog);
-                    log.info("[{}]bizId:{},>>单节点模式提交", logicId, bizId);
-                    commitCurTranIfNextIsNewGroup(curTranStatus, runner.getFnCtx(), curItem, logicLog);
-                    if (Objects.equals(curItem.getType(), LogicItemType.wait.getValue()) && bizLock.isStopping(bizLock.buildKey(logicId, bizId))) {
-                        logicLog.setStopModel(LogicStopModel.MANUAL);
-                        throw new BizManuallyStoppedException(logicId, bizId);
-                    }
-                } else {
-                    log.info("[{}]bizId:{},节点执行失败，begin rollback，success=false,msg:{}, in runItemWithEveryJavaNodeTran", logicId, bizId, itemRes.getMsg());
-                    transactionalUtils.rollback(curTranStatus);
-                    logicLog.setNextItem(runner.getFnCtx().getCurTranGroupBeginItem());
-                    logicLog.setOver(false);
-//                    logicLog.setVarsJson_end(runner.getFnCtx().getCurTranGroupBeginVar());
-                    logHelperService.updateInstance(logicLog);
-                    log.info("[{}]bizId:{},节点执行失败，rollback ok，事务组:{}", logicId, bizId, ctx.getCurTranGroupId());
-                    return LogicRunResult.fromLogicLog(logicLog);
-                }
-            } catch (Exception e) {
-                var msg = e.toString();
-                log.error("[{}]bizId:{},[{}]节点执行catch到意外的异常：{},begin rollback", logicId, bizId, curItem == null ? "null" : curItem.getName(), msg);
-                e.printStackTrace();
-                if (!curTranStatus.isCompleted()) {
-                    transactionalUtils.rollback(curTranStatus);
-                    log.info("[{}]bizId:{},catch意外异常，rollback ok", logicId, bizId);
-                } else {
-                    log.info("[{}]bizId:{},catch意外异常，rollback 未执行，isCompleted=true", logicId, bizId);
-                }
-                logicLog.setSuccess(false).setMsg(msg);
-                return LogicRunResult.fromLogicLog(logicLog);
-            }
-        }
-        return LogicRunResult.fromLogicLog(logicLog);
-    }
-
-    /**
-     * 业务异常不中断
-     *
-     * @param runner
-     * @param nextItem
-     * @param logicLog 编排链路日志
-     * @return
-     */
-    private LogicRunResult runBizInstanceWithEveryNodeTran2(LogicRunner runner, LogicItemTreeNode nextItem, LogicLog logicLog) {
-        var logicId = logicLog.getLogicId();
-        var bizId = logicLog.getBizId();
-        log.info("[{}]bizId:{}-runItemWithEveryJavaNodeTran2", logicId, bizId);
+        log.info("[{}]bizId:{}-runBizInstanceWithTranGroup", logicId, bizId);
         TransactionStatus curTranStatus = null;
         LogicItemRunResult itemRes = null;
         var ctx = runner.getFnCtx();
@@ -610,7 +543,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                 runner.updateStatus(itemRes, nextItem);
                 logicLog.setVarsJson_end(runner.getFnCtx().get_var())
                         .setOver(runner.getRunnerStatus() == RunnerStatusEnum.End)
-                        .setMsg(itemRes.getMsg()).setNextItem(nextItem);
+                        .setMsg(itemRes.getMsg()).setNextItem(runner.getFnCtx().getNextItem());
                 if (itemRes.isSuccess()) {
                     //执行成功正常指定下一个节点
                     logHelperService.updateInstance(logicLog);
@@ -622,11 +555,11 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                     }
                 } else {
                     //需要中断或非java节点执行报错时会中断执行
-                    if (itemRes.isNeedInterrupt() || !LogicItemType.java.equalsTo(curItem.getType())) {
+                    if (itemRes.stopSignal == LogicItemStopSignal.errorInterrupt || !LogicItemType.java.equalsTo(curItem.getType())) {
                         //执行失败，下一次继续执行当前节点
                         logicLog.setNextItem(runner.getFnCtx().getCurTranGroupBeginItem());
                         logicLog.setSuccess(false).setOver(false);
-                        log.info("[{}]bizId:{},节点执行失败，begin rollback，success=false,msg:{}, in runItemWithEveryJavaNodeTran", logicId, bizId, itemRes.getMsg());
+                        log.info("[{}]bizId:{},节点执行失败，begin rollback，success=false,msg:{}, in runBizInstanceWithTranGroup", logicId, bizId, itemRes.getMsg());
                         transactionalUtils.rollback(curTranStatus);
                         log.info("[{}]bizId:{},节点执行失败，rollback ok，事务组:{}", logicId, bizId, ctx.getCurTranGroupId());
                         logHelperService.updateInstance(logicLog);
@@ -732,7 +665,6 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         LogicItemRunResult itemRes = null;
         try {
             while (runner.getRunnerStatus() == RunnerStatusEnum.Continue) {
-                logicLog.setNextItem(nextItem);
                 itemRes = runner.runItem(nextItem);
                 nextItem = runner.findNextItem(nextItem);
                 logicLog.addItemLog(itemRes);
@@ -750,7 +682,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
         }
         if (logicLog.isSuccess())
             logicLog.setOver(runner.updateStatus(itemRes, nextItem) == RunnerStatusEnum.End)
-                    .setNextItem(nextItem).setMsg(itemRes.getMsg());
+                    .setNextItem(runner.getFnCtx().getNextItem()).setMsg(itemRes.getMsg());
         logHelperService.updateInstance(logicLog);
         return new LogicRunResult().setLogicLog(logicLog)
                 .setData(itemRes.getData())

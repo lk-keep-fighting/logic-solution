@@ -3,8 +3,8 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    #    url: jdbc:mysql://localhost:3306/logic_test?useUnicode=true&characterEncoding=gbk&autoReconnect=true&failOverReadOnly=false
-    url: jdbc:mysql://localhost:3306/logic_test_0_9?useUnicode=true&characterEncoding=gbk&autoReconnect=true&failOverReadOnly=false
+    url: jdbc:mysql://localhost:3306/logic_test?useUnicode=true&characterEncoding=gbk&autoReconnect=true&failOverReadOnly=false
+#    url: jdbc:mysql://localhost:3306/logic_test_0_9?useUnicode=true&characterEncoding=gbk&autoReconnect=true&failOverReadOnly=false
     username: root
     password: 12#$qwER
   #    url: jdbc:mysql://192.168.51.199:3307/bssg_wmsdb_test?useUnicode=true&characterEncoding=gbk&autoReconnect=true&failOverReadOnly=false
@@ -23,7 +23,7 @@ logic:
     case:
   config-dir: /Users/lk/Documents/Dev/aims/xuanwu-logic/logic-solution/test-suite/test-case-configs
   scan-package-names: com.aims.logic.testsuite
-  biz-error-classes: com.aims.logic.testsuite.demo.exception.CustomException
+  biz-error-classes: com.aims.logic.testsuite.demo.exception.CustomException,java.sql.SQLIntegrityConstraintViolationException
   item:
     groups:
       - name: 公共组件w
