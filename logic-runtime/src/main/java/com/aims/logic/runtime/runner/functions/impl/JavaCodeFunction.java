@@ -120,8 +120,9 @@ public class JavaCodeFunction implements ILogicItemFunctionRunner {
                 var obj = method.invoke(SpringContextUtil.getBean(clazz), paramsArrayFromJsObj.toArray());
                 res.setData(obj);
             } catch (InvocationTargetException e) {
-                //主动抛出业务异常，不中断
-                if (e.getTargetException() instanceof LogicBizException || RuntimeUtil.AppConfig.BIZ_ERROR_CLASSES.contains(e.getTargetException().getClass().getName()) || ctx.getBizErrorModel() != LogicItemBizErrorModel.stop) {
+                //主动抛出业务异常，且业务异常没有设置为中断，则忽略业务报错，
+                //未设置，或设置为忽略ignore，都会被命中，忽略业务异常，因为首先用户配置了业务异常类才会被判断为业务异常，所以默认理解为用户希望业务异常不中断
+                if (getBizErrorModel(itemDsl, ctx) != LogicItemBizErrorModel.stop && (e.getTargetException() instanceof LogicBizException || RuntimeUtil.AppConfig.BIZ_ERROR_CLASSES.contains(e.getTargetException().getClass().getName()))) {
                     var bizEx = e.getTargetException();
                     var errMsg = String.format(">>[%s]：%s", methodName, bizEx.getMessage());
                     log.error("[{}]bizId:{},{}", ctx.getLogicId(), ctx.getBizId(), errMsg);
@@ -168,6 +169,14 @@ public class JavaCodeFunction implements ILogicItemFunctionRunner {
 
     private Method findMethod(Class<?> clazz, String methodName, Class<?>... parameterTypes) throws NoSuchMethodException {
         return clazz.getMethod(methodName, parameterTypes);
+    }
+
+    private LogicItemBizErrorModel getBizErrorModel(LogicItemTreeNode itemDsl, FunctionContext ctx) {
+        var bizErrorModel = itemDsl.getBizErrorModel();//节点自定义最高优先级
+        if (bizErrorModel == null) {//节点未定义则从上下文中获取（本次交互点的交互点配置）
+            bizErrorModel = ctx.getBizErrorModel();
+        }
+        return bizErrorModel;
     }
 
     @Override
