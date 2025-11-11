@@ -50,6 +50,24 @@ mvn spring-boot:run
 
 访问 http://localhost:8888 查看管理界面。
 
+## 本地兼容性验证
+
+项目引入了 `spring-boot-2`（默认启用）与 `spring-boot-3` 两个 Maven Profile，用于分别拉起 Spring Boot 2.7.x 与 3.2.x 的依赖栈来编译和验证 `logic-ide` 模块及其依赖。
+
+一键执行两个 Profile 构建可运行以下脚本：
+
+```bash
+./scripts/verify-compatibility.sh
+```
+
+脚本会先后执行 `clean verify`，覆盖 `spring-boot-2` 与 `spring-boot-3` 两个 Profile；传入的额外参数会直接透传给 Maven。
+
+如需单独验证某个 Profile，可手动执行：
+
+```bash
+./mvnw -pl logic-ide -am clean verify -Pspring-boot-3
+```
+
 ### Maven 依赖
 
 ```xml
