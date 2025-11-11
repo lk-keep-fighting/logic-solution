@@ -25,6 +25,17 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
     </properties>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <modules>
         <module>logic-runtime</module>
         <module>logic-sdk</module>
@@ -65,13 +76,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
-            <version>2.7.2</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
-            <version>2.7.2</version>
         </dependency>
     </dependencies>
     <build>
@@ -117,4 +126,21 @@
             <!--            </plugin>-->
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>spring-boot-2</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <spring-boot.version>2.7.2</spring-boot.version>
+            </properties>
+        </profile>
+        <profile>
+            <id>spring-boot-3</id>
+            <properties>
+                <spring-boot.version>3.2.5</spring-boot.version>
+            </properties>
+        </profile>
+    </profiles>
 </project>
