@@ -12,6 +12,16 @@
   <version>0.10-SNAPSHOT</version>
   <name>logic-runtime</name>
   <description>logic-runtime</description>
+  <distributionManagement>
+    <repository>
+      <id>nexus-releases</id>
+      <url>https://nexus.aimstek.cn/repository/maven-releases/</url>
+    </repository>
+    <snapshotRepository>
+      <id>nexus-snapshots</id>
+      <url>https://nexus.aimstek.cn/repository/maven-snapshots/</url>
+    </snapshotRepository>
+  </distributionManagement>
   <properties>
     <java.version>17</java.version>
   </properties>

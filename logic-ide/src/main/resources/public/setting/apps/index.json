@@ -4,11 +4,6 @@
             "id": "xuanwu-factory",
             "title": "业务编排",
             "url": "/app/xuanwu-factory"
-        },
-        {
-            "id": "remtote-list",
-            "title": "远程业务编排",
-            "url": "/remote-list"
         }
     ]
 }

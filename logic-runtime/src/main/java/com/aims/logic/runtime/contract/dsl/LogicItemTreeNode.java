@@ -135,6 +135,11 @@ public class LogicItemTreeNode extends BaseLASL {
     返回值接收参数
      */
     String returnAccept;
+    /**
+     * 是否允许分支，用于非switch节点直接连接case节点
+     */
+
+    Boolean allowBranch = false;
     /*
     switch分支
      */

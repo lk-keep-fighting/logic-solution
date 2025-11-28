@@ -240,8 +240,6 @@ public class LogicRunner {
         item.setObjectId(UUID.randomUUID().toString());
         var itemRes = new LogicItemRunner(item).run(fnCtx);
         fnCtx.set_last(itemRes);
-
-//        fnCtx.set_lastRet(JSON.toJSON(itemRes.getData()));
         if (item.getReturnAccept() != null && !item.getReturnAccept().isBlank()) {
             Functions.runJsByContext(fnCtx, String.format("%s=_lastRet", item.getReturnAccept()));
         }
@@ -278,13 +276,21 @@ public class LogicRunner {
 
     public LogicItemTreeNode findNextItem(LogicItemTreeNode curItem) {
         String nextId;
-        switch (curItem.getType()) {
-            case "switch"://switch运行时内部解析了分支条件，并返回了命中分支的下一个节点
-                nextId = fnCtx.get_lastRet().toString();
-                break;
-            default:
-                nextId = curItem.getNextId();
-                break;
+        if (curItem.getAllowBranch()) {
+            LogicItemTreeNode fakeSwitchItem = JSON.parseObject(JSON.toJSONString(curItem), LogicItemTreeNode.class);
+            var aSwitch = Functions.get("switch").invoke(fnCtx, fakeSwitchItem);
+            if (aSwitch.isSuccess())
+                nextId = aSwitch.getData().toString();
+            else throw new RuntimeException(aSwitch.getMsg());
+        } else {
+            switch (curItem.getType()) {
+                case "switch"://switch运行时内部解析了分支条件，并返回了命中分支的下一个节点
+                    nextId = fnCtx.get_lastRet().toString();
+                    break;
+                default:
+                    nextId = curItem.getNextId();
+                    break;
+            }
         }
         return logic.getItems().stream()
                 .filter(i -> Objects.equals(i.getId(), nextId))

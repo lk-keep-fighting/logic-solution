@@ -62,4 +62,14 @@
             <version>2.9.2</version>
         </dependency>
     </dependencies>
+    <distributionManagement>
+        <repository>
+            <id>nexus-releases</id>
+            <url>https://nexus.aimstek.cn/repository/maven-releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>nexus-snapshots</id>
+            <url>https://nexus.aimstek.cn/repository/maven-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
 </project>

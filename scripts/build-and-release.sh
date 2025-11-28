@@ -9,6 +9,7 @@ SKIP_TESTS=false
 SKIP_DEPLOY=false
 DRY_RUN=false
 PROFILES=("spring-boot-2" "spring-boot-3")
+MAVEN_SETTINGS=""
 
 # 解析命令行参数
 while [[ $# -gt 0 ]]; do
@@ -29,6 +30,10 @@ while [[ $# -gt 0 ]]; do
       IFS=',' read -ra PROFILES <<< "$2"
       shift 2
       ;;
+    --settings)
+      MAVEN_SETTINGS="$2"
+      shift 2
+      ;;
     -h|--help)
       echo "Logic-IDE 构建与发布脚本"
       echo ""
@@ -39,12 +44,14 @@ while [[ $# -gt 0 ]]; do
       echo "  --skip-deploy   跳过部署到仓库"
       echo "  --dry-run       模拟运行，不执行实际操作"
       echo "  --profiles      指定要构建的profiles (逗号分隔)"
+      echo "  --settings      指定Maven settings.xml文件路径"
       echo "  -h, --help      显示帮助信息"
       echo ""
       echo "示例:"
-      echo "  $0                           # 构建所有profiles"
-      echo "  $0 --profiles spring-boot-2  # 只构建Spring Boot 2"
-      echo "  $0 --dry-run                 # 模拟运行"
+      echo "  $0                                      # 构建所有profiles"
+      echo "  $0 --profiles spring-boot-2         # 只构建Spring Boot 2"
+      echo "  $0 --dry-run                        # 模拟运行"
+      echo "  $0 --settings .github/maven-settings.xml  # 使用自定义settings"
       exit 0
       ;;
     *)
@@ -65,6 +72,21 @@ echo "构建Profiles: ${PROFILES[*]}"
 echo "跳过测试: ${SKIP_TESTS}"
 echo "跳过部署: ${SKIP_DEPLOY}"
 echo "模拟运行: ${DRY_RUN}"
+if [[ -n "$MAVEN_SETTINGS" ]]; then
+  echo "Maven Settings: ${MAVEN_SETTINGS}"
+fi
+echo ""
+
+# 检查环境变量（用于CI/CD）
+if [[ -n "${NEXUS_USERNAME:-}" ]] && [[ -n "${NEXUS_PASSWORD:-}" ]]; then
+  echo "✅ 检测到 NEXUS 认证环境变量"
+  if [[ -z "$MAVEN_SETTINGS" ]]; then
+    MAVEN_SETTINGS="${PROJECT_ROOT}/.github/maven-settings.xml"
+    echo "   使用默认 settings: ${MAVEN_SETTINGS}"
+  fi
+else
+  echo "ℹ️  未检测到 NEXUS 环境变量，将使用 ~/.m2/settings.xml 中的认证配置"
+fi
 echo ""
 
 # 获取当前版本
@@ -135,7 +157,15 @@ deploy_profile() {
 
   if [[ "$DRY_RUN" == false ]]; then
     echo "执行部署命令..."
-    if "${MVNW_BIN}" -pl logic-ide -am -P"${profile}" deploy -DskipTests; then
+    local deploy_args=("-pl" "logic-ide" "-am" "-P${profile}" "deploy" "-DskipTests")
+    
+    # 如果指定了 settings 文件，添加到参数中
+    if [[ -n "$MAVEN_SETTINGS" ]]; then
+      deploy_args+=("-s" "$MAVEN_SETTINGS")
+      echo "使用 Maven settings: ${MAVEN_SETTINGS}"
+    fi
+    
+    if "${MVNW_BIN}" "${deploy_args[@]}"; then
       echo "✅ Profile ${profile} 部署成功"
       return 0
     else
