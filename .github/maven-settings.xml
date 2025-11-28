@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 
+          https://maven.apache.org/xsd/settings-1.0.0.xsd">
+    
+    <servers>
+        <!-- Nexus 私服认证配置 -->
+        <server>
+            <id>nexus-releases</id>
+            <username>${env.NEXUS_USERNAME}</username>
+            <password>${env.NEXUS_PASSWORD}</password>
+        </server>
+        <server>
+            <id>nexus-snapshots</id>
+            <username>${env.NEXUS_USERNAME}</username>
+            <password>${env.NEXUS_PASSWORD}</password>
+        </server>
+    </servers>
+    
+    <mirrors>
+        <mirror>
+            <id>nexus</id>
+            <mirrorOf>*</mirrorOf>
+            <url>https://nexus.aimstek.cn/repository/maven-public</url>
+        </mirror>
+    </mirrors>
+    
+    <profiles>
+        <profile>
+            <id>nexus</id>
+            <repositories>
+                <repository>
+                    <id>nexus</id>
+                    <url>https://nexus.aimstek.cn/repository/maven-public</url>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </repository>
+            </repositories>
+        </profile>
+    </profiles>
+    
+    <activeProfiles>
+        <activeProfile>nexus</activeProfile>
+    </activeProfiles>
+</settings>
