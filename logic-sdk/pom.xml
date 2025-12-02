@@ -7,7 +7,7 @@
         <artifactId>logic-solution</artifactId>
         <version>${revision}</version>
     </parent>
-    <artifactId>logic-sdk</artifactId>
+    <artifactId>logic-sdk${artifact.suffix}</artifactId>
     <version>${logic-sdk.version}</version>
     <!--    <version>0.4.2-SNAPSHOT</version>-->
     <name>logic-sdk</name>
@@ -18,7 +18,7 @@
     <dependencies>
         <dependency>
             <groupId>com.aims.logic</groupId>
-            <artifactId>logic-runtime</artifactId>
+            <artifactId>logic-runtime${artifact.suffix}</artifactId>
             <version>${logic-runtime.version}</version>
         </dependency>
         <dependency>
@@ -71,12 +71,5 @@
             <url>https://nexus.aimstek.cn/repository/maven-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
-    <!--    <build>-->
-    <!--        <plugins>-->
-    <!--            <plugin>-->
-    <!--                <groupId>org.springframework.boot</groupId>-->
-    <!--                <artifactId>spring-boot-maven-plugin</artifactId>-->
-    <!--            </plugin>-->
-    <!--        </plugins>-->
-    <!--    </build>-->
+
 </project>

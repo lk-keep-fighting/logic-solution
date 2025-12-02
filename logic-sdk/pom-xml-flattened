@@ -5,11 +5,11 @@
   <parent>
     <groupId>com.aims.logic</groupId>
     <artifactId>logic-solution</artifactId>
-    <version>0.10-SNAPSHOT</version>
+    <version>0.10.2-SNAPSHOT</version>
   </parent>
   <groupId>com.aims.logic</groupId>
-  <artifactId>logic-sdk</artifactId>
-  <version>0.10-SNAPSHOT</version>
+  <artifactId>logic-sdk-spring-boot-3</artifactId>
+  <version>0.10.2-SNAPSHOT</version>
   <name>logic-sdk</name>
   <description>logic-sdk</description>
   <distributionManagement>
@@ -28,7 +28,7 @@
   <dependencies>
     <dependency>
       <groupId>com.aims.logic</groupId>
-      <artifactId>logic-runtime</artifactId>
+      <artifactId>logic-runtime${artifact.suffix}</artifactId>
       <version>${logic-runtime.version}</version>
     </dependency>
     <dependency>

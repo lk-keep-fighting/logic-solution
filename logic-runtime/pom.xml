@@ -7,7 +7,7 @@
         <artifactId>logic-solution</artifactId>
         <version>${revision}</version>
     </parent>
-    <artifactId>logic-runtime</artifactId>
+    <artifactId>logic-runtime${artifact.suffix}</artifactId>
     <version>${logic-runtime.version}</version>
     <name>logic-runtime</name>
     <description>logic-runtime</description>
@@ -72,4 +72,5 @@
             <url>https://nexus.aimstek.cn/repository/maven-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
+
 </project>
