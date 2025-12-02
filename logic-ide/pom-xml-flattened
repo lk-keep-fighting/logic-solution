@@ -5,11 +5,11 @@
   <parent>
     <groupId>com.aims.logic</groupId>
     <artifactId>logic-solution</artifactId>
-    <version>0.10.2-SNAPSHOT</version>
+    <version>0.10.3-SNAPSHOT</version>
   </parent>
   <groupId>com.aims.logic</groupId>
   <artifactId>logic-ide-spring-boot-3</artifactId>
-  <version>0.10.2-SNAPSHOT</version>
+  <version>0.10.3-SNAPSHOT</version>
   <name>logic-ide</name>
   <description>logic-ide</description>
   <distributionManagement>
@@ -47,7 +47,8 @@
     <dependency>
       <groupId>org.redisson</groupId>
       <artifactId>redisson</artifactId>
-      <version>3.23.5</version>
+      <version>3.15.2</version>
+      <optional>true</optional>
     </dependency>
   </dependencies>
   <repositories>
