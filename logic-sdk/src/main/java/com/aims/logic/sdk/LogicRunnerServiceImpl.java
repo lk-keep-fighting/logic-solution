@@ -417,7 +417,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
             }
         }
         runner.getFnCtx().setTranScope(tranScope);
-
+        runner.getFnCtx().setNextItem(startItem);
         LogicItemBizErrorModel bizErrorModel = startItem.getBizErrorModel();
         runner.getFnCtx().setBizErrorModel(bizErrorModel);
 
@@ -681,7 +681,7 @@ public class LogicRunnerServiceImpl implements LogicRunnerService {
                     .setSuccess(false).setMsg(e.getMessage());
         }
         if (logicLog.isSuccess())
-            logicLog.setOver(runner.updateStatus(itemRes, nextItem) == RunnerStatusEnum.End)
+            logicLog.setOver(runner.getRunnerStatus() == RunnerStatusEnum.End)
                     .setNextItem(runner.getFnCtx().getNextItem()).setMsg(itemRes.getMsg());
         logHelperService.updateInstance(logicLog);
         return new LogicRunResult().setLogicLog(logicLog)
