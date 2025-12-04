@@ -256,9 +256,11 @@ public class BaseEsServiceImpl<T extends BaseEntity, TKey> implements BaseServic
 
                     switch (condition.getOperator()) {
                         case "=":
-                            mustFilters.add(JSONObject.of("match", JSONObject.of(condition.getColumn(), value)));
+                            // 使用 term 查询实现精确匹配（适用于 keyword、boolean、date 等类型）
+                            mustFilters.add(JSONObject.of("term", JSONObject.of(condition.getColumn(), value)));
                             break;
                         case "like":
+                            // 模糊查询使用 wildcard（适用于 text 类型或 keyword 子字段）
                             mustFilters.add(JSONObject.of("wildcard", JSONObject.of(condition.getColumn(), "*" + value + "*")));
                             break;
                         case ">":
@@ -278,7 +280,8 @@ public class BaseEsServiceImpl<T extends BaseEntity, TKey> implements BaseServic
                             mustFilters.add(JSONObject.of("range", JSONObject.of(condition.getColumn(), range)));
                             break;
                         case "<>":
-                            mustNotFilters.add(JSONObject.of("match", JSONObject.of(condition.getColumn(), value)));
+                            // 不等于查询也使用 term
+                            mustNotFilters.add(JSONObject.of("term", JSONObject.of(condition.getColumn(), value)));
                             break;
                     }
                 });
