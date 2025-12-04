@@ -22,11 +22,24 @@ import java.util.Map;
 public class JsFunction implements ILogicItemFunctionRunner {
 
     private final Engine sharedEngine;
+    HostAccess hostAccess;
 
     public JsFunction(Engine sharedEngine) {
+        // 配置HostAccess以允许访问所有字段（包括私有字段）和getter方法
+        hostAccess = HostAccess.newBuilder(HostAccess.ALL)
+                .allowAccessAnnotatedBy(lombok.Data.class)
+                .allowAccessAnnotatedBy(lombok.Getter.class)
+                .allowAccessAnnotatedBy(lombok.Setter.class)
+                .allowAllImplementations(true)
+                .allowAllClassImplementations(true)
+                .allowArrayAccess(true)
+                .allowListAccess(true)
+                .allowMapAccess(true)
+                .build();
         this.sharedEngine = sharedEngine;
     }
 
+    // 直接使用Polyglot Context而不是ScriptEngine
     @Override
     public LogicItemRunResult invoke(FunctionContext ctx, Object script) {
         LogicItemRunResult itemRes = new LogicItemRunResult();
@@ -34,10 +47,10 @@ public class JsFunction implements ILogicItemFunctionRunner {
             return itemRes;
         }
 
-        // 直接使用Polyglot Context而不是ScriptEngine
+
         try (Context context = Context.newBuilder("js")
                 .engine(sharedEngine)
-                .allowHostAccess(HostAccess.ALL)
+                .allowHostAccess(hostAccess)
                 .build()) {
 
             // 设置变量到JavaScript上下文中，使用JSON转换确保可访问性
