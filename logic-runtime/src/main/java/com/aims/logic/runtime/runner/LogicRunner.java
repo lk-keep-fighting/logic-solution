@@ -218,8 +218,13 @@ public class LogicRunner {
         LogicItemRunResult itemRes = runItem(startNode);
         var nextItem = findNextItem(startNode);
         while (updateStatus(itemRes, nextItem) == RunnerStatusEnum.Continue) {
-            itemRes = runItem(nextItem);
-            nextItem = findNextItem(nextItem);
+            try {
+                itemRes = runItem(nextItem);
+                nextItem = findNextItem(nextItem);
+            } catch (Exception e) {
+                itemRes.setSuccess(false);
+                itemRes.setMsg(e.getMessage());
+            }
         }
         var res = LogicRunResult.fromItemResult(itemRes);
         logicLog.setVarsJson_end(fnCtx.get_var())
@@ -281,7 +286,7 @@ public class LogicRunner {
             var aSwitch = Functions.get("switch").invoke(fnCtx, fakeSwitchItem);
             if (aSwitch.isSuccess())
                 nextId = aSwitch.getData().toString();
-            else throw new RuntimeException(aSwitch.getMsg());
+            else throw new RuntimeException("节点分支判断异常：" + aSwitch.getMsg());
         } else {
             switch (curItem.getType()) {
                 case "switch"://switch运行时内部解析了分支条件，并返回了命中分支的下一个节点
