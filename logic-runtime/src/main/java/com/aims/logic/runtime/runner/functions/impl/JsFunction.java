@@ -22,20 +22,8 @@ import java.util.Map;
 public class JsFunction implements ILogicItemFunctionRunner {
 
     private final Engine sharedEngine;
-    HostAccess hostAccess;
 
     public JsFunction(Engine sharedEngine) {
-        // 配置HostAccess以允许访问所有字段（包括私有字段）和getter方法
-        hostAccess = HostAccess.newBuilder(HostAccess.ALL)
-                .allowAccessAnnotatedBy(lombok.Data.class)
-                .allowAccessAnnotatedBy(lombok.Getter.class)
-                .allowAccessAnnotatedBy(lombok.Setter.class)
-                .allowAllImplementations(true)
-                .allowAllClassImplementations(true)
-                .allowArrayAccess(true)
-                .allowListAccess(true)
-                .allowMapAccess(true)
-                .build();
         this.sharedEngine = sharedEngine;
     }
 
@@ -50,7 +38,7 @@ public class JsFunction implements ILogicItemFunctionRunner {
 
         try (Context context = Context.newBuilder("js")
                 .engine(sharedEngine)
-                .allowHostAccess(hostAccess)
+                .allowHostAccess(HostAccess.ALL)
                 .build()) {
 
             // 设置变量到JavaScript上下文中，使用JSON转换确保可访问性
@@ -59,9 +47,9 @@ public class JsFunction implements ILogicItemFunctionRunner {
             bindings.putMember("_env", ctx.get_env());
             bindings.putMember("_bizId", ctx.getBizId());
             bindings.putMember("_global", ctx.get_global());
-            bindings.putMember("_par", JSON.toJSON(ctx.get_par()));
-            bindings.putMember("_last", JSON.toJSON(ctx.get_last()));
-            bindings.putMember("_lastRet", JSON.toJSON(ctx.get_lastRet()));// 避免私有字段无法访问，所以转换为json
+            bindings.putMember("_par", deepConvertToJson(ctx.get_par()));// 深度转换为纯JSON，确保嵌套属性可访问
+            bindings.putMember("_last", deepConvertToJson(ctx.get_last()));
+            bindings.putMember("_lastRet", deepConvertToJson(ctx.get_lastRet()));
 
             String processedCode = script.toString().replaceAll("^//.*", "");
 
@@ -98,46 +86,24 @@ public class JsFunction implements ILogicItemFunctionRunner {
         }
     }
 
-//    // 深度解包GraalVM值（核心解决方法）
-//    private Object deepUnwrapGraalValue(Value value) {
-//        if (value == null) return null;
-//
-//        // 处理原始类型
-//        if (value.isString()) return value.asString();
-//        if (value.isBoolean()) return value.asBoolean();
-//        if (value.isNumber()) return value.asDouble();
-//        if (value.isNull()) return null;
-//
-//        // 处理数组
-//        if (value.hasArrayElements()) {
-//            List<Object> list = new ArrayList<>();
-//            long size = value.getArraySize();
-//            for (long i = 0; i < size; i++) {
-//                list.add(deepUnwrapGraalValue(value.getArrayElement(i)));
-//            }
-//            return list;
-//        }
-//        // 处理对象
-//        if (value.hasMembers()) {
-//            Map<String, Object> map = new HashMap<>();
-//            for (String key : value.getMemberKeys()) {
-//                Value member = value.getMember(key);
-//
-//                // 跳过函数和特殊对象
-//                if (!member.canExecute() && !member.isHostObject()) {
-//                    map.put(key, deepUnwrapGraalValue(member));
-//                }
-//            }
-//            return map;
-//        }
-//
-//        // 回退：尝试作为Java对象获取
-//        try {
-//            return value.as(Object.class);
-//        } catch (Exception e) {
-//            return null;
-//        }
-//    }
+    /**
+     * 深度转换对象为纯 JSON 结构，确保 JS 可以访问嵌套属性
+     * 通过先序列化再反序列化，将所有 Lombok 对象转换为 Map/List 结构
+     */
+    private Object deepConvertToJson(Object obj) {
+        if (obj == null) {
+            return null;
+        }
+        try {
+            // 先序列化为 JSON 字符串，再解析为纯 Map/List 结构
+            // 使用 Object.class 作为目标类型，fastjson2 会自动转换为 Map/List
+            String jsonStr = JSON.toJSONString(obj);
+            return JSON.parseObject(jsonStr, Object.class);
+        } catch (Exception e) {
+            log.warn("Failed to convert object to JSON: {}", e.getMessage());
+            return obj;
+        }
+    }
 
     @Override
     public String getItemType() {
