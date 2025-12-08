@@ -14,47 +14,42 @@
     <description>logic-ide</description>
     <properties>
         <java.version>17</java.version>
+        <javaparser.version>3.25.10</javaparser.version>
+        <redisson.version>3.27.2</redisson.version>
     </properties>
 
     <dependencies>
+        <!-- 内部依赖 -->
         <dependency>
             <groupId>com.aims.logic</groupId>
             <artifactId>logic-sdk${artifact.suffix}</artifactId>
             <version>${logic-sdk.version}</version>
-            <!--            <version>0.4.2-SNAPSHOT</version>-->
         </dependency>
+
+        <!-- Java 解析器 - 无 Spring 依赖 -->
         <dependency>
             <groupId>com.github.javaparser</groupId>
             <artifactId>javaparser-core</artifactId>
-            <version>3.25.5</version>
+            <version>${javaparser.version}</version>
         </dependency>
+
+        <!-- Spring Boot Web - 版本由父 POM 管理 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-        <!-- 在 pom.xml 中添加 -->
+
+        <!-- Spring Boot WebFlux - 版本由父 POM 管理 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
 
-        <!--        <dependency>-->
-        <!--            <groupId>org.springframework.boot</groupId>-->
-        <!--            <artifactId>spring-boot-starter-webflux</artifactId>-->
-        <!--            <version>2.7.2</version>-->
-        <!--        </dependency>-->
-        <!--        <dependency>-->
-        <!--            <groupId>org.apache.httpcomponents</groupId>-->
-        <!--            <artifactId>httpclient</artifactId>-->
-        <!--        </dependency>-->
-        <!--        <dependency>-->
-        <!--            <groupId>org.apache.httpcomponents</groupId>-->
-        <!--            <artifactId>httpclient</artifactId>-->
-        <!--        </dependency>-->
+        <!-- Redisson - 可选依赖，兼容 Spring Boot 2 和 3 -->
         <dependency>
             <groupId>org.redisson</groupId>
-            <artifactId>redisson</artifactId>
-            <version>3.15.2</version>
+            <artifactId>redisson-spring-boot-starter</artifactId>
+            <version>${redisson.version}</version>
             <optional>true</optional>
         </dependency>
     </dependencies>

@@ -1,0 +1,106 @@
+name: Spring Boot Compatibility Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  test-spring-boot-2:
+    name: Test Spring Boot 2.x
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+      
+      - name: Build with Spring Boot 2
+        run: ./mvnw clean install -P spring-boot-2 -DskipTests
+      
+      - name: Run Spring Boot 2 compatibility tests
+        run: |
+          cd compatibility-tests/spring-boot-2-tests
+          ../../mvnw test
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: spring-boot-2-test-results
+          path: compatibility-tests/spring-boot-2-tests/target/surefire-reports/
+
+  test-spring-boot-3:
+    name: Test Spring Boot 3.x
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+      
+      - name: Build with Spring Boot 3
+        run: ./mvnw clean install -P spring-boot-3 -DskipTests
+      
+      - name: Run Spring Boot 3 compatibility tests
+        run: |
+          cd compatibility-tests/spring-boot-3-tests
+          ../../mvnw test
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: spring-boot-3-test-results
+          path: compatibility-tests/spring-boot-3-tests/target/surefire-reports/
+
+  compatibility-summary:
+    name: Compatibility Test Summary
+    runs-on: ubuntu-latest
+    needs: [test-spring-boot-2, test-spring-boot-3]
+    if: always()
+    
+    steps:
+      - name: Download Spring Boot 2 results
+        uses: actions/download-artifact@v3
+        with:
+          name: spring-boot-2-test-results
+          path: sb2-results
+      
+      - name: Download Spring Boot 3 results
+        uses: actions/download-artifact@v3
+        with:
+          name: spring-boot-3-test-results
+          path: sb3-results
+      
+      - name: Generate summary
+        run: |
+          echo "## 🧪 Compatibility Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Spring Boot 2.x" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ needs.test-spring-boot-2.result }}" == "success" ]; then
+            echo "✅ **PASSED**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **FAILED**" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Spring Boot 3.x" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ needs.test-spring-boot-3.result }}" == "success" ]; then
+            echo "✅ **PASSED**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **FAILED**" >> $GITHUB_STEP_SUMMARY
+          fi

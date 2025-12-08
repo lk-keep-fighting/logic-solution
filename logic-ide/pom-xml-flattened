@@ -23,7 +23,9 @@
     </snapshotRepository>
   </distributionManagement>
   <properties>
+    <javaparser.version>3.25.10</javaparser.version>
     <java.version>17</java.version>
+    <redisson.version>3.27.2</redisson.version>
   </properties>
   <dependencies>
     <dependency>
@@ -34,7 +36,7 @@
     <dependency>
       <groupId>com.github.javaparser</groupId>
       <artifactId>javaparser-core</artifactId>
-      <version>3.25.5</version>
+      <version>${javaparser.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -46,8 +48,8 @@
     </dependency>
     <dependency>
       <groupId>org.redisson</groupId>
-      <artifactId>redisson</artifactId>
-      <version>3.15.2</version>
+      <artifactId>redisson-spring-boot-starter</artifactId>
+      <version>${redisson.version}</version>
       <optional>true</optional>
     </dependency>
   </dependencies>

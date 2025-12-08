@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.aims.logic</groupId>
+        <artifactId>logic-solution</artifactId>
+        <version>${revision}</version>
+    </parent>
+    <artifactId>compatibility-tests</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>compatibility-tests</name>
+    <description>Spring Boot 2 and 3 compatibility tests for logic-ide</description>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>spring-boot-2-tests</module>
+        <module>spring-boot-3-tests</module>
+    </modules>
+
+    <build>
+        <plugins>
+            <!-- 跳过兼容性测试模块的发布 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

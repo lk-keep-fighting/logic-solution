@@ -13,53 +13,60 @@
     <description>logic-runtime</description>
     <properties>
         <java.version>17</java.version>
+        <okhttp.version>4.10.0</okhttp.version>
+        <fastjson2.version>2.0.37</fastjson2.version>
+        <graalvm-js.version>22.3.5</graalvm-js.version>
+        <commons-lang3.version>3.12.0</commons-lang3.version>
+        <mvel.version>2.4.14.Final</mvel.version>
+        <caffeine.version>2.9.2</caffeine.version>
     </properties>
     <dependencies>
+        <!-- HTTP 客户端 -->
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
-            <version>4.10.0</version>
+            <version>${okhttp.version}</version>
         </dependency>
+
+        <!-- JSON 处理 -->
         <dependency>
             <groupId>com.alibaba.fastjson2</groupId>
             <artifactId>fastjson2</artifactId>
-            <version>2.0.37</version>
+            <version>${fastjson2.version}</version>
         </dependency>
-        <!--        <dependency>-->
-        <!--            <groupId>org.openjdk.nashorn</groupId>-->
-        <!--            <artifactId>nashorn-core</artifactId>-->
-        <!--            <version>15.4</version>-->
-        <!--        </dependency>-->
+
+        <!-- JavaScript 引擎 -->
         <dependency>
             <groupId>org.graalvm.js</groupId>
             <artifactId>js</artifactId>
-            <version>22.3.5</version>
+            <version>${graalvm-js.version}</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.graalvm.js</groupId>-->
-<!--            <artifactId>js-scriptengine</artifactId>-->
-<!--            <version>22.3.5</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.graalvm.js</groupId>-->
-<!--            <artifactId>js-scriptengine</artifactId>-->
-<!--            <version>22.3.5</version>-->
-<!--        </dependency>-->
+
+        <!-- 工具类 -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.12.0</version>
+            <version>${commons-lang3.version}</version>
         </dependency>
+
+        <!-- 表达式引擎 -->
         <dependency>
             <groupId>org.mvel</groupId>
             <artifactId>mvel2</artifactId>
-            <version>2.4.14.Final</version>
-            <scope>compile</scope>
+            <version>${mvel.version}</version>
         </dependency>
+
+        <!-- 缓存 -->
         <dependency>
             <groupId>com.github.ben-manes.caffeine</groupId>
             <artifactId>caffeine</artifactId>
-            <version>2.9.2</version>
+            <version>${caffeine.version}</version>
+        </dependency>
+
+        <!-- Spring 依赖（当前必需，用于依赖注入和 Bean 管理）-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
         </dependency>
     </dependencies>
     <distributionManagement>
